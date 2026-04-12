@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_oil_wo_shift_journal" model="ir.ui.view">
+      <field name="name">oil.wo.shift.journal</field>
+      <field name="model">account.journal</field>
+      <field name="inherit_id" ref="account.view_account_journal_form"/>
+      <field name="arch" type="xml">
+          <xpath expr="//notebook/page[@name='advanced_settings']" position="inside">
+              <group string="Oil Workshop Shift">
+                  <field name="collection_journal_flag"/>
+              </group>
+          </xpath>
+      </field>
+    </record>
+</odoo>

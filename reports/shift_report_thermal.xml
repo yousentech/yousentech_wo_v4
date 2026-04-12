@@ -1,0 +1,30 @@
+<odoo>
+  <template id="report_oil_shift_thermal">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <div class="page" style="font-family: monospace; font-size:10px; width: 72mm;">
+          <div style="text-align:center;">
+            <h3>Oil Workshop Mukalla</h3>
+            <div>تقرير تسكير الشفت</div>
+          </div>
+          <div>الموظف: <t t-esc="o.user_id.name"/></div>
+          <div>الفرع: <t t-esc="o.branch_id.name or ' - '"/></div>
+          <div>من: <t t-esc="o.start_time"/> إلى: <t t-esc="o.end_time or ''"/></div>
+          <hr/>
+          <div>رصيد البداية : <t t-esc="o.cash_start"/> ريال</div>
+          <div>مبيعات نقدية : <t t-esc="o.sale_cash_total"/> ريال</div>
+          <div>مبيعات بطاقة : <t t-esc="o.sale_card_total"/> ريال</div>
+          <div>إجمالي المصروفات : <t t-esc="o.expense_total"/> ريال</div>
+          <hr/>
+          <div>المبلغ المتوقع : <t t-esc="o.expected_cash"/> ريال</div>
+          <div>المبلغ المسلم  : <t t-esc="o.cash_end"/> ريال</div>
+          <div>الفرق          : <t t-esc="o.difference"/> ريال</div>
+          <hr/>
+          <div>ملاحظات:</div>
+          <div><t t-esc="o.note or 'لا توجد'"/></div>
+          <div style="text-align:center; margin-top:10px;">تم الإغلاق بنجاح</div>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

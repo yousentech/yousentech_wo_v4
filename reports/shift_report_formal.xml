@@ -1,0 +1,45 @@
+<odoo>
+  <template id="report_oil_shift_formal">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <div class="page">
+          <h2 style="text-align:center;">تقرير تسكير الشفت</h2>
+          <table class="table table-sm">
+            <tr><td>اسم الموظف:</td><td><t t-esc="o.user_id.name"/></td></tr>
+            <tr><td>رقم الشفت:</td><td><t t-esc="o.name"/></td></tr>
+            <tr><td>الفرع:</td><td><t t-esc="o.branch_id.name or ' - '"/></td></tr>
+            <tr><td>وقت الفتح:</td><td><t t-esc="o.start_time"/></td></tr>
+            <tr><td>وقت الإغلاق:</td><td><t t-esc="o.end_time or ''"/></td></tr>
+          </table>
+
+          <h3>الملخص المالي</h3>
+          <table class="table table-sm">
+            <tr><td>مبيعات نقدية</td><td><t t-esc="o.sale_cash_total"/> ريال</td></tr>
+            <tr><td>مبيعات بطاقة</td><td><t t-esc="o.sale_card_total"/> ريال</td></tr>
+            <tr><td>إجمالي المبيعات</td><td><t t-esc="o.sale_cash_total + o.sale_card_total"/> ريال</td></tr>
+            <tr><td>المصروفات</td><td><t t-esc="o.expense_total"/> ريال</td></tr>
+            <tr><td>رصيد البداية</td><td><t t-esc="o.cash_start"/> ريال</td></tr>
+            <tr><td>المبلغ المسلم</td><td><t t-esc="o.cash_end"/> ريال</td></tr>
+            <tr><td>المبلغ المتوقع</td><td><t t-esc="o.expected_cash"/> ريال</td></tr>
+            <tr><td>الفرق</td><td><t t-esc="o.difference"/> ريال</td></tr>
+          </table>
+
+          <h3>ملاحظات</h3>
+          <div><t t-esc="o.note or 'لا توجد ملاحظات'"/></div>
+
+          <br/><br/>
+          <table style="width:100%; margin-top:40px;">
+            <tr>
+              <td>توقيع الموظف: _____________________</td>
+              <td>توقيع مستلم النقدية: _____________________</td>
+            </tr>
+            <tr>
+              <td>اعتماد الإدارة: _____________________</td>
+              <td>التاريخ: <t t-esc="o.end_time or ''"/></td>
+            </tr>
+          </table>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>
