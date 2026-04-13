@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+          <menuitem id="menu_wo_v4" name="العناية بالسيارات"   sequence="4" />
+         <menuitem id="menu_wo_v4_operation" name="العمليات" sequence="1" parent="menu_wo_v4"/>
+         <menuitem id="menu_wo_v4_products" name="المنتجات" sequence="2" parent="menu_wo_v4"
+                      />
+         <menuitem id="menu_wo_v4_reports" name="التقارير" sequence="3" parent="menu_wo_v4"
+                      />
+          <menuitem id="menu_wo_v4_configuration" name="تهيئة النظام" sequence="4" parent="menu_wo_v4"
+                         groups="yousentech_wo_v4.group_setting_installation_order_priv"          
+
+              />
+
+ 
+        <!-- =========================
+            TREE VIEW
+        ========================== -->
+        <record id="view_service_type_wo_v4_tree" model="ir.ui.view">
+            <field name="name">wo.services.types.tree</field>
+            <field name="model">wo.services.types</field>
+            <field name="arch" type="xml">
+                <tree string="أنواع الخدمات"  decoration-muted="not active">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- =========================
+            FORM VIEW
+        ========================== -->
+        <record id="view_service_type_wo_v4_form" model="ir.ui.view">
+            <field name="name">wo.services.types.form</field>
+            <field name="model">wo.services.types</field>
+            <field name="arch" type="xml">
+                <form string="نوع الخدمة">
+
+                    <sheet>
+
+                        <!-- 🔴 Ribbon -->
+                        <widget name="web_ribbon"
+                                title="غير مفعل"
+                                bg_color="bg-danger"
+                                attrs="{'invisible': [('active', '=', True)]}"/>
+
+                        <!-- 🔘 Button Box -->
+                        <div class="oe_button_box" name="button_box">
+
+                            <button name="toggle_active"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-power-off"
+                                    attrs="{'invisible': [('id', '=', False)]}">
+
+                                <div class="o_stat_info">
+                                    <span class="o_stat_text">
+
+                                        <!-- 👇 نص ديناميكي -->
+                                        <t t-if="record.active.value">
+                                            تعطيل
+                                        </t>
+                                        <t t-else="">
+                                            تفعيل
+                                        </t>
+
+                                    </span>
+                                </div>
+
+                            </button>
+
+                        </div>
+
+                        <!-- 📋 البيانات -->
+                        <group>
+                            <group>
+                                <field name="code" placeholder="مثال: TINT"/>
+                                <field name="name" placeholder="مثال: عزل حراري"/>
+                            </group>
+
+                            <group>
+                                <field name="company_id"
+                                    groups="base.group_multi_company"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+
+                    </sheet>
+
+                </form>
+            </field>
+        </record>
+
+
+        <!-- =========================
+            SEARCH VIEW
+        ========================== -->
+        <record id="view_service_type_wo_v4_search" model="ir.ui.view">
+            <field name="name">wo.services.types.search</field>
+            <field name="model">wo.services.types</field>
+            <field name="arch" type="xml">
+                <search string="بحث أنواع الخدمات">
+
+                    <field name="name"/>
+                    <field name="code"/>
+
+                    <filter string="المفعلة" domain="[('active','=',True)]"/>
+                    <filter string="غير المفعلة" domain="[('active','=',False)]"/>
+
+                    <group expand="0" string="تجميع حسب">
+                        <filter string="الشركة"
+                                context="{'group_by':'company_id'}"/>
+                    </group>
+
+                </search>
+            </field>
+        </record>
+
+
+        <!-- =========================
+            ACTION
+        ========================== -->
+        <record id="action_service_types_wo_v4" model="ir.actions.act_window">
+            <field name="name">أنواع الخدمات</field>
+            <field name="res_model">wo.services.types</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_service_type_search"/>
+        </record>
+
+
+        <!-- =========================
+            MENUS
+        ========================== -->
+
+        
+
+        <menuitem id="menu_service_types_v4"
+                name="أنواع الخدمات"
+                parent="menu_wo_v4_configuration"
+                action="action_service_types_wo_v4"
+                sequence="10"/>
+
+    
+
+       
+    </data>
+</odoo>

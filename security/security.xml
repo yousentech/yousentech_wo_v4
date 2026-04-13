@@ -1,37 +1,5 @@
 <odoo>
-  <!-- <record id="group_oil_workshop_user" model="res.groups">
-    <field name="name">Oil Workshop / User</field>
-    <field name="category_id" ref="base.module_category_hidden"/>
-  </record> -->
-<!-- 
-  <record id="group_oil_workshop_manager" model="res.groups">
-    <field name="name">Oil Workshop / Manager</field>
-    <field name="implied_ids" eval="[(4, ref('group_oil_workshop_user'))]"/>
-    <field name="category_id" ref="base.module_category_hidden"/>
-  </record>
-
-  <record id="group_oil_workshop_admin" model="res.groups">
-    <field name="name">Oil Workshop / Admin</field>
-    <field name="implied_ids" eval="[(4, ref('group_oil_workshop_manager'))]"/>
-    <field name="category_id" ref="base.module_category_hidden"/>
-  </record> -->
-  
-  <record id="group_allow_un_cancel_oil_wo_shift" model="res.groups">
-    <field name="name">allow Un cancel Workshop Shift</field>
-    <field name="category_id" ref="yousentech_oil_workshop.oil_workshop_category"/>
-  </record>
 
   
-    <record id="oil_work_order_shifts_rules" model="ir.rule">
-        <field name="name">oil work order shifts</field>
-        <field name="model_id" ref="model_oil_shift"/>
-        <field name="global" eval="True"/>
-        <field name="domain_force">[('company_id','in', company_ids)]</field>
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="True" />
-        <field name="perm_create" eval="True" />
-        <field name="perm_unlink" eval="True" />
-    </record>
- 
 
 </odoo>

@@ -1,4 +1,0 @@
-<odoo>
-  <report id="action_report_oil_shift_thermal" model="oil.shift" string="Oil Shift Thermal" report_type="qweb-pdf" name="yousentech_oil_workshop_shift.report_oil_shift_thermal" file="yousentech_oil_workshop_shift.report_oil_shift_thermal"/>
-  <report id="action_report_oil_shift_formal" model="oil.shift" string="Oil Shift Formal" report_type="qweb-pdf" name="yousentech_oil_workshop_shift.report_oil_shift_formal" file="yousentech_oil_workshop_shift.report_oil_shift_formal"/>
-</odoo>

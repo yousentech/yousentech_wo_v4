@@ -9,6 +9,7 @@
     'data': [
             'security/ir.model.access.csv',
             'security/security.xml',
+            'views/service_type_views.xml',
     ],
     'installable': True,
     'application': True,

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<odoo>
-  <menuitem id="menu_oil_root" name="Oil Workshop"/>
-  <menuitem id="menu_oil_shift_operations" name="Shift Operations" parent="yousentech_oil_workshop.menu_cars_root"/>
- 
- 
- 
-</odoo>
