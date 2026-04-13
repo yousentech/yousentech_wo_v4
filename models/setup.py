@@ -4,7 +4,7 @@ from odoo.exceptions import ValidationError
 
 
 class ServiceType(models.Model):
-    _name = 'wo.services.types'
+    _name = 'wof.service.type'
     _description = 'Service Types'
     _rec_name = 'name'
     _order = 'name'
@@ -66,3 +66,5 @@ class ServiceType(models.Model):
 
         records = self.search(domain + args, limit=limit)
         return records.name_get()
+
+ 

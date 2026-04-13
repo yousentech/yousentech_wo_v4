@@ -1,5 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-  
+    <!-- =========================
+         Module Category
+    ========================== -->
+    <record model="ir.module.category" id="wo_category_priv">
+        <field name="name">صلاحيات نظام الأفلام</field>
+        <field name="sequence">110</field>
+    </record>
+
+
+    <!-- =========================
+         Groups
+    ========================== -->
+
+    <!-- مدير النظام -->
+    <record id="group_wo_manager" model="res.groups">
+        <field name="name">مدير النظام</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+
+    <!-- مستخدم -->
+    <record id="group_wo_user" model="res.groups">
+        <field name="name">مستخدم</field>
+        <field name="category_id" ref="wo_category_priv"/>
+    </record>
+
+    <!-- إعدادات -->
+    <record id="group_wo_settings" model="res.groups">
+        <field name="name">إدارة الإعدادات</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[(4, ref('group_wo_manager'))]"/>
+    </record>
 
 </odoo>

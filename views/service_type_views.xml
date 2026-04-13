@@ -1,150 +1,190 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>
-          <menuitem id="menu_wo_v4" name="العناية بالسيارات"   sequence="4" />
-         <menuitem id="menu_wo_v4_operation" name="العمليات" sequence="1" parent="menu_wo_v4"/>
-         <menuitem id="menu_wo_v4_products" name="المنتجات" sequence="2" parent="menu_wo_v4"
-                      />
-         <menuitem id="menu_wo_v4_reports" name="التقارير" sequence="3" parent="menu_wo_v4"
-                      />
-          <menuitem id="menu_wo_v4_configuration" name="تهيئة النظام" sequence="4" parent="menu_wo_v4"
-                         groups="yousentech_wo_v4.group_setting_installation_order_priv"          
 
-              />
+    <!-- =========================
+            MENUS
+    ========================== -->
 
- 
-        <!-- =========================
+    <menuitem id="menu_wo_v4"
+              name="العناية بالسيارات"
+              sequence="4"/>
+
+    <menuitem id="menu_wo_v4_operation"
+              name="العمليات"
+              parent="menu_wo_v4"
+              sequence="1"/>
+
+    <menuitem id="menu_wo_v4_products"
+              name="المنتجات"
+              parent="menu_wo_v4"
+              sequence="2"/>
+
+    <menuitem id="menu_wo_v4_reports"
+              name="التقارير"
+              parent="menu_wo_v4"
+              sequence="3"/>
+
+    <menuitem id="menu_wo_v4_configuration"
+              name="تهيئة النظام"
+              parent="menu_wo_v4"
+              sequence="4"
+              groups="yousentech_wo_v4.group_wo_settings"/>
+
+
+    <!-- =========================
             TREE VIEW
-        ========================== -->
-        <record id="view_service_type_wo_v4_tree" model="ir.ui.view">
-            <field name="name">wo.services.types.tree</field>
-            <field name="model">wo.services.types</field>
-            <field name="arch" type="xml">
-                <tree string="أنواع الخدمات"  decoration-muted="not active">
-                    <field name="code"/>
-                    <field name="name"/>
-                    <field name="company_id" groups="base.group_multi_company"/>
-                    <field name="active"/>
-                </tree>
-            </field>
-        </record>
+    ========================== -->
+
+    <record id="view_service_type_wo_v4_tree" model="ir.ui.view">
+        <field name="name">wof.service.type.tree</field>
+        <field name="model">wof.service.type</field>
+        <field name="arch" type="xml">
+            <tree string="أنواع الخدمات"
+                  decoration-muted="not active">
+
+                <field name="code"/>
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active"/>
+
+            </tree>
+        </field>
+    </record>
 
 
-        <!-- =========================
+    <!-- =========================
             FORM VIEW
-        ========================== -->
-        <record id="view_service_type_wo_v4_form" model="ir.ui.view">
-            <field name="name">wo.services.types.form</field>
-            <field name="model">wo.services.types</field>
-            <field name="arch" type="xml">
-                <form string="نوع الخدمة">
+    ========================== -->
 
-                    <sheet>
+    <record id="view_service_type_wo_v4_form" model="ir.ui.view">
+        <field name="name">wof.service.type.form</field>
+        <field name="model">wof.service.type</field>
+        <field name="arch" type="xml">
 
-                        <!-- 🔴 Ribbon -->
-                        <widget name="web_ribbon"
-                                title="غير مفعل"
-                                bg_color="bg-danger"
-                                attrs="{'invisible': [('active', '=', True)]}"/>
+            <form string="نوع الخدمة">
 
-                        <!-- 🔘 Button Box -->
-                        <div class="oe_button_box" name="button_box">
+                <sheet>
 
-                            <button name="toggle_active"
-                                    type="object"
-                                    class="oe_stat_button"
-                                    icon="fa-power-off"
-                                    attrs="{'invisible': [('id', '=', False)]}">
+                    <!-- 🔴 Ribbon (Odoo 17 Correct) -->
+                    <widget name="web_ribbon"
+                            title="غير مفعل"
+                            bg_color="bg-danger"
+                            invisible="active"/>
 
-                                <div class="o_stat_info">
-                                    <span class="o_stat_text">
+                    <!-- 🔘 Button Box -->
+                    <div class="oe_button_box" name="button_box">
 
-                                        <!-- 👇 نص ديناميكي -->
-                                        <t t-if="record.active.value">
-                                            تعطيل
-                                        </t>
-                                        <t t-else="">
-                                            تفعيل
-                                        </t>
+                        <button name="toggle_active"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-power-off"
+                                invisible="not id"
+                                groups="yousentech_wo_v4.group_wo_manager">
 
-                                    </span>
-                                </div>
+                            <field name="active" widget="boolean_button"/>
 
-                            </button>
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">
+                                    <field name="active"/>
+                                </span>
+                            </div>
 
-                        </div>
+                        </button>
 
-                        <!-- 📋 البيانات -->
+                    </div>
+
+                    <!-- 📋 Fields -->
+                    <group>
                         <group>
-                            <group>
-                                <field name="code" placeholder="مثال: TINT"/>
-                                <field name="name" placeholder="مثال: عزل حراري"/>
-                            </group>
-
-                            <group>
-                                <field name="company_id"
-                                    groups="base.group_multi_company"/>
-                                <field name="active"/>
-                            </group>
+                            <field name="code" placeholder="مثال: TINT"/>
+                            <field name="name" placeholder="مثال: عزل حراري"/>
                         </group>
 
-                    </sheet>
-
-                </form>
-            </field>
-        </record>
-
-
-        <!-- =========================
-            SEARCH VIEW
-        ========================== -->
-        <record id="view_service_type_wo_v4_search" model="ir.ui.view">
-            <field name="name">wo.services.types.search</field>
-            <field name="model">wo.services.types</field>
-            <field name="arch" type="xml">
-                <search string="بحث أنواع الخدمات">
-
-                    <field name="name"/>
-                    <field name="code"/>
-
-                    <filter string="المفعلة" domain="[('active','=',True)]"/>
-                    <filter string="غير المفعلة" domain="[('active','=',False)]"/>
-
-                    <group expand="0" string="تجميع حسب">
-                        <filter string="الشركة"
-                                context="{'group_by':'company_id'}"/>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active"/>
+                        </group>
                     </group>
 
-                </search>
-            </field>
-        </record>
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
 
 
-        <!-- =========================
+    <!-- =========================
+            SEARCH VIEW
+    ========================== -->
+
+    <record id="view_service_type_wo_v4_search" model="ir.ui.view">
+        <field name="name">wof.service.type.search</field>
+        <field name="model">wof.service.type</field>
+        <field name="arch" type="xml">
+
+            <search string="بحث أنواع الخدمات">
+
+                <!-- Search Fields -->
+                <field name="name"/>
+                <field name="code"/>
+
+                <!-- Filters -->
+                <filter string="المفعلة"
+                        name="active"
+                        domain="[('active','=',True)]"/>
+
+                <filter string="غير المفعلة"
+                        name="inactive"
+                        domain="[('active','=',False)]"/>
+
+                <filter string="شركتي"
+                        name="my_company"
+                        domain="[('company_id','=',user.company_id.id)]"/>
+
+                <!-- Group By -->
+                <group expand="0" string="تجميع حسب">
+
+                    <filter string="الشركة"
+                            context="{'group_by':'company_id'}"/>
+
+                    <filter string="الحالة"
+                            context="{'group_by':'active'}"/>
+
+                </group>
+
+                <!-- Search Panel (Odoo 17) -->
+                <searchpanel>
+                    <field name="company_id"/>
+                    <field name="active"/>
+                </searchpanel>
+
+            </search>
+
+        </field>
+    </record>
+
+
+    <!-- =========================
             ACTION
-        ========================== -->
-        <record id="action_service_types_wo_v4" model="ir.actions.act_window">
-            <field name="name">أنواع الخدمات</field>
-            <field name="res_model">wo.services.types</field>
-            <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="view_service_type_search"/>
-        </record>
+    ========================== -->
+
+    <record id="action_service_types_wo_v4" model="ir.actions.act_window">
+        <field name="name">أنواع الخدمات</field>
+        <field name="res_model">wof.service.type</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_service_type_wo_v4_search"/>
+    </record>
 
 
-        <!-- =========================
-            MENUS
-        ========================== -->
+    <!-- =========================
+            MENU ACTION
+    ========================== -->
 
-        
+    <menuitem id="menu_service_types_v4"
+              name="أنواع الخدمات"
+              parent="menu_wo_v4_configuration"
+              action="action_service_types_wo_v4"
+              sequence="10"/>
 
-        <menuitem id="menu_service_types_v4"
-                name="أنواع الخدمات"
-                parent="menu_wo_v4_configuration"
-                action="action_service_types_wo_v4"
-                sequence="10"/>
-
-    
-
-       
-    </data>
 </odoo>
