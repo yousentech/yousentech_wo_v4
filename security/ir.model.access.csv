@@ -1,3 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_wof_service_type_user,wof.service.type.user,model_wof_service_type,group_wo_user,1,0,0,0
-access_wof_service_type_manager,service.type.manager,model_wof_service_type,group_wo_manager,1,1,1,1
+access_wof_service_type_user,wof.service.type.user,model_wof_service_type,yousentech_wo_v4.group_wo_user,1,0,0,0
+access_wof_service_type_manager,service.type.manager,model_wof_service_type,yousentech_wo_v4.group_wo_manager,1,1,1,1
