@@ -39,8 +39,7 @@
         <field name="name">wof.service.type.tree</field>
         <field name="model">wof.service.type</field>
         <field name="arch" type="xml">
-            <tree string="أنواع الخدمات"
-                  decoration-muted="not active">
+            <tree string="أنواع الخدمات" decoration-muted="not active" default_order="code, name">
 
                 <field name="code"/>
                 <field name="name"/>
@@ -151,14 +150,8 @@
 
                     <filter string="الحالة" name="groupby_state"
                             context="{'group_by':'active'}"/>
-
-             
-
                <searchpanel>
-
                     <field name="company_id"/>
-                 
-                
                 </searchpanel>
               
 
