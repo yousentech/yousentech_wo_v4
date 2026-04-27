@@ -75,19 +75,17 @@
 
                         <button name="toggle_active"
                                 type="object"
-                                class="oe_stat_button"
-                                icon="fa-power-off"
-                             
-                                invisible="not id"
-                                groups="yousentech_wo_v4.group_wo_manager">
+                                string="إلغاء التفعيل"
+                                class="btn btn-danger"
+                                invisible="not active"
+                                groups="yousentech_wo_v4.group_wo_manager"/>
 
-                            <field name="active"  string="ارشفة" widget="boolean_button"/>
-
-                            <!-- <div class="o_stat_info">
-                                <span class="o_stat_text">
-                                    <field name="active"/>
-                                </span>
-                            </div> -->
+                        <button name="toggle_active"
+                                type="object"
+                                string="تفعيل"
+                                class="btn btn-success"
+                                invisible="active"
+                                groups="yousentech_wo_v4.group_wo_manager"/>
 
                         </button>
 
