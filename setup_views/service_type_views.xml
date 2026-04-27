@@ -77,11 +77,11 @@
                                 type="object"
                                 class="oe_stat_button"
                                 icon="fa-power-off"
-                                string="ارشفة"
+                             
                                 invisible="not id"
                                 groups="yousentech_wo_v4.group_wo_manager">
 
-                            <field name="active" widget="boolean_button"/>
+                            <field name="active"  string="ارشفة" widget="boolean_button"/>
 
                             <!-- <div class="o_stat_info">
                                 <span class="o_stat_text">
