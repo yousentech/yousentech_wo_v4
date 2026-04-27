@@ -138,10 +138,7 @@
                         name="inactive"
                         domain="[('active','=',False)]"/>
 
-                <filter string="شركتي"
-                        name="my_company"
-                        domain="[('company_id','=',user.company_id.id)]"/>
-
+             
                 <!-- Group By -->
                 <group expand="0" string="تجميع حسب">
 
