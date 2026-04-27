@@ -150,11 +150,11 @@
 
                 </group>
 
-                <!-- Search Panel (Odoo 17) -->
-                <searchpanel>
+               <!-- <searchpanel>
                     <field name="company_id"/>
                 
                 </searchpanel>
+               -->
 
             </search>
 
