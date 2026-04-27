@@ -1,6 +1,6 @@
 {
     'name': 'yousentech_wo_v4',
-    'version': '17.0.4',
+    'version': '17.0.1.0',
     'summary': 'Car Film System version 4',
     'description': 'Manage Car Film System.',
     'category': 'Tools',
