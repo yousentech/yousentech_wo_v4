@@ -72,8 +72,19 @@
 
                     <!-- 🔘 Button Box -->
                     <div class="oe_button_box" name="button_box">
+                    <button name="toggle_active"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-power-off"
+                            invisible="not id"
+                            groups="yousentech_wo_v4.group_wo_manager">
 
-                        <button name="toggle_active"
+                        <field name="active"
+                            widget="boolean_button"
+                            options="{'terminology': 'archive'}"/>
+                    </button>
+
+                        <!-- <button name="toggle_active"
                                 type="object"
                                 string="إلغاء التفعيل"
                                 class="btn btn-danger"
@@ -85,7 +96,7 @@
                                 string="تفعيل"
                                 class="btn btn-success"
                                 invisible="active"
-                                groups="yousentech_wo_v4.group_wo_manager"/>
+                                groups="yousentech_wo_v4.group_wo_manager"/> -->
 
                          
 
