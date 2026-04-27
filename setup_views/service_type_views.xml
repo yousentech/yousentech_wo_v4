@@ -118,45 +118,7 @@
             SEARCH VIEW
     ========================== -->
 
-    
-        <record id="view_work_order_search" model="ir.ui.view">
-            <field name="name">oil.work.order.search</field>
-            <field name="model">oil.work.order</field>
-            <field name="priority">10</field>
-            <field name="arch" type="xml">
-                <search string="Work Order Search">
-                   <field name="order_seq" />
-                    <field name="mobile_number" string="Mobile Number" />
-                    <field name="car_number" string="Car Number" />
-                    <field name="car_letters" string="Car Letters" />
-                    <field name="partner_id" string="Car Owner" />
-                    <field name="employee_id" string="Employee" />
-                    <field name="car_model" string="Car Model" />
-                    <field name="car_version_id" string="Car Version" />
-                    <field name="car_type_id" string="Car Type" />
-
-                    <!-- External requests filter -->
-                    <filter string="External Requests" name="external_requests"
-                        domain="[('external_requests','=',True)]" />
-                    <filter string="Internal Requests" name="internal_requests"
-                        domain="[('external_requests','=',False)]" />
-
-                    <filter string="Completed Orders" name="completed_orders"
-                        domain="[('sale_order_id','!=',False)]" />
-                  
-                    <filter string="Un Completed Orders" name="un_completed_orders"
-                        domain="[('sale_order_id','=',False)]" />
-
-                    <!-- Grouping options -->
-                    <filter string="By Employee" name="groupby_employee"
-                        context="{'group_by':'employee_id'}" />
-                    <filter string="By Car Type" name="groupby_car_type"
-                        context="{'group_by':'car_type_id'}" />
-
-                </search>
-            </field>
-        </record>
-
+     
 
 
     <record id="view_service_type_wo_v4_search" model="ir.ui.view">
