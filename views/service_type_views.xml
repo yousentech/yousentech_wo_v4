@@ -153,7 +153,7 @@
                 <!-- Search Panel (Odoo 17) -->
                 <searchpanel>
                     <field name="company_id"/>
-                    <field name="active"/>
+                
                 </searchpanel>
 
             </search>
