@@ -62,9 +62,7 @@
 
             <form string="نوع الخدمة">
 
-                <sheet>
-
-                    <!-- 🔴 Ribbon (Odoo 17 Correct) -->
+                <sheet> 
                     <widget name="web_ribbon"
                             title="مؤرشف"
                             bg_color="bg-danger"
@@ -83,26 +81,10 @@
                             widget="boolean_button"
                             options="{'terminology': 'archive'}"/>
                     </button>
-
-                        <!-- <button name="toggle_active"
-                                type="object"
-                                string="إلغاء التفعيل"
-                                class="btn btn-danger"
-                                invisible="not active"
-                                groups="yousentech_wo_v4.group_wo_manager"/>
-
-                        <button name="toggle_active"
-                                type="object"
-                                string="تفعيل"
-                                class="btn btn-success"
-                                invisible="active"
-                                groups="yousentech_wo_v4.group_wo_manager"/> -->
-
-                         
-
+ 
                     </div>
 
-                    <!-- 📋 Fields -->
+                  
                     <group>
                         <group>
                             <field name="code" placeholder="مثال: TINT"/>
@@ -142,17 +124,11 @@
                 <field name="name"/>
                 <field name="code"/>
 
-                <!-- Filters -->
-                <!-- <filter string="المفعلة"
-                        name="active"
-                        domain="[('active','=',True)]"/> -->
-
+               
                 <filter string="مؤرشف"
                         name="inactive"
                         domain="[('active','=',False)]"/>
-
-             
-                <!-- Group By -->
+ 
                 
 
                     <filter string="الشركة" name="groupby_company"
