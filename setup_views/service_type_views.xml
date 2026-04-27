@@ -157,7 +157,7 @@
                <searchpanel>
 
                     <field name="company_id"/>
-                    <field name="name"/>
+                 
                 
                 </searchpanel>
               
