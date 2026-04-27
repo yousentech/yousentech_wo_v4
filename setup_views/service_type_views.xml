@@ -187,8 +187,8 @@
                     <filter string="الشركة" name="groupby_company"
                             context="{'group_by':'company_id'}"/>
 
-                    <filter string="الحالة" name="groupby_state"
-                            context="{'group_by':'active'}"/>
+                    <!-- <filter string="الحالة" name="groupby_state"
+                            context="{'group_by':'active'}"/> -->
 
              
 
