@@ -174,7 +174,8 @@
         <field name="name">أنواع الخدمات</field>
         <field name="res_model">wof.service.type</field>
         <field name="view_mode">tree,form</field>
-        <field name="search_view_id" ref="view_service_type_wo_v4_search"/>
+        <field name="view_id" ref="view_service_type_wo_v4_tree"/>
+  
     </record>
 
 
