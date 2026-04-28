@@ -9,7 +9,8 @@
     'data': [ 'security/security.xml',
               'security/ir.model.access.csv',
             
-              'setup_views/service_type_views.xml',
+              'setup_views/service_type_view.xml',
+              'setup_views/film_category_view.xml',
     ],
     'installable': True,
     'application': True,
