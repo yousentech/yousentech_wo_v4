@@ -158,7 +158,7 @@
     <!-- ================= ACTION ================= -->
     <record id="action_film_category_wo_v4" model="ir.actions.act_window">
         <field name="name">فئات الأفلام</field>
-        <field name="res_model">wof.film.category_wo_v4</field>
+        <field name="res_model">wof.film.category</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="view_film_category_wo_v4_tree"/>
         <field name="context">{}</field>
