@@ -37,7 +37,7 @@ class film_category(models.Model):
         default=True
     )
 
-    service_type = fields.Many2one('wof.service.type', string="نوع الخدمة",required=True, index=True)
+    service_type_id = fields.Many2one('wof.service.type', string="نوع الخدمة",required=True, index=True)
     warranty_years = fields.Char(string="فترة الضمان")
 
     is_effected_in_inventory = fields.Boolean(default=False,string="الفلم يؤثر على المخزون")
