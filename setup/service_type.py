@@ -6,8 +6,7 @@ from odoo.exceptions import ValidationError
 class ServiceType(models.Model):
     _name = 'wof.service.type'
     _description = 'Service Types'
-    _rec_name = 'display_name'
-    _order = 'name'
+    _order = 'code, name'
     _company_auto = True   # 👈 هنا المكان الصحيح
 
     name = fields.Char(
@@ -80,6 +79,18 @@ class ServiceType(models.Model):
     #         display_name = new_name
     #         result.append((rec.id, display_name))
     #     return result
+
+    @api.model
+    def name_get(self):
+        result = []
+        for rec in self:
+            code = rec.code or ''
+            name = rec.name or ''
+
+            display_name = f"[{code}] {name}" if code else name
+            result.append((rec.id, display_name))
+
+        return result
      
     @api.model
     def name_search(self, name='', args=None, operator='ilike', limit=100):
