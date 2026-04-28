@@ -95,7 +95,7 @@
 
                                 <tree editable="bottom">
                                     <field name="name"/>
-                                    <field name="limpid_product_id" widget="many2many_tags"/>
+                                    <field name="limpid_product_ids" widget="many2many_tags"/>
                                 </tree>
 
                             </field>
