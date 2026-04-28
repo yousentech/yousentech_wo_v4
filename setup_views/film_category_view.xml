@@ -15,7 +15,7 @@
                 <field name="company_id"/>
                 <field name="warranty_years"/>
                 <field name="is_effected_in_inventory"/>
-                <field name="active"/>
+                <field name="active" invisible="1"/>
             </tree>
 
         </field>
