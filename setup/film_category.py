@@ -9,7 +9,7 @@ class film_category(models.Model):
     _rec_name = 'name'
     _order = 'name'
     _company_auto = True   # 👈 هنا المكان الصحيح
-    
+
     code = fields.Char(
         string="الكود",
         index=True,
@@ -43,7 +43,7 @@ class film_category(models.Model):
     is_effected_in_inventory = fields.Boolean(default=False,string="الفلم يؤثر على المخزون")
     car_film_product_required = fields.Boolean(default=False,string="كود المبيعات اجباري في امر التركيب")
     film_category_line_ids = fields.One2many('wof.film.category.lines','header_id' , ondelete="cascade")
-    limpid_film_product_id = fields.Many2many('product.product', string="الصنف المخزني",domain="[('measure_product','=',True),('type','=','product')]")
+    limpid_film_product_ids = fields.Many2many('product.product', string="الصنف المخزني",domain="[('measure_product','=',True),('type','=','product')]")
 
 
     _sql_constraints = [
@@ -77,10 +77,10 @@ class film_category(models.Model):
 
         return super().name_search(name='', args=args, operator=operator, limit=limit)
 
-    @api.constrains('is_effected_in_inventory', 'limpid_film_product_id')
+    @api.constrains('is_effected_in_inventory', 'limpid_film_product_ids')
     def _check_inventory_products(self):
         for rec in self:
-            if rec.is_effected_in_inventory and not rec.limpid_film_product_id:
+            if rec.is_effected_in_inventory and not rec.limpid_film_product_ids:
                 raise ValidationError("تنبيه: يجب تحديد الصنف مخزني إذا الفلم يؤثر على المخزون")
     
 

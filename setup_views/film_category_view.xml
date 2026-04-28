@@ -84,7 +84,7 @@
                     <group string="الأصناف"
                            attrs="{'invisible':[('is_effected_in_inventory','=',False)]}">
 
-                        <field name="limpid_film_product_id" widget="many2many_tags"/>
+                        <field name="limpid_film_product_ids" widget="many2many_tags"/>
                     </group>
 
                     <!-- Lines -->
