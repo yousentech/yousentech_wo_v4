@@ -10,6 +10,7 @@
               'security/ir.model.access.csv',
             
               'setup_views/service_type_view.xml',
+              'setup_views/product_template_view.xml',
               'setup_views/film_category_view.xml',
     ],
     'installable': True,
