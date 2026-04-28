@@ -22,16 +22,7 @@ class ServiceType(models.Model):
         index=True,
         copy=False
     )
-    display_name = fields.Char(compute='_compute_display_name', store=True)
-
-    @api.depends('name', 'code')
-    def _compute_display_name(self):
-        for rec in self:
-            if rec.code:
-                rec.display_name = f"[{rec.code}] {rec.name}"
-            else:
-                rec.display_name = rec.name
-
+    
 
     def _default_company_parent(self):
         company = self.env.company
@@ -63,23 +54,7 @@ class ServiceType(models.Model):
         ),
     ]
  
-    # @api.model
-    # def name_get(self):
-    #     result = []
-    #     for rec in self:
-    #         name = rec.name
-    #         display_name = ""
-    #         new_name = ""
-            
-    #         if rec.code:
-    #             service_code = "[" + rec.code +"]"
-    #             new_name =  f"{service_code}   {name}"
-    #         else:
-    #             new_name =  name
-    #         display_name = new_name
-    #         result.append((rec.id, display_name))
-    #     return result
-
+   
     @api.model
     def name_get(self):
         result = []
@@ -110,11 +85,6 @@ class ServiceType(models.Model):
         if services:
             return services.name_get()
         return super().name_search(name, args=args, operator=operator, limit=limit)
-    
-
-
-
-
 
     @api.model
     def create(self, vals):
