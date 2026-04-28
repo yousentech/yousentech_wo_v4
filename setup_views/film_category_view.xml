@@ -8,7 +8,7 @@
         <field name="model">wof.film.category</field>
         <field name="arch" type="xml">
 
-            <tree decoration-muted="not active">
+            <tree  decoration-muted="not active" default_order="code, name">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="service_type"/>
