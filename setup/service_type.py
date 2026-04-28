@@ -53,25 +53,48 @@ class ServiceType(models.Model):
             "الكود مستخدم مسبقاً"
         ),
     ]
-
+ 
+    @api.model
     def name_get(self):
         result = []
         for rec in self:
-            name = rec.name or ''
+            name = rec.name
+            display_name = ""
+            new_name = ""
+            
             if rec.code:
-                name = f"[{rec.code}] {name}"
-            result.append((rec.id, name))
+                service_code = "[" + rec.code +"]"
+                new_name =  f"{service_code}   {name}"
+            else:
+                new_name =  name
+            display_name = new_name
+            result.append((rec.id, display_name))
         return result
-
+     
     @api.model
     def name_search(self, name='', args=None, operator='ilike', limit=100):
         args = args or []
-
+        domain = []
         if name:
-            args = ['|', ('name', operator, name), ('code', operator, name)] + args
+            domain = [
+                '|',
+                ('name', operator, name),
+                ('code', operator, name),
+            ]
+            domain += args
+        else:
+            domain = args
+        
+        services = self.search(domain, limit=limit)
+        if services:
+            return services.name_get()
+        return super().name_search(name, args=args, operator=operator, limit=limit)
+    
 
-        return super().name_search(name='', args=args, operator=operator, limit=limit)
-  
+
+
+
+
     @api.model
     def create(self, vals):
         company = self.env.company
