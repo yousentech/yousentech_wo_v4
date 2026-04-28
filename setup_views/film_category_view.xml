@@ -131,16 +131,16 @@
                         domain="[('active','=',False)]"/>
   
 
-                <filter string="يؤثر على المخزون"
+                <filter string="يؤثر على المخزون"  name="effected_in_inventory"
                         domain="[('is_effected_in_inventory','=',True)]"/>
 
                 <!-- Group By -->
                
 
-                    <filter string="الشركة"
+                    <filter string="الشركة" name="groupby_company"
                             context="{'group_by':'company_id'}"/>
 
-                    <filter string="نوع الخدمة"
+                    <filter string="نوع الخدمة" name="groupby_service_type"
                             context="{'group_by':'service_type_id'}"/>
  
                 <!-- Search Panel -->
