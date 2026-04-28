@@ -6,7 +6,7 @@ from odoo.exceptions import ValidationError
 class ServiceType(models.Model):
     _name = 'wof.service.type'
     _description = 'Service Types'
-    _rec_name = 'name'
+    _rec_name = 'display_name'
     _order = 'name'
     _company_auto = True   # 👈 هنا المكان الصحيح
 
@@ -23,6 +23,16 @@ class ServiceType(models.Model):
         index=True,
         copy=False
     )
+    display_name = fields.Char(compute='_compute_display_name', store=True)
+
+    @api.depends('name', 'code')
+    def _compute_display_name(self):
+        for rec in self:
+            if rec.code:
+                rec.display_name = f"[{rec.code}] {rec.name}"
+            else:
+                rec.display_name = rec.name
+
 
     def _default_company_parent(self):
         company = self.env.company
@@ -54,22 +64,22 @@ class ServiceType(models.Model):
         ),
     ]
  
-    @api.model
-    def name_get(self):
-        result = []
-        for rec in self:
-            name = rec.name
-            display_name = ""
-            new_name = ""
+    # @api.model
+    # def name_get(self):
+    #     result = []
+    #     for rec in self:
+    #         name = rec.name
+    #         display_name = ""
+    #         new_name = ""
             
-            if rec.code:
-                service_code = "[" + rec.code +"]"
-                new_name =  f"{service_code}   {name}"
-            else:
-                new_name =  name
-            display_name = new_name
-            result.append((rec.id, display_name))
-        return result
+    #         if rec.code:
+    #             service_code = "[" + rec.code +"]"
+    #             new_name =  f"{service_code}   {name}"
+    #         else:
+    #             new_name =  name
+    #         display_name = new_name
+    #         result.append((rec.id, display_name))
+    #     return result
      
     @api.model
     def name_search(self, name='', args=None, operator='ilike', limit=100):
