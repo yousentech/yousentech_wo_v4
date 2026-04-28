@@ -114,8 +114,9 @@
     <record id="view_film_category_wo_v4_search" model="ir.ui.view">
         <field name="name">wof.film.category_wo_v4.search</field>
         <field name="model">wof.film.category</field>
-        <field name="arch" type="xml">
         <field name="priority">10</field>
+        <field name="arch" type="xml">
+
             <search string="بحث فئات الفيلم">
 
                 <!-- Fields -->
