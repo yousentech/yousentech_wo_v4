@@ -77,12 +77,11 @@
                         <field name="is_effected_in_inventory"/>
 
                         <field name="car_film_product_required"
-                               attrs="{'invisible':[('is_effected_in_inventory','=',False)]}"/>
+                               invisible="is_effected_in_inventory == False"/>
                     </group>
 
                     <!-- Products -->
-                    <group string="الأصناف"
-                           attrs="{'invisible':[('is_effected_in_inventory','=',False)]}">
+                    <group string="الأصناف" invisible="is_effected_in_inventory == False">
 
                         <field name="limpid_film_product_ids" widget="many2many_tags"/>
                     </group>
