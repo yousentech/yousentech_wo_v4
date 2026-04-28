@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+ 
+
+    <!-- ================= TREE VIEW ================= -->
+    <record id="view_film_category_wo_v4_tree" model="ir.ui.view">
+        <field name="name">wof.film.category_wo_v4.tree</field>
+        <field name="model">wof.film.category</field>
+        <field name="arch" type="xml">
+
+            <tree decoration-muted="not active">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="service_type"/>
+                <field name="company_id"/>
+                <field name="warranty_years"/>
+                <field name="is_effected_in_inventory"/>
+                <field name="active"/>
+            </tree>
+
+        </field>
+    </record>
+
+
+    <!-- ================= FORM VIEW ================= -->
+    <record id="view_film_category_wo_v4_form" model="ir.ui.view">
+        <field name="name">wof.film.category_wo_v4.form</field>
+        <field name="model">wof.film.category</field>
+        <field name="arch" type="xml">
+
+            <form string="فئة الفيلم">
+
+                <sheet>
+
+                    <!-- Ribbon -->
+                    <widget name="web_ribbon"
+                            title="غير مفعل"
+                            bg_color="bg-danger"
+                            invisible="active"/>
+
+                    <!-- Buttons -->
+                    <div class="oe_button_box" name="button_box">
+
+                        <button name="toggle_active"
+                                type="object"
+                                string="إلغاء التفعيل"
+                                class="btn btn-danger"
+                                invisible="not active"
+                                groups="yousentech_wo_v4.group_wo_manager"/>
+
+                        <button name="toggle_active"
+                                type="object"
+                                string="تفعيل"
+                                class="btn btn-success"
+                                invisible="active"
+                                groups="yousentech_wo_v4.group_wo_manager"/>
+
+                    </div>
+
+                    <!-- Main -->
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="service_type"/>
+                        </group>
+
+                        <group>
+                            <field name="company_id" readonly="1"/>
+                            <field name="warranty_years"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <!-- Options -->
+                    <group string="الإعدادات">
+                        <field name="is_effected_in_inventory"/>
+
+                        <field name="car_film_product_required"
+                               attrs="{'invisible':[('is_effected_in_inventory','=',False)]}"/>
+                    </group>
+
+                    <!-- Products -->
+                    <group string="الأصناف"
+                           attrs="{'invisible':[('is_effected_in_inventory','=',False)]}">
+
+                        <field name="limpid_film_product_id" widget="many2many_tags"/>
+                    </group>
+
+                    <!-- Lines -->
+                    <notebook>
+                        <page string="التفاصيل">
+
+                            <field name="film_category_line_ids">
+
+                                <tree editable="bottom">
+                                    <field name="name"/>
+                                    <field name="limpid_product_id" widget="many2many_tags"/>
+                                </tree>
+
+                            </field>
+
+                        </page>
+                    </notebook>
+
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
+
+
+    <!-- ================= SEARCH VIEW ================= -->
+    <record id="view_film_category_wo_v4_search" model="ir.ui.view">
+        <field name="name">wof.film.category_wo_v4.search</field>
+        <field name="model">wof.film.category</field>
+        <field name="arch" type="xml">
+
+            <search string="بحث فئات الفيلم">
+
+                <!-- Fields -->
+                <field name="name"/>
+                <field name="code"/>
+                <field name="service_type"/>
+
+                <!-- Filters -->
+                
+                <filter string="مؤرشف"
+                        name="inactive"
+                        domain="[('active','=',False)]"/>
+  
+
+                <filter string="يؤثر على المخزون"
+                        domain="[('is_effected_in_inventory','=',True)]"/>
+
+                <!-- Group By -->
+               
+
+                    <filter string="الشركة"
+                            context="{'group_by':'company_id'}"/>
+
+                    <filter string="نوع الخدمة"
+                            context="{'group_by':'service_type'}"/>
+ 
+                <!-- Search Panel -->
+                <searchpanel>
+                    <field name="company_id"/>
+                    <field name="service_type"/>
+                </searchpanel>
+
+            </search>
+
+        </field>
+    </record>
+
+
+    <!-- ================= ACTION ================= -->
+    <record id="action_film_category_wo_v4" model="ir.actions.act_window">
+        <field name="name">فئات الأفلام</field>
+        <field name="res_model">wof.film.category_wo_v4</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_film_category_wo_v4_tree"/>
+        <field name="context">{}</field>
+    </record>
+
+ 
+
+    <menuitem id="menu_film_category_wo_v4"
+              name="فئات الأفلام"
+              parent="menu_wo_v4_configuration"
+              action="action_film_category_wo_v4"
+              sequence="20"/>
+ 
+
+</odoo>

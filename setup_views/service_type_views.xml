@@ -164,7 +164,7 @@
             MENU ACTION
     ========================== -->
 
-    <menuitem id="menu_service_types_v4"
+    <menuitem id="menu_service_types_wo_v4"
               name="أنواع الخدمات"
               parent="menu_wo_v4_configuration"
               action="action_service_types_wo_v4"

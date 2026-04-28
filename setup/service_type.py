@@ -8,6 +8,7 @@ class ServiceType(models.Model):
     _description = 'Service Types'
     _rec_name = 'name'
     _order = 'name'
+    _company_auto = True   # 👈 هنا المكان الصحيح
 
     name = fields.Char(
         string="الاسم",
@@ -23,10 +24,14 @@ class ServiceType(models.Model):
         copy=False
     )
 
+    def _default_company_parent(self):
+        company = self.env.company
+        return company.parent_id or company
+
     company_id = fields.Many2one(
         'res.company',
         string="الشركة",
-        default=lambda self: self.env.company,
+        default=_default_company_parent,
         required=True,
         index=True
     )
@@ -52,19 +57,30 @@ class ServiceType(models.Model):
     def name_get(self):
         result = []
         for rec in self:
-            name = f"[{rec.code}] {rec.name}" if rec.code else rec.name
+            name = rec.name or ''
+            if rec.code:
+                name = f"[{rec.code}] {name}"
             result.append((rec.id, name))
         return result
 
     @api.model
     def name_search(self, name='', args=None, operator='ilike', limit=100):
         args = args or []
-        domain = []
 
         if name:
-            domain = ['|', ('name', operator, name), ('code', operator, name)]
+            args = ['|', ('name', operator, name), ('code', operator, name)] + args
 
-        records = self.search(domain + args, limit=limit)
-        return records.name_get()
+        return super().name_search(name='', args=args, operator=operator, limit=limit)
+  
+    @api.model
+    def create(self, vals):
+        company = self.env.company
+        vals['company_id'] = company.parent_id.id if company.parent_id else company.id
+        return super().create(vals)
 
- 
+
+    def write(self, vals):
+        if 'company_id' in vals:
+            company = self.env.company
+            vals['company_id'] = company.parent_id.id if company.parent_id else company.id
+        return super().write(vals)
