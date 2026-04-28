@@ -7,7 +7,7 @@ class film_category(models.Model):
     _name = 'wof.film.category'
     _description = 'Film Category'
     _rec_name = 'name'
-    _order = 'name'
+    _order = 'code,name'
     _company_auto = True   # 👈 هنا المكان الصحيح
 
     code = fields.Char(
@@ -24,10 +24,14 @@ class film_category(models.Model):
     )
 
 
+    def _default_company_parent(self):
+        company = self.env.company
+        return company.parent_id or company
+
     company_id = fields.Many2one(
         'res.company',
         string="الشركة",
-        default=lambda self: self.env.company,
+        default=_default_company_parent,
         required=True,
         index=True
     )
@@ -59,23 +63,36 @@ class film_category(models.Model):
         ),
     ]
 
+    @api.model
     def name_get(self):
         result = []
         for rec in self:
+            code = rec.code or ''
             name = rec.name or ''
-            if rec.code:
-                name = f"[{rec.code}] {name}"
-            result.append((rec.id, name))
+
+            display_name = f"[{code}] {name}" if code else name
+            result.append((rec.id, display_name))
+
         return result
 
     @api.model
     def name_search(self, name='', args=None, operator='ilike', limit=100):
         args = args or []
-
+        domain = []
         if name:
-            args = ['|', ('name', operator, name), ('code', operator, name)] + args
-
-        return super().name_search(name='', args=args, operator=operator, limit=limit)
+            domain = [
+                '|',
+                ('name', operator, name),
+                ('code', operator, name),
+            ]
+            domain += args
+        else:
+            domain = args
+        
+        services = self.search(domain, limit=limit)
+        if services:
+            return services.name_get()
+        return super().name_search(name, args=args, operator=operator, limit=limit)
 
     @api.constrains('is_effected_in_inventory', 'limpid_film_product_ids')
     def _check_inventory_products(self):
