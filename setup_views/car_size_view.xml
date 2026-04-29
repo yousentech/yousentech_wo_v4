@@ -133,3 +133,4 @@
               parent="menu_wo_v4_configuration"
               action="action_car_size_wo_v4"
               sequence="30"/>
+</odoo>
