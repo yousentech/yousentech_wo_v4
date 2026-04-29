@@ -11,9 +11,7 @@ class CarManufactoryYear(models.Model):
     name = fields.Char(
         string="الاسم",
         required=True,
-        index=True,
-        translate=True,   # 👈 مهم لو عندك لغات
-        tracking=True     # 👈 لو تستخدم chatter
+      
     )
     active = fields.Boolean(
         string="تفعيل",
