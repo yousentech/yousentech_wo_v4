@@ -7,3 +7,4 @@ access_wof_car_size,wof.car.size,model_wof_car_size,yousentech_wo_v4.group_wo_ma
 access_wof_car_size,wof.car.size,model_wof_car_size,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_type,wof.car.type,model_wof_car_type,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_manufactory,wof.car.manufactory,model_wof_car_manufactory,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_car_manufactory_year,wof.car.manufactory.year,model_wof_car_manufactory_year,yousentech_wo_v4.group_wo_manager,1,1,1,1
