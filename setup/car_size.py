@@ -22,7 +22,7 @@ class CarSize(models.Model):
 
     _sql_constraints = [
         (
-            "service_kind_unique",
+            "car_size_unique",
             "UNIQUE(name)",  # 👈 مهم جداً multi-company
             "حجم السيارة مضاف مسبقاً لنفس الشركة"
         ),

@@ -13,6 +13,7 @@
               'setup_views/product_template_view.xml',
               'setup_views/film_category_view.xml',
               'setup_views/car_size_view.xml',
+              'setup_views/car_type_view.xml',
     ],
     'installable': True,
     'application': True,

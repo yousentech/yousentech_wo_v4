@@ -4,3 +4,6 @@ access_wof_service_type_manager,service.type.manager,model_wof_service_type,yous
 access_wof_film_category,wof.film.category,model_wof_film_category,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_film_category_lines,wof.film.category.lines,model_wof_film_category_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_size,wof.car.size,model_wof_car_size,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_car_size,wof.car.size,model_wof_car_size,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_car_type,wof.car.type,model_wof_car_type,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_car_manufactory,wof.car.manufactory,model_wof_car_manufactory,yousentech_wo_v4.group_wo_manager,1,1,1,1
