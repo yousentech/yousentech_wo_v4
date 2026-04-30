@@ -12,6 +12,14 @@
             <form string="إضافة جزء سيارة">
 
                 <header>
+                    <button name="action_prev" string="السابق" type="object"/>
+                    <button name="action_next" string="التالي" type="object"/>
+                    <button name="action_create_record"
+                        string="إنشاء"
+                        type="object"
+                        class="btn-primary"
+                        invisible="step != 'review'"/>
+                    <button string="إلغاء" special="cancel"/>
                     <field name="progress" widget="progressbar"/>
                 </header>
 
@@ -73,17 +81,7 @@
                   
 
                 </sheet>
-
-                <footer>
-                    <button name="action_prev" string="السابق" type="object"/>
-                    <button name="action_next" string="التالي" type="object"/>
-                    <button name="action_create_record"
-                        string="إنشاء"
-                        type="object"
-                        class="btn-primary"
-                        invisible="step != 'review'"/>
-                    <button string="إلغاء" special="cancel"/>
-                </footer>
+ 
 
             </form>
 
