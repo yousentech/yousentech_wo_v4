@@ -96,7 +96,7 @@ class xx_car_parts_com_lines(models.Model):
     service_type_id = fields.Many2one('wof.service.type', string="نوع الخدمة",required=True, index=True)
     
     part_price = fields.Float(string="سعر الجزء")
-    header_id = fields.Many2one('wo.car.parts',required=True, ondelete="cascade")
+    header_id = fields.Many2one('wof.car.parts',required=True, ondelete="cascade")
     
 class xx_car_parts_sizes_lines(models.Model):
     _name = 'wof.car.parts.size.lines'
