@@ -9,6 +9,7 @@ class CarPartsWizard(models.TransientModel):
     # ================= STEPS =================
     step = fields.Selection([
         ('step1', 'البيانات'),
+        ('step_lines', 'الأجزاء'),
         ('step2', 'الإعدادات'),
         ('step3', 'الأسعار'),
         ('step4', 'المقاسات'),
@@ -68,6 +69,8 @@ class CarPartsWizard(models.TransientModel):
 
         for rec in self:
             if rec.step == 'step1':
+                rec.step = 'step_lines'
+            elif rec.step == 'step_lines':
                 rec.step = 'step2'
             elif rec.step == 'step2':
                 rec.step = 'step3'
@@ -78,8 +81,11 @@ class CarPartsWizard(models.TransientModel):
 
     def action_prev(self):
         for rec in self:
-            if rec.step == 'step2':
+            elif rec.step == 'step_lines':
                 rec.step = 'step1'
+            elif rec.step == 'step2':
+                rec.step = 'step_lines'
+            
             elif rec.step == 'step3':
                 rec.step = 'step2'
             elif rec.step == 'step4':
