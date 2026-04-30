@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+ 
+
+    <!-- ================= TREE VIEW ================= -->
+    <record id="view_car_part_wo_v4_tree" model="ir.ui.view">
+        <field name="name">wof.car.part_wo_v4.tree</field>
+        <field name="model">wof.car.parts</field>
+        <field name="arch" type="xml">
+
+            <tree  decoration-muted="not active" >
+                <field name="name"/>
+                <field name="service_type_id"/>
+                <field name="company_id"/>
+                <field name="commission"/>
+                <field name="default_qty"/>
+                <field name="active" column_invisible="1"/>
+            </tree>
+
+        </field>
+    </record>
+
+
+    <!-- ================= FORM VIEW ================= -->
+    <record id="view_car_part_wo_v4_form" model="ir.ui.view">
+        <field name="name">wof.car.part_wo_v4.form</field>
+        <field name="model">wof.car.parts</field>
+        <field name="arch" type="xml">
+
+            <form string="فئة الفيلم">
+
+                <sheet>
+
+                    <!-- Ribbon -->
+                    <widget name="web_ribbon"
+                            title="غير مفعل"
+                            bg_color="bg-danger"
+                            invisible="active"/>
+
+                    <!-- Buttons -->
+                    <div class="oe_button_box" name="button_box">
+
+                        <button name="toggle_active"
+                                type="object"
+                                string="إلغاء التفعيل"
+                                class="btn btn-danger"
+                                invisible="not active"
+                                groups="yousentech_wo_v4.group_wo_manager"/>
+
+                        <button name="toggle_active"
+                                type="object"
+                                string="تفعيل"
+                                class="btn btn-success"
+                                invisible="active"
+                                groups="yousentech_wo_v4.group_wo_manager"/>
+
+                    </div>
+
+                    <!-- Main -->
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="service_type_id"/>
+                        </group>
+
+                        <group>
+                           
+                            <field name="commission"/>
+                            <field name="default_qty"/>
+
+                             <field name="company_id" readonly="1"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+
+                     
+                    <!-- Lines -->
+                    <notebook>
+                        <page string="التفاصيل">
+
+                            <field name="part_lines">
+
+                                <tree editable="bottom">
+                                    <field name="name"/>
+                                    <field name="header_id" invisible="1"/>
+                                 </tree>
+
+                            </field>
+
+                        </page>
+                        <page string="الاسعار والعمولات">
+
+                            <field name="part_com_lines">
+
+                                <tree editable="bottom">
+                                    <field name="service_type_id"/>
+                                    <field name="part_price"/>
+
+                                    <field name="header_id" invisible="1"/>
+                                 </tree>
+
+                            </field>
+
+                        </page>
+
+                         <page string="المقاسات">
+
+                            <field name="part_sizes_lines">
+
+                                <tree editable="bottom">
+                                    <field name="default_qty"/>
+                                    <field name="min_qty"/>
+                                    <field name="max_qty"/>
+                                    <field name="header_id" invisible="1"/>
+                                 </tree>
+
+                            </field>
+
+                        </page>
+                    </notebook>
+
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
+
+
+    <!-- ================= SEARCH VIEW ================= -->
+    <record id="view_car_part_wo_v4_search" model="ir.ui.view">
+        <field name="name">wof.car.part_wo_v4.search</field>
+        <field name="model">wof.car.parts</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+
+            <search string="بحث فئات الفيلم">
+
+                <!-- Fields -->
+                <field name="name"/>
+                <field name="service_type_id"/>
+                <field name="company_id"/>
+             
+                <!-- Filters -->
+                
+                <filter string="مؤرشف"
+                        name="inactive"
+                        domain="[('active','=',False)]"/>
+  
+
+                
+                    <filter string="الشركة" name="groupby_company"
+                            context="{'group_by':'company_id'}"/>
+
+                    <filter string="نوع الخدمة" name="groupby_service_type"
+                            context="{'group_by':'service_type_id'}"/>
+ 
+                <!-- Search Panel -->
+                <searchpanel>
+                
+                    <field name="service_type_id"/>
+                </searchpanel>
+
+            </search>
+
+        </field>
+    </record>
+
+
+    <!-- ================= ACTION ================= -->
+    <record id="action_car_part_wo_v4" model="ir.actions.act_window">
+        <field name="name">جزء السيارة</field>
+        <field name="res_model">wof.car.parts</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_car_part_wo_v4_tree"/>
+      
+    </record>
+ 
+ 
+
+    <menuitem id="menu_car_part_wo_v4"
+              name="أجزاء السيارات"
+              parent="menu_wo_v4_configuration"
+              action="action_car_part_wo_v4"
+              sequence="40"/>
+ 
+
+</odoo>
