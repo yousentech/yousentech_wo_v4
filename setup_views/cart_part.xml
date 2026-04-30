@@ -62,7 +62,7 @@
                         <!-- ================= COMMISSION ================= -->
                         <page string="العمولات والأسعار">
 
-                            <field name="com_line_ids">
+                            <field name="part_com_lines">
                                 <tree editable="bottom">
                                     <field name="service_type_id"/>
                                     <field name="film_category_id"/>
@@ -79,7 +79,7 @@
                         <!-- ================= SIZES ================= -->
                         <page string="المقاسات">
 
-                            <field name="size_line_ids">
+                            <field name="part_sizes_lines">
                                 <tree editable="bottom">
                                     <field name="service_type_id"/>
                                     <field name="film_category_id"/>
