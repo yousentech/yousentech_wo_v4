@@ -50,7 +50,7 @@
                         <!-- ================= LINES ================= -->
                         <page string="التصنيفات">
 
-                            <field name="line_ids">
+                            <field name="part_lines">
                                 <tree editable="bottom">
                                     <field name="name"/>
                                     <field name="default_selection"/>
