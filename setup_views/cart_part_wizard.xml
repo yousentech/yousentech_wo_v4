@@ -20,19 +20,19 @@
                     <field name="step" invisible="1"/>
 
                     <!-- STEP 1 -->
-                    <group attrs="{'invisible':[('step','!=','step1')]}">
+                    <group invisible ="step != 'step1'">
                         <field name="name"/>
                         <field name="service_type"/>
                     </group>
 
                     <!-- STEP 2 -->
-                    <group attrs="{'invisible':[('step','!=','step2')]}">
+                    <group invisible ="step != 'step2'">
                         <field name="commission"/>
                         <field name="default_qty"/>
                     </group>
 
                     <!-- STEP 3 (PRICES) -->
-                    <group attrs="{'invisible':[('step','!=','step3')]}">
+                   <group invisible ="step != 'step3'">
                         <field name="price_line_ids">
                             <tree editable="bottom">
                                 <field name="service_type"/>
@@ -42,7 +42,7 @@
                     </group>
 
                     <!-- STEP 4 (SIZES) -->
-                    <group attrs="{'invisible':[('step','!=','step4')]}">
+                   <group invisible ="step != 'step4'">
                         <field name="size_line_ids">
                             <tree editable="bottom">
                                 <field name="default_qty"/>
@@ -53,8 +53,11 @@
                     </group>
 
                     <!-- REVIEW -->
-                    <group attrs="{'invisible':[('step','!=','review')]}">
-                        <label string="راجع البيانات قبل الحفظ"/>
+                    <group invisible ="step != 'review'">
+                  
+                        <div class="alert alert-info">
+                            راجع البيانات قبل الحفظ
+                        </div>
                     </group>
 
                 </sheet>
@@ -64,7 +67,7 @@
                     <button name="action_next" string="التالي" type="object"/>
                     <button name="action_create_record" string="إنشاء" type="object"
                             class="btn-primary"
-                            attrs="{'invisible':[('step','!=','review')]}"/>
+                            invisible ="step != 'review'"/>
                     <button string="إلغاء" special="cancel"/>
                 </footer>
 
