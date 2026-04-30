@@ -91,7 +91,7 @@
         <field name="res_model">wof.car.parts.wizard</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_car_part_wizard_wo_v4_form"/>
-        <field name="target">new</field>
+        <!-- <field name="target">new</field> -->
 
       
     </record>
