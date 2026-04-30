@@ -137,5 +137,5 @@
               name="انواع السيارة"
               parent="menu_wo_v4_configuration"
               action="action_car_type_wo_v4"
-              sequence="40"/>
+              sequence="50"/>
 </odoo>

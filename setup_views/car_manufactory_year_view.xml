@@ -130,5 +130,5 @@
               name="سنة الصنع للسيارات"
               parent="menu_wo_v4_configuration"
               action="action_car_manufactory_year_wo_v4"
-              sequence="50"/>
+              sequence="60"/>
 </odoo>
