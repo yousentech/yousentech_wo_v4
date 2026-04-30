@@ -6,7 +6,7 @@
     <!-- ================= FORM VIEW ================= -->
     <record id="view_car_part_wizard_wo_v4_form" model="ir.ui.view">
         <field name="name">wof.car.part_wizard_wo_v4.form</field>
-        <field name="model">wo.car.parts.wizard</field>
+        <field name="model">wof.car.parts.wizard</field>
         <field name="arch" type="xml">
 
             <form string="إضافة جزء سيارة">
@@ -80,7 +80,7 @@
     <!-- ================= ACTION ================= -->
     <record id="action_car_part_wizard_wo_v4" model="ir.actions.act_window">
         <field name="name">جزء السيارة</field>
-        <field name="res_model">wo.car.parts.wizard</field>
+        <field name="res_model">wof.car.parts.wizard</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_car_part_wizard_wo_v4_form"/>
       
