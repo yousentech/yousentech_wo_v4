@@ -19,7 +19,7 @@ class CarPartsWizard(models.TransientModel):
 
     # ================= MAIN =================
     name = fields.Char(required=True)
-    service_type = fields.Many2one('wo.services.types')
+    service_type_id = fields.Many2one('wof.service.type', string="نوع الخدمة",required=True, index=True)
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company)
 
     commission = fields.Float()
@@ -47,9 +47,9 @@ class CarPartsWizard(models.TransientModel):
             rec.progress = mapping.get(rec.step, 0)
 
     # ================= AUTO FILL =================
-    @api.onchange('service_type')
+    @api.onchange('service_type_id')
     def _onchange_service_type(self):
-        if self.service_type:
+        if self.service_type_id:
             self.commission = 10  # مثال
             self.default_qty = 1
 
@@ -91,7 +91,7 @@ class CarPartsWizard(models.TransientModel):
     def action_create_record(self):
         part = self.env['wo.car.parts'].create({
             'name': self.name,
-            'service_type': self.service_type.id,
+            'service_type_id': self.service_type_id.id,
             'company_id': self.company_id.id,
             'commission': self.commission,
             'default_qty': self.default_qty,
@@ -109,7 +109,7 @@ class CarPartsWizard(models.TransientModel):
             self.env['wof.car.parts.com.lines'].create({
                 'header_id': part.id,
                 'part_price': line.part_price,
-                'service_type': line.service_type.id,
+                'service_type_id': line.service_type_id.id,
             })
 
         # Sizes
@@ -142,5 +142,5 @@ class CarPartsWizardPrice(models.TransientModel):
     _name = 'wof.car.parts.wizard.price'
 
     wizard_id = fields.Many2one('wof.car.parts.wizard')
-    service_type = fields.Many2one('wo.services.types')
+    service_type_id = fields.Many2one('wof.service.type', string="نوع الخدمة",required=True, index=True)
     part_price = fields.Float()

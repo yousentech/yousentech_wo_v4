@@ -22,7 +22,7 @@
                     <!-- STEP 1 -->
                     <group invisible ="step != 'step1'">
                         <field name="name"/>
-                        <field name="service_type"/>
+                        <field name="service_type_id"/>
                     </group>
 
                     <!-- STEP 2 -->
@@ -35,7 +35,7 @@
                    <group invisible ="step != 'step3'">
                         <field name="price_line_ids">
                             <tree editable="bottom">
-                                <field name="service_type"/>
+                                <field name="service_type_id"/>
                                 <field name="part_price"/>
                             </tree>
                         </field>
