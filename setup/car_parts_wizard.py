@@ -89,7 +89,7 @@ class CarPartsWizard(models.TransientModel):
 
     # ================= CREATE =================
     def action_create_record(self):
-        part = self.env['wo.car.parts'].create({
+        part = self.env['wof.car.parts'].create({
             'name': self.name,
             'service_type_id': self.service_type_id.id,
             'company_id': self.company_id.id,
