@@ -26,9 +26,9 @@ class CarPartsWizard(models.TransientModel):
     default_qty = fields.Float()
 
     # ================= O2M =================
-    line_ids = fields.One2many('wo.car.parts.wizard.line', 'wizard_id')
-    price_line_ids = fields.One2many('wo.car.parts.wizard.price', 'wizard_id')
-    size_line_ids = fields.One2many('wo.car.parts.wizard.size', 'wizard_id')
+    line_ids = fields.One2many('wof.car.parts.wizard.line', 'wizard_id')
+    price_line_ids = fields.One2many('wof.car.parts.wizard.price', 'wizard_id')
+    size_line_ids = fields.One2many('wof.car.parts.wizard.size', 'wizard_id')
 
     # ================= DRAFT =================
     is_draft = fields.Boolean(default=True)
@@ -126,13 +126,13 @@ class CarPartsWizard(models.TransientModel):
 class CarPartsWizardLine(models.TransientModel):
     _name = 'wof.car.parts.wizard.line'
 
-    wizard_id = fields.Many2one('wo.car.parts.wizard')
+    wizard_id = fields.Many2one('wof.car.parts.wizard')
     name = fields.Char(required=True)
 
 class CarPartsWizardSize(models.TransientModel):
     _name = 'wof.car.parts.wizard.size'
 
-    wizard_id = fields.Many2one('wo.car.parts.wizard')
+    wizard_id = fields.Many2one('wof.car.parts.wizard')
     default_qty = fields.Float()
     min_qty = fields.Float()
     max_qty = fields.Float()
@@ -141,6 +141,6 @@ class CarPartsWizardSize(models.TransientModel):
 class CarPartsWizardPrice(models.TransientModel):
     _name = 'wof.car.parts.wizard.price'
 
-    wizard_id = fields.Many2one('wo.car.parts.wizard')
+    wizard_id = fields.Many2one('wof.car.parts.wizard')
     service_type = fields.Many2one('wo.services.types')
     part_price = fields.Float()
