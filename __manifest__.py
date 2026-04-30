@@ -15,6 +15,7 @@
               'setup_views/car_size_view.xml',
               'setup_views/car_type_view.xml',
               'setup_views/car_manufactory_year_view.xml',
+              'setup_views/car_agency_view.xml',
     ],
     'installable': True,
     'application': True,
