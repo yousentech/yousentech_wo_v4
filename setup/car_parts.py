@@ -266,7 +266,7 @@ class CarPartsSubParts(models.Model):
     )
 
     service_type_id = fields.Many2one(
-        'wo.services.types',
+        'wof.services.types',
         string="نوع الخدمة",
         related='header_id.service_type_id',
         store=True,
@@ -282,18 +282,18 @@ class CarPartsSubParts(models.Model):
     )
 
     car_size_id = fields.Many2one(
-        'wo.car.sizes',
+        'wof.car.sizes',
         string="حجم السيارة"
     )
 
     film_category_id = fields.Many2one(
-        'wo.film.category',
+        'wof.film.category',
         string="نوع الفلم",
         domain="[('service_type_id','=',service_type_id)]"
     )
 
     film_category_line_id = fields.Many2one(
-        'wo.film.category.lines',
+        'wof.film.category.lines',
         string="كود المبيعات",
         domain="[('header_id','=',film_category_id)]"
     )
@@ -306,7 +306,7 @@ class CarPartsSubParts(models.Model):
     )
 
     package_film_category_line_id = fields.Many2one(
-        'wo.film.category.lines',
+        'wof.film.category.lines',
         string="كود الباقة",
         domain="[('header_id','=',film_category_id)]"
     )
@@ -343,13 +343,13 @@ class CarPartsCommissionLines(models.Model):
     )
 
     film_category_id = fields.Many2one(
-        'wo.film.category',
+        'wof.film.category',
         string="نوع الفلم",
         domain="[('service_type_id','=',service_type_id)]"
     )
 
     car_size_id = fields.Many2one(
-        'wo.car.sizes',
+        'wof.car.sizes',
         string="حجم السيارة"
     )
 
@@ -362,7 +362,7 @@ class CarPartsCommissionLines(models.Model):
 
     # ================= PRODUCTS =================
     film_category_line_id = fields.Many2one(
-        'wo.film.category.lines',
+        'wof.film.category.lines',
         string="كود المبيعات",
         domain="[('header_id','=',film_category_id)]"
     )
@@ -414,13 +414,13 @@ class CarPartsSizeLines(models.Model):
     )
 
     film_category_id = fields.Many2one(
-        'wo.film.category',
+        'wof.film.category',
         string="نوع الفلم",
         domain="[('service_type_id','=',service_type_id)]"
     )
 
     car_size_id = fields.Many2one(
-        'wo.car.sizes',
+        'wof.car.sizes',
         string="حجم السيارة",
         required=True
     )
