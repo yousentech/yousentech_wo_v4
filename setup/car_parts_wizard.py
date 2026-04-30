@@ -81,7 +81,7 @@ class CarPartsWizard(models.TransientModel):
 
     def action_prev(self):
         for rec in self:
-            elif rec.step == 'step_lines':
+            if rec.step == 'step_lines':
                 rec.step = 'step1'
             elif rec.step == 'step2':
                 rec.step = 'step_lines'
