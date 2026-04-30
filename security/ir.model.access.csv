@@ -12,7 +12,7 @@ access_wof_car_parts_size_lines,wof.car.parts.size.lines,model_wof_car_parts_siz
 
 access_wof_car_parts_wizard,wof.car.parts.wizard,model_wof_car_parts_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts_wizard_line,wof.car.parts.wizard.line,model_wof_car_parts_wizard_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
-access_wof_car_parts_com_lines,wof.car.parts.com.lines,model_wof_car_parts_com_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_car_parts_wizard_size,wof.car.parts.wizard.size,model_wof_car_parts_wizard_size,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts_wizard_price,wof.car.parts.wizard.price,model_wof_car_parts_wizard_price,yousentech_wo_v4.group_wo_manager,1,1,1,1
 
 
