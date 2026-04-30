@@ -266,7 +266,7 @@ class CarPartsSubParts(models.Model):
     )
 
     service_type_id = fields.Many2one(
-        'wof.services.types',
+        'wof.service.type',
         string="نوع الخدمة",
         related='header_id.service_type_id',
         store=True,
@@ -337,7 +337,7 @@ class CarPartsCommissionLines(models.Model):
     )
 
     service_type_id = fields.Many2one(
-        'wof.services.types',
+        'wof.service.type',
         string="نوع الخدمة",
         required=True
     )
