@@ -128,7 +128,7 @@ class CarِِِِParts(models.Model):
     def _check_product(self):
         for rec in self:
             if not rec.product_id and rec.name:
-            rec.product_id = rec.create_product_of_part(rec.name)
+                rec.product_id = rec.create_product_of_part(rec.name)
     
     def create_product_of_part(self,part_name):
         prod = self.env['product.product'].search([('name','=', part_name)])
