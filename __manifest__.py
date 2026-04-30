@@ -14,6 +14,7 @@
               'setup_views/film_category_view.xml',
               'setup_views/car_size_view.xml',
               'setup_views/cart_part.xml',
+              'setup_views/cart_part_wizard.xml',
               
               'setup_views/car_type_view.xml',
               'setup_views/car_manufactory_year_view.xml',
