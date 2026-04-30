@@ -52,8 +52,10 @@
 
                             <field name="part_lines">
                                 <tree editable="bottom">
+                                    <field name="service_type_id"/>
                                     <field name="name"/>
                                     <field name="default_selection"/>
+                                    
                                 </tree>
                             </field>
 
