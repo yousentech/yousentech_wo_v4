@@ -10,6 +10,13 @@ access_wof_car_parts_lines,wof.car.parts.lines,model_wof_car_parts_lines,yousent
 access_wof_car_parts_com_lines,wof.car.parts.com.lines,model_wof_car_parts_com_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts_size_lines,wof.car.parts.size.lines,model_wof_car_parts_size_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
 
+access_wof_car_parts_wizard,wof.car.parts.wizard,model_wof_car_parts_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_car_parts_wizard_line,wof.car.parts.wizard.line,model_wof_car_parts_wizard_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_car_parts_com_lines,wof.car.parts.com.lines,model_wof_car_parts_com_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_car_parts_wizard_price,wof.car.parts.wizard.price,model_wof_car_parts_wizard_price,yousentech_wo_v4.group_wo_manager,1,1,1,1
+
+
+
 access_wof_car_type,wof.car.type,model_wof_car_type,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_manufactory,wof.car.manufactory,model_wof_car_manufactory,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_manufactory_year,wof.car.manufactory.year,model_wof_car_manufactory_year,yousentech_wo_v4.group_wo_manager,1,1,1,1
