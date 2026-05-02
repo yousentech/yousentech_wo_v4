@@ -281,7 +281,7 @@ class CarPartsSubParts(models.Model):
     )
 
     car_size_id = fields.Many2one(
-        'wof.car.sizes',
+        'wof.car.size',
         string="حجم السيارة"
     )
 
@@ -348,7 +348,7 @@ class CarPartsCommissionLines(models.Model):
     )
 
     car_size_id = fields.Many2one(
-        'wof.car.sizes',
+        'wof.car.size',
         string="حجم السيارة"
     )
 
@@ -419,7 +419,7 @@ class CarPartsSizeLines(models.Model):
     )
 
     car_size_id = fields.Many2one(
-        'wof.car.sizes',
+        'wof.car.size',
         string="حجم السيارة",
         required=True
     )
