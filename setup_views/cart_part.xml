@@ -198,7 +198,7 @@
 
                     <group>
                         <field name="film_category_line_id"/>
-                        <field name="film_product_id"/>
+                        <field name="limpid_film_product_id"/>
                         <field name="package_film_product_id"/>
                     </group>
 
