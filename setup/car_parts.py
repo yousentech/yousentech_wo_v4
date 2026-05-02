@@ -4,7 +4,7 @@ from odoo.exceptions import ValidationError
 from odoo.osv import expression
 
 
-class CarِِِِParts(models.Model):
+class CarParts(models.Model):
     _name = 'wof.car.parts'
     _description = 'Car Part'
     _order = 'priority_part,name'
