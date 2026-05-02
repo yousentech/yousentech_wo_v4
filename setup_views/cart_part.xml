@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
+    <!-- ================= TREE VIEW ================= -->
+    <record id="view_car_part_wo_v4_tree" model="ir.ui.view">
+        <field name="name">wof.car.part_wo_v4.tree</field>
+        <field name="model">wof.car.parts</field>
+        <field name="arch" type="xml">
+
+            <tree  decoration-muted="not active" >
+                <field name="name"/>
+                <field name="service_type_id"/>
+                <field name="company_id"/>
+                <field name="commission"/>
+                <field name="default_qty"/>
+                <field name="active" column_invisible="1"/>
+            </tree>
+
+        </field>
+    </record>
     <!-- ================= FORM VIEW ================= -->
-    <record id="view_car_parts_form" model="ir.ui.view">
-        <field name="name">wof.car.parts.form</field>
+    <record id="view_car_part_wo_v4_form" model="ir.ui.view">
+        <field name="name">wof.car.part_wo_v4.form</field>
         <field name="model">wof.car.parts</field>
         <field name="arch" type="xml">
 
@@ -102,6 +119,68 @@
 
         </field>
     </record>
+
+    
+    <!-- ================= SEARCH VIEW ================= -->
+    <record id="view_car_part_wo_v4_search" model="ir.ui.view">
+        <field name="name">wof.car.part_wo_v4.search</field>
+        <field name="model">wof.car.parts</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+
+            <search string="بحث فئات الفيلم">
+
+                <!-- Fields -->
+                <field name="name"/>
+                <field name="service_type_id"/>
+                <field name="company_id"/>
+             
+                <!-- Filters -->
+                
+                <filter string="مؤرشف"
+                        name="inactive"
+                        domain="[('active','=',False)]"/>
+  
+
+                
+                    <filter string="الشركة" name="groupby_company"
+                            context="{'group_by':'company_id'}"/>
+
+                    <filter string="نوع الخدمة" name="groupby_service_type"
+                            context="{'group_by':'service_type_id'}"/>
+ 
+                <!-- Search Panel -->
+                <searchpanel>
+                
+                    <field name="service_type_id"/>
+                </searchpanel>
+
+            </search>
+
+        </field>
+    </record>
+
+    <!-- ================= ACTION ================= -->
+    <record id="action_car_part_wo_v4" model="ir.actions.act_window">
+        <field name="name">جزء السيارة</field>
+        <field name="res_model">wof.car.parts</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_car_part_wo_v4_tree"/>
+      
+    </record>
+ 
+ 
+
+    <menuitem id="menu_car_part_wo_v4"
+              name="أجزاء السيارات"
+              parent="menu_wo_v4_configuration"
+              action="action_car_part_wo_v4"
+              sequence="40"/>
+ 
+
+
+
+
     <record id="view_car_parts_lines_form" model="ir.ui.view">
         <field name="name">wof.car.parts.lines.form</field>
         <field name="model">wof.car.parts.lines</field>
