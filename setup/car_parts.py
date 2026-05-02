@@ -258,7 +258,7 @@ class CarPartsSubParts(models.Model):
         index=True
     )
 
-    header_id = fields.Many2one(
+    header_id = fields.Many2one('wof.car.parts',
         related='line_id.header_id',
         store=True,
         readonly=True
@@ -406,7 +406,7 @@ class CarPartsSizeLines(models.Model):
         index=True
     )
 
-    service_type_id = fields.Many2one(
+    service_type_id = fields.Many2one('wof.service.type',
         related='header_id.service_type_id',
         store=True,
         readonly=True
