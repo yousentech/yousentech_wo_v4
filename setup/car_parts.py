@@ -83,8 +83,7 @@ class CarِِِِParts(models.Model):
     _sql_constraints = [
         ("car_part_unique",
          "UNIQUE(name)",
-         "تنبيه .. جزء السيارة تم اضافتة مسبقا لا يمكن الاستمرار"),
-    ]
+         "تنبيه .. جزء السيارة تم اضافتة مسبقا لا يمكن الاستمرار"),  ]
 
    
     @api.model

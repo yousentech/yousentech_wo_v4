@@ -179,7 +179,7 @@
  
 
 
-
+<!-- 
 
     <record id="view_car_parts_lines_form" model="ir.ui.view">
         <field name="name">wof.car.parts.lines.form</field>
@@ -319,5 +319,5 @@
             </form>
 
         </field>
-    </record>
+    </record> -->
 </odoo>
