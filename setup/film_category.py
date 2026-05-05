@@ -179,7 +179,7 @@ class CarPartsCommissionLines(models.Model):
  
     # ================= INVENTORY FLAG =================
     is_effected_in_inventory = fields.Boolean(
-        related='film_category_id.is_effected_in_inventory',
+        related='header_id.is_effected_in_inventory',
         store=True
     )
 
