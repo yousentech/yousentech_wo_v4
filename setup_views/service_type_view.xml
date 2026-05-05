@@ -69,11 +69,13 @@
                     <t t-name="kanban-box">
 
                         <!-- 🎨 ألوان حسب النشاط -->
-                        <div t-attf-class="
-                            oe_kanban_card oe_kanban_global_click p-3
-                            #{record.parts_count.raw_value > 0 ? 'border-start border-success border-4' : 'border-start border-danger border-4'}
-                            #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
-                        ">
+                            <div t-attf-class="
+                                    oe_kanban_card oe_kanban_global_click p-3
+                                    #{(record.parts_count.raw_value > 0 and record.film_count.raw_value > 0) ? 'border-start border-success border-4' : ''}
+                                    #{((record.parts_count.raw_value > 0 and record.film_count.raw_value == 0) or (record.parts_count.raw_value == 0 and record.film_count.raw_value > 0)) ? 'border-start border-warning border-4' : ''}
+                                    #{(record.parts_count.raw_value == 0 and record.film_count.raw_value == 0) ? 'border-start border-danger border-4' : ''}
+                                    #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
+                                ">
 
                             <!-- HEADER -->
                             <div class="mb-2">
@@ -88,21 +90,24 @@
                             <hr/>
 
                             <!-- COUNTERS (Clickable) -->
-                            <div class="row text-center">
+                            <div class="row text-center g-2">
 
                                 <!-- Car Parts -->
                                 <div class="col-6">
-                                   <a type="action"
-                                        name="%(action_car_part_wo_v4)d"
-                                        context="{'search_default_service_type_id': active_id}">
+                                    <a type="action"
+                                    name="%(action_car_part_wo_v4)d"
+                                    context="{'search_default_service_type_id': active_id}">
 
-                                        <div class="o_stat_box">
-                                            <span class="o_stat_value text-success">
+                                        <div class="rounded p-2 bg-light border">
+
+                                            <div class="fw-bold text-success" style="font-size:18px;">
                                                 <field name="parts_count"/>
-                                            </span>
-                                            <span class="o_stat_text">
+                                            </div>
+
+                                            <div class="text-muted">
                                                 الأجزاء
-                                            </span>
+                                            </div>
+
                                         </div>
 
                                     </a>
@@ -111,23 +116,25 @@
                                 <!-- Films -->
                                 <div class="col-6">
                                     <a type="action"
-                                        name="%(action_film_category_wo_v4)d"
-                                        context="{'search_default_service_type_id': active_id}">
+                                    name="%(action_film_category_wo_v4)d"
+                                    context="{'search_default_service_type_id': active_id}">
 
-                                        <div class="o_stat_box">
-                                            <span class="o_stat_value text-primary">
+                                        <div class="rounded p-2 bg-light border">
+
+                                            <div class="fw-bold text-primary" style="font-size:18px;">
                                                 <field name="film_count"/>
-                                            </span>
-                                            <span class="o_stat_text">
+                                            </div>
+
+                                            <div class="text-muted">
                                                 الأفلام
-                                            </span>
+                                            </div>
+
                                         </div>
 
                                     </a>
                                 </div>
 
                             </div>
-
                             <hr/>
 
                             <!-- FOOTER -->
