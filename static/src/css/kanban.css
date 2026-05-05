@@ -1,8 +1,14 @@
-.kpi-box {
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    border-radius: 10px;
+/* hover فقط للكارد */
+.hover-card {
+    transition: all 0.2s ease-in-out;
 }
-.kpi-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+
+.hover-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.18);
+}
+
+/* KPI ثابت */
+.kpi-box {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }

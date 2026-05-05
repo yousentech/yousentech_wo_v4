@@ -195,84 +195,84 @@
 
                         <t t-name="kanban-box">
 
-        <!-- 🎨 CARD (clickable + hover) -->
-        <div t-attf-class="
-            oe_kanban_card oe_kanban_global_click
-            p-3 rounded border shadow-sm hover-shadow-lg
-            #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
-            #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
-        ">
+                                <!-- 🎨 CARD (clickable + hover) -->
+                                <div t-attf-class="
+                                        oe_kanban_card oe_kanban_global_click hover-card
+                                        p-3 rounded border shadow-sm
+                                        #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
+                                        #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
+                                    ">
 
-            <!-- HEADER -->
-            <div class="d-flex justify-content-between align-items-start">
+                                    <!-- HEADER -->
+                                    <div class="d-flex justify-content-between align-items-start">
 
-                <!-- LEFT -->
-                <div style="max-width:70%;">
+                                        <!-- LEFT -->
+                                        <div style="max-width:70%;">
 
-                    <div class="fw-bold" style="font-size:16px;">
-                        <i class="fa fa-film text-primary me-1"></i>
+                                            <div class="fw-bold" style="font-size:16px;">
+                                                <i class="fa fa-film text-primary me-1"></i>
 
-                        <t t-if="record.code.raw_value">
-                            [<field name="code"/>]
-                        </t>
+                                                <t t-if="record.code.raw_value">
+                                                    [<field name="code"/>]
+                                                </t>
 
-                        <field name="name"/>
-                    </div>
+                                                <field name="name"/>
+                                            </div>
 
-                    <div class="text-muted small">
-                        <i class="fa fa-cogs me-1"></i>
-                        <field name="service_type_id"/>
-                    </div>
+                                            <div class="text-muted small">
+                                                <i class="fa fa-cogs me-1"></i>
+                                                <field name="service_type_id"/>
+                                            </div>
 
-                </div>
+                                        </div>
 
-                <!-- KPI BOX (بدون hover) -->
-                <div t-attf-class="
-                    text-center px-2 py-1 rounded kpi-box
-                    #{record.parts_count.raw_value > 0 ? 'bg-white border border-success' : 'bg-white border border-danger'}
-                " style="min-width:70px;">
+                                        <!-- KPI BOX (بدون hover) -->
+                                        <div t-attf-class="
+                                            text-center px-2 py-1 rounded kpi-box
+                                            #{record.parts_count.raw_value > 0 ? 'bg-white border border-success' : 'bg-white border border-danger'}
+                                        " style="min-width:70px;">
 
-                    <div class="fw-bold text-dark" style="font-size:18px;">
-                        <field name="parts_count"/>
-                    </div>
+                                            <div class="fw-bold text-dark" style="font-size:18px;">
+                                                <field name="parts_count"/>
+                                            </div>
 
-                    <div class="text-muted" style="font-size:11px;">
-                        أجزاء
-                    </div>
+                                            <div class="text-muted" style="font-size:11px;">
+                                                أجزاء
+                                            </div>
 
-                </div>
+                                        </div>
 
-            </div>
+                                    </div>
 
-            <!-- PROGRESS -->
-            <div class="mt-2">
-                <div class="progress" style="height:5px;">
-                    <div t-attf-class="progress-bar
-                        #{record.parts_count.raw_value > 0 ? 'bg-success' : 'bg-danger'}
-                    "
-                    t-att-style="'width:%s%%' % (record.parts_count.raw_value > 0 and 100 or 0)">
-                    </div>
-                </div>
-            </div>
+                                    <!-- PROGRESS -->
+                                    <div class="mt-2">
+                                        <div class="progress" style="height:5px;">
+                                            <div t-attf-class="progress-bar
+                                                #{record.parts_count.raw_value > 0 ? 'bg-success' : 'bg-danger'}
+                                            "
+                                            t-att-style="'width:%s%%' % (record.parts_count.raw_value > 0 and 100 or 0)">
+                                            </div>
+                                        </div>
+                                    </div>
 
-            <!-- FOOTER -->
-            <div class="d-flex justify-content-between text-muted small mt-2">
+                                    <!-- FOOTER -->
+                                    <div class="d-flex justify-content-between text-muted small mt-2">
 
-                <span>
-                    <i class="fa fa-shield-alt me-1"></i>
-                    <field name="warranty_years"/>
-                </span>
+                                        <span>
+                                            <i class="fa fa-shield-alt me-1"></i>
+                                            <field name="warranty_years"/>
+                                        </span>
 
-                <span>
-                    <i class="fa fa-building me-1"></i>
-                    <field name="company_id"/>
-                </span>
+                                        <span>
+                                            <i class="fa fa-building me-1"></i>
+                                            <field name="company_id"/>
+                                        </span>
 
-            </div>
+                                    </div>
 
-        </div>
+                                </div>
 
- 
+                        
 
                         </t>
 
