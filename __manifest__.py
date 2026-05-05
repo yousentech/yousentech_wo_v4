@@ -20,6 +20,12 @@
               'setup_views/car_manufactory_year_view.xml',
               'setup_views/car_agency_view.xml',
     ],
+    'assets': {
+                'web.assets_backend': [
+                    # ملفاتك السابقة
+                    'yousentech_wo_v4/static/src/css/kanban.css',
+                ],
+            },
     'installable': True,
     'application': True,
     'license': 'LGPL-3',
