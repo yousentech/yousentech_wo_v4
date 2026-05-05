@@ -71,19 +71,19 @@ class film_category(models.Model):
     )
 
     def _compute_parts_count(self):
-        data = self.env['wof.car.parts'].read_group(
-            [('film_category_id', 'in', self.ids)],
-            ['film_category_id'],
-            ['film_category_id']
+        data = self.env['wof.film.parts.lines'].read_group(
+            [('header_id', 'in', self.ids)],
+            ['header_id'],
+            ['header_id']
         )
+
         mapped = {
-            d['film_category_id'][0]: d['film_category_id_count']
+            d['header_id'][0]: d['header_id_count']
             for d in data
         }
 
         for rec in self:
             rec.parts_count = mapped.get(rec.id, 0)
-
             
 
     @api.model
@@ -142,7 +142,7 @@ class FilmCategoryLine(models.Model):
 class CarPartsCommissionLines(models.Model):
     _name = 'wof.film.parts.lines'
     _description = 'Car film Parts Lines'
-    _rec_name = 'service_type_id'
+    _rec_name = 'car_part_id'
 
     # ================= RELATIONS =================
     car_part_id = fields.Many2one(
@@ -168,7 +168,7 @@ class CarPartsCommissionLines(models.Model):
     film_category_line_id = fields.Many2one(
         'wof.film.category.lines',
         string="كود المبيعات",
-        domain="[('header_id','=',film_category_id)]"
+        domain="[('header_id','=',header_id)]"
     )
 
     limpid_film_product_id = fields.Many2one(
