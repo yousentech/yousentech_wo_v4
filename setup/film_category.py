@@ -47,6 +47,7 @@ class film_category(models.Model):
     is_effected_in_inventory = fields.Boolean(default=False,string="الفلم يؤثر على المخزون")
     car_film_product_required = fields.Boolean(default=False,string="كود المبيعات اجباري في امر التركيب")
     film_category_line_ids = fields.One2many('wof.film.category.lines','header_id' , ondelete="cascade")
+    film_part_line_ids = fields.One2many('wof.film.parts.lines','header_id' , ondelete="cascade")
     limpid_film_product_ids = fields.Many2many('product.product', string="الصنف المخزني",domain="[('measure_product','=',True),('type','=','product')]")
 
 
@@ -135,4 +136,64 @@ class FilmCategoryLine(models.Model):
         ("film_cat_line_unique",
          "UNIQUE(name,header_id)",
         "هذا السطر مضاف مسبقاً لنفس الفئة"),
+    ]
+
+
+class CarPartsCommissionLines(models.Model):
+    _name = 'wof.film.parts.lines'
+    _description = 'Car film Parts Lines'
+    _rec_name = 'service_type_id'
+
+    # ================= RELATIONS =================
+    car_part_id = fields.Many2one(
+        'wof.car.parts',
+        required=True,
+        ondelete='cascade',
+        index=True
+    ) 
+     
+    car_size_id = fields.Many2one(
+        'wof.car.size',
+        string="حجم السيارة"
+    )
+
+    # ================= PRICING =================
+    part_price = fields.Float(string="سعر الجزء")
+    commission = fields.Float(string="عمولة الفني")
+    discount_exceed_limit = fields.Integer(string="نسبة الخصم المسموح")
+
+    price_readonly = fields.Boolean(string="السعر ثابت")
+
+    # ================= PRODUCTS =================
+    film_category_line_id = fields.Many2one(
+        'wof.film.category.lines',
+        string="كود المبيعات",
+        domain="[('header_id','=',film_category_id)]"
+    )
+
+    limpid_film_product_id = fields.Many2one(
+        'product.product',
+        string="الصنف المخزني",
+        domain="[('type','=','product'),('measure_product','=',True)]"
+    )
+ 
+    # ================= INVENTORY FLAG =================
+    is_effected_in_inventory = fields.Boolean(
+        related='film_category_id.is_effected_in_inventory',
+        store=True
+    )
+
+     # ================= RELATIONS =================
+    header_id = fields.Many2one('wof.film.category',ondelete="cascade")
+
+
+
+
+    # ================= CONSTRAINT =================
+    _sql_constraints = [
+        (
+            'unique_commission_rule',
+            'unique(car_part_id, header_id, car_size_id)',
+            'هذا السجل موجود مسبقاً لهذه الإعدادات'
+        )
     ]
