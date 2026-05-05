@@ -93,7 +93,7 @@
                                 <!-- Car Parts -->
                                 <div class="col-6">
                                    <a type="action"
-                                        name="%(action_car_parts)d"
+                                        name="%(action_car_part_wo_v4)d"
                                         context="{'search_default_service_type_id': active_id}">
 
                                         <div class="o_stat_box">
@@ -111,7 +111,7 @@
                                 <!-- Films -->
                                 <div class="col-6">
                                     <a type="action"
-                                        name="%(action_film_category)d"
+                                        name="%(action_film_category_wo_v4)d"
                                         context="{'search_default_service_type_id': active_id}">
 
                                         <div class="o_stat_box">
