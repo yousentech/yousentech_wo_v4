@@ -233,8 +233,7 @@
                                 <div t-attf-class="
                                     rounded p-3 border shadow-sm
                                     #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
-                                    hover-shadow-lg
-                                ">
+                                    hover-shadow-lg  ">
 
                                     <!-- ICON + NUMBER -->
                                     <div class="fw-bold d-flex align-items-center justify-content-center" style="font-size:28px;">
@@ -251,8 +250,7 @@
                                     </div>
 
                                 </div>
-
-                            </div>
+ 
                             <!-- ================= PROGRESS BAR ================= -->
                             <div class="mt-3">
 
