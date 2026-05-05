@@ -182,7 +182,6 @@
         <field name="name">wof.film.category_wo_v4.kanban</field>
         <field name="model">wof.film.category</field>
         <field name="arch" type="xml">
-            
             <kanban class="o_kanban_large">
 
                 <!-- fields -->
@@ -198,20 +197,19 @@
                     <t t-name="kanban-box">
 
                         <!-- 🎨 CARD -->
-                        <div t-attf-class="
-                            rounded p-4 border shadow-sm text-center
-                            #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
-                            hover-shadow-lg position-relative
-                            #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
-                        ">
+                            <div t-attf-class="
+                                rounded p-4 text-center border
+                                #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
+                                hover-shadow-lg
+                                position-relative
+                            ">
 
                             <!-- ================= HEADER ================= -->
-                            <div class="d-flex justify-content-between align-items-start text-start">
+                            <div class="d-flex justify-content-between align-items-start">
 
-                                <!-- LEFT INFO -->
                                 <div>
 
-                                    <!-- TITLE -->
+                                    <!-- title -->
                                     <div class="fw-bold fs-5">
                                         <i class="fa fa-film text-primary me-1"></i>
 
@@ -222,7 +220,7 @@
                                         <field name="name"/>
                                     </div>
 
-                                    <!-- SERVICE TYPE -->
+                                    <!-- service type -->
                                     <div class="text-muted small">
                                         <i class="fa fa-cogs me-1"></i>
                                         <field name="service_type_id"/>
@@ -230,15 +228,15 @@
 
                                 </div>
 
-                                <!-- KPI BOX -->
+                             <div class="text-center">
+
                                 <div t-attf-class="
                                     rounded p-3 border shadow-sm
                                     #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
-                                ">
+                                    hover-shadow-lg  ">
 
                                     <!-- ICON + NUMBER -->
-                                    <div class="fw-bold d-flex align-items-center justify-content-center"
-                                        style="font-size:28px;">
+                                    <div class="fw-bold d-flex align-items-center justify-content-center" style="font-size:28px;">
 
                                         <i class="fa fa-cogs me-2 text-secondary"></i>
 
@@ -252,9 +250,7 @@
                                     </div>
 
                                 </div>
-
-                            </div>
-
+ 
                             <!-- ================= PROGRESS BAR ================= -->
                             <div class="mt-3">
 
@@ -277,7 +273,7 @@
 
                                 <span>
                                     <i class="fa fa-shield-alt me-1"></i>
-                                    ضمان: <strong><field name="warranty_years"/></strong>
+                                    ضمان: <strong><field name="warranty_years"/></strong> 
                                 </span>
 
                                 <span>
