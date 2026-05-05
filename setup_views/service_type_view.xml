@@ -50,6 +50,50 @@
         </field>
     </record>
 
+<!-- =========================
+         KANBAN VIEW
+    ========================== -->
+    <record id="view_wof_service_type_wo_v4_kanban" model="ir.ui.view">
+        <field name="name">wof.service.type.wo_v4.kanban</field>
+        <field name="model">wof.service.type</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_small_column">
+                
+                <field name="name"/>
+                <field name="code"/>
+                <field name="active"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}">
+
+                            <div class="o_kanban_card_content">
+
+                                <!-- العنوان -->
+                                <div class="o_kanban_record_title">
+                                    <strong>
+                                        <t t-if="record.code.raw_value">
+                                            [<field name="code"/>]
+                                        </t>
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+
+                                <!-- معلومات إضافية -->
+                                <div class="text-muted mt8">
+                                    <span>الشركة:</span>
+                                    <field name="company_id"/>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </t>
+                </templates>
+
+            </kanban>
+        </field>
+    </record>
 
     <!-- =========================
             FORM VIEW
@@ -154,8 +198,8 @@
     <record id="action_service_types_wo_v4" model="ir.actions.act_window">
         <field name="name">أنواع الخدمات</field>
         <field name="res_model">wof.service.type</field>
-        <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="view_service_type_wo_v4_tree"/>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_id" ref="view_wof_service_type_wo_v4_kanban"/>
   
     </record>
 
