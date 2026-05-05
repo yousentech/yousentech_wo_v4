@@ -195,12 +195,11 @@
 
                         <t t-name="kanban-box">
 
-                            <!-- 🔥 الكارد الأساسي (مهم جداً) -->
+                            <!-- 🎨 CARD (clickable + hover) -->
                             <div t-attf-class="
                                 oe_kanban_card oe_kanban_global_click
-                                p-3 rounded border shadow-sm
+                                p-3 rounded border shadow-sm hover-shadow-lg
                                 #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
-                                hover-shadow-lg
                                 #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
                             ">
 
@@ -227,7 +226,7 @@
 
                                     </div>
 
-                                    <!-- KPI BOX -->
+                                    <!-- KPI BOX (بدون hover) -->
                                     <div t-attf-class="
                                         text-center px-2 py-1 rounded kpi-box
                                         #{record.parts_count.raw_value > 0 ? 'bg-white border border-success' : 'bg-white border border-danger'}
@@ -272,6 +271,8 @@
                                 </div>
 
                             </div>
+
+ 
 
                         </t>
 
