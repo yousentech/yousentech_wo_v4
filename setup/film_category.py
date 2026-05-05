@@ -63,6 +63,28 @@ class film_category(models.Model):
         ),
     ]
 
+
+    parts_count = fields.Integer(
+        string="عدد الأجزاء",
+        compute="_compute_parts_count"
+    )
+
+    def _compute_parts_count(self):
+        data = self.env['wof.car.parts'].read_group(
+            [('film_category_id', 'in', self.ids)],
+            ['film_category_id'],
+            ['film_category_id']
+        )
+        mapped = {
+            d['film_category_id'][0]: d['film_category_id_count']
+            for d in data
+        }
+
+        for rec in self:
+            rec.parts_count = mapped.get(rec.id, 0)
+
+            
+
     @api.model
     def name_get(self):
         result = []

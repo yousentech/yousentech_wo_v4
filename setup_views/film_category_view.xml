@@ -157,14 +157,102 @@
 
         </field>
     </record>
+    <!-- ================= KANBAN VIEW ================= -->
+    <record id="view_film_category_wo_v4_kanban" model="ir.ui.view">
+        <field name="name">wof.film.category_wo_v4.kanban</field>
+        <field name="model">wof.film.category</field>
+        <field name="arch" type="xml">
 
+            <kanban class="o_kanban_large">
+
+                <field name="name"/>
+                <field name="code"/>
+                <field name="parts_count"/>
+                <field name="active"/>
+                <field name="warranty_years"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+
+                        <!-- 🎨 لون حسب وجود أجزاء -->
+                        <div t-attf-class="
+                            oe_kanban_card oe_kanban_global_click p-3
+                            #{record.parts_count.raw_value > 0 ? 'border-start border-success border-4' : 'border-start border-danger border-4'}
+                            #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
+                        ">
+
+                            <!-- HEADER -->
+                            <div class="mb-2">
+                                <h4 class="mb-0">
+                                    <t t-if="record.code.raw_value">
+                                        [<field name="code"/>]
+                                    </t>
+                                    <field name="name"/>
+                                </h4>
+                            </div>
+
+                            <hr/>
+
+                            <!-- COUNTER -->
+                            <div class="text-center">
+
+                                <a type="action"
+                                name="%(action_car_part_wo_v4)d"
+                                context="{
+                                    'search_default_film_category_id': active_id,
+                                    'default_film_category_id': active_id
+                                }">
+
+                                    <div t-attf-class="
+                                        rounded p-3 border
+                                        #{record.parts_count.raw_value > 0 ? 'bg-success-subtle' : 'bg-danger-subtle'}
+                                    ">
+
+                                        <div class="fw-bold" style="font-size:20px;">
+                                            <field name="parts_count"/>
+                                        </div>
+
+                                        <div class="text-muted">
+                                            الأجزاء المرتبطة
+                                        </div>
+
+                                    </div>
+
+                                </a>
+
+                            </div>
+
+                            <hr/>
+
+                            <!-- INFO -->
+                            <div class="text-muted d-flex justify-content-between">
+
+                                <span>
+                                    ضمان: <field name="warranty_years"/> سنة
+                                </span>
+
+                                <span>
+                                    <field name="company_id"/>
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </t>
+                </templates>
+
+            </kanban>
+
+        </field>
+    </record>
 
     <!-- ================= ACTION ================= -->
     <record id="action_film_category_wo_v4" model="ir.actions.act_window">
         <field name="name">فئات الأفلام</field>
         <field name="res_model">wof.film.category</field>
-        <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="view_film_category_wo_v4_tree"/>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_id" ref="view_film_category_wo_v4_kanban"/>
       
     </record>
  
