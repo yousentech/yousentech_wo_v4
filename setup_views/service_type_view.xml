@@ -57,37 +57,88 @@
         <field name="name">wof.service.type.wo_v4.kanban</field>
         <field name="model">wof.service.type</field>
         <field name="arch" type="xml">
-            <kanban class="o_kanban_small_column">
-                
+             <kanban class="o_kanban_large">
+
                 <field name="name"/>
                 <field name="code"/>
+                <field name="parts_count"/>
+                <field name="film_count"/>
                 <field name="active"/>
 
                 <templates>
                     <t t-name="kanban-box">
-                        <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}">
 
-                            <div class="o_kanban_card_content">
+                        <!-- 🎨 ألوان حسب النشاط -->
+                        <div t-attf-class="
+                            oe_kanban_card oe_kanban_global_click p-3
+                            #{record.parts_count.raw_value > 0 ? 'border-start border-success border-4' : 'border-start border-danger border-4'}
+                            #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
+                        ">
 
-                                <!-- العنوان -->
-                                <div class="o_kanban_record_title">
-                                    <strong>
-                                        <t t-if="record.code.raw_value">
-                                            [<field name="code"/>]
-                                        </t>
-                                        <field name="name"/>
-                                    </strong>
+                            <!-- HEADER -->
+                            <div class="mb-2">
+                                <h4 class="mb-0">
+                                    <t t-if="record.code.raw_value">
+                                        [<field name="code"/>]
+                                    </t>
+                                    <field name="name"/>
+                                </h4>
+                            </div>
+
+                            <hr/>
+
+                            <!-- COUNTERS (Clickable) -->
+                            <div class="row text-center">
+
+                                <!-- Car Parts -->
+                                <div class="col-6">
+                                    <a type="action"
+                                    name="%(action_car_part_wo_v4)d"
+                                    context="{'search_default_service_type_id': record.id}">
+
+                                        <div class="o_stat_box">
+                                            <span class="o_stat_value text-success">
+                                                <field name="parts_count"/>
+                                            </span>
+                                            <span class="o_stat_text">
+                                                الأجزاء
+                                            </span>
+                                        </div>
+
+                                    </a>
                                 </div>
 
-                                <!-- معلومات إضافية -->
-                                <div class="text-muted mt8">
-                                    <span>الشركة:</span>
-                                    <field name="company_id"/>
+                                <!-- Films -->
+                                <div class="col-6">
+                                    <a type="action"
+                                    name="%(action_film_category_wo_v4)d"
+                                    context="{'search_default_service_type_id': record.id}">
+
+                                        <div class="o_stat_box">
+                                            <span class="o_stat_value text-primary">
+                                                <field name="film_count"/>
+                                            </span>
+                                            <span class="o_stat_text">
+                                                الأفلام
+                                            </span>
+                                        </div>
+
+                                    </a>
                                 </div>
 
                             </div>
 
+                            <hr/>
+
+                            <!-- FOOTER -->
+                            <div class="text-muted">
+                                <small>
+                                    <field name="company_id"/>
+                                </small>
+                            </div>
+
                         </div>
+
                     </t>
                 </templates>
 

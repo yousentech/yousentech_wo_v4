@@ -41,6 +41,12 @@ class ServiceType(models.Model):
         default=True
     )
 
+
+    parts_count = fields.Integer(compute="_compute_counts")
+    film_count = fields.Integer(compute="_compute_counts")
+
+
+
     _sql_constraints = [
         (
             "service_kind_unique",
@@ -54,7 +60,37 @@ class ServiceType(models.Model):
         ),
     ]
  
-   
+    def _compute_counts(self):
+        service_ids = self.ids
+
+        # ===== Car Parts =====
+        parts_data = self.env['wof.car.parts'].read_group(
+            [('service_type_id', 'in', service_ids)],
+            ['service_type_id'],
+            ['service_type_id']
+        )
+        parts_map = {
+            data['service_type_id'][0]: data['service_type_id_count']
+            for data in parts_data
+        }
+
+        # ===== Film Categories =====
+        film_data = self.env['wof.film.category'].read_group(
+            [('service_type_id', 'in', service_ids)],
+            ['service_type_id'],
+            ['service_type_id']
+        )
+        film_map = {
+            data['service_type_id'][0]: data['service_type_id_count']
+            for data in film_data
+        }
+
+        for rec in self:
+            rec.parts_count = parts_map.get(rec.id, 0)
+            rec.film_count = film_map.get(rec.id, 0)
+
+            
+
     @api.model
     def name_get(self):
         result = []
