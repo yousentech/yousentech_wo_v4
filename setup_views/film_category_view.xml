@@ -197,13 +197,10 @@
                         <t t-name="kanban-box">
 
                             <!-- 🎨 CARD (صغير + clickable) -->
-                            <div t-attf-class="
-                                oe_kanban_card oe_kanban_global_click
-                                p-3 rounded border shadow-sm
-                                #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
-                                hover-shadow-lg
-                                #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
-                            ">
+                           <div t-attf-class="
+                                    text-center px-2 py-1 rounded kpi-box
+                                    #{record.parts_count.raw_value > 0 ? 'bg-white border border-success' : 'bg-white border border-danger'}
+                                " style="min-width:75px;">
 
                                 <!-- HEADER -->
                                 <div class="d-flex justify-content-between align-items-start">
@@ -268,7 +265,7 @@
 
                                     <span>
                                         <i class="fa fa-shield-alt me-1"></i>
-                                        <field name="warranty_years"/> سنة
+                                        <field name="warranty_years"/>
                                     </span>
 
                                     <span>

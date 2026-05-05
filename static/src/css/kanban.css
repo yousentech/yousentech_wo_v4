@@ -1,8 +1,8 @@
-.o_kanban_record.hover-shadow-lg {
-    transition: all 0.2s ease-in-out;
+.kpi-box {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border-radius: 10px;
 }
-
-.o_kanban_record.hover-shadow-lg:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+.kpi-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.15);
 }
