@@ -182,7 +182,6 @@
         <field name="name">wof.film.category_wo_v4.kanban</field>
         <field name="model">wof.film.category</field>
         <field name="arch" type="xml">
-
                 <kanban class="o_kanban_large">
 
                     <field name="name"/>
@@ -196,11 +195,14 @@
 
                         <t t-name="kanban-box">
 
-                            <!-- 🎨 CARD (صغير + clickable) -->
-                           <div t-attf-class="
-                                    text-center px-2 py-1 rounded kpi-box
-                                    #{record.parts_count.raw_value > 0 ? 'bg-white border border-success' : 'bg-white border border-danger'}
-                                " style="min-width:75px;">
+                            <!-- 🔥 الكارد الأساسي (مهم جداً) -->
+                            <div t-attf-class="
+                                oe_kanban_card oe_kanban_global_click
+                                p-3 rounded border shadow-sm
+                                #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
+                                hover-shadow-lg
+                                #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
+                            ">
 
                                 <!-- HEADER -->
                                 <div class="d-flex justify-content-between align-items-start">
@@ -208,7 +210,6 @@
                                     <!-- LEFT -->
                                     <div style="max-width:70%;">
 
-                                        <!-- 🔥 NAME BOLD -->
                                         <div class="fw-bold" style="font-size:16px;">
                                             <i class="fa fa-film text-primary me-1"></i>
 
@@ -219,7 +220,6 @@
                                             <field name="name"/>
                                         </div>
 
-                                        <!-- SERVICE -->
                                         <div class="text-muted small">
                                             <i class="fa fa-cogs me-1"></i>
                                             <field name="service_type_id"/>
@@ -227,9 +227,9 @@
 
                                     </div>
 
-                                    <!-- KPI (شكل أفخم أصغر) -->
+                                    <!-- KPI BOX -->
                                     <div t-attf-class="
-                                        text-center px-2 py-1 rounded
+                                        text-center px-2 py-1 rounded kpi-box
                                         #{record.parts_count.raw_value > 0 ? 'bg-white border border-success' : 'bg-white border border-danger'}
                                     " style="min-width:70px;">
 
@@ -247,17 +247,13 @@
 
                                 <!-- PROGRESS -->
                                 <div class="mt-2">
-
                                     <div class="progress" style="height:5px;">
-
                                         <div t-attf-class="progress-bar
                                             #{record.parts_count.raw_value > 0 ? 'bg-success' : 'bg-danger'}
                                         "
                                         t-att-style="'width:%s%%' % (record.parts_count.raw_value > 0 and 100 or 0)">
                                         </div>
-
                                     </div>
-
                                 </div>
 
                                 <!-- FOOTER -->
@@ -282,7 +278,6 @@
                     </templates>
 
                 </kanban>
-
         </field>
     </record>
 
