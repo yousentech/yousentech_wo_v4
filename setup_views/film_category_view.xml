@@ -124,8 +124,8 @@
 
                                 </group>
                             </group>
-                             <group  string="المقاسات الافتراضية"> 
-                                <field name="film_part_size_line_ids" nolabel="1">
+                           
+                                <field name="film_part_size_line_ids"  string="المقاسات الافتراضية" >
 
                                     <tree editable="bottom">
                                         <field name="car_part_id"/>
@@ -139,7 +139,7 @@
                                     </tree>
 
                                 </field>
-                            </group>
+                       
 
                         </page>
                          <page string="رسالة التحذير"   invisible="heat_insulation == False">
