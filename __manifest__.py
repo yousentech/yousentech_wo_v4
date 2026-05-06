@@ -8,12 +8,12 @@
     'depends': ['base', 'account',  'sale','stock'],
     'data': [ 'security/security.xml',
               'security/ir.model.access.csv',
-            
+                'setup_views/film_parts_lines_view.xml',
+
               'setup_views/service_type_view.xml',
               'setup_views/product_template_view.xml',
               'setup_views/film_category_view.xml',
-                'setup_views/film_parts_lines_view.xml',
-
+ 
               'setup_views/car_size_view.xml',
               'setup_views/cart_part.xml',
               'setup_views/cart_part_wizard.xml',
