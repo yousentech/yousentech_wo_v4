@@ -73,33 +73,10 @@
                     </group>
 
                     <!-- Options -->
-                    <group string="الإعدادات"> 
-                        <group>
-                            <field name="is_effected_in_inventory"/>
-
-                            
-                        </group>
-                        <group>
-                            <field name="car_film_product_required"
-                                invisible="is_effected_in_inventory == False"/>
-                        </group>
-                    </group>
-                    <group string="رسالة التحذير"> 
-                        <group>
-                            <field name="warning_film_line_ids" widget="many2many_tags"/>
-
-                            
-                        </group>
-                        <group>
-                            <field name="warning_msg" />
-                        </group>
-                    </group>
+                  
+                   
                     
-                    <!-- Products -->
-                    <group string="الأصناف" invisible="is_effected_in_inventory == False">
-
-                        <field name="limpid_film_product_ids" widget="many2many_tags"/>
-                    </group>
+                 
 
                     <!-- Lines -->
                     <notebook>
@@ -135,6 +112,37 @@
                             </field>
 
                         </page>
+                        <page string="التاثير المخزني">
+                            <group> 
+                                <group>
+                                    <field name="is_effected_in_inventory"/>
+                                       <!-- Products -->
+                                    <group string="الأصناف" invisible="is_effected_in_inventory == False">
+
+                                        <field name="limpid_film_product_ids" widget="many2many_tags"/>
+                                    </group>
+
+                                    
+                                </group>
+                                <group>
+                                    <field name="car_film_product_required"  invisible="is_effected_in_inventory == False"/>
+                                </group>
+                            </group>
+                        </page>
+                         <page string="رسالة التحذير">
+                            <group > 
+                                    <group>
+                                        <field name="warning_film_line_ids" widget="many2many_tags"/>
+
+                                        
+                                    </group>
+                                    <group>
+                                        <field name="warning_msg" />
+                                    </group>
+                                </group>
+                        </page>
+
+
                     </notebook>
 
                 </sheet>

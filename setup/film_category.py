@@ -174,11 +174,7 @@ class CarPartsCommissionLines(models.Model):
         domain="[('header_id','=',header_id)]"
     )
 
-    limpid_film_product_id = fields.Many2one(
-        'product.product',
-        string="الصنف المخزني",
-        domain="[('type','=','product'),('measure_product','=',True)]"
-    )
+    
  
     # ================= INVENTORY FLAG =================
     is_effected_in_inventory = fields.Boolean(
