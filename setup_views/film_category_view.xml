@@ -27,286 +27,153 @@
         <field name="name">wof.film.category_wo_v4.form</field>
         <field name="model">wof.film.category</field>
         <field name="arch" type="xml">
+
         <form string="فئة الفيلم">
 
-    <sheet>
+            <sheet>
 
-        <!-- 🔴 Ribbon -->
-        <widget name="web_ribbon"
-                title="غير مفعل"
-                bg_color="bg-danger"
-                invisible="active"/>
+                <!-- 🔴 Ribbon -->
+                <widget name="web_ribbon"
+                        title="غير مفعل"
+                        bg_color="bg-danger"
+                        invisible="active"/>
 
-        <!-- ================= HEADER ================= -->
-        <div class="oe_title">
-            <h1>
-                <field name="name" placeholder="اسم فئة الفيلم"/>
-            </h1>
-            <div class="text-muted">
-                <i class="fa fa-barcode me-1"></i>
-                <field name="code"/>
-            </div>
-        </div>
-
-        <!-- ================= BUTTONS ================= -->
-        <div class="oe_button_box" name="button_box">
-
-            <button name="toggle_active"
-                    type="object"
-                    string="إلغاء التفعيل"
-                    class="btn btn-danger"
-                    icon="fa-times"
-                    invisible="not active"
-                    groups="yousentech_wo_v4.group_wo_manager"/>
-
-            <button name="toggle_active"
-                    type="object"
-                    string="تفعيل"
-                    class="btn btn-success"
-                    icon="fa-check"
-                    invisible="active"
-                    groups="yousentech_wo_v4.group_wo_manager"/>
-
-        </div>
-
-        <!-- ================= BASIC INFO ================= -->
-        <group string="📋 المعلومات الأساسية" col="2">
-
-            <group>
-                <field name="service_type_id" options="{'no_create': False}"/>
-            </group>
-
-            <group>
-                <field name="company_id" readonly="1"/>
-                <field name="warranty_years"/>
-                <field name="active" invisible="1"/>
-                <field name="heat_insulation" invisible="1"/>
-            </group>
-
-        </group>
-
-        <!-- ================= NOTEBOOK ================= -->
-        <notebook>
-
-            <!-- ================= PARTS ================= -->
-            <page string="🔧 الأجزاء">
-
-                <field name="film_part_line_ids">
-                    <tree editable="bottom">
-                        <field name="car_part_id"/>
-                        <field name="car_size_id"/>
-                        <field name="part_price"/>
-                        <field name="commission"/>
-                        <field name="discount_exceed_limit"/>
-                        <field name="price_readonly"/>
-                    </tree>
-                </field>
-
-            </page>
-
-            <!-- ================= COLORS ================= -->
-            <page string="🎨 درجات اللون" invisible="heat_insulation == False">
-
-                <field name="film_category_line_ids">
-                    <tree editable="bottom">
-                        <field name="name"/>
-                        <field name="limpid_product_ids" widget="many2many_tags"/>
-                    </tree>
-                </field>
-
-            </page>
-
-            <!-- ================= INVENTORY ================= -->
-            <page string="📦 التأثير المخزني">
-
-                <group string="الإعدادات" col="2">
-
-                    <group>
-                        <field name="is_effected_in_inventory"/>
-                        <field name="car_film_product_required"
-                               invisible="is_effected_in_inventory == False or heat_insulation == False"/>
-                    </group>
-
-                    <group>
-                        <field name="limpid_film_product_ids"
-                               widget="many2many_tags"
-                               invisible="is_effected_in_inventory == False"
-                               required="is_effected_in_inventory == True"/>
-                    </group>
-
-                </group>
-
-                <separator string="📏 المقاسات الافتراضية"/>
-
-                <field name="film_part_size_line_ids">
-                    <tree editable="bottom">
-                        <field name="car_part_id"/>
-                        <field name="car_size_id"/>
-                        <field name="default_qty"/>
-                        <field name="min_qty"/>
-                        <field name="max_qty"/>
-                        <field name="size_readonly"/>
-                    </tree>
-                </field>
-
-            </page>
-
-            <!-- ================= WARNINGS ================= -->
-            <page string="⚠️ رسائل التحذير" invisible="heat_insulation == False">
-
-                <group col="2">
-
-                    <group>
-                        <field name="warning_film_line_ids" widget="many2many_tags"/>
-                    </group>
-
-                    <group>
-                        <field name="warning_msg"/>
-                    </group>
-
-                </group>
-
-            </page>
-
-        </notebook>
-
-    </sheet>
-
-</form>
-
-            <!-- <form string="فئة الفيلم">
-
-                <sheet>
-
-                    <!-- Ribbon -->
-                    <widget name="web_ribbon"
-                            title="غير مفعل"
-                            bg_color="bg-danger"
-                            invisible="active"/>
-
-                    <!-- Buttons -->
-                    <div class="oe_button_box" name="button_box">
-
-                        <button name="toggle_active"
-                                type="object"
-                                string="إلغاء التفعيل"
-                                class="btn btn-danger"
-                                invisible="not active"
-                                groups="yousentech_wo_v4.group_wo_manager"/>
-
-                        <button name="toggle_active"
-                                type="object"
-                                string="تفعيل"
-                                class="btn btn-success"
-                                invisible="active"
-                                groups="yousentech_wo_v4.group_wo_manager"/>
-
+                <!-- ================= HEADER ================= -->
+                <div class="oe_title">
+                    <h1>
+                        <field name="name" placeholder="اسم فئة الفيلم"/>
+                    </h1>
+                    <div class="text-muted">
+                        <i class="fa fa-barcode me-1"></i>
+                        <field name="code"/>
                     </div>
+                </div>
 
-                    <!-- Main -->
+                <!-- ================= BUTTONS ================= -->
+                <div class="oe_button_box" name="button_box">
+
+                    <button name="toggle_active"
+                            type="object"
+                            string="إلغاء التفعيل"
+                            class="btn btn-danger"
+                            icon="fa-times"
+                            invisible="not active"
+                            groups="yousentech_wo_v4.group_wo_manager"/>
+
+                    <button name="toggle_active"
+                            type="object"
+                            string="تفعيل"
+                            class="btn btn-success"
+                            icon="fa-check"
+                            invisible="active"
+                            groups="yousentech_wo_v4.group_wo_manager"/>
+
+                </div>
+
+                <!-- ================= BASIC INFO ================= -->
+                <group string="📋 المعلومات الأساسية" col="2">
+
                     <group>
-                        <group>
-                            <field name="code"/>
-                            <field name="name"/>
-                            <field name="service_type_id"/>
-                        </group>
-
-                        <group>
-                            <field name="company_id" readonly="1"/>
-                            <field name="warranty_years"/>
-                            <field name="active" invisible="1"/>
-                            <field name="heat_insulation" invisible="1"/>
-                        </group>
+                        <field name="service_type_id" options="{'no_create': False}"/>
                     </group>
 
-                    <!-- Options -->
-                  
-                   
-                    
-                 
+                    <group>
+                        <field name="company_id" readonly="1"/>
+                        <field name="warranty_years"/>
+                        <field name="active" invisible="1"/>
+                        <field name="heat_insulation" invisible="1"/>
+                    </group>
 
-                    <!-- Lines -->
-                    <notebook>
-                        <page string="الاجزاء">
+                </group>
 
-                            <field name="film_part_line_ids">
+                <!-- ================= NOTEBOOK ================= -->
+                <notebook>
 
-                                <tree editable="bottom">
-                                    <field name="car_part_id"/>
-                                    <field name="car_size_id"/>
-                                    <field name="part_price"/>
-                                    <field name="commission"/>
-                                    <field name="discount_exceed_limit"/>
-                                    <field name="price_readonly"/>
+                    <!-- ================= PARTS ================= -->
+                    <page string="🔧 الأجزاء">
 
-                                
-                                </tree>
+                        <field name="film_part_line_ids">
+                            <tree editable="bottom">
+                                <field name="car_part_id"/>
+                                <field name="car_size_id"/>
+                                <field name="part_price"/>
+                                <field name="commission"/>
+                                <field name="discount_exceed_limit"/>
+                                <field name="price_readonly"/>
+                            </tree>
+                        </field>
 
-                            </field>
+                    </page>
 
-                        </page>
+                    <!-- ================= COLORS ================= -->
+                    <page string="🎨 درجات اللون" invisible="heat_insulation == False">
 
+                        <field name="film_category_line_ids">
+                            <tree editable="bottom">
+                                <field name="name"/>
+                                <field name="limpid_product_ids" widget="many2many_tags"/>
+                            </tree>
+                        </field>
 
-                        <page string="درجات اللون"  invisible="heat_insulation == False">
+                    </page>
 
-                            <field name="film_category_line_ids">
+                    <!-- ================= INVENTORY ================= -->
+                    <page string="📦 التأثير المخزني">
 
-                                <tree editable="bottom">
-                                    <field name="name"/>
-                                    <field name="limpid_product_ids" widget="many2many_tags"/>
-                                </tree>
+                        <group string="الإعدادات" col="2">
 
-                            </field>
-
-                        </page>
-                        <page string="التاثير المخزني">
-                            <group> 
-                                <group>
-                                    <field name="is_effected_in_inventory"/>
-                                    <field name="car_film_product_required" invisible="is_effected_in_inventory == False or heat_insulation == False"/>
-                                </group>
-                                <group>
-                                    <field name="limpid_film_product_ids" widget="many2many_tags" invisible="is_effected_in_inventory == False" required="is_effected_in_inventory == True"/>
-
-                                </group>
+                            <group>
+                                <field name="is_effected_in_inventory"/>
+                                <field name="car_film_product_required"
+                                    invisible="is_effected_in_inventory == False or heat_insulation == False"/>
                             </group>
-                           
-                                <field name="film_part_size_line_ids"  string="المقاسات الافتراضية" >
 
-                                    <tree editable="bottom">
-                                        <field name="car_part_id"/>
-                                        <field name="car_size_id"/>
-                                        <field name="default_qty"/>
-                                        <field name="min_qty"/>
-                                        <field name="max_qty"/>
-                                        <field name="size_readonly"/>
+                            <group>
+                                <field name="limpid_film_product_ids"
+                                    widget="many2many_tags"
+                                    invisible="is_effected_in_inventory == False"
+                                    required="is_effected_in_inventory == True"/>
+                            </group>
 
-                                    
-                                    </tree>
+                        </group>
 
-                                </field>
-                       
+                        <separator string="📏 المقاسات الافتراضية"/>
 
-                        </page>
-                         <page string="رسالة التحذير"   invisible="heat_insulation == False">
-                            <group > 
-                                    <group>
-                                        <field name="warning_film_line_ids" widget="many2many_tags"/>
+                        <field name="film_part_size_line_ids">
+                            <tree editable="bottom">
+                                <field name="car_part_id"/>
+                                <field name="car_size_id"/>
+                                <field name="default_qty"/>
+                                <field name="min_qty"/>
+                                <field name="max_qty"/>
+                                <field name="size_readonly"/>
+                            </tree>
+                        </field>
 
-                                        
-                                    </group>
-                                    <group>
-                                        <field name="warning_msg" />
-                                    </group>
-                                </group>
-                        </page>
+                    </page>
 
-                      
-                    </notebook>
+                    <!-- ================= WARNINGS ================= -->
+                    <page string="⚠️ رسائل التحذير" invisible="heat_insulation == False">
 
-                </sheet>
+                        <group col="2">
 
-            </form> -->
+                            <group>
+                                <field name="warning_film_line_ids" widget="many2many_tags"/>
+                            </group>
+
+                            <group>
+                                <field name="warning_msg"/>
+                            </group>
+
+                        </group>
+
+                    </page>
+
+                </notebook>
+
+            </sheet>
+
+        </form>
 
         </field>
     </record>
