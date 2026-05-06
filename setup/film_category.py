@@ -47,6 +47,9 @@ class film_category(models.Model):
     is_effected_in_inventory = fields.Boolean(default=False,string="الفلم يؤثر على المخزون")
     car_film_product_required = fields.Boolean(default=False,string="كود المبيعات اجباري في امر التركيب")
     film_category_line_ids = fields.One2many('wof.film.category.lines','header_id' , ondelete="cascade")
+    warning_film_line_ids = fields.Many2many('wof.film.category.lines',string="درجة اللون")
+    warning_msg = fields.Char(string="رسالة تحذير")
+
     film_part_line_ids = fields.One2many('wof.film.parts.lines','header_id' , ondelete="cascade")
     limpid_film_product_ids = fields.Many2many('product.product', string="الصنف المخزني",domain="[('measure_product','=',True),('type','=','product')]")
 
@@ -128,7 +131,7 @@ class FilmCategoryLine(models.Model):
     _name = 'wof.film.category.lines'
     _rec_name = 'name'
 
-    name = fields.Char(string="الاسم", )
+    name = fields.Char(string="درجة اللون", )
     limpid_product_ids = fields.Many2many('product.product',domain=[('measure_product','=', True),('type','=','product')],   string="الصنف المخزني", )
     header_id = fields.Many2one('wof.film.category',ondelete="cascade")
 

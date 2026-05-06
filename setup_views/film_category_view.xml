@@ -84,6 +84,17 @@
                                 invisible="is_effected_in_inventory == False"/>
                         </group>
                     </group>
+                    <group string="رسالة التحذير"> 
+                        <group>
+                            <field name="warning_film_line_ids" widget="many2many_tags"/>
+
+                            
+                        </group>
+                        <group>
+                            <field name="warning_msg" />
+                        </group>
+                    </group>
+                    
                     <!-- Products -->
                     <group string="الأصناف" invisible="is_effected_in_inventory == False">
 
@@ -112,7 +123,7 @@
                         </page>
 
 
-                        <page string="التفاصيل">
+                        <page string="درجات اللون">
 
                             <field name="film_category_line_ids">
 
@@ -260,7 +271,7 @@
 
                                         <span>
                                             <i class="fa fa-shield-alt me-1"></i>
-                                            <field name="warranty_years"/>
+                                           ضمان <field name="warranty_years"/>
                                         </span>
 
                                         <span>
