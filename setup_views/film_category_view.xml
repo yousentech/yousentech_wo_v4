@@ -74,7 +74,7 @@
                         <field name="service_type_id" options="{'no_create': False}"/>
                         <field name="code" />
                          
-                    </div>
+                   
                     </group>
 
                     <group>
