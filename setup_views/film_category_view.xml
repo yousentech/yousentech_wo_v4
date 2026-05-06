@@ -43,10 +43,7 @@
                     <h1>
                         <field name="name" placeholder="اسم فئة الفيلم"/>
                     </h1>
-                    <div class="text-muted">
-                        <i class="fa fa-barcode me-1"></i>
-                        <field name="code"/>
-                    </div>
+                   
                 </div>
 
                 <!-- ================= BUTTONS ================= -->
@@ -75,11 +72,14 @@
 
                     <group>
                         <field name="service_type_id" options="{'no_create': False}"/>
+                        <field name="code" />
+                         
+                    </div>
                     </group>
 
                     <group>
-                        <field name="company_id" readonly="1"/>
                         <field name="warranty_years"/>
+                        <field name="company_id" readonly="1" force_save="1"/>
                         <field name="active" invisible="1"/>
                         <field name="heat_insulation" invisible="1"/>
                     </group>
