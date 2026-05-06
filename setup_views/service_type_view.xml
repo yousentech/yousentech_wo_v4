@@ -43,6 +43,8 @@
 
                 <field name="code"/>
                 <field name="name"/>
+                <field name="heat_insulation" />
+
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="active" column_invisible="1"/>
 
@@ -191,10 +193,11 @@
                         <group>
                             <field name="code" placeholder="مثال: TINT"/>
                             <field name="name" placeholder="مثال: عزل حراري"/>
+                            <field name="heat_insulation" />
                         </group>
 
                         <group>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="1" force_save="1"/>
                             <field name="active" invisible="1"/>
                         </group>
                     </group>
@@ -225,6 +228,8 @@
                 <!-- Search Fields -->
                 <field name="name"/>
                 <field name="code"/>
+                <field name="heat_insulation" />
+
 
                
                 <filter string="مؤرشف"
