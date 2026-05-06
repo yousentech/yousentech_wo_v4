@@ -97,68 +97,35 @@
                                 <!-- Car Parts -->
                                 <div class="col-6">
 
-                                <a type="action"
-                                    name="%(action_film_parts_lines)d"
-                                    context="{
-                                        'search_default_service_type_id': active_id,
-                                        'default_service_type_id': active_id,
-                                        'group_by':'header_id'
-                                    }"
-                                    class="text-decoration-none">
-
-                                        <div t-attf-class="
-                                            rounded p-3 border shadow-sm text-center hover-card
-                                            #{record.parts_count.raw_value &gt; 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
-                                        ">
-
-                                            <div>
-                                                <i class="fa fa-cogs fa-lg text-secondary"/>
-                                            </div>
-
-                                            <div class="fw-bold mt-1" style="font-size:20px;">
-                                                <field name="parts_count"/>
-                                            </div>
-
-                                            <div class="text-muted small">
-                                                الأجزاء
-                                            </div>
-
-                                        </div>
-
-                                    </a>
-
-                                    <!-- <a type="action"
-                                    name="%(action_film_parts_wo_v4_lines)d"
-                                    context="{
+                                    <a type="action"
+                                        name="%(action_film_parts_lines)d"
+                                        context="{
                                             'search_default_service_type_id': active_id,
                                             'default_service_type_id': active_id,
                                             'group_by':'header_id'
                                         }"
-                                    class="text-decoration-none">
+                                        class="text-decoration-none">
 
-                                        <div t-attf-class="
-                                            rounded p-3 border shadow-sm text-center hover-card
-                                            #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
-                                        ">
+                                            <div t-attf-class="
+                                                rounded p-3 border shadow-sm text-center hover-card
+                                                #{record.parts_count.raw_value &gt; 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
+                                            ">
 
-                                            <!-- ICON -->
-                                            <div>
-                                                <i class="fa fa-cogs fa-lg text-secondary"></i>
+                                                <div>
+                                                    <i class="fa fa-cogs fa-lg text-secondary"/>
+                                                </div>
+
+                                                <div class="fw-bold mt-1" style="font-size:20px;">
+                                                    <field name="parts_count"/>
+                                                </div>
+
+                                                <div class="text-muted small">
+                                                    الأجزاء
+                                                </div>
+
                                             </div>
 
-                                            <!-- NUMBER -->
-                                            <div class="fw-bold mt-1" style="font-size:20px;">
-                                                <field name="parts_count"/>
-                                            </div>
-
-                                            <!-- LABEL -->
-                                            <div class="text-muted small">
-                                                الأجزاء
-                                            </div>
-
-                                        </div>
-
-                                    </a> -->
+                                        </a>
 
                                 </div>
 
