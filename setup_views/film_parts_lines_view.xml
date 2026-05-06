@@ -118,25 +118,25 @@
                 <field name="service_type_id"/>
 
                 <!-- Filters -->
-                <filter string="سعر = 0"
+                <filter string="سعر = 0"  name = "price_srch"
                         domain="[('part_price','=',0)]"/>
 
-                <filter string="عمولة = 0"
+                <filter string="عمولة = 0"  name = "comm_srch"
                         domain="[('commission','=',0)]"/>
 
-                <filter string="سعر ثابت"
+                <filter string="سعر ثابت" name = "price_readonly_srch"
                         domain="[('price_readonly','=',True)]"/>
 
                 <!-- Group By -->
                 <group expand="0" string="تجميع">
 
-                    <filter string="نوع الخدمة"
+                    <filter string="نوع الخدمة"  name = "service_type_groupby"
                             context="{'group_by':'service_type_id'}"/>
 
-                    <filter string="الفلم"
+                    <filter string="الفلم"   name = "film_groupby"
                             context="{'group_by':'header_id'}"/>
 
-                    <filter string="الجزء"
+                    <filter string="الجزء" name = "part_groupby"
                             context="{'group_by':'car_part_id'}"/>
 
                 </group>
@@ -153,7 +153,7 @@
             <field name="view_mode">tree,form</field>
             <field name="context">
                         {
-                            'search_default_group_by_header_id': 1
+                            'search_default_film_groupby': 1
                         }
             </field>
             <field name="view_id" ref="view_film_parts_lines_wo_v4_tree"/>
