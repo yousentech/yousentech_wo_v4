@@ -98,7 +98,7 @@
                                 <div class="col-6">
 
                                     <a type="action"
-                                        name="%(action_film_parts_lines)d"
+                                        name="%(action_film_parts_wo_v4_lines)d"
                                         context="{
                                             'search_default_service_type_id': active_id,
                                             'default_service_type_id': active_id,
