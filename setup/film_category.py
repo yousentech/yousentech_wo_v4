@@ -214,13 +214,14 @@ class CarPartssizeLines(models.Model):
         'wof.car.parts',
         required=True,
         ondelete='cascade',
-        index=True
-    ) 
+        index=True,
+        domain="[('id', 'in', available_part_ids)]" )
      
     car_size_id = fields.Many2one(
         'wof.car.size',
         string="حجم السيارة"
     )
+    available_part_ids = fields.Many2many('wof.car.parts', compute='_compute_available_parts')
 
     # ================= QUANTITIES =================
     default_qty = fields.Float(string="المقاس الافتراضي")
@@ -255,3 +256,11 @@ class CarPartssizeLines(models.Model):
                     raise ValidationError(
                         "المقاس الافتراضي يجب أن يكون بين الحد الأدنى والأعلى"
                     )
+
+    @api.depends('header_id')
+    def _compute_available_parts(self):
+        for rec in self:
+            if rec.header_id:
+                rec.available_part_ids = rec.header_id.film_part_line_ids.mapped('car_part_id')
+            else:
+                rec.available_part_ids = False

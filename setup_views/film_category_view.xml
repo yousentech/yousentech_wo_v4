@@ -124,15 +124,11 @@
 
                             <group>
                                 <field name="is_effected_in_inventory"/>
-                                <field name="car_film_product_required"
-                                    invisible="is_effected_in_inventory == False or heat_insulation == False"/>
+                                <field name="car_film_product_required" invisible="is_effected_in_inventory == False or heat_insulation == False"/>
                             </group>
 
                             <group>
-                                <field name="limpid_film_product_ids"
-                                    widget="many2many_tags"
-                                    invisible="is_effected_in_inventory == False"
-                                    required="is_effected_in_inventory == True"/>
+                                <field name="limpid_film_product_ids" widget="many2many_tags" invisible="is_effected_in_inventory == False" required="is_effected_in_inventory == True"/>
                             </group>
 
                         </group>
