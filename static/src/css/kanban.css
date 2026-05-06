@@ -1,13 +1,23 @@
 /* hover فقط للكارد */
-.hover-card {
+/* .hover-card {
     transition: all 0.2s ease-in-out;
 }
 
 .hover-card:hover {
     border-color: #198754;
-}
+} */
 
 /* KPI ثابت */
 .kpi-box {
     box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* hover للكارد */
+.hover-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.hover-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
 }

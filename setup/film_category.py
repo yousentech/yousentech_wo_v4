@@ -151,7 +151,13 @@ class CarPartsCommissionLines(models.Model):
     _name = 'wof.film.parts.lines'
     _description = 'Car film Parts Lines'
     _rec_name = 'car_part_id'
-
+    # ================= SERVICE TYPE (IMPORTANT) =================
+    service_type_id = fields.Many2one(
+        'wof.service.type',
+        related='header_id.service_type_id',
+        store=True,
+        index=True
+    )
     # ================= RELATIONS =================
     car_part_id = fields.Many2one(
         'wof.car.parts',

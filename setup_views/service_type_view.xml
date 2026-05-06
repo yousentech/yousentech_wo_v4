@@ -96,23 +96,40 @@
 
                                 <!-- Car Parts -->
                                 <div class="col-6">
+
                                     <a type="action"
-                                    name="%(action_car_part_wo_v4)d"
-                                    context="{'search_default_service_type_id': active_id}">
+                                    name="%(action_film_parts_wo_v4_lines)d"
+                                    context="{
+                                        'search_default_service_type_id': record.id,
+                                        'default_service_type_id': record.id,
+                                        'group_by':'header_id'
+                                    }"
+                                    class="text-decoration-none">
 
-                                        <div class="rounded p-2 bg-light border">
+                                        <div t-attf-class="
+                                            rounded p-3 border shadow-sm text-center hover-card
+                                            #{record.parts_count.raw_value > 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
+                                        ">
 
-                                            <div class="fw-bold text-success" style="font-size:18px;">
+                                            <!-- ICON -->
+                                            <div>
+                                                <i class="fa fa-cogs fa-lg text-secondary"></i>
+                                            </div>
+
+                                            <!-- NUMBER -->
+                                            <div class="fw-bold mt-1" style="font-size:20px;">
                                                 <field name="parts_count"/>
                                             </div>
 
-                                            <div class="text-muted">
+                                            <!-- LABEL -->
+                                            <div class="text-muted small">
                                                 الأجزاء
                                             </div>
 
                                         </div>
 
                                     </a>
+
                                 </div>
 
                                 <!-- Films -->
