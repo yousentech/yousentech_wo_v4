@@ -71,10 +71,10 @@
                     <t t-name="kanban-box">
 
                         <!-- 🎨 ألوان حسب النشاط -->
-                            <div t-attf-class="
-                                    oe_kanban_card oe_kanban_global_click p-3
-                                    #{(record.parts_count.raw_value > 0 and record.film_count.raw_value > 0) ? 'border-start border-success border-4' : ''}
-                                    #{((record.parts_count.raw_value > 0 and record.film_count.raw_value == 0) or (record.parts_count.raw_value == 0 and record.film_count.raw_value > 0)) ? 'border-start border-warning border-4' : ''}
+                          <div t-attf-class="
+                                oe_kanban_card oe_kanban_global_click p-3
+                                    #{(record.parts_count.raw_value &gt; 0 and record.film_count.raw_value &gt; 0) ? 'border-start border-success border-4' : ''}
+                                    #{((record.parts_count.raw_value &gt; 0 and record.film_count.raw_value == 0) or (record.parts_count.raw_value == 0 and record.film_count.raw_value &gt; 0)) ? 'border-start border-warning border-4' : ''}
                                     #{(record.parts_count.raw_value == 0 and record.film_count.raw_value == 0) ? 'border-start border-danger border-4' : ''}
                                     #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
                                 ">
@@ -97,13 +97,43 @@
                                 <!-- Car Parts -->
                                 <div class="col-6">
 
-                                    <a type="action"
-                                    name="%(action_film_parts_wo_v4_lines)d"
+                                <a type="action"
+                                    name="%(action_film_parts_lines)d"
                                     context="{
-                                        'search_default_service_type_id': record.id,
-                                        'default_service_type_id': record.id,
+                                        'search_default_service_type_id': active_id,
+                                        'default_service_type_id': active_id,
                                         'group_by':'header_id'
                                     }"
+                                    class="text-decoration-none">
+
+                                        <div t-attf-class="
+                                            rounded p-3 border shadow-sm text-center hover-card
+                                            #{record.parts_count.raw_value &gt; 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
+                                        ">
+
+                                            <div>
+                                                <i class="fa fa-cogs fa-lg text-secondary"/>
+                                            </div>
+
+                                            <div class="fw-bold mt-1" style="font-size:20px;">
+                                                <field name="parts_count"/>
+                                            </div>
+
+                                            <div class="text-muted small">
+                                                الأجزاء
+                                            </div>
+
+                                        </div>
+
+                                    </a>
+
+                                    <!-- <a type="action"
+                                    name="%(action_film_parts_wo_v4_lines)d"
+                                    context="{
+                                            'search_default_service_type_id': active_id,
+                                            'default_service_type_id': active_id,
+                                            'group_by':'header_id'
+                                        }"
                                     class="text-decoration-none">
 
                                         <div t-attf-class="
@@ -128,7 +158,7 @@
 
                                         </div>
 
-                                    </a>
+                                    </a> -->
 
                                 </div>
 
