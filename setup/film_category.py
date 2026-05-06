@@ -47,10 +47,14 @@ class film_category(models.Model):
     is_effected_in_inventory = fields.Boolean(default=False,string="الفلم يؤثر على المخزون")
     car_film_product_required = fields.Boolean(default=False,string="كود المبيعات اجباري في امر التركيب")
     film_category_line_ids = fields.One2many('wof.film.category.lines','header_id' , ondelete="cascade")
+    
     warning_film_line_ids = fields.Many2many('wof.film.category.lines',string="درجة اللون")
     warning_msg = fields.Char(string="رسالة تحذير")
 
     film_part_line_ids = fields.One2many('wof.film.parts.lines','header_id' , ondelete="cascade")
+    film_part_size_line_ids = fields.One2many('wof.film.parts.size.lines','header_id' , ondelete="cascade")
+
+
     limpid_film_product_ids = fields.Many2many('product.product', string="الصنف المخزني",domain="[('measure_product','=',True),('type','=','product')]")
 
     heat_insulation = fields.Boolean(related="service_type_id.heat_insulation")
@@ -197,3 +201,57 @@ class CarPartsCommissionLines(models.Model):
             'هذا السجل موجود مسبقاً لهذه الإعدادات'
         )
     ]
+
+
+    
+class CarPartssizeLines(models.Model):
+    _name = 'wof.film.parts.size.lines'
+    _description = 'Car film Parts size Lines'
+    _rec_name = 'car_part_id'
+
+    # ================= RELATIONS =================
+    car_part_id = fields.Many2one(
+        'wof.car.parts',
+        required=True,
+        ondelete='cascade',
+        index=True
+    ) 
+     
+    car_size_id = fields.Many2one(
+        'wof.car.size',
+        string="حجم السيارة"
+    )
+
+    # ================= QUANTITIES =================
+    default_qty = fields.Float(string="المقاس الافتراضي")
+    min_qty = fields.Float(string="الحد الأدنى")
+    max_qty = fields.Float(string="الحد الأعلى")
+
+    size_readonly = fields.Boolean(string="المقاس ثابت")
+
+    
+     # ================= RELATIONS =================
+    header_id = fields.Many2one('wof.film.category',ondelete="cascade")
+
+
+
+ # ================= CONSTRAINT =================
+    _sql_constraints = [
+        (
+            'unique_size_rule',
+            'unique(car_part_id, car_size_id, header_id)',
+            'هذا السجل موجود مسبقاً لنفس الإعدادات'
+        )
+    ]
+
+    # ================= VALIDATION =================
+    @api.constrains('default_qty', 'min_qty', 'max_qty')
+    def _check_qty_range(self):
+        for rec in self:
+
+            if rec.min_qty and rec.max_qty and rec.default_qty:
+
+                if not (rec.min_qty <= rec.default_qty <= rec.max_qty):
+                    raise ValidationError(
+                        "المقاس الافتراضي يجب أن يكون بين الحد الأدنى والأعلى"
+                    )

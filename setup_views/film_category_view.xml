@@ -124,6 +124,22 @@
 
                                 </group>
                             </group>
+                             <group  string="المقاسات الافتراضية"> 
+                                <field name="film_part_size_line_ids" nolabel="1">
+
+                                    <tree editable="bottom">
+                                        <field name="car_part_id"/>
+                                        <field name="car_size_id"/>
+                                        <field name="default_qty"/>
+                                        <field name="min_qty"/>
+                                        <field name="max_qty"/>
+                                        <field name="size_readonly"/>
+
+                                    
+                                    </tree>
+
+                                </field>
+                            </group>
 
                         </page>
                          <page string="رسالة التحذير"   invisible="heat_insulation == False">
@@ -139,7 +155,7 @@
                                 </group>
                         </page>
 
-
+                      
                     </notebook>
 
                 </sheet>
