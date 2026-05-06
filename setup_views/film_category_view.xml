@@ -116,18 +116,15 @@
                             <group> 
                                 <group>
                                     <field name="is_effected_in_inventory"/>
-                                       <!-- Products -->
-                                    <group string="الأصناف" invisible="is_effected_in_inventory == False">
+                                        <field name="car_film_product_required"  invisible="is_effected_in_inventory == False"/>
 
-                                        <field name="limpid_film_product_ids" widget="many2many_tags"/>
-                                    </group>
-
-                                    
                                 </group>
                                 <group>
-                                    <field name="car_film_product_required"  invisible="is_effected_in_inventory == False"/>
+                                    <field name="limpid_film_product_ids" widget="many2many_tags" invisible="is_effected_in_inventory == False" required="is_effected_in_inventory == True"/>
+
                                 </group>
                             </group>
+
                         </page>
                          <page string="رسالة التحذير">
                             <group > 
