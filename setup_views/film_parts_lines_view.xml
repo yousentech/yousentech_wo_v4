@@ -155,6 +155,7 @@
                         {
                             'search_default_group_by_header_id': 1
                         }
+            </field>
             <field name="view_id" ref="view_film_parts_lines_wo_v4_tree"/>
             <field name="search_view_id" ref="view_film_parts_lines_wo_v4_search"/>
         </record>
