@@ -23,8 +23,6 @@ class CarParts(models.Model):
         tracking=True     # 👈 لو تستخدم chatter
     )
     priority_part = fields.Integer(string="ترتيب الاولوية", index = True)
-
-    service_type_id = fields.Many2one('wof.service.type', string="نوع الخدمة",required=True, index=True)
  
     def _default_company_parent(self):
         company = self.env.company
@@ -45,25 +43,12 @@ class CarParts(models.Model):
     )
     # ================= PRICING & COMMISSION =================
     commission = fields.Float(string="عمولة الفني (%)")
-    default_qty = fields.Float(string="الكمية / المقاس الافتراضي")
-   
-    min_qty = fields.Float(string="الحد الأدنى")
-    max_qty = fields.Float(string="الحد الأعلى")
-    tax_id = fields.Many2one(
-        'account.tax',
-        string="الضريبة",
-        domain=[('type_tax_use', '=', 'sale')]
-    )
-
-    free_part = fields.Boolean(string="جزء مجاني")
-    discount_exceed_limit = fields.Integer(string="حد الخصم المسموح (%)")
     
     # ================= FLAGS =================
     active = fields.Boolean(default=True)
     car_part = fields.Boolean(string="جزء سيارة")
     car_category_part_flag = fields.Boolean(string="منطقة خدمة")
-    price_readonly = fields.Boolean(string="السعر ثابت")
-    size_readonly = fields.Boolean(string="المقاس ثابت")
+  
     part_options_required = fields.Boolean(string="الخيارات الإضافية إجبارية")
     film_category_readonly = fields.Boolean(string="فيلم غير قابل للتعديل")
     

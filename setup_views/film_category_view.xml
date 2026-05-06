@@ -96,7 +96,9 @@
                             <tree editable="bottom">
                                 <field name="car_part_id"/>
                                 <field name="car_size_id"/>
-                                <field name="part_price"/>
+                                <field name="free_part"/>
+                                <field name="part_price" readonly="free_part == True"/>
+                                <field name="tax_id"  readonly="free_part == True"/>
                                 <field name="commission"/>
                                 <field name="discount_exceed_limit"/>
                                 <field name="price_readonly"/>

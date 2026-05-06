@@ -176,7 +176,13 @@ class CarPartsCommissionLines(models.Model):
     commission = fields.Float(string="عمولة الفني")
     discount_exceed_limit = fields.Integer(string="نسبة الخصم المسموح")
 
+    tax_id = fields.Many2one(
+        'account.tax',
+        string="الضريبة",
+        domain=[('type_tax_use', '=', 'sale')]
+    )
     price_readonly = fields.Boolean(string="السعر ثابت")
+    free_part = fields.Boolean(string="جزء مجاني")
 
     # ================= PRODUCTS =================
     film_category_line_id = fields.Many2one(
@@ -207,6 +213,13 @@ class CarPartsCommissionLines(models.Model):
             'هذا السجل موجود مسبقاً لهذه الإعدادات'
         )
     ]
+
+    @api.onchange('free_part')
+    def set_free_part(self)
+        for rec in self:
+            if rec.free_part:
+                rec.part_price = 0
+                rec.tax_id = False
 
 
     
