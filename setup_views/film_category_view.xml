@@ -69,6 +69,7 @@
                             <field name="company_id" readonly="1"/>
                             <field name="warranty_years"/>
                             <field name="active" invisible="1"/>
+                            <field name="heat_insulation" invisible="1"/>
                         </group>
                     </group>
 
@@ -100,7 +101,7 @@
                         </page>
 
 
-                        <page string="درجات اللون">
+                        <page string="درجات اللون"  invisible="heat_insulation == False">
 
                             <field name="film_category_line_ids">
 
@@ -116,8 +117,7 @@
                             <group> 
                                 <group>
                                     <field name="is_effected_in_inventory"/>
-                                        <field name="car_film_product_required"  invisible="is_effected_in_inventory == False"/>
-
+                                    <field name="car_film_product_required" invisible="is_effected_in_inventory == False or heat_insulation == False"/>
                                 </group>
                                 <group>
                                     <field name="limpid_film_product_ids" widget="many2many_tags" invisible="is_effected_in_inventory == False" required="is_effected_in_inventory == True"/>
@@ -126,7 +126,7 @@
                             </group>
 
                         </page>
-                         <page string="رسالة التحذير">
+                         <page string="رسالة التحذير"   invisible="heat_insulation == False">
                             <group > 
                                     <group>
                                         <field name="warning_film_line_ids" widget="many2many_tags"/>

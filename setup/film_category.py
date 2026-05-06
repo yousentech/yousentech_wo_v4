@@ -53,6 +53,7 @@ class film_category(models.Model):
     film_part_line_ids = fields.One2many('wof.film.parts.lines','header_id' , ondelete="cascade")
     limpid_film_product_ids = fields.Many2many('product.product', string="الصنف المخزني",domain="[('measure_product','=',True),('type','=','product')]")
 
+    heat_insulation = fields.Boolean(related="service_type_id.heat_insulation")
 
     _sql_constraints = [
         (
