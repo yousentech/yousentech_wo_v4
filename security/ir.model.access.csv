@@ -9,11 +9,7 @@ access_wof_car_size,wof.car.size,model_wof_car_size,yousentech_wo_v4.group_wo_ma
 access_wof_car_size,wof.car.size,model_wof_car_size,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts,wof.car.parts,model_wof_car_parts,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts_lines,wof.car.parts.lines,model_wof_car_parts_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
-access_wof_car_parts_sub_parts,wof.car.parts.sub.parts,model_wof_car_parts_sub_parts,yousentech_wo_v4.group_wo_manager,1,1,1,1
-
-access_wof_car_parts_com_lines,wof.car.parts.com.lines,model_wof_car_parts_com_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
-access_wof_car_parts_size_lines,wof.car.parts.size.lines,model_wof_car_parts_size_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
-
+ 
 access_wof_car_parts_wizard,wof.car.parts.wizard,model_wof_car_parts_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts_wizard_line,wof.car.parts.wizard.line,model_wof_car_parts_wizard_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts_wizard_size,wof.car.parts.wizard.size,model_wof_car_parts_wizard_size,yousentech_wo_v4.group_wo_manager,1,1,1,1

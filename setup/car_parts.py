@@ -57,11 +57,7 @@ class CarParts(models.Model):
     notes = fields.Char(string="ملاحظات")
     warning_msg = fields.Char(string="رسالة تحذير")
 
-    # ================= RELATIONS =================
-    part_lines = fields.One2many('wof.car.parts.lines','header_id',required=True, ondelete="cascade")
-    part_com_lines = fields.One2many('wof.car.parts.com.lines','header_id',required=True, ondelete="cascade")
-    part_sizes_lines = fields.One2many('wof.car.parts.size.lines','header_id',required=True, ondelete="cascade")
- 
+   
     part_options_ids = fields.Many2many('wof.car.part.options', string="خيارات إضافية")
    
     _sql_constraints = [
