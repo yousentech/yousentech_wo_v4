@@ -57,15 +57,16 @@
                         <group string="📋 المعلومات الأساسية" col="2">
 
                             <group>
+                                <field name="header_id"/>
                                 <field name="car_part_id"/>
-                                  <field name="available_part_ids" invisible="1"/>
-                                  <field name="header_id"/>
+                                <field name="available_part_ids" invisible="1"/>
+                              
                              
                             </group>
 
                             <group> 
-                               <field name="car_size_id"/>
                                 <field name="service_type_id" readonly="1"/>
+                               <field name="car_size_id"/>
                               
                             </group>
 
