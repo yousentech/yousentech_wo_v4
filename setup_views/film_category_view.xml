@@ -346,7 +346,7 @@
               sequence="20"/>
     
     
-    <record id="view_film_parts_lines_form" model="ir.ui.view">
+    <!-- <record id="view_film_parts_lines_form" model="ir.ui.view">
         <field name="name">view_film_parts_lines_form</field>
         <field name="model">wof.film.parts.lines</field>
         <field name="arch" type="xml">
@@ -372,7 +372,7 @@
             </form>
 
         </field>
-    </record>
+    </record> -->
 
 
 </odoo>
