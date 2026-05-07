@@ -162,7 +162,7 @@ class CarPartsCommissionLines(models.Model):
     car_part_id = fields.Many2one(
             'wof.car.parts',
             required=True,
-            ondelete='cascade',
+            ondelete='restrict'
             index=True,
             domain="[('id', 'not in', available_part_ids)]"
         )
@@ -245,7 +245,7 @@ class CarPartssizeLines(models.Model):
     car_part_id = fields.Many2one(
         'wof.car.parts',
         required=True,
-        ondelete='cascade',
+        ondelete='restrict'
         index=True,
         domain="[('id', 'in', available_part_ids)]" )
      
