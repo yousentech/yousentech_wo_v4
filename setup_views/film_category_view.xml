@@ -105,6 +105,7 @@
                                 <field name="price_readonly"/>
                                 <field name="tax_id"/>
                                 <field name="header_id" invisible="1"/>
+                                <field name="available_part_ids" invisible="1"/>
                             </tree>
                         </field>
 
