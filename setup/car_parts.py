@@ -52,12 +52,7 @@ class CarParts(models.Model):
     part_options_required = fields.Boolean(string="الخيارات الإضافية إجبارية")
     film_category_readonly = fields.Boolean(string="فيلم غير قابل للتعديل")
     
-    # ================= SERVICE TYPE (IMPORTANT) =================
-    service_type_id = fields.Many2one(
-        'wof.service.type',
-        store=True,
-        index=True
-    )
+  
     # ================= NOTES =================
     notes = fields.Char(string="ملاحظات")
     warning_msg = fields.Char(string="رسالة تحذير")
