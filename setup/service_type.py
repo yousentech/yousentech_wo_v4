@@ -42,8 +42,11 @@ class ServiceType(models.Model):
     )
     heat_insulation = fields.Boolean(string="النوع عزل حراري",  default=False )
 
-    parts_count = fields.Integer(compute="_compute_counts")
-    film_count = fields.Integer(compute="_compute_counts")
+    parts_count = fields.Integer(
+    string="عدد الأجزاء", compute="_compute_counts"  )
+
+    film_count = fields.Integer(
+        string="عدد الأفلام",  compute="_compute_counts" )
 
 
 
@@ -61,34 +64,35 @@ class ServiceType(models.Model):
     ]
  
     def _compute_counts(self):
-        service_ids = self.ids
 
-        # ===== Car Parts =====
-        parts_data = self.env['wof.car.parts'].read_group(
-            [('service_type_id', 'in', service_ids)],
+        # ================= FILMS COUNT =================
+        films_data = self.env['wof.film.category'].read_group(
+            [('service_type_id', 'in', self.ids)],
             ['service_type_id'],
             ['service_type_id']
         )
-        parts_map = {
-            data['service_type_id'][0]: data['service_type_id_count']
-            for data in parts_data
-        }
 
-        # ===== Film Categories =====
-        film_data = self.env['wof.film.category'].read_group(
-            [('service_type_id', 'in', service_ids)],
-            ['service_type_id'],
-            ['service_type_id']
-        )
         film_map = {
-            data['service_type_id'][0]: data['service_type_id_count']
-            for data in film_data
+            item['service_type_id'][0]: item['service_type_id_count']
+            for item in films_data
         }
 
-        for rec in self:
-            rec.parts_count = parts_map.get(rec.id, 0)
-            rec.film_count = film_map.get(rec.id, 0)
+        # ================= PARTS COUNT =================
+        parts_data = self.env['wof.film.parts.lines'].read_group(
+            [('service_type_id', 'in', self.ids)],
+            ['service_type_id'],
+            ['service_type_id']
+        )
 
+        part_map = {
+            item['service_type_id'][0]: item['service_type_id_count']
+            for item in parts_data
+        }
+
+        # ================= ASSIGN =================
+        for rec in self:
+            rec.film_count = film_map.get(rec.id, 0)
+            rec.parts_count = part_map.get(rec.id, 0)
             
 
     @api.model
