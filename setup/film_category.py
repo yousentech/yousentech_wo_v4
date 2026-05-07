@@ -23,7 +23,6 @@ class film_category(models.Model):
         tracking=True     # 👈 لو تستخدم chatter
     )
 
-
     def _default_company_parent(self):
         company = self.env.company
         return company.parent_id or company
@@ -191,8 +190,6 @@ class CarPartsCommissionLines(models.Model):
         domain="[('header_id','=',header_id)]"
     )
 
-    
- 
     # ================= INVENTORY FLAG =================
     is_effected_in_inventory = fields.Boolean(
         related='header_id.is_effected_in_inventory',
@@ -201,9 +198,6 @@ class CarPartsCommissionLines(models.Model):
 
      # ================= RELATIONS =================
     header_id = fields.Many2one('wof.film.category',ondelete="cascade")
-
-
-
 
     # ================= CONSTRAINT =================
     _sql_constraints = [
@@ -221,8 +215,6 @@ class CarPartsCommissionLines(models.Model):
                 rec.part_price = 0
                 rec.tax_id = False
 
-
-    
 class CarPartssizeLines(models.Model):
     _name = 'wof.film.parts.size.lines'
     _description = 'Car film Parts size Lines'

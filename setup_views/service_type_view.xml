@@ -95,7 +95,7 @@
                             <div class="row text-center g-2">
 
                                 <!-- Car Parts -->
-                                <!-- <div class="col-6">
+                                <div class="col-6">
 
                                    <a type="action"
                                             name="%(action_film_parts_wo_v4_lines)d"
@@ -127,7 +127,7 @@
 
                                         </a>
 
-                                </div> -->
+                                </div>
 
                                 <!-- Films -->
                                 <div class="col-6">
