@@ -102,7 +102,7 @@
                                 <field name="commission"/>
                                 <field name="discount_exceed_limit"/>
                                 <field name="price_readonly"/>
-                                   <field name="tax_id"/>
+                                <field name="tax_id"/>
                             </tree>
                         </field>
 
