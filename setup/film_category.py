@@ -158,12 +158,14 @@ class CarPartsCommissionLines(models.Model):
         index=True
     )
     # ================= RELATIONS =================
+    available_part_ids = fields.Many2many('wof.car.parts',   compute='_compute_available_part_ids' )
     car_part_id = fields.Many2one(
-        'wof.car.parts',
-        required=True,
-        ondelete='cascade',
-        index=True
-    ) 
+            'wof.car.parts',
+            required=True,
+            ondelete='cascade',
+            index=True,
+            domain="[('id', 'in', available_part_ids)]"
+        )
      
     car_size_id = fields.Many2one(
         'wof.car.size',
@@ -214,6 +216,25 @@ class CarPartsCommissionLines(models.Model):
             if rec.free_part:
                 rec.part_price = 0
                 rec.tax_id = False
+
+    @api.depends('header_id')
+    def _compute_available_part_ids(self):
+
+        all_parts = self.env['wof.car.parts'].search([])
+
+        for rec in self:
+
+            if not rec.header_id:
+                rec.available_part_ids = all_parts
+                continue
+
+            used_parts = rec.header_id.film_part_line_ids.mapped('car_part_id')
+
+            # استثناء السطر الحالي أثناء التعديل
+            if rec.car_part_id:
+                used_parts -= rec.car_part_id
+
+            rec.available_part_ids = all_parts - used_parts
 
 class CarPartssizeLines(models.Model):
     _name = 'wof.film.parts.size.lines'

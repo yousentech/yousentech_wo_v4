@@ -86,7 +86,7 @@
                         </group>
 
                         <!-- ================= PRODUCT ================= -->
-                        <group string="📦 كود المبيعات">
+                        <group string="📦 درجة اللون الافتراضي">
 
                             <field name="film_category_line_id"/>
 
