@@ -63,8 +63,7 @@ class CarParts(models.Model):
     part_sizes_lines = fields.One2many('wof.car.parts.size.lines','header_id',required=True, ondelete="cascade")
  
     part_options_ids = fields.Many2many('wof.car.part.options', string="خيارات إضافية")
-    transparency_level_ids = fields.Many2many('wof.parts.transparency.level', string="درجة الشفافية")
- 
+   
     _sql_constraints = [
         ("car_part_unique",
          "UNIQUE(name)",
@@ -102,12 +101,6 @@ class CarParts(models.Model):
             return services.name_get()
         return super().name_search(name, args=args, operator=operator, limit=limit)
 
-    @api.onchange('price_readonly')
-    def _onchange_price_readonly(self):
-        for rec in self:
-            for line in rec.part_com_lines:
-                line.price_readonly = rec.price_readonly
-
     @api.constrains('product_id', 'name')
     def _check_product(self):
         for rec in self:
@@ -129,257 +122,257 @@ class CarParts(models.Model):
             if prod_new:
                return prod_new
 
-    def car_part_properties(self, service_type, film_category_id, car_size_id, return_type):
+    # def car_part_properties(self, service_type, film_category_id, car_size_id, return_type):
 
-        size_line = self._get_size_line(service_type, film_category_id, car_size_id)
-        price_line = self._get_price_line(service_type, film_category_id, car_size_id)
+    #     size_line = self._get_size_line(service_type, film_category_id, car_size_id)
+    #     price_line = self._get_price_line(service_type, film_category_id, car_size_id)
 
-        size_line = size_line or self
-        price_line = price_line or self
+    #     size_line = size_line or self
+    #     price_line = price_line or self
 
-        size_map = {
-            "default_qty": size_line.default_qty or self.default_qty,
-            "min_qty": size_line.min_qty or self.min_qty,
-            "max_qty": size_line.max_qty or self.max_qty,
-            "size_readonly": size_line.size_readonly or self.size_readonly,
-        }
+    #     size_map = {
+    #         "default_qty": size_line.default_qty or self.default_qty,
+    #         "min_qty": size_line.min_qty or self.min_qty,
+    #         "max_qty": size_line.max_qty or self.max_qty,
+    #         "size_readonly": size_line.size_readonly or self.size_readonly,
+    #     }
 
-        price_map = {
-            "part_price": price_line.part_price if price_line else False,
-            "price_readonly": price_line.price_readonly if price_line else False,
-            "commission": price_line.commission or self.commission,
-            "discount_exceed_limit": price_line.discount_exceed_limit or self.discount_exceed_limit,
-            "default_film_product_id": (
-                price_line.car_film_product_id.id if price_line and price_line.car_film_product_id else False
-            ),
-            "limpid_film_product_id": (
-                price_line.limpid_film_product_id.id if price_line and price_line.limpid_film_product_id else False
-            ),
-        }
+    #     price_map = {
+    #         "part_price": price_line.part_price if price_line else False,
+    #         "price_readonly": price_line.price_readonly if price_line else False,
+    #         "commission": price_line.commission or self.commission,
+    #         "discount_exceed_limit": price_line.discount_exceed_limit or self.discount_exceed_limit,
+    #         "default_film_product_id": (
+    #             price_line.car_film_product_id.id if price_line and price_line.car_film_product_id else False
+    #         ),
+    #         "limpid_film_product_id": (
+    #             price_line.limpid_film_product_id.id if price_line and price_line.limpid_film_product_id else False
+    #         ),
+    #     }
 
-        if return_type in size_map:
-            return size_map[return_type]
+    #     if return_type in size_map:
+    #         return size_map[return_type]
 
-        if return_type in price_map:
-            return price_map[return_type]
+    #     if return_type in price_map:
+    #         return price_map[return_type]
 
-        return False
+    #     return False
 
-    def _get_size_line(self, service_type, film_category_id, car_size_id):
-        return self.part_sizes_lines.filtered(lambda l: l.service_type.id == service_type.id and (
-                    (l.car_size_id.id == car_size_id.id and l.films_category_id.id == film_category_id.id)
-                    or (not l.car_size_id and l.films_category_id.id == film_category_id.id)
-                    or (l.car_size_id.id == car_size_id.id and not l.films_category_id)
-                    or (not l.car_size_id and not l.films_category_id)))[:1]
+    # def _get_size_line(self, service_type, film_category_id, car_size_id):
+    #     return self.part_sizes_lines.filtered(lambda l: l.service_type.id == service_type.id and (
+    #                 (l.car_size_id.id == car_size_id.id and l.films_category_id.id == film_category_id.id)
+    #                 or (not l.car_size_id and l.films_category_id.id == film_category_id.id)
+    #                 or (l.car_size_id.id == car_size_id.id and not l.films_category_id)
+    #                 or (not l.car_size_id and not l.films_category_id)))[:1]
 
 
-    def _get_price_line(self, service_type, film_category_id, car_size_id):
-        return self.part_com_lines.filtered(lambda l: l.service_type.id == service_type.id and (
-                    (l.car_size_id.id == car_size_id.id and l.films_category_id.id == film_category_id.id)
-                    or (not l.car_size_id and l.films_category_id.id == film_category_id.id)
-                    or (l.car_size_id.id == car_size_id.id and not l.films_category_id)
-                    or (not l.car_size_id and not l.films_category_id)))[:1]
+    # def _get_price_line(self, service_type, film_category_id, car_size_id):
+    #     return self.part_com_lines.filtered(lambda l: l.service_type.id == service_type.id and (
+    #                 (l.car_size_id.id == car_size_id.id and l.films_category_id.id == film_category_id.id)
+    #                 or (not l.car_size_id and l.films_category_id.id == film_category_id.id)
+    #                 or (l.car_size_id.id == car_size_id.id and not l.films_category_id)
+    #                 or (not l.car_size_id and not l.films_category_id)))[:1]
 
  
-class CarPartsLines(models.Model):
-    _name = 'wof.car.parts.lines'
-    _description = 'Car Parts Lines'
-    _rec_name = 'name'
-    _order = 'id desc'
+# class CarPartsLines(models.Model):
+#     _name = 'wof.car.parts.lines'
+#     _description = 'Car Parts Lines'
+#     _rec_name = 'name'
+#     _order = 'id desc'
 
-    # ================= BASIC =================
-    name = fields.Char(string="اسم الخط", required=True)
+#     # ================= BASIC =================
+#     name = fields.Char(string="اسم الخط", required=True)
 
-    default_selection = fields.Boolean(
-        string="افتراضي في أمر التركيب",
-        default=False
-    )
+#     default_selection = fields.Boolean(
+#         string="افتراضي في أمر التركيب",
+#         default=False
+#     )
 
-    # ================= RELATION =================
-    header_id = fields.Many2one(
-        'wof.car.parts',
-        string="جزء السيارة",
-        required=True,
-        ondelete='cascade',
-        index=True
-    )
+#     # ================= RELATION =================
+#     header_id = fields.Many2one(
+#         'wof.car.parts',
+#         string="جزء السيارة",
+#         required=True,
+#         ondelete='cascade',
+#         index=True
+#     )
 
-    # ================= SUB LINES =================
-    sub_part_ids = fields.One2many(
-        'wof.car.parts.sub.parts',
-        'line_id',
-        string="الأجزاء الفرعية"
-    )
+#     # ================= SUB LINES =================
+#     sub_part_ids = fields.One2many(
+#         'wof.car.parts.sub.parts',
+#         'line_id',
+#         string="الأجزاء الفرعية"
+#     )
 
-    # ================= ACTION =================
-    # def action_open_sub_parts(self):
-    #     self.ensure_one()
+#     # ================= ACTION =================
+#     # def action_open_sub_parts(self):
+#     #     self.ensure_one()
 
-    #     action = self.env.ref(
-    #         'qimamhd_wo_v3.action_car_parts_line_sub_parts_v3'
-    #     ).read()[0]
+#     #     action = self.env.ref(
+#     #         'qimamhd_wo_v3.action_car_parts_line_sub_parts_v3'
+#     #     ).read()[0]
 
-    #     action.update({
-    #         'domain': [('line_id', '=', self.id)],
-    #         'context': {
-    #             'default_line_id': self.id,
-    #             'default_header_id': self.header_id.id,
-    #         }
-    #     })
+#     #     action.update({
+#     #         'domain': [('line_id', '=', self.id)],
+#     #         'context': {
+#     #             'default_line_id': self.id,
+#     #             'default_header_id': self.header_id.id,
+#     #         }
+#     #     })
 
-    #     return action
+#     #     return action
 
-class CarPartsSubParts(models.Model):
-    _name = 'wof.car.parts.sub.parts'
-    _description = 'Car Parts Sub Parts'
-    _rec_name = 'car_part_id'
+# class CarPartsSubParts(models.Model):
+#     _name = 'wof.car.parts.sub.parts'
+#     _description = 'Car Parts Sub Parts'
+#     _rec_name = 'car_part_id'
 
-    # ================= RELATIONS =================
-    line_id = fields.Many2one(
-        'wof.car.parts.lines',
-        string="Line",
-        required=True,
-        ondelete='cascade',
-        index=True
-    )
+#     # ================= RELATIONS =================
+#     line_id = fields.Many2one(
+#         'wof.car.parts.lines',
+#         string="Line",
+#         required=True,
+#         ondelete='cascade',
+#         index=True
+#     )
 
-    header_id = fields.Many2one('wof.car.parts',
-        related='line_id.header_id',
-        store=True,
-        readonly=True
-    )
+#     header_id = fields.Many2one('wof.car.parts',
+#         related='line_id.header_id',
+#         store=True,
+#         readonly=True
+#     )
 
-    service_type_id = fields.Many2one(
-        'wof.service.type',
-        string="نوع الخدمة",
-        related='header_id.service_type_id',
-        store=True,
-        readonly=True
-    )
+#     service_type_id = fields.Many2one(
+#         'wof.service.type',
+#         string="نوع الخدمة",
+#         related='header_id.service_type_id',
+#         store=True,
+#         readonly=True
+#     )
 
-    # ================= CONFIG =================
-    car_part_id = fields.Many2one(
-        'wof.car.parts',
-        string="جزء السيارة",
-        required=True,
-        domain="[('service_type_id','=',service_type_id)]"
-    )
+#     # ================= CONFIG =================
+#     car_part_id = fields.Many2one(
+#         'wof.car.parts',
+#         string="جزء السيارة",
+#         required=True,
+#         domain="[('service_type_id','=',service_type_id)]"
+#     )
 
-    car_size_id = fields.Many2one(
-        'wof.car.size',
-        string="حجم السيارة"
-    )
+#     car_size_id = fields.Many2one(
+#         'wof.car.size',
+#         string="حجم السيارة"
+#     )
 
-    film_category_id = fields.Many2one(
-        'wof.film.category',
-        string="نوع الفلم",
-        domain="[('service_type_id','=',service_type_id)]"
-    )
+#     film_category_id = fields.Many2one(
+#         'wof.film.category',
+#         string="نوع الفلم",
+#         domain="[('service_type_id','=',service_type_id)]"
+#     )
 
-    film_category_line_id = fields.Many2one(
-        'wof.film.category.lines',
-        string="كود المبيعات",
-        domain="[('header_id','=',film_category_id)]"
-    )
+#     film_category_line_id = fields.Many2one(
+#         'wof.film.category.lines',
+#         string="كود المبيعات",
+#         domain="[('header_id','=',film_category_id)]"
+#     )
 
-    # ================= PRODUCT =================
-    default_film_product_id = fields.Many2one(
-        'product.product',
-        string="الصنف المخزني",
-        domain="[('type','=','product'),('measure_product','=',True)]"
-    )
+#     # ================= PRODUCT =================
+#     default_film_product_id = fields.Many2one(
+#         'product.product',
+#         string="الصنف المخزني",
+#         domain="[('type','=','product'),('measure_product','=',True)]"
+#     )
 
-    package_film_category_line_id = fields.Many2one(
-        'wof.film.category.lines',
-        string="كود الباقة",
-        domain="[('header_id','=',film_category_id)]"
-    )
+#     package_film_category_line_id = fields.Many2one(
+#         'wof.film.category.lines',
+#         string="كود الباقة",
+#         domain="[('header_id','=',film_category_id)]"
+#     )
 
-    package_film_product_id = fields.Many2one(
-        'product.product',
-        string="صنف الباقة",
-        domain="[('type','=','product'),('measure_product','=',True)]"
-    )
+#     package_film_product_id = fields.Many2one(
+#         'product.product',
+#         string="صنف الباقة",
+#         domain="[('type','=','product'),('measure_product','=',True)]"
+#     )
 
-    # ================= FLAGS =================
-    is_effected_in_inventory = fields.Boolean(
-        related='film_category_id.is_effected_in_inventory',
-        store=True
-    )
+#     # ================= FLAGS =================
+#     is_effected_in_inventory = fields.Boolean(
+#         related='film_category_id.is_effected_in_inventory',
+#         store=True
+#     )
          
-class CarPartsCommissionLines(models.Model):
-    _name = 'wof.car.parts.com.lines'
-    _description = 'Car Parts Commission Lines'
-    _rec_name = 'service_type_id'
+# class CarPartsCommissionLines(models.Model):
+#     _name = 'wof.car.parts.com.lines'
+#     _description = 'Car Parts Commission Lines'
+#     _rec_name = 'service_type_id'
 
-    # ================= RELATIONS =================
-    header_id = fields.Many2one(
-        'wof.car.parts',
-        required=True,
-        ondelete='cascade',
-        index=True
-    )
+#     # ================= RELATIONS =================
+#     header_id = fields.Many2one(
+#         'wof.car.parts',
+#         required=True,
+#         ondelete='cascade',
+#         index=True
+#     )
 
-    service_type_id = fields.Many2one(
-        'wof.service.type',
-        string="نوع الخدمة",
-        required=True
-    )
+#     service_type_id = fields.Many2one(
+#         'wof.service.type',
+#         string="نوع الخدمة",
+#         required=True
+#     )
 
-    film_category_id = fields.Many2one(
-        'wof.film.category',
-        string="نوع الفلم",
-        domain="[('service_type_id','=',service_type_id)]"
-    )
+#     film_category_id = fields.Many2one(
+#         'wof.film.category',
+#         string="نوع الفلم",
+#         domain="[('service_type_id','=',service_type_id)]"
+#     )
 
-    car_size_id = fields.Many2one(
-        'wof.car.size',
-        string="حجم السيارة"
-    )
+#     car_size_id = fields.Many2one(
+#         'wof.car.size',
+#         string="حجم السيارة"
+#     )
 
-    # ================= PRICING =================
-    part_price = fields.Float(string="سعر الجزء")
-    commission = fields.Float(string="عمولة الفني")
-    discount_exceed_limit = fields.Integer(string="نسبة الخصم المسموح")
+#     # ================= PRICING =================
+#     part_price = fields.Float(string="سعر الجزء")
+#     commission = fields.Float(string="عمولة الفني")
+#     discount_exceed_limit = fields.Integer(string="نسبة الخصم المسموح")
 
-    price_readonly = fields.Boolean(string="السعر ثابت")
+#     price_readonly = fields.Boolean(string="السعر ثابت")
 
-    # ================= PRODUCTS =================
-    film_category_line_id = fields.Many2one(
-        'wof.film.category.lines',
-        string="كود المبيعات",
-        domain="[('header_id','=',film_category_id)]"
-    )
+#     # ================= PRODUCTS =================
+#     film_category_line_id = fields.Many2one(
+#         'wof.film.category.lines',
+#         string="كود المبيعات",
+#         domain="[('header_id','=',film_category_id)]"
+#     )
 
-    limpid_film_product_id = fields.Many2one(
-        'product.product',
-        string="الصنف المخزني",
-        domain="[('type','=','product'),('measure_product','=',True)]"
-    )
+#     limpid_film_product_id = fields.Many2one(
+#         'product.product',
+#         string="الصنف المخزني",
+#         domain="[('type','=','product'),('measure_product','=',True)]"
+#     )
 
-    package_film_product_id = fields.Many2one(
-        'product.product',
-        string="صنف الباقة",
-        domain="[('type','=','product'),('measure_product','=',True)]"
-    )
+#     package_film_product_id = fields.Many2one(
+#         'product.product',
+#         string="صنف الباقة",
+#         domain="[('type','=','product'),('measure_product','=',True)]"
+#     )
 
-    # ================= INVENTORY FLAG =================
-    is_effected_in_inventory = fields.Boolean(
-        related='film_category_id.is_effected_in_inventory',
-        store=True
-    )
+#     # ================= INVENTORY FLAG =================
+#     is_effected_in_inventory = fields.Boolean(
+#         related='film_category_id.is_effected_in_inventory',
+#         store=True
+#     )
 
-    # ================= CONSTRAINT =================
-    _sql_constraints = [
-        (
-            'unique_commission_rule',
-            'unique(service_type_id, film_category_id, car_size_id, header_id)',
-            'هذا السجل موجود مسبقاً لهذه الإعدادات'
-        )
-    ]
+#     # ================= CONSTRAINT =================
+#     _sql_constraints = [
+#         (
+#             'unique_commission_rule',
+#             'unique(service_type_id, film_category_id, car_size_id, header_id)',
+#             'هذا السجل موجود مسبقاً لهذه الإعدادات'
+#         )
+#     ]
  
 
-class CarPartsSizeLines(models.Model):
+# class CarPartsSizeLines(models.Model):
     _name = 'wof.car.parts.size.lines'
     _description = 'Car Parts Size Rules'
 
