@@ -369,65 +369,65 @@ class CarParts(models.Model):
  
 
 # class CarPartsSizeLines(models.Model):
-    _name = 'wof.car.parts.size.lines'
-    _description = 'Car Parts Size Rules'
+    # _name = 'wof.car.parts.size.lines'
+    # _description = 'Car Parts Size Rules'
 
-    # ================= RELATIONS =================
-    header_id = fields.Many2one(
-        'wof.car.parts',
-        required=True,
-        ondelete='cascade',
-        index=True
-    )
+    # # ================= RELATIONS =================
+    # header_id = fields.Many2one(
+    #     'wof.car.parts',
+    #     required=True,
+    #     ondelete='cascade',
+    #     index=True
+    # )
 
-    service_type_id = fields.Many2one('wof.service.type',
-        related='header_id.service_type_id',
-        store=True,
-        readonly=True
-    )
+    # service_type_id = fields.Many2one('wof.service.type',
+    #     related='header_id.service_type_id',
+    #     store=True,
+    #     readonly=True
+    # )
 
-    film_category_id = fields.Many2one(
-        'wof.film.category',
-        string="نوع الفلم",
-        domain="[('service_type_id','=',service_type_id)]"
-    )
+    # film_category_id = fields.Many2one(
+    #     'wof.film.category',
+    #     string="نوع الفلم",
+    #     domain="[('service_type_id','=',service_type_id)]"
+    # )
 
-    car_size_id = fields.Many2one(
-        'wof.car.size',
-        string="حجم السيارة",
-        required=True
-    )
+    # car_size_id = fields.Many2one(
+    #     'wof.car.size',
+    #     string="حجم السيارة",
+    #     required=True
+    # )
 
-    # ================= QUANTITIES =================
-    default_qty = fields.Float(string="المقاس الافتراضي")
-    min_qty = fields.Float(string="الحد الأدنى")
-    max_qty = fields.Float(string="الحد الأعلى")
+    # # ================= QUANTITIES =================
+    # default_qty = fields.Float(string="المقاس الافتراضي")
+    # min_qty = fields.Float(string="الحد الأدنى")
+    # max_qty = fields.Float(string="الحد الأعلى")
 
-    size_readonly = fields.Boolean(string="المقاس ثابت")
+    # size_readonly = fields.Boolean(string="المقاس ثابت")
 
-    # ================= FLAGS =================
-    is_effected_in_inventory = fields.Boolean(
-        related='film_category_id.is_effected_in_inventory',
-        store=True
-    )
+    # # ================= FLAGS =================
+    # is_effected_in_inventory = fields.Boolean(
+    #     related='film_category_id.is_effected_in_inventory',
+    #     store=True
+    # )
 
-    # ================= CONSTRAINT =================
-    _sql_constraints = [
-        (
-            'unique_size_rule',
-            'unique(service_type_id, film_category_id, car_size_id, header_id)',
-            'هذا السجل موجود مسبقاً لنفس الإعدادات'
-        )
-    ]
+    # # ================= CONSTRAINT =================
+    # _sql_constraints = [
+    #     (
+    #         'unique_size_rule',
+    #         'unique(service_type_id, film_category_id, car_size_id, header_id)',
+    #         'هذا السجل موجود مسبقاً لنفس الإعدادات'
+    #     )
+    # ]
 
-    # ================= VALIDATION =================
-    @api.constrains('default_qty', 'min_qty', 'max_qty')
-    def _check_qty_range(self):
-        for rec in self:
+    # # ================= VALIDATION =================
+    # @api.constrains('default_qty', 'min_qty', 'max_qty')
+    # def _check_qty_range(self):
+    #     for rec in self:
 
-            if rec.min_qty and rec.max_qty and rec.default_qty:
+    #         if rec.min_qty and rec.max_qty and rec.default_qty:
 
-                if not (rec.min_qty <= rec.default_qty <= rec.max_qty):
-                    raise ValidationError(
-                        "المقاس الافتراضي يجب أن يكون بين الحد الأدنى والأعلى"
-                    )
+    #             if not (rec.min_qty <= rec.default_qty <= rec.max_qty):
+    #                 raise ValidationError(
+    #                     "المقاس الافتراضي يجب أن يكون بين الحد الأدنى والأعلى"
+    #                 )
