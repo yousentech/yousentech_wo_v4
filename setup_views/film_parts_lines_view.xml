@@ -57,7 +57,7 @@
                         <group string="📋 المعلومات الأساسية" col="2">
 
                             <group>
-                                <field name="car_part_id"/>
+                                <field name="car_part_id" options="{'no_create': True,'no_quick_create':True,}"/>
                                 <field name="car_size_id"/>
                             </group>
 
