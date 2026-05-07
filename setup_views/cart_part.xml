@@ -80,7 +80,7 @@
                             <field name="car_part"/>
                             <field name="car_category_part_flag"/>
                             <field name="part_options_required"/>
-                            <field name="part_options_ids"/>
+                            <field name="part_options_ids"  widget="many2many_tags"/>
 
                         </group>
                         
