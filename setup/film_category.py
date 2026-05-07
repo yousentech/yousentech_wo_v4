@@ -186,7 +186,7 @@ class CarPartsCommissionLines(models.Model):
     # ================= PRODUCTS =================
     film_category_line_id = fields.Many2one(
         'wof.film.category.lines',
-        string="كود المبيعات",
+        string="درجة اللون",
         domain="[('header_id','=',header_id)]"
     )
 

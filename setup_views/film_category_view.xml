@@ -100,9 +100,11 @@
                                 <field name="part_price" readonly="free_part == True"/>
                                 <field name="tax_id"  readonly="free_part == True"/>
                                 <field name="commission"/>
+                                <field name="film_category_line_id"/>
                                 <field name="discount_exceed_limit"/>
                                 <field name="price_readonly"/>
                                 <field name="tax_id"/>
+
                             </tree>
                         </field>
 

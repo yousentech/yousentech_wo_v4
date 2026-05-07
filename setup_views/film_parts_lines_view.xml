@@ -43,7 +43,7 @@
                                 invisible="not price_readonly"/>
 
                         <!-- ================= HEADER ================= -->
-                        <div class="oe_title">
+                        <!-- <div class="oe_title">
                             <h2>
                                 <field name="car_part_id"/>
                             </h2>
@@ -51,7 +51,7 @@
                                 <i class="fa fa-film me-1"></i>
                                 <field name="header_id"/>
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- ================= MAIN INFO ================= -->
                         <group string="📋 المعلومات الأساسية" col="2">
