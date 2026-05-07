@@ -164,7 +164,7 @@ class CarPartsCommissionLines(models.Model):
             required=True,
             ondelete='cascade',
             index=True,
-            domain="[('id', 'in', available_part_ids)]"
+            domain="[('id', 'not in', available_part_ids)]"
         )
      
     car_size_id = fields.Many2one(
