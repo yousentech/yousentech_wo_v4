@@ -104,7 +104,7 @@
                                 <field name="discount_exceed_limit"/>
                                 <field name="price_readonly"/>
                                 <field name="tax_id"/>
-
+                                <field name="header_id" invisible="1"/>
                             </tree>
                         </field>
 
