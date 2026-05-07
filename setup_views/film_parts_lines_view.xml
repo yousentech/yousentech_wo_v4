@@ -58,12 +58,14 @@
 
                             <group>
                                 <field name="car_part_id" options="{'no_create': True,'no_quick_create':True,}"/>
-                                <field name="car_size_id"/>
+                                  <field name="header_id"/>
+                             
                             </group>
 
-                            <group>
+                            <group> 
+                               <field name="car_size_id"/>
                                 <field name="service_type_id" readonly="1"/>
-                                <field name="header_id"/>
+                              
                             </group>
 
                         </group>

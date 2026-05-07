@@ -197,7 +197,7 @@ class CarPartsCommissionLines(models.Model):
     )
 
      # ================= RELATIONS =================
-    header_id = fields.Many2one('wof.film.category',ondelete="cascade")
+    header_id = fields.Many2one('wof.film.category',ondelete="cascade",string="نوع الفلم")
 
     # ================= CONSTRAINT =================
     _sql_constraints = [
