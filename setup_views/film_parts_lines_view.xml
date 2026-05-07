@@ -58,6 +58,7 @@
 
                             <group>
                                 <field name="car_part_id" options="{'no_create': True,'no_quick_create':True,}"/>
+                                  <field name="available_part_ids" invisible="1"/>
                                   <field name="header_id"/>
                              
                             </group>
