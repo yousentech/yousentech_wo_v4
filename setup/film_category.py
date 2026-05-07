@@ -231,10 +231,10 @@ class CarPartsCommissionLines(models.Model):
             used_parts = rec.header_id.film_part_line_ids.mapped('car_part_id')
 
             # استثناء السطر الحالي أثناء التعديل
-            if rec.car_part_id:
-                used_parts -= rec.car_part_id
-
-            rec.available_part_ids = all_parts - used_parts
+            if used_parts:
+                 rec.available_part_ids = used_parts
+            else:
+                rec.available_part_ids = all_parts
 
 class CarPartssizeLines(models.Model):
     _name = 'wof.film.parts.size.lines'
