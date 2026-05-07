@@ -55,7 +55,6 @@ class CarParts(models.Model):
     # ================= SERVICE TYPE (IMPORTANT) =================
     service_type_id = fields.Many2one(
         'wof.service.type',
-        related='header_id.service_type_id',
         store=True,
         index=True
     )
