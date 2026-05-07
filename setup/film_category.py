@@ -215,7 +215,7 @@ class CarPartsCommissionLines(models.Model):
     ]
 
     @api.onchange('free_part')
-    def set_free_part(self)
+    def set_free_part(self):
         for rec in self:
             if rec.free_part:
                 rec.part_price = 0
