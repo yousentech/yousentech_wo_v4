@@ -106,14 +106,11 @@ class CarParts(models.Model):
     def create_product_of_part(self,part_name):
         prod = self.env['product.product'].search([('name','=', part_name)])
         if prod:
-            prod.write({'service_package_service':True})
             return prod
         if not prod:
             prod_tmp = self.env['product.template'].create({'name':part_name,
-                                                            'type': 'service',
-                                                            'branch_required': True,
-                                                            'branch_id': False,
-                                                            'service_package_service':True, })
+                                                            'type': 'service', 
+                                                          })
             prod_new = self.env['product.product'].search([('product_tmpl_id', '=', prod_tmp.id)])
             if prod_new:
                return prod_new
