@@ -226,12 +226,16 @@
                             <field name="active" invisible="1"/>
                         </group>
                     </group>
-                    <button name="action_create_film"
-                    type="object"
-                    string="إضافة فيلم"
-                    class="btn btn-primary"
-                    icon="fa-plus"/>
+                   
                 </sheet>
+                <footer>
+                    <button name="action_create_film"
+                        type="object"
+                        string="إضافة فيلم"
+                        class="btn btn-primary"
+                        icon="fa-plus"/>
+
+                </footer>
               
             </form>
 
