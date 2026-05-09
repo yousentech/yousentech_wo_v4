@@ -138,3 +138,19 @@ class ServiceType(models.Model):
             company = self.env.company
             vals['company_id'] = company.parent_id.id if company.parent_id else company.id
         return super().write(vals)
+    
+  
+    # ================= SMART BUTTON =================
+    def action_open_films(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('الأفلام'),
+            'res_model': 'wof.film.category',
+            'view_mode': 'kanban,tree,form',
+            'domain': [('service_type_id', '=', self.id)],
+            'context': {
+                'default_service_type_id': self.id,
+            }
+        }

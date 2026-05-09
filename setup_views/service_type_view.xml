@@ -179,6 +179,14 @@
         <field name="arch" type="xml">
 
             <form string="نوع الخدمة">
+                <button name="%(action_film_category_wo_v4)d"
+                    type="action"
+                    string="إضافة فيلم"
+                    class="btn btn-primary"
+                    icon="fa-plus"
+                    context="{
+                        'default_service_type_id': id
+                    }"/>
 
                 <sheet> 
                     <widget name="web_ribbon"
@@ -198,6 +206,16 @@
                         <field name="active"
                             widget="boolean_button"
                             options="{'terminology': 'archive'}"/>
+                    </button>
+                    <button name="action_open_films"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-film">
+
+                        <field name="film_count"
+                            string="الأفلام"
+                            widget="statinfo"/>
+
                     </button>
  
                     </div>
