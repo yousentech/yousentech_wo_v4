@@ -71,7 +71,8 @@
                         <group>
                              <field name="priority_part"/>
                             <field name="commission"/>
-                       
+                            <field name="part_options_required"/>
+                            <field name="part_options_ids"  widget="many2many_tags"/>
 
                              <field name="company_id" readonly="1"/>
                             <field name="active" invisible="1"/>
@@ -79,8 +80,7 @@
                         <group>
                             <field name="car_part"/>
                             <field name="car_category_part_flag"/>
-                            <field name="part_options_required"/>
-                            <field name="part_options_ids"  widget="many2many_tags"/>
+                          
 
                         </group>
                         

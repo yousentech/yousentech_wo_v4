@@ -46,7 +46,7 @@ class CarParts(models.Model):
     
     # ================= FLAGS =================
     active = fields.Boolean(default=True)
-    car_part = fields.Boolean(string="جزء سيارة")
+    car_part = fields.Boolean(string="جزء سيارة",default=True)
     car_category_part_flag = fields.Boolean(string="منطقة خدمة")
   
     part_options_required = fields.Boolean(string="الخيارات الإضافية إجبارية")
@@ -110,6 +110,7 @@ class CarParts(models.Model):
         if not prod:
             prod_tmp = self.env['product.template'].create({'name':part_name,
                                                             'type': 'service', 
+
                                                           })
             prod_new = self.env['product.product'].search([('product_tmpl_id', '=', prod_tmp.id)])
             if prod_new:
