@@ -154,3 +154,16 @@ class ServiceType(models.Model):
                 'default_service_type_id': self.id,
             }
         }
+    def action_create_film(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('إضافة فيلم'),
+            'res_model': 'wof.film.category',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {
+                'default_service_type_id': self.id,
+            }
+        }
