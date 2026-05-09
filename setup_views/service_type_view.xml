@@ -91,63 +91,146 @@
 
                             <hr/>
 
-                            <!-- COUNTERS (Clickable) -->
-                            <div class="row text-center g-2">
+                             <!-- ================= COUNTERS ================= -->
+                            <div class="row g-3 mt-1">
 
-                                <!-- Car Parts -->
+                                <!-- ================= PARTS ================= -->
                                 <div class="col-6">
 
-                                   <a type="action"
-                                            name="%(action_film_parts_wo_v4_lines)d"
-                                            context="{
-                                                'search_default_service_type_id': active_id,
-                                                'default_service_type_id': active_id,
-                                                'search_default_group_by_header_id': 1
-                                            }"
-                                            class="text-decoration-none">
+                                    <div t-attf-class="
+                                        rounded-4 border p-3 bg-white shadow-sm service-box
+                                        #{record.parts_count.raw_value > 0 ? 'border-success' : 'border-danger'}
+                                    ">
 
-                                            <div t-attf-class="
-                                                rounded p-3 border shadow-sm text-center hover-card
-                                                #{record.parts_count.raw_value &gt; 0 ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}
-                                            ">
+                                        <!-- HEADER -->
+                                        <div class="d-flex justify-content-between align-items-center">
 
-                                                <div>
-                                                    <i class="fa fa-cogs fa-lg text-secondary"/>
-                                                </div>
-
-                                                <div class="fw-bold mt-1" style="font-size:20px;">
-                                                    <field name="parts_count"/>
-                                                </div>
-
-                                                <div class="text-muted small">
+                                            <div>
+                                                <div class="fw-bold" style="font-size:15px;">
+                                                    <i class="fa fa-cogs text-success me-1"></i>
                                                     الأجزاء
                                                 </div>
 
+                                                <small class="text-muted">
+                                                    إدارة أجزاء الفيلم
+                                                </small>
                                             </div>
 
-                                        </a>
+                                            <!-- COUNT -->
+                                            <div t-attf-class="
+                                                rounded-circle d-flex align-items-center justify-content-center
+                                                #{record.parts_count.raw_value > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}
+                                            "
+                                            style="width:58px;height:58px;font-size:18px;font-weight:bold;">
 
-                                </div>
+                                                <field name="parts_count"/>
 
-                                <!-- Films -->
-                                <div class="col-6">
-                                    <a type="action"
-                                    name="%(action_film_category_wo_v4)d"
-                                    context="{'search_default_service_type_id': active_id}">
-
-                                        <div class="rounded p-2 bg-light border">
-
-                                            <div class="fw-bold text-primary" style="font-size:18px;">
-                                                <field name="film_count"/>
-                                            </div>
-
-                                            <div class="text-muted">
-                                                الأفلام
                                             </div>
 
                                         </div>
 
-                                    </a>
+                                        <!-- ACTIONS -->
+                                        <div class="d-flex gap-2 mt-3">
+
+                                            <!-- VIEW -->
+                                            <a type="action"
+                                            name="%(action_film_parts_wo_v4_lines)d"
+                                            class="btn btn-outline-success btn-sm w-100"
+                                            context="{
+                                                    'search_default_service_type_id': active_id,
+                                                    'search_default_group_by_header_id': 1
+                                            }">
+
+                                                <i class="fa fa-eye me-1"></i>
+                                                عرض
+
+                                            </a>
+
+                                            <!-- CREATE -->
+                                            <a type="action"
+                                            name="%(action_film_parts_wo_v4_lines)d"
+                                            class="btn btn-success btn-sm w-100"
+                                            context="{
+                                                    'default_service_type_id': active_id,
+                                                    'form_view_initial_mode': 'edit'
+                                            }">
+
+                                                <i class="fa fa-plus me-1"></i>
+                                                إضافة
+
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- ================= FILMS ================= -->
+                                <div class="col-6">
+
+                                    <div t-attf-class="
+                                        rounded-4 border p-3 bg-white shadow-sm service-box
+                                        #{record.film_count.raw_value > 0 ? 'border-primary' : 'border-warning'}
+                                    ">
+
+                                        <!-- HEADER -->
+                                        <div class="d-flex justify-content-between align-items-center">
+
+                                            <div>
+                                                <div class="fw-bold" style="font-size:15px;">
+                                                    <i class="fa fa-film text-primary me-1"></i>
+                                                    الأفلام
+                                                </div>
+
+                                                <small class="text-muted">
+                                                    إدارة الأفلام
+                                                </small>
+                                            </div>
+
+                                            <!-- COUNT -->
+                                            <div t-attf-class="
+                                                rounded-circle d-flex align-items-center justify-content-center
+                                                #{record.film_count.raw_value > 0 ? 'bg-primary-subtle text-primary' : 'bg-warning-subtle text-warning'}
+                                            "
+                                            style="width:58px;height:58px;font-size:18px;font-weight:bold;">
+
+                                                <field name="film_count"/>
+
+                                            </div>
+
+                                        </div>
+
+                                        <!-- ACTIONS -->
+                                        <div class="d-flex gap-2 mt-3">
+
+                                            <!-- VIEW -->
+                                            <a type="action"
+                                            name="%(action_film_category_wo_v4)d"
+                                            class="btn btn-outline-primary btn-sm w-100"
+                                            context="{
+                                                    'search_default_service_type_id': active_id
+                                            }">
+
+                                                <i class="fa fa-eye me-1"></i>
+                                                عرض
+
+                                            </a>
+
+                                            <!-- CREATE -->
+                                            <a type="object"
+                                            name="action_create_film"
+                                            class="btn btn-primary btn-sm w-100">
+
+                                                <i class="fa fa-plus me-1"></i>
+                                                إضافة
+
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+
                                 </div>
 
                             </div>
@@ -179,7 +262,8 @@
         <field name="arch" type="xml">
 
             <form string="نوع الخدمة">
-              
+                <button name="action_create_film"  type="object"  string="إضافة فيلم"  class="btn btn-primary"   icon="fa-plus"/>
+
 
                 <sheet> 
                     <widget name="web_ribbon"
@@ -228,15 +312,7 @@
                     </group>
                    
                 </sheet>
-                <footer>
-                    <button name="action_create_film"
-                        type="object"
-                        string="إضافة فيلم"
-                        class="btn btn-primary"
-                        icon="fa-plus"/>
-
-                </footer>
-              
+               
             </form>
 
         </field>

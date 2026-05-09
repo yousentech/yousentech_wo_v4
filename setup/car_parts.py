@@ -46,9 +46,10 @@ class CarParts(models.Model):
     
     # ================= FLAGS =================
     active = fields.Boolean(default=True)
-    car_part = fields.Boolean(string="جزء سيارة",default=True)
-    car_category_part_flag = fields.Boolean(string="منطقة خدمة")
-  
+    part_type = fields.Selection([('car_part', 'جزء سيارة'),
+                                ('service_area', 'منطقة خدمة')],
+                                 string="نوع الجزء",  required=True,  default='car_part')
+
     part_options_required = fields.Boolean(string="الخيارات الإضافية إجبارية")
     film_category_readonly = fields.Boolean(string="فيلم غير قابل للتعديل")
     

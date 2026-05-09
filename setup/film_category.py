@@ -160,6 +160,7 @@ class CarPartsCommissionLines(models.Model):
     )
     # ================= RELATIONS =================
     available_part_ids = fields.Many2many('wof.car.parts',   compute='_compute_available_part_ids' )
+    part_selected = fields.Boolean(string="تفعيل",default=True)
     car_part_id = fields.Many2one(
             'wof.car.parts',
             required=True,

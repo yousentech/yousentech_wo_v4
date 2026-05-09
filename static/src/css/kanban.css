@@ -21,3 +21,12 @@
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.15);
 }
+
+.service-box{
+    transition: all .25s ease;
+}
+
+.service-box:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,.12)!important;
+}
