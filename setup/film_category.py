@@ -40,18 +40,19 @@ class film_category(models.Model):
         default=True
     )
 
-    service_type_id = fields.Many2one('wof.service.type', string="نوع الخدمة",required=True, index=True)
+    service_type_id = fields.Many2one('wof.service.type', string="نوع الخدمة",required=True, index=True,ondelete='restrict',)
     warranty_years = fields.Char(string="فترة الضمان")
 
     is_effected_in_inventory = fields.Boolean(default=False,string="الفلم يؤثر على المخزون")
     car_film_product_required = fields.Boolean(default=False,string="كود المبيعات اجباري في امر التركيب")
-    film_category_line_ids = fields.One2many('wof.film.category.lines','header_id' , ondelete="cascade")
+    film_category_line_ids = fields.One2many('wof.film.category.lines','header_id'  )
     
+   
+    film_part_line_ids = fields.One2many('wof.film.parts.lines','header_id' )
+    film_part_size_line_ids = fields.One2many('wof.film.parts.size.lines','header_id' )
+
     warning_film_line_ids = fields.Many2many('wof.film.category.lines',string="درجة اللون")
     warning_msg = fields.Char(string="رسالة تحذير")
-
-    film_part_line_ids = fields.One2many('wof.film.parts.lines','header_id' , ondelete="cascade")
-    film_part_size_line_ids = fields.One2many('wof.film.parts.size.lines','header_id' , ondelete="cascade")
 
 
     limpid_film_product_ids = fields.Many2many('product.product', string="الصنف المخزني",domain="[('measure_product','=',True),('type','=','product')]")
@@ -162,7 +163,7 @@ class CarPartsCommissionLines(models.Model):
     car_part_id = fields.Many2one(
             'wof.car.parts',
             required=True,
-            ondelete='restrict'
+            ondelete='restrict',
             index=True,
             domain="[('id', 'not in', available_part_ids)]"
         )
@@ -179,7 +180,7 @@ class CarPartsCommissionLines(models.Model):
 
     tax_id = fields.Many2one(
         'account.tax',
-        string="الضريبة",
+        string="الضريبة",ondelete='restrict',
         domain=[('type_tax_use', '=', 'sale')]
     )
     price_readonly = fields.Boolean(string="السعر ثابت")
@@ -250,7 +251,7 @@ class CarPartssizeLines(models.Model):
         domain="[('id', 'in', available_part_ids)]" )
      
     car_size_id = fields.Many2one(
-        'wof.car.size',
+        'wof.car.size',ondelete='restrict',
         string="حجم السيارة"
     )
     available_part_ids = fields.Many2many('wof.car.parts', compute='_compute_available_parts')
