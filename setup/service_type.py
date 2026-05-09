@@ -166,4 +166,18 @@ class ServiceType(models.Model):
             'context': {
                 'default_service_type_id': self.id,
             }
+        } 
+        
+    def action_create_car_part(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('إضافة جزء الفيلم'),
+            'res_model': 'wof.film.parts.lines',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {
+                'default_service_type_id': self.id,
+            }
         }

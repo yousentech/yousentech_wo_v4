@@ -91,96 +91,91 @@
 
                             <hr/>
 
-                             <!-- ================= COUNTERS ================= -->
- <!-- ================= QUICK LINKS ================= -->
-<div class="mt-3">
+                            <!-- ================= QUICK LINKS ================= -->
+                                    <div class="mt-3">
 
-    <!-- ================= FILMS ================= -->
-    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                        <!-- ================= FILMS ================= -->
+                                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
 
-        <!-- LEFT -->
-        <a type="action"
-           name="%(action_film_category_wo_v4)d"
-           class="text-decoration-none d-flex align-items-center"
-           context="{
-                'search_default_service_type_id': active_id
-           }">
+                                            <!-- LEFT -->
+                                            <a type="action"
+                                            name="%(action_film_category_wo_v4)d"
+                                            class="text-decoration-none d-flex align-items-center"
+                                            context="{
+                                                    'search_default_service_type_id': active_id
+                                            }">
 
-            <!-- ICON -->
-            <i class="fa fa-film text-primary fa-lg me-2"></i>
+                                                <!-- ICON -->
+                                                <i class="fa fa-film text-primary fa-lg me-2"></i>
 
-            <!-- TEXT -->
-            <div>
+                                                <!-- TEXT -->
+                                                <div>
 
-                <div class="fw-bold text-dark">
-                    الأفلام
-                </div>
+                                                    <div class="fw-bold text-dark">
+                                                        الأفلام
+                                                    </div>
 
-                <small class="text-muted">
-                    <field name="film_count"/> فيلم مرتبط
-                </small>
+                                                    <small class="text-muted">
+                                                        <field name="film_count"/> فيلم مرتبط
+                                                    </small>
 
-            </div>
+                                                </div>
 
-        </a>
+                                            </a>
 
-        <!-- ADD -->
-        <a type="object"
-           name="action_create_film"
-           class="text-success text-decoration-none fw-bold">
+                                            <!-- ADD -->
+                                            <a type="object"
+                                            name="action_create_film"
+                                            class="text-success text-decoration-none fw-bold">
 
-            <i class="fa fa-plus-circle fa-lg"></i>
+                                                <i class="fa fa-plus-circle fa-lg"></i>
 
-        </a>
+                                            </a>
 
-    </div>
+                                        </div>
 
-    <!-- ================= PARTS ================= -->
-    <div class="d-flex justify-content-between align-items-center py-2">
+                                        <!-- ================= PARTS ================= -->
+                                        <div class="d-flex justify-content-between align-items-center py-2">
 
-        <!-- LEFT -->
-        <a type="action"
-           name="%(action_film_parts_wo_v4_lines)d"
-           class="text-decoration-none d-flex align-items-center"
-           context="{
-                'search_default_service_type_id': active_id,
-                'search_default_group_by_header_id': 1
-           }">
+                                            <!-- LEFT -->
+                                            <a type="action"
+                                            name="%(action_film_parts_wo_v4_lines)d"
+                                            class="text-decoration-none d-flex align-items-center"
+                                            context="{
+                                                    'search_default_service_type_id': active_id,
+                                                    'search_default_group_by_header_id': 1
+                                            }">
 
-            <!-- ICON -->
-            <i class="fa fa-cogs text-success fa-lg me-2"></i>
+                                                <!-- ICON -->
+                                                <i class="fa fa-cogs text-success fa-lg me-2"></i>
 
-            <!-- TEXT -->
-            <div>
+                                                <!-- TEXT -->
+                                                <div>
 
-                <div class="fw-bold text-dark">
-                    الأجزاء
-                </div>
+                                                    <div class="fw-bold text-dark">
+                                                        الأجزاء
+                                                    </div>
 
-                <small class="text-muted">
-                    <field name="parts_count"/> جزء مرتبط
-                </small>
+                                                    <small class="text-muted">
+                                                        <field name="parts_count"/> جزء مرتبط
+                                                    </small>
 
-            </div>
+                                                </div>
 
-        </a>
+                                            </a>
 
-        <!-- ADD -->
-        <a type="action"
-           name="%(action_film_parts_wo_v4_lines)d"
-           class="text-primary text-decoration-none fw-bold"
-           context="{
-                'default_service_type_id': active_id,
-                'form_view_initial_mode': 'edit'
-           }">
+                                            <!-- ADD -->
+                                            <a type="object"
+                                            name="action_create_car_part"
+                                            class="text-success text-decoration-none fw-bold">
 
-            <i class="fa fa-plus-circle fa-lg"></i>
+                                                <i class="fa fa-plus-circle fa-lg"></i>
 
-        </a>
+                                            </a>
 
-    </div>
+                                        </div>
 
-</div>
+                                    </div>
                             <hr/>
 
                             <!-- FOOTER -->
