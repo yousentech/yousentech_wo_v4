@@ -92,148 +92,141 @@
                             <hr/>
 
                              <!-- ================= COUNTERS ================= -->
-                            <div class="row g-3 mt-1">
+ <!-- ================= COUNTERS ================= -->
+<div class="row g-3 mt-1">
 
-                                <!-- ================= PARTS ================= -->
-                                <div class="col-6">
+    <!-- ================= PARTS ================= -->
+    <div class="col-6">
 
-                                    <div t-attf-class="
-                                        rounded-4 border p-3 bg-white shadow-sm service-box
-                                        #{record.parts_count.raw_value > 0 ? 'border-success' : 'border-danger'}
-                                    ">
+        <div t-attf-class="
+            rounded-4 border p-3 bg-white shadow-sm service-box text-center
+            #{record.parts_count.raw_value > 0 ? 'border-success' : 'border-danger'}
+        ">
 
-                                        <!-- HEADER -->
-                                        <div class="d-flex justify-content-between align-items-center">
+            <!-- ICON -->
+            <div class="mb-1">
+                <i class="fa fa-cogs text-success fa-lg"></i>
+            </div>
 
-                                            <div>
-                                                <div class="fw-bold" style="font-size:15px;">
-                                                    <i class="fa fa-cogs text-success me-1"></i>
-                                                    الأجزاء
-                                                </div>
+            <!-- TITLE -->
+            <div class="fw-bold" style="font-size:18px;">
+                الأجزاء
+            </div>
 
-                                                <small class="text-muted">
-                                                    إدارة أجزاء الفيلم
-                                                </small>
-                                            </div>
+            <!-- SUB -->
+            <div class="text-muted small mb-2">
+                إدارة أجزاء الفيلم
+            </div>
 
-                                            <!-- COUNT -->
-                                            <div t-attf-class="
-                                                rounded-circle d-flex align-items-center justify-content-center
-                                                #{record.parts_count.raw_value > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}
-                                            "
-                                            style="width:58px;height:58px;font-size:18px;font-weight:bold;">
+            <!-- COUNT -->
+            <div class="fw-bold text-success mb-2"
+                 style="font-size:30px;line-height:1;">
 
-                                                <field name="parts_count"/>
+                <field name="parts_count"/>
 
-                                            </div>
+            </div>
 
-                                        </div>
+            <!-- LINKS -->
+            <div class="d-flex justify-content-center gap-3 small">
 
-                                        <!-- ACTIONS -->
-                                        <div class="d-flex gap-2 mt-3">
+                <!-- VIEW -->
+                <a type="action"
+                   name="%(action_film_parts_wo_v4_lines)d"
+                   class="text-success text-decoration-none fw-bold"
+                   context="{
+                        'search_default_service_type_id': active_id,
+                        'search_default_group_by_header_id': 1
+                   }">
 
-                                            <!-- VIEW -->
-                                            <a type="action"
-                                            name="%(action_film_parts_wo_v4_lines)d"
-                                            class="btn btn-outline-success btn-sm w-100"
-                                            context="{
-                                                    'search_default_service_type_id': active_id,
-                                                    'search_default_group_by_header_id': 1
-                                            }">
+                    <i class="fa fa-eye me-1"></i>
+                    عرض
 
-                                                <i class="fa fa-eye me-1"></i>
-                                                عرض
+                </a>
 
-                                            </a>
+                <!-- CREATE -->
+                <a type="action"
+                   name="%(action_film_parts_wo_v4_lines)d"
+                   class="text-primary text-decoration-none fw-bold"
+                   context="{
+                        'default_service_type_id': active_id,
+                        'form_view_initial_mode': 'edit'
+                   }">
 
-                                            <!-- CREATE -->
-                                            <a type="action"
-                                            name="%(action_film_parts_wo_v4_lines)d"
-                                            class="btn btn-success btn-sm w-100"
-                                            context="{
-                                                    'default_service_type_id': active_id,
-                                                    'form_view_initial_mode': 'edit'
-                                            }">
+                    <i class="fa fa-plus me-1"></i>
+                    إضافة
 
-                                                <i class="fa fa-plus me-1"></i>
-                                                إضافة
+                </a>
 
-                                            </a>
+            </div>
 
-                                        </div>
+        </div>
 
-                                    </div>
+    </div>
 
-                                </div>
+    <!-- ================= FILMS ================= -->
+    <div class="col-6">
 
-                                <!-- ================= FILMS ================= -->
-                                <div class="col-6">
+        <div t-attf-class="
+            rounded-4 border p-3 bg-white shadow-sm service-box text-center
+            #{record.film_count.raw_value > 0 ? 'border-primary' : 'border-warning'}
+        ">
 
-                                    <div t-attf-class="
-                                        rounded-4 border p-3 bg-white shadow-sm service-box
-                                        #{record.film_count.raw_value > 0 ? 'border-primary' : 'border-warning'}
-                                    ">
+            <!-- ICON -->
+            <div class="mb-1">
+                <i class="fa fa-film text-primary fa-lg"></i>
+            </div>
 
-                                        <!-- HEADER -->
-                                        <div class="d-flex justify-content-between align-items-center">
+            <!-- TITLE -->
+            <div class="fw-bold" style="font-size:18px;">
+                الأفلام
+            </div>
 
-                                            <div>
-                                                <div class="fw-bold" style="font-size:15px;">
-                                                    <i class="fa fa-film text-primary me-1"></i>
-                                                    الأفلام
-                                                </div>
+            <!-- SUB -->
+            <div class="text-muted small mb-2">
+                إدارة الأفلام
+            </div>
 
-                                                <small class="text-muted">
-                                                    إدارة الأفلام
-                                                </small>
-                                            </div>
+            <!-- COUNT -->
+            <div class="fw-bold text-primary mb-2"
+                 style="font-size:30px;line-height:1;">
 
-                                            <!-- COUNT -->
-                                            <div t-attf-class="
-                                                rounded-circle d-flex align-items-center justify-content-center
-                                                #{record.film_count.raw_value > 0 ? 'bg-primary-subtle text-primary' : 'bg-warning-subtle text-warning'}
-                                            "
-                                            style="width:58px;height:58px;font-size:18px;font-weight:bold;">
+                <field name="film_count"/>
 
-                                                <field name="film_count"/>
+            </div>
 
-                                            </div>
+            <!-- LINKS -->
+            <div class="d-flex justify-content-center gap-3 small">
 
-                                        </div>
+                <!-- VIEW -->
+                <a type="action"
+                   name="%(action_film_category_wo_v4)d"
+                   class="text-primary text-decoration-none fw-bold"
+                   context="{
+                        'search_default_service_type_id': active_id
+                   }">
 
-                                        <!-- ACTIONS -->
-                                        <div class="d-flex gap-2 mt-3">
+                    <i class="fa fa-eye me-1"></i>
+                    عرض
 
-                                            <!-- VIEW -->
-                                            <a type="action"
-                                            name="%(action_film_category_wo_v4)d"
-                                            class="btn btn-outline-primary btn-sm w-100"
-                                            context="{
-                                                    'search_default_service_type_id': active_id
-                                            }">
+                </a>
 
-                                                <i class="fa fa-eye me-1"></i>
-                                                عرض
+                <!-- CREATE -->
+                <a type="object"
+                   name="action_create_film"
+                   class="text-success text-decoration-none fw-bold">
 
-                                            </a>
+                    <i class="fa fa-plus me-1"></i>
+                    إضافة
 
-                                            <!-- CREATE -->
-                                            <a type="object"
-                                            name="action_create_film"
-                                            class="btn btn-primary btn-sm w-100">
+                </a>
 
-                                                <i class="fa fa-plus me-1"></i>
-                                                إضافة
+            </div>
 
-                                            </a>
+        </div>
 
-                                        </div>
+    </div>
 
-                                    </div>
-
-                                </div>
-
-                            </div>
+</div>
                             <hr/>
 
                             <!-- FOOTER -->
