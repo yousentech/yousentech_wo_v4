@@ -31,3 +31,10 @@
     transform: translateY(-4px);
     box-shadow: 0 10px 24px rgba(0,0,0,.12)!important;
 }
+.o_kanban_record a{
+    transition: all .2s ease;
+}
+
+.o_kanban_record a:hover{
+    opacity:.85;
+}
