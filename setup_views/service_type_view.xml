@@ -226,13 +226,13 @@
                             <field name="active" invisible="1"/>
                         </group>
                     </group>
-
-                </sheet>
-               <button name="action_create_film"
+                    <button name="action_create_film"
                     type="object"
                     string="إضافة فيلم"
                     class="btn btn-primary"
                     icon="fa-plus"/>
+                </sheet>
+              
             </form>
 
         </field>
