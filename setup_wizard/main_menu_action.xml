@@ -19,13 +19,13 @@ setup = env['ir.config_parameter'].sudo().get_param(
 if not setup:
 
     action = env.ref(
-        'yousentech_wo_v4.action_wo_setup_wizard'
+        'yousentech_wo_v4.action_wof_setup_wizard'
     ).read()[0]
 
 else:
 
     action = env.ref(
-        'yousentech_wo_v4.action_wo_dashboard'
+         'yousentech_wo_v4.action_service_type_wo_v4'
     ).read()[0]
 
         </field>
