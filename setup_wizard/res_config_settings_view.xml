@@ -1,55 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
-    <record id="res_config_settings_view_form_wo_v4"
-            model="ir.ui.view">
-
-        <field name="name">
-            res.config.settings.view.form.wo.v4
-        </field>
-
-        <field name="model">
-            res.config.settings
-        </field>
-
-        <field name="inherit_id"
-               ref="base_setup.res_config_settings_view_form"/>
-
+    <record id="res_config_settings_view_form_wo_v4" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.wo.v4</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90"/>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-
             <xpath expr="//form" position="inside">
-
+                <!-- ================= APP ================= -->
                 <app string="العناية بالسيارات"
-                     name="wo_v4">
+                     name="yousentech_wo_v4"
+                     data-string="العناية بالسيارات"
+                     groups="yousentech_wo_v4.group_wo_settings">
 
-                    <block title="تهيئة النظام">
+                    <!-- ================= BLOCK ================= -->
 
-                        <setting string="تمت التهيئة">
+                    <block title="إعدادات النظام">
+
+                        <!-- SETUP FLAG -->
+                        <setting string="تمت التهيئة"
+                                 help="يحدد هل تمت التهيئة الأولية للنظام">
 
                             <div class="d-flex align-items-center gap-3">
 
-                                <!-- FLAG -->
                                 <field name="wo_setup_completed"/>
 
-                                <!-- BUTTON -->
                                 <button string="إعادة التهيئة"
                                         type="object"
                                         name="action_re_setup_wo_v4"
-                                        class="btn btn-secondary"
-                                        groups="yousentech_wo_v4.group_wo_settings"/>
+                                        class="btn btn-primary"/>
 
                             </div>
-
                         </setting>
-
                     </block>
-
                 </app>
-
             </xpath>
-
         </field>
-
     </record>
-
 </odoo>
