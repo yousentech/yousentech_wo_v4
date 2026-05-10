@@ -27,7 +27,7 @@
     <menuitem id="menu_wo_v4_configuration"
               name="تهيئة النظام"
               parent="menu_wo_v4"
-              action="action_wo_v4_settings"
+           
               sequence="4"  />
  
 
