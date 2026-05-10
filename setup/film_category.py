@@ -222,21 +222,21 @@ class CarPartsCommissionLines(models.Model):
     @api.depends('header_id')
     def _compute_available_part_ids(self):
 
-        all_parts = self.env['wof.car.parts'].search([])
+        # all_parts = self.env['wof.car.parts'].search([])
 
         for rec in self:
-
-            if not rec.header_id:
-                rec.available_part_ids = all_parts
-                continue
+            available_part_ids=[]
+        #     if not rec.header_id:
+        #         rec.available_part_ids = all_parts
+        #         continue
 
             used_parts = rec.header_id.film_part_line_ids.mapped('car_part_id')
 
             # استثناء السطر الحالي أثناء التعديل
             if used_parts:
-                 rec.available_part_ids = used_parts
-            else:
-                rec.available_part_ids = all_parts
+                available_part_ids = used_parts
+            
+            rec.available_part_ids = available_part_ids
 
 class CarPartssizeLines(models.Model):
     _name = 'wof.film.parts.size.lines'
