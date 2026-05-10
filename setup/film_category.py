@@ -209,7 +209,8 @@ class CarPartsCommissionLines(models.Model):
             'unique_commission_rule',
             'unique(car_part_id, header_id, car_size_id)',
             'هذا السجل موجود مسبقاً لهذه الإعدادات'
-        )
+        ),
+        
     ]
 
     @api.onchange('free_part')
@@ -226,11 +227,8 @@ class CarPartsCommissionLines(models.Model):
 
         for rec in self:
             available_part_ids=[]
-        #     if not rec.header_id:
-        #         rec.available_part_ids = all_parts
-        #         continue
-
-            used_parts = rec.header_id.film_part_line_ids.mapped('car_part_id')
+        
+            used_parts = rec.header_id.film_part_line_ids.fileterd(lambda x: x.car_size_id.id == rec.car_size_id.id).mapped('car_part_id')
 
             # استثناء السطر الحالي أثناء التعديل
             if used_parts:
