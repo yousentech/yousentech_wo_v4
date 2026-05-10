@@ -59,7 +59,7 @@
                             <group>
                                 <field name="header_id"/>
                                 <field name="car_part_id"/>
-                                <field name="available_part_ids" invisible="1"/>
+                                <!-- <field name="available_part_ids" invisible="1"/> -->
                               
                              
                             </group>

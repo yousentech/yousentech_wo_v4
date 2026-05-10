@@ -159,16 +159,22 @@ class CarPartsCommissionLines(models.Model):
         index=True
     )
     # ================= RELATIONS =================
-    available_part_ids = fields.Many2many('wof.car.parts',   compute='_compute_available_part_ids' )
+    # available_part_ids = fields.Many2many('wof.car.parts',   compute='_compute_available_part_ids' )
     part_selected = fields.Boolean(string="تفعيل",default=True)
+    # car_part_id = fields.Many2one(
+    #         'wof.car.parts',
+    #         required=True,
+    #         ondelete='restrict',
+    #         index=True,
+    #         domain="[('id', 'not in', available_part_ids)]"
+    #     )
     car_part_id = fields.Many2one(
             'wof.car.parts',
             required=True,
             ondelete='restrict',
             index=True,
-            domain="[('id', 'not in', available_part_ids)]"
+           
         )
-     
     car_size_id = fields.Many2one(
         'wof.car.size',
         string="حجم السيارة"
@@ -220,21 +226,18 @@ class CarPartsCommissionLines(models.Model):
                 rec.part_price = 0
                 rec.tax_id = False
 
-    @api.depends('header_id')
-    def _compute_available_part_ids(self):
-
-        # all_parts = self.env['wof.car.parts'].search([])
-
-        for rec in self:
-            available_part_ids=[]
+    # @api.depends('header_id')
+    # def _compute_available_part_ids(self):
+    #     for rec in self:
+    #         available_part_ids=[]
         
-            used_parts = rec.header_id.film_part_line_ids.fileterd(lambda x: x.car_size_id.id == rec.car_size_id.id).mapped('car_part_id')
+    #         used_parts = rec.header_id.film_part_line_ids.fileterd(lambda x: x.car_size_id.id == rec.car_size_id.id).mapped('car_part_id')
 
-            # استثناء السطر الحالي أثناء التعديل
-            if used_parts:
-                available_part_ids = used_parts
+    #         # استثناء السطر الحالي أثناء التعديل
+    #         if used_parts:
+    #             available_part_ids = used_parts
             
-            rec.available_part_ids = available_part_ids
+    #         rec.available_part_ids = available_part_ids
 
 class CarPartssizeLines(models.Model):
     _name = 'wof.film.parts.size.lines'
