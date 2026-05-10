@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_wof_setup_wizard,wof.setup.wizard,model_wof_setup_wizard,yousentech_wo_v4.group_wo_manager,1,0,0,0
+access_wof_setup_wizard,wof.setup.wizard,model_wof_setup_wizard,,1,0,0,0
 access_wof_service_type_user,wof.service.type.user,model_wof_service_type,yousentech_wo_v4.group_wo_user,1,0,0,0
 access_wof_service_type_manager,service.type.manager,model_wof_service_type,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_film_category,wof.film.category,model_wof_film_category,yousentech_wo_v4.group_wo_manager,1,1,1,1
