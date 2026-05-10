@@ -7,7 +7,7 @@
 
     <menuitem id="menu_wo_v4"
               name="العناية بالسيارات"
-            action="action_wof_setup_wizard"
+              action="action_open_setup_wizard"
               sequence="4"/>
 
     <menuitem id="menu_wo_v4_operation"
