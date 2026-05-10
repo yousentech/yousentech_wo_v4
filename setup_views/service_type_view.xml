@@ -3,12 +3,11 @@
 
     <!-- =========================
             MENUS
-    ========================== -->
-
+        ========================== -->
     <menuitem id="menu_wo_v4"
-              name="العناية بالسيارات"
-              action="action_open_setup_wizard1"
-              sequence="4"/>
+            name="العناية بالسيارات"
+            action="action_wo_main_menu"
+            sequence="4"/>
 
     <menuitem id="menu_wo_v4_operation"
               name="العمليات"

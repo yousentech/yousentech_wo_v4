@@ -9,23 +9,44 @@
         <field name="name">wof.setup.wizard.form</field>
         <field name="model">wof.setup.wizard</field>
         <field name="arch" type="xml">
-            <form string="تهيئة النظام" create="0" edit="0">
+           <form string="تهيئة النظام"  create="0" edit="0">
+
                 <sheet>
+
                     <div class="alert alert-primary text-center">
+
                         <h1>
                             <i class="fa fa-magic me-2"/>
                             تهيئة نظام العناية بالسيارات
                         </h1>
+
                         <div class="text-muted mt-2">
                             مرحباً بك 👋
                         </div>
+
                     </div>
+
                     <group>
+
                         <div class="alert alert-info">
+
                             هذه شاشة التهيئة الأولى للنظام
+
                         </div>
+
                     </group>
+
+                    <footer>
+
+                        <button string="إنهاء التهيئة"
+                                type="object"
+                                name="action_finish_setup"
+                                class="btn btn-primary"/>
+
+                    </footer>
+
                 </sheet>
+
             </form>
         </field>
     </record>

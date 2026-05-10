@@ -6,22 +6,18 @@ class WofSetupWizard(models.TransientModel):
     _description = 'WOF Setup Wizard'
 
 
-    @api.model
-    def action_open_setup_wizard(self):
+   
+    # =========================
+    # FINISH SETUP
+    # =========================
+    def action_finish_setup(self):
 
-        setup_done = self.env['ir.config_parameter'].sudo().get_param(
-            'yousentech_wo_v4.setup_completed'
+        self.env['ir.config_parameter'].sudo().set_param(
+            'yousentech_wo_v4.setup_completed',
+            True
         )
 
-        if not setup_done:
-
-            self.ensure_one()
-            return {
-                'type': 'ir.actions.act_window',
-                'name': 'تهيئة النظام',
-                'res_model': 'wof.setup.wizard',
-                'view_mode': 'form',
-                'target': 'current',
-            }
-
-        return 
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }

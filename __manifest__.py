@@ -8,6 +8,7 @@
     'depends': ['base', 'account',  'sale','stock'],
     'data': [ 'security/security.xml',
               'security/ir.model.access.csv',
+              'setup_views/main_menu_action.xml',
                 'setup_wizard/setup_wizard_view.xml',
 
               'setup_views/service_type_view.xml',

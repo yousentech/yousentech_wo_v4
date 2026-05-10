@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================
+            MAIN MENU ACTION
+    ========================== -->
+
+    <record id="action_wo_main_menu"
+            model="ir.actions.server">
+
+        <field name="name">
+            العناية بالسيارات
+        </field>
+
+        <field name="model_id"
+               ref="base.model_res_users"/>
+
+        <field name="state">
+            code
+        </field>
+
+        <field name="code">
+
+setup_done = env['ir.config_parameter'].sudo().get_param(
+    'yousentech_wo_v4.setup_completed'
+)
+
+if not setup_done:
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'تهيئة النظام',
+        'res_model': 'wof.setup.wizard',
+        'view_mode': 'form',
+        'target': 'current',
+    }
+
+else:
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'أنواع الخدمات',
+        'res_model': 'wof.service.type',
+        'view_mode': 'kanban,tree,form',
+        'target': 'current',
+    }
+
+        </field>
+
+    </record>
+
+</odoo>
