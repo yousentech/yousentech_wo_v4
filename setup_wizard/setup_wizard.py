@@ -15,6 +15,7 @@ class WofSetupWizard(models.TransientModel):
 
         if not setup_done:
 
+            self.ensure_one()
             return {
                 'type': 'ir.actions.act_window',
                 'name': 'تهيئة النظام',

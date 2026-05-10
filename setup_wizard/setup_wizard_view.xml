@@ -9,41 +9,25 @@
         <field name="name">wof.setup.wizard.form</field>
         <field name="model">wof.setup.wizard</field>
         <field name="arch" type="xml">
-            <form string="تهيئة النظام"
-                  create="0"
-                  edit="0">
-
+            <form string="تهيئة النظام" create="0" edit="0">
                 <sheet>
-
                     <div class="alert alert-primary text-center">
-
                         <h1>
                             <i class="fa fa-magic me-2"/>
                             تهيئة نظام العناية بالسيارات
                         </h1>
-
                         <div class="text-muted mt-2">
                             مرحباً بك 👋
                         </div>
-
                     </div>
-
                     <group>
-
                         <div class="alert alert-info">
-
                             هذه شاشة التهيئة الأولى للنظام
-
                         </div>
-
                     </group>
-
                 </sheet>
-
             </form>
-
         </field>
-
     </record>
 
     <!-- =========================
@@ -62,18 +46,13 @@
     <!-- =========================
             ACTION server
     ========================== -->
-    <record id="action_open_setup_wizard" model="ir.actions.server">
-
+    <record id="action_open_setup_wizard1" model="ir.actions.server">
         <field name="name">العناية بالسيارات</field>
-
         <field name="model_id" ref="model_wof_setup_wizard"/>
-
         <field name="state">code</field>
-
         <field name="code">
             action = model.action_open_setup_wizard()
                 </field>
-
     </record>
 
 
