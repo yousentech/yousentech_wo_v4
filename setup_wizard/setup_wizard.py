@@ -17,7 +17,6 @@ class WofSetupWizard(models.TransientModel):
             True
         )
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
+        return self.env.ref(
+                'yousentech_wo_v4.action_service_type_wo_v4'
+            ).read()[0]

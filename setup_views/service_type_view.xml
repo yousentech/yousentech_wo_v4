@@ -6,7 +6,7 @@
         ========================== -->
     <menuitem id="menu_wo_v4"
             name="العناية بالسيارات"
-            action="action_wo_main_menu"
+            action="action_menu_wo_v4"
             sequence="4"/>
 
     <menuitem id="menu_wo_v4_operation"
