@@ -8,3 +8,19 @@ class ResConfigSettings(models.TransientModel):
         string="تمت التهيئة",
         config_parameter='yousentech_wo_v4.setup_completed'
     )
+
+
+
+    # =========================
+    # RE-SETUP
+    # =========================
+    def action_re_setup_wo_v4(self):
+
+        self.env['ir.config_parameter'].sudo().set_param(
+            'yousentech_wo_v4.setup_completed',
+            False
+        )
+
+        return self.env.ref(
+            'yousentech_wo_v4.action_wof_setup_wizard'
+        ).read()[0]

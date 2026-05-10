@@ -20,3 +20,4 @@ class WofSetupWizard(models.TransientModel):
         return self.env.ref(
                 'yousentech_wo_v4.action_service_types_wo_v4'
             ).read()[0]
+     
