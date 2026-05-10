@@ -10,7 +10,10 @@
         <field name="model">wof.setup.wizard</field>
         <field name="arch" type="xml">
            <form string="تهيئة النظام"  create="0" edit="0">
-
+                <button string="إنهاء التهيئة"
+                                type="object"
+                                name="action_finish_setup"
+                                class="btn btn-primary"/>
                 <sheet>
 
                     <div class="alert alert-primary text-center">
@@ -36,14 +39,7 @@
 
                     </group>
 
-                    <footer>
-
-                        <button string="إنهاء التهيئة"
-                                type="object"
-                                name="action_finish_setup"
-                                class="btn btn-primary"/>
-
-                    </footer>
+                    
 
                 </sheet>
 
