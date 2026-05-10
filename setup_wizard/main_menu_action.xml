@@ -10,25 +10,25 @@
 
         <field name="state">code</field>
 
-        <field name="code">
+     <field name="code">
 
-                setup = env['ir.config_parameter'].sudo().get_param(
-                    'yousentech_wo_v4.setup_completed'
-                )
+setup = env['ir.config_parameter'].sudo().get_param(
+    'yousentech_wo_v4.setup_completed'
+)
 
-                if not setup:
+if not setup:
 
-                    action = env.ref(
-                        'yousentech_wo_v4.action_wof_setup_wizard'
-                    ).read()[0]
+    action = env.ref(
+        'yousentech_wo_v4.action_wof_setup_wizard'
+    ).read()[0]
 
-                else:
+else:
 
-                    action = env.ref(
-                        'yousentech_wo_v4.action_service_type_wo_v4'
-                    ).read()[0]
+    action = env.ref(
+        'yousentech_wo_v4.action_service_type_wo_v4'
+    ).read()[0]
 
-        </field>
+</field>
 
     </record>
 
