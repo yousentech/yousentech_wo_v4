@@ -5,19 +5,10 @@
             FORM
     ========================== -->
 
-    <record id="view_wof_setup_wizard_form"
-            model="ir.ui.view">
-
-        <field name="name">
-            wof.setup.wizard.form
-        </field>
-
-        <field name="model">
-            wof.setup.wizard
-        </field>
-
+    <record id="view_wof_setup_wizard_form" model="ir.ui.view">
+        <field name="name">wof.setup.wizard.form</field>
+        <field name="model">wof.setup.wizard</field>
         <field name="arch" type="xml">
-
             <form string="تهيئة النظام"
                   create="0"
                   edit="0">
@@ -59,24 +50,11 @@
             ACTION
     ========================== -->
 
-    <record id="action_wof_setup_wizard"
-            model="ir.actions.act_window">
-
-        <field name="name">
-            تهيئة النظام
-        </field>
-
-        <field name="res_model">
-            wof.setup.wizard
-        </field>
-
-        <field name="view_mode">
-            form
-        </field>
-
-        <field name="target">
-            current
-        </field>
+    <record id="action_wof_setup_wizard" model="ir.actions.act_window">
+        <field name="name">تهيئة النظام</field>
+        <field name="res_model">wof.setup.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
 
     </record>
 
