@@ -57,7 +57,7 @@
         
     <menuitem id="menu_wo_v4_setting"
               name="الاعدادات"
-              parent="menu_wo_v4"
+         
               action="action_wo_v4_settings"
               parent="menu_wo_v4_configuration"
               sequence="4"  />
