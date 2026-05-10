@@ -14,10 +14,7 @@
                                 type="object"
                                 name="action_finish_setup"
                                 class="btn btn-primary"/>
-                    <button string="اعادة التهيئة"
-                                type="object"
-                                name="action_re_setup"
-                                class="btn btn-primary"/>
+                   
                 <sheet>
 
                     <div class="alert alert-primary text-center">
