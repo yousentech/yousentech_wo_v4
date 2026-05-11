@@ -286,7 +286,7 @@ class WofSetupWizardFilmLine(models.TransientModel):
         default=True
     )
 
-    service_type_id = fields.Many2one(
+    service_tye_id = fields.Many2one(
         'wof.service.type',
         string="نوع الخدمة",
         required=True
