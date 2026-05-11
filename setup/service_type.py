@@ -46,8 +46,7 @@ class ServiceType(models.Model):
         string="تفعيل",
         default=True
     )
-    heat_insulation = fields.Boolean(string="النوع عزل حراري",  default=False )
-
+ 
     parts_count = fields.Integer(
     string="عدد الأجزاء", compute="_compute_counts"  )
 
