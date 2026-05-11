@@ -12,6 +12,7 @@
                     <field name="step" invisible="1"/>
                     <field name="current_service_index" invisible="1"/>
                     <field name="current_service_line_id" invisible="1"/>
+                    <field name="selected_services_count" invisible="1"/>
 
                     <!-- WELCOME -->
                     <div invisible="step != 'welcome'">
@@ -117,44 +118,61 @@
                             </h3>
 
                             <div class="text-muted">
-                                أضف أفلام كل نوع خدمة على حدة.
+                                تظهر كل الخدمات، والمختارة باللون الأخضر، والحالية مميزة بالأزرق.
                             </div>
                         </div>
 
-                      <!-- SELECTED SERVICES -->
-                            <div class="mb-3">
+                        <!-- ALL SERVICES WITH STATUS -->
+                        <div class="mb-3">
 
-                                <div class="text-muted small o_form_label">
-                                    الخدمات المختارة
-                                </div>
+                            <div class="text-muted small o_form_label">
+                                أنواع الخدمات
+                            </div>
 
-                                <field name="service_line_ids"
-                                    nolabel="1"
-                                    domain="[('selected','=',True)]">
+                            <field name="service_line_ids" nolabel="1">
 
-                                    <kanban create="0" delete="0" class="o_kanban_small_column">
+                                <kanban create="0" delete="0" class="o_kanban_small_column">
 
-                                        <field name="selected"/>
-                                        <field name="custom_name"/>
+                                    <field name="selected"/>
+                                    <field name="custom_name"/>
+                                    <field name="is_current"/>
 
-                                        <templates>
-                                            <t t-name="kanban-box">
+                                    <templates>
+                                        <t t-name="kanban-box">
 
-                                                <div class="oe_kanban_card p-2 rounded border bg-light">
+                                            <div t-attf-class="
+                                                oe_kanban_card p-2 rounded border
+                                                #{record.is_current.raw_value ? 'bg-primary-subtle border-primary' : ''}
+                                                #{record.selected.raw_value and !record.is_current.raw_value ? 'bg-success-subtle border-success' : ''}
+                                                #{!record.selected.raw_value ? 'bg-light text-muted' : ''}
+                                            ">
 
-                                                    <i class="fa fa-check-circle text-success me-1"/>
-                                                    <field name="custom_name"/>
+                                                <div class="d-flex justify-content-between align-items-center">
+
+                                                    <div>
+                                                        <i t-attf-class="
+                                                            fa me-1
+                                                            #{record.selected.raw_value ? 'fa-check-circle text-success' : 'fa-circle-o text-muted'}
+                                                        "/>
+
+                                                        <field name="custom_name"/>
+                                                    </div>
+
+                                                    <field name="selected" widget="boolean_toggle"/>
 
                                                 </div>
 
-                                            </t>
-                                        </templates>
+                                            </div>
 
-                                    </kanban>
+                                        </t>
+                                    </templates>
 
-                                </field>
+                                </kanban>
 
-                            </div>
+                            </field>
+
+                        </div>
+
                         <!-- CURRENT SERVICE -->
                         <div class="alert alert-primary">
 
@@ -167,7 +185,7 @@
 
                         </div>
 
-                        <!-- ADD FILM -->
+                        <!-- ADD FILM BUTTON -->
                         <div class="mb-3">
 
                             <button string="إضافة فيلم"
@@ -177,7 +195,7 @@
 
                         </div>
 
-                        <!-- FILMS ONLY FOR CURRENT SERVICE -->
+                        <!-- FILMS LINES -->
                         <field name="film_line_ids"
                                nolabel="1"
                                domain="[('service_line_id','=',current_service_line_id)]">
