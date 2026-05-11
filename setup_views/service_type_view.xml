@@ -43,7 +43,7 @@
 
                 <field name="code"/>
                 <field name="name"/>
-                <field name="heat_insulation" />
+                <field name="service_options" />
 
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="active" column_invisible="1"/>
@@ -280,7 +280,7 @@
                 <!-- Search Fields -->
                 <field name="name"/>
                 <field name="code"/>
-                <field name="heat_insulation" />
+                <field name="service_options" />
 
 
                
