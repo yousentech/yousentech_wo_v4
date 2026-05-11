@@ -245,10 +245,12 @@
                             <field name="code" placeholder="مثال: TINT"/>
                             <field name="name" placeholder="مثال: عزل حراري"/>
                             
-                            <field name="service_options" widget="radio"   options="{'horizontal': true}"/>
                         </group>
 
                         <group>
+
+                            <field name="service_options" widget="radio"   options="{'horizontal': true}"/>
+
                             <field name="company_id" groups="base.group_multi_company" readonly="1" force_save="1"/>
                             <field name="active" invisible="1"/>
                         </group>
