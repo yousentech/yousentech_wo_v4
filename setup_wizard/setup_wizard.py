@@ -145,3 +145,16 @@ class WofSetupWizardServiceLine(models.TransientModel):
     custom_name = fields.Char(
         string="اسم الخدمة"
     )
+
+    def action_open_line(self):
+
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'تعديل الخدمة',
+            'res_model': 'wof.setup.wizard.service.line',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }

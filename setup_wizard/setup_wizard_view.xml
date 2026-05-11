@@ -77,12 +77,30 @@
                                             </div>
 
                                             <div class="mt-3">
-                                                <div class="text-muted small o_form_label">
-                                                    اسم نوع الخدمة
+
+                                                <div class="text-muted small">
+                                                    اسم الخدمة
                                                 </div>
 
-                                                <field name="custom_name"
-                                                    placeholder="اكتب اسم الخدمة"/>
+                                                <div class="fw-bold">
+                                                    <field name="custom_name"/>
+                                                </div>
+
+                                                <!-- LINK -->
+                                                <div class="mt-2">
+
+                                                    <a type="object"
+                                                    name="action_open_line"
+                                                    class="text-primary">
+
+                                                        <i class="fa fa-pencil me-1"/>
+
+                                                        تعديل الاسم
+
+                                                    </a>
+
+                                                </div>
+
                                             </div>
 
                                         </div>
@@ -112,6 +130,36 @@
 
         </field>
     </record>
+
+    <!-- =========================
+        SERVICE LINE FORM
+    ========================= -->
+
+    <record id="view_wof_setup_service_line_form"  model="ir.ui.view">
+        <field name="name">wof.setup.service.line.form</field>
+        <field name="model">wof.setup.wizard.service.line</field>
+        <field name="arch" type="xml">
+            <form string="تعديل الخدمة">
+                <sheet>
+                    <group>
+                        <field name="selected"/>
+                        <field name="service_options"
+                            readonly="1"/>
+                        <field name="custom_name"/>
+                    </group>
+                    <footer>
+                        <button string="حفظ"
+                                special="save"
+                                class="btn-primary"/>
+                        <button string="إلغاء"
+                                special="cancel"
+                                class="btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
 
     <record id="action_wof_setup_wizard" model="ir.actions.act_window">
         <field name="name">تهيئة النظام</field>
