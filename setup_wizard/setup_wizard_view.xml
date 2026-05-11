@@ -116,34 +116,33 @@
                          
 
                     </div>
+                                    <!-- ================= FOOTERS ================= -->
+
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+
+                            <button string="بدء التهيئة"
+                                    type="object"
+                                    name="action_start_setup"
+                                    class="btn btn-primary btn-lg"
+                                    invisible="step != 'welcome'"/>
+
+                            <button string="رجوع"
+                                    type="object"
+                                    name="action_back_welcome"
+                                    class="btn btn-secondary"
+                                    invisible="step != 'service_types'"/>
+
+                            <button string="إنهاء التهيئة"
+                                    type="object"
+                                    name="action_finish_setup"
+                                    class="btn btn-primary"
+                                    invisible="step != 'service_types'"/>
+
+                        </div>
 
                 </sheet>
-                <!-- ================= FOOTERS ================= -->
 
-               <footer>
-
-    <!-- START -->
-    <button string="بدء التهيئة"
-            type="object"
-            name="action_start_setup"
-            class="btn btn-primary btn-lg"
-            invisible="step != 'welcome'"/>
-
-    <!-- BACK -->
-    <button string="رجوع"
-            type="object"
-            name="action_back_welcome"
-            class="btn btn-secondary"
-            invisible="step != 'service_types'"/>
-
-    <!-- FINISH -->
-    <button string="إنهاء التهيئة"
-            type="object"
-            name="action_finish_setup"
-            class="btn btn-primary"
-            invisible="step != 'service_types'"/>
-
-</footer>
+             
             </form>
 
         </field>
