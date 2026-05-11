@@ -118,7 +118,7 @@
                     </div>
                                     <!-- ================= FOOTERS ================= -->
 
-                    <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-start gap-2">
 
                             <button string="بدء التهيئة"
                                     type="object"
