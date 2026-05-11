@@ -17,11 +17,10 @@ class WofSetupWizard(models.TransientModel):
     _name = 'wof.setup.wizard'
     _description = 'WOF Setup Wizard'
 
-    step = fields.Selection([
-        ('welcome', 'الترحيب'),
-        ('service_types', 'أنواع الخدمات'),
-    ], default='welcome')
-
+    step = fields.Selection([('welcome', 'الترحيب'),
+                            ('service_types', 'أنواع الخدمات'),
+                            ('films', 'الأفلام'),
+                                ], default='welcome')
     service_line_ids = fields.One2many(
         'wof.setup.wizard.service.line',
         'wizard_id',
