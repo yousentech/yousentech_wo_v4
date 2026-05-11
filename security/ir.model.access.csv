@@ -9,7 +9,6 @@ access_wof_film_category_lines,wof.film.category.lines,model_wof_film_category_l
 access_wof_film_parts_lines,wof.film.parts.lines,model_wof_film_parts_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_film_parts_size_lines,wof.film.parts.size.lines,model_wof_film_parts_size_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_size,wof.car.size,model_wof_car_size,yousentech_wo_v4.group_wo_manager,1,1,1,1
-access_wof_car_size,wof.car.size,model_wof_car_size,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts,wof.car.parts,model_wof_car_parts,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts_wizard,wof.car.parts.wizard,model_wof_car_parts_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts_wizard_line,wof.car.parts.wizard.line,model_wof_car_parts_wizard_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
