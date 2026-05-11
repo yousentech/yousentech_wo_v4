@@ -139,7 +139,7 @@ class WofSetupWizardServiceLine(models.TransientModel):
     service_options = fields.Selection(
         SERVICE_OPTIONS,
         string="النوع",
-        required=True
+        required=False
     )
 
     custom_name = fields.Char(
