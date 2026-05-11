@@ -1,78 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <!-- =========================
-            FORM
-    ========================== -->
-
     <record id="view_wof_setup_wizard_form" model="ir.ui.view">
         <field name="name">wof.setup.wizard.form</field>
         <field name="model">wof.setup.wizard</field>
         <field name="arch" type="xml">
-           <form string="تهيئة النظام"  create="0" edit="0">
-                <button string="إنهاء التهيئة"
-                                type="object"
-                                name="action_finish_setup"
-                                class="btn btn-primary"/>
-                   
+
+            <form string="تهيئة النظام" create="0" edit="1">
                 <sheet>
 
-                    <div class="alert alert-primary text-center">
+                    <field name="step" invisible="1"/>
 
-                        <h1>
-                            <i class="fa fa-magic me-2"/>
-                            تهيئة نظام العناية بالسيارات
-                        </h1>
+                    <!-- WELCOME -->
+                    <div invisible="step != 'welcome'">
 
-                        <div class="text-muted mt-2">
-                            مرحباً بك 👋
+                        <div class="alert alert-primary text-center p-4">
+                            <h1>
+                                <i class="fa fa-magic me-2"/>
+                                مرحباً بك في نظام العناية بالسيارات
+                            </h1>
+
+                            <div class="text-muted mt-2">
+                                سنقوم بتهيئة النظام خطوة بخطوة.
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button string="بدء التهيئة"
+                                    type="object"
+                                    name="action_start_setup"
+                                    class="btn btn-primary btn-lg"/>
                         </div>
 
                     </div>
 
-                    <group>
+                    <!-- SERVICE TYPES -->
+                    <div invisible="step != 'service_types'">
 
-                        <div class="alert alert-info">
+                        <div class="alert alert-info text-center p-3">
+                            <h3>
+                                <i class="fa fa-cogs me-2"/>
+                                تهيئة أنواع الخدمات
+                            </h3>
 
-                            هذه شاشة التهيئة الأولى للنظام
-
+                            <div class="text-muted">
+                                اختر الخدمات المطلوبة واكتب الاسم الذي سيظهر في النظام.
+                            </div>
                         </div>
 
-                    </group>
+                        <field name="service_line_ids" nolabel="1">
+                            <kanban create="0" delete="0" class="o_kanban_small_column">
 
-                    
+                                <field name="selected"/>
+                                <field name="service_options"/>
+                                <field name="custom_name"/>
+
+                                <templates>
+                                    <t t-name="kanban-box">
+
+                                        <div t-attf-class="
+                                            oe_kanban_card p-3 rounded shadow-sm
+                                            #{record.selected.raw_value ? 'border border-success bg-success-subtle' : 'border bg-white'}
+                                        ">
+
+                                            <div class="d-flex justify-content-between align-items-center">
+
+                                                <div class="fw-bold" style="font-size:16px;">
+                                                    <i class="fa fa-check-circle text-success me-1"
+                                                       invisible="not selected"/>
+
+                                                    <field name="service_options"/>
+                                                </div>
+
+                                                <field name="selected" widget="boolean_toggle"/>
+
+                                            </div>
+
+                                            <div class="mt-3">
+                                                <label class="text-muted small">
+                                                    اسم نوع الخدمة
+                                                </label>
+
+                                                <field name="custom_name"
+                                                       placeholder="اكتب اسم الخدمة"/>
+                                            </div>
+
+                                        </div>
+
+                                    </t>
+                                </templates>
+
+                            </kanban>
+                        </field>
+
+                        <footer>
+                            <button string="رجوع"
+                                    type="object"
+                                    name="action_back_welcome"
+                                    class="btn btn-secondary"/>
+
+                            <button string="إنهاء التهيئة"
+                                    type="object"
+                                    name="action_finish_setup"
+                                    class="btn btn-primary"/>
+                        </footer>
+
+                    </div>
 
                 </sheet>
-
             </form>
+
         </field>
     </record>
 
-    <!-- =========================
-            ACTION
-    ========================== -->
- 
     <record id="action_wof_setup_wizard" model="ir.actions.act_window">
         <field name="name">تهيئة النظام</field>
         <field name="res_model">wof.setup.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">current</field>
-
     </record>
-
-
-    <!-- =========================
-            ACTION server
-    ========================== -->
-    <record id="action_open_setup_wizard1" model="ir.actions.server">
-        <field name="name">العناية بالسيارات</field>
-        <field name="model_id" ref="model_wof_setup_wizard"/>
-        <field name="state">code</field>
-        <field name="code">
-            action = model.action_open_setup_wizard()
-                </field>
-    </record>
-
-
 
 </odoo>
