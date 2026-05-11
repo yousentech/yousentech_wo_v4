@@ -27,11 +27,7 @@ class WofSetupWizard(models.TransientModel):
         'wizard_id',
         string="أنواع الخدمات"
     )
-    step = fields.Selection([
-        ('welcome', 'الترحيب'),
-        ('service_types', 'أنواع الخدمات'),
-        ('films', 'الأفلام'),
-    ], default='welcome')
+  
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
@@ -286,7 +282,7 @@ class WofSetupWizardFilmLine(models.TransientModel):
         default=True
     )
 
-    service_tye_id = fields.Many2one(
+    service_type_id = fields.Many2one(
         'wof.service.type',
         string="نوع الخدمة",
         required=True
