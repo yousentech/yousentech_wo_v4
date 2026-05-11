@@ -121,44 +121,40 @@
                             </div>
                         </div>
 
-                        <!-- SELECTED SERVICES -->
-                        <div class="mb-3">
+                      <!-- SELECTED SERVICES -->
+                            <div class="mb-3">
 
-                            <div class="text-muted small o_form_label">
-                                الخدمات المختارة
+                                <div class="text-muted small o_form_label">
+                                    الخدمات المختارة
+                                </div>
+
+                                <field name="service_line_ids"
+                                    nolabel="1"
+                                    domain="[('selected','=',True)]">
+
+                                    <kanban create="0" delete="0" class="o_kanban_small_column">
+
+                                        <field name="selected"/>
+                                        <field name="custom_name"/>
+
+                                        <templates>
+                                            <t t-name="kanban-box">
+
+                                                <div class="oe_kanban_card p-2 rounded border bg-light">
+
+                                                    <i class="fa fa-check-circle text-success me-1"/>
+                                                    <field name="custom_name"/>
+
+                                                </div>
+
+                                            </t>
+                                        </templates>
+
+                                    </kanban>
+
+                                </field>
+
                             </div>
-
-                            <field name="service_line_ids"
-                                   nolabel="1"
-                                   domain="[('selected','=',True)]">
-
-                                <kanban create="0" delete="0" class="o_kanban_small_column">
-
-                                    <field name="selected"/>
-                                    <field name="custom_name"/>
-
-                                    <templates>
-                                        <t t-name="kanban-box">
-
-                                            <div t-attf-class="
-                                                oe_kanban_card p-2 rounded border
-                                                #{record.id.raw_value == parent.current_service_line_id.raw_value ? 'bg-primary-subtle border-primary' : 'bg-light'}
-                                            ">
-
-                                                <i class="fa fa-check-circle text-success me-1"/>
-                                                <field name="custom_name"/>
-
-                                            </div>
-
-                                        </t>
-                                    </templates>
-
-                                </kanban>
-
-                            </field>
-
-                        </div>
-
                         <!-- CURRENT SERVICE -->
                         <div class="alert alert-primary">
 
