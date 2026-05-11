@@ -125,11 +125,7 @@ class WofSetupWizard(models.TransientModel):
             'yousentech_wo_v4.action_service_types_wo_v4'
         ).read()[0]
 
-    film_line_ids = fields.One2many(
-                'wof.setup.wizard.film.line',
-                'wizard_id',
-                string="الأفلام"
-            )
+    film_line_ids = fields.One2many('wof.setup.wizard.film.line','wizard_id',string="الأفلام")
 
 
     def action_go_films(self):
