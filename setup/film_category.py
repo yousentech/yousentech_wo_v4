@@ -56,8 +56,13 @@ class film_category(models.Model):
 
 
     limpid_film_product_ids = fields.Many2many('product.product', string="الصنف المخزني",domain="[('measure_product','=',True),('type','=','product')]")
-
-    heat_insulation = fields.Boolean(related="service_type_id.heat_insulation")
+    service_options = fields.Selection([('tint','عزل حراري'),
+                                        ('ppf','حماية'),
+                                        ('nano','نانو سيراميك'),
+                                        ('upholstery','تنجيد'),
+                                        ('floor_mats'),
+                                        ('others','أخرى')],string="النوع",default='tint',required=True,related="service_type_id.service_options")
+  
 
     _sql_constraints = [
         (

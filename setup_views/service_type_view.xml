@@ -244,7 +244,8 @@
                         <group>
                             <field name="code" placeholder="مثال: TINT"/>
                             <field name="name" placeholder="مثال: عزل حراري"/>
-                            <field name="heat_insulation" />
+                            
+                            <field name="service_options" widget="radio"   options="{'horizontal': true}"/>
                         </group>
 
                         <group>

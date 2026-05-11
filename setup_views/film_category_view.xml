@@ -81,7 +81,7 @@
                         <field name="warranty_years"/>
                         <field name="company_id" readonly="1" force_save="1"/>
                         <field name="active" invisible="1"/>
-                        <field name="heat_insulation" invisible="1"/>
+                        <field name="service_options" invisible="1"/>
                     </group>
 
                 </group>
@@ -101,7 +101,7 @@
                                 <field name="part_price" readonly="free_part == True"/>
                                 <field name="tax_id"  readonly="free_part == True"/>
                                 <field name="commission"/>
-                                <field name="film_category_line_id" column_invisible="parent.heat_insulation == False"/>
+                                <field name="film_category_line_id" column_invisible="parent.service_options != 'tint'"/>
                                 <field name="discount_exceed_limit"/>
                                 <field name="price_readonly"/>
                                 <field name="tax_id"/>
@@ -113,7 +113,7 @@
                     </page>
 
                     <!-- ================= COLORS ================= -->
-                    <page string="🎨 درجات اللون" invisible="heat_insulation == False">
+                    <page string="🎨 درجات اللون" invisible="service_options != 'tint'">
 
                         <field name="film_category_line_ids">
                             <tree editable="bottom">
@@ -131,7 +131,7 @@
 
                             <group>
                                 <field name="is_effected_in_inventory"/>
-                                <field name="car_film_product_required" invisible="is_effected_in_inventory == False or heat_insulation == False"/>
+                                <field name="car_film_product_required" invisible="is_effected_in_inventory == False or service_options != 'tint'"/>
                             </group>
 
                             <group>
@@ -159,7 +159,7 @@
                     </page>
 
                     <!-- ================= WARNINGS ================= -->
-                    <page string="⚠️ رسائل التحذير" invisible="heat_insulation == False">
+                    <page string="⚠️ رسائل التحذير" invisible="service_options != 'tint'">
 
                         <group col="2">
 
