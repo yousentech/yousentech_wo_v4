@@ -60,7 +60,7 @@ class film_category(models.Model):
                                         ('ppf','حماية'),
                                         ('nano','نانو سيراميك'),
                                         ('upholstery','تنجيد'),
-                                        ('floor_mats'),
+                                        ('floor_mats','أرضيات'),
                                         ('others','أخرى')],string="النوع",default='tint',required=True,related="service_type_id.service_options")
   
 
