@@ -120,34 +120,30 @@
                 </sheet>
                 <!-- ================= FOOTERS ================= -->
 
-                <footer>
+               <footer>
 
-                    <!-- WELCOME -->
-                    <div invisible="step != 'welcome'">
+    <!-- START -->
+    <button string="بدء التهيئة"
+            type="object"
+            name="action_start_setup"
+            class="btn btn-primary btn-lg"
+            invisible="step != 'welcome'"/>
 
-                        <button string="بدء التهيئة"
-                                type="object"
-                                name="action_start_setup"
-                                class="btn btn-primary btn-lg"/>
+    <!-- BACK -->
+    <button string="رجوع"
+            type="object"
+            name="action_back_welcome"
+            class="btn btn-secondary"
+            invisible="step != 'service_types'"/>
 
-                    </div>
+    <!-- FINISH -->
+    <button string="إنهاء التهيئة"
+            type="object"
+            name="action_finish_setup"
+            class="btn btn-primary"
+            invisible="step != 'service_types'"/>
 
-                    <!-- SERVICE TYPES -->
-                    <div invisible="step != 'service_types'">
-
-                        <button string="رجوع"
-                                type="object"
-                                name="action_back_welcome"
-                                class="btn btn-secondary"/>
-
-                        <button string="إنهاء التهيئة"
-                                type="object"
-                                name="action_finish_setup"
-                                class="btn btn-primary"/>
-
-                    </div>
-
-                </footer>
+</footer>
             </form>
 
         </field>
