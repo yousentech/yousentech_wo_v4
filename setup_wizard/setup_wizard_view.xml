@@ -113,21 +113,41 @@
                             </kanban>
                         </field>
 
-                        <footer>
-                            <button string="رجوع"
-                                    type="object"
-                                    name="action_back_welcome"
-                                    class="btn btn-secondary"/>
-
-                            <button string="إنهاء التهيئة"
-                                    type="object"
-                                    name="action_finish_setup"
-                                    class="btn btn-primary"/>
-                        </footer>
+                         
 
                     </div>
 
                 </sheet>
+                <!-- ================= FOOTERS ================= -->
+
+                <footer>
+
+                    <!-- WELCOME -->
+                    <div invisible="step != 'welcome'">
+
+                        <button string="بدء التهيئة"
+                                type="object"
+                                name="action_start_setup"
+                                class="btn btn-primary btn-lg"/>
+
+                    </div>
+
+                    <!-- SERVICE TYPES -->
+                    <div invisible="step != 'service_types'">
+
+                        <button string="رجوع"
+                                type="object"
+                                name="action_back_welcome"
+                                class="btn btn-secondary"/>
+
+                        <button string="إنهاء التهيئة"
+                                type="object"
+                                name="action_finish_setup"
+                                class="btn btn-primary"/>
+
+                    </div>
+
+                </footer>
             </form>
 
         </field>
