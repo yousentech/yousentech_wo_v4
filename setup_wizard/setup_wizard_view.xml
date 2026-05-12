@@ -271,9 +271,7 @@
                                 أفلام الخدمة الحالية
                             </div>
 
-                            <field name="film_line_ids"
-                                   nolabel="1"
-                                   domain="[('service_line_id','=',current_service_line_id)]">
+                            <field name="current_service_film_line_ids" nolabel="1"  >
 
                                 <kanban create="0" delete="0" class="o_kanban_small_column">
 
@@ -320,10 +318,7 @@
                                     class="btn btn-success"/>
                         </div>
 
-                        <field name="part_line_ids"
-                               nolabel="1"
-                               domain="[('film_line_id','=',current_film_line_id)]">
-
+                        <field name="current_film_part_line_ids"  nolabel="1">
                             <tree editable="bottom" create="0" delete="1">
 
                                 <field name="selected"/>
