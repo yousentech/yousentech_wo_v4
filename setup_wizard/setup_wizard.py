@@ -190,7 +190,7 @@ class WofSetupFilmWizard(models.TransientModel):
 
     film_name = fields.Char(
         string="اسم الفيلم",
-        required=True
+       
     )
 
     warranty_years = fields.Char(
