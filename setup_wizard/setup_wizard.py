@@ -568,31 +568,31 @@ class WofSetupWizardFilmLine(models.TransientModel):
     #     store=True
     # )
 
-    # @api.depends(
-    #     'wizard_id.current_film_line_id',
-    #     'wizard_id.current_film_index',
-    #     'selected'
-    # )
-    # def _compute_is_current(self):
-    #     for rec in self:
-    #         rec.is_current = bool(
-    #             rec.wizard_id
-    #             and rec.wizard_id.current_film_line_id
-    #             and rec.id == rec.wizard_id.current_film_line_id.id
-    #         )
-
     @api.depends(
-        'wizard_id.current_service_line_id',
-        'service_line_id',
+        'wizard_id.current_film_line_id',
+        'wizard_id.current_film_index',
         'selected'
     )
-    def _compute_is_current_service(self):
+    def _compute_is_current(self):
         for rec in self:
-            rec.is_current_service = bool(
+            rec.is_current = bool(
                 rec.wizard_id
-                and rec.wizard_id.current_service_line_id
-                and rec.service_line_id == rec.wizard_id.current_service_line_id
+                and rec.wizard_id.current_film_line_id
+                and rec.id == rec.wizard_id.current_film_line_id.id
             )
+
+    # @api.depends(
+    #     'wizard_id.current_service_line_id',
+    #     'service_line_id',
+    #     'selected'
+    # )
+    # def _compute_is_current_service(self):
+    #     for rec in self:
+    #         rec.is_current_service = bool(
+    #             rec.wizard_id
+    #             and rec.wizard_id.current_service_line_id
+    #             and rec.service_line_id == rec.wizard_id.current_service_line_id
+    #         )
 
 
 class WofSetupWizardPartLine(models.TransientModel):
