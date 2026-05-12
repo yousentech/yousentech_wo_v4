@@ -186,7 +186,7 @@
 
                         <field name="film_line_ids"
                                nolabel="1"
-                               domain="[('service_line_id','=',current_service_line_id)]">
+                               domain="[('display_in_current_service','=',True)]">
 
                             <tree editable="bottom" create="0" delete="1">
 
@@ -195,7 +195,7 @@
                                 <field name="warranty_years"/>
 
                                 <field name="service_name" invisible="1"/>
-                                <!-- <field name="is_current_service" invisible="1"/> -->
+                                <field name="display_in_current_service" invisible="1"/>
 
                             </tree>
 
@@ -271,14 +271,16 @@
                                 أفلام الخدمة الحالية
                             </div>
 
-                            <field name="current_service_film_line_ids" nolabel="1"  >
+                            <field name="film_line_ids"
+                                   nolabel="1"
+                                   domain="[('display_in_current_service','=',True)]">
 
                                 <kanban create="0" delete="0" class="o_kanban_small_column">
 
                                     <field name="selected"/>
                                     <field name="film_name"/>
                                     <field name="is_current"/>
-                                    <!-- <field name="is_current_service"/> -->
+                                    <field name="display_in_current_service"/>
 
                                     <templates>
                                         <t t-name="kanban-box">
@@ -318,7 +320,10 @@
                                     class="btn btn-success"/>
                         </div>
 
-                        <field name="current_film_part_line_ids"  nolabel="1">
+                        <field name="part_line_ids"
+                               nolabel="1"
+                               domain="[('display_in_current_film','=',True)]">
+
                             <tree editable="bottom" create="0" delete="1">
 
                                 <field name="selected"/>
@@ -333,7 +338,7 @@
 
                                 <field name="service_name" invisible="1"/>
                                 <field name="film_name" invisible="1"/>
-                                <!-- <field name="is_current_film" invisible="1"/> -->
+                                <field name="display_in_current_film" invisible="1"/>
 
                             </tree>
 
