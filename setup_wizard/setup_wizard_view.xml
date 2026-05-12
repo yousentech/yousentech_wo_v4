@@ -12,9 +12,9 @@
                     <field name="step" invisible="1"/>
                     <field name="current_service_index" invisible="1"/>
                     <field name="current_service_line_id" invisible="1"/>
-                    <field name="selected_services_count" invisible="1"/>
+                    <field name="current_film_index" invisible="1"/>
+                    <field name="current_film_line_id" invisible="1"/>
 
-                    <!-- WELCOME -->
                     <div invisible="step != 'welcome'">
 
                         <div class="alert alert-primary text-center p-4">
@@ -30,7 +30,6 @@
 
                     </div>
 
-                    <!-- SERVICE TYPES -->
                     <div invisible="step != 'service_types'">
 
                         <div class="alert alert-info text-center p-3">
@@ -108,7 +107,6 @@
 
                     </div>
 
-                    <!-- FILMS -->
                     <div invisible="step != 'films'">
 
                         <div class="alert alert-success text-center p-3">
@@ -118,11 +116,10 @@
                             </h3>
 
                             <div class="text-muted">
-                                تظهر كل الخدمات، والمختارة باللون الأخضر، والحالية مميزة بالأزرق.
+                                أضف أفلام كل نوع خدمة على حدة.
                             </div>
                         </div>
 
-                        <!-- ALL SERVICES WITH STATUS -->
                         <div class="mb-3">
 
                             <div class="text-muted small o_form_label">
@@ -130,7 +127,6 @@
                             </div>
 
                             <field name="service_line_ids" nolabel="1">
-
                                 <kanban create="0" delete="0" class="o_kanban_small_column">
 
                                     <field name="selected"/>
@@ -143,7 +139,7 @@
                                             <div t-attf-class="
                                                 oe_kanban_card p-2 rounded border
                                                 #{record.is_current.raw_value ? 'bg-primary-subtle border-primary' : ''}
-                                                #{record.selected.raw_value and !record.is_current.raw_value ? 'bg-success-subtle border-success' : ''}
+                                                #{record.selected.raw_value ? 'bg-success-subtle border-success' : ''}
                                                 #{!record.selected.raw_value ? 'bg-light text-muted' : ''}
                                             ">
 
@@ -168,34 +164,26 @@
                                     </templates>
 
                                 </kanban>
-
                             </field>
 
                         </div>
 
-                        <!-- CURRENT SERVICE -->
                         <div class="alert alert-primary">
-
                             <strong>
                                 <i class="fa fa-cogs me-1"/>
                                 الخدمة الحالية:
                             </strong>
 
                             <field name="current_service_name"/>
-
                         </div>
 
-                        <!-- ADD FILM BUTTON -->
                         <div class="mb-3">
-
                             <button string="إضافة فيلم"
                                     type="object"
                                     name="action_add_film_line"
                                     class="btn btn-success"/>
-
                         </div>
 
-                        <!-- FILMS LINES -->
                         <field name="film_line_ids"
                                nolabel="1"
                                domain="[('service_line_id','=',current_service_line_id)]">
@@ -203,9 +191,9 @@
                             <tree editable="bottom" create="0" delete="1">
 
                                 <field name="selected"/>
-                                <field name="service_name" readonly="1"/>
                                 <field name="film_name"/>
                                 <field name="warranty_years"/>
+                                <field name="service_name" invisible="1"/>
 
                             </tree>
 
@@ -213,7 +201,147 @@
 
                     </div>
 
-                    <!-- ACTION BUTTONS -->
+                    <div invisible="step != 'parts'">
+
+                        <div class="alert alert-warning text-center p-3">
+                            <h3>
+                                <i class="fa fa-cogs me-2"/>
+                                تهيئة الأجزاء
+                            </h3>
+
+                            <div class="text-muted">
+                                أضف أجزاء كل فيلم على حدة.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+
+                            <div class="text-muted small o_form_label">
+                                أنواع الخدمات
+                            </div>
+
+                            <field name="service_line_ids" nolabel="1">
+                                <kanban create="0" delete="0" class="o_kanban_small_column">
+
+                                    <field name="selected"/>
+                                    <field name="custom_name"/>
+                                    <field name="is_current"/>
+
+                                    <templates>
+                                        <t t-name="kanban-box">
+
+                                            <div t-attf-class="
+                                                oe_kanban_card p-2 rounded border
+                                                #{record.is_current.raw_value ? 'bg-primary-subtle border-primary' : ''}
+                                                #{record.selected.raw_value ? 'bg-success-subtle border-success' : ''}
+                                                #{!record.selected.raw_value ? 'bg-light text-muted' : ''}
+                                            ">
+
+                                                <i t-attf-class="
+                                                    fa me-1
+                                                    #{record.selected.raw_value ? 'fa-check-circle text-success' : 'fa-circle-o text-muted'}
+                                                "/>
+
+                                                <field name="custom_name"/>
+
+                                            </div>
+
+                                        </t>
+                                    </templates>
+
+                                </kanban>
+                            </field>
+
+                        </div>
+
+                        <div class="alert alert-primary">
+                            <strong>
+                                <i class="fa fa-cogs me-1"/>
+                                الخدمة الحالية:
+                            </strong>
+
+                            <field name="current_service_name"/>
+                        </div>
+
+                        <div class="mb-3">
+
+                            <div class="text-muted small o_form_label">
+                                أفلام الخدمة الحالية
+                            </div>
+
+                            <field name="film_line_ids"
+                                   nolabel="1"
+                                   domain="[('service_line_id','=',current_service_line_id)]">
+
+                                <kanban create="0" delete="0" class="o_kanban_small_column">
+
+                                    <field name="selected"/>
+                                    <field name="film_name"/>
+                                    <field name="is_current"/>
+
+                                    <templates>
+                                        <t t-name="kanban-box">
+
+                                            <div t-attf-class="
+                                                oe_kanban_card p-2 rounded border
+                                                #{record.is_current.raw_value ? 'bg-primary-subtle border-primary' : 'bg-light'}
+                                            ">
+
+                                                <i class="fa fa-film text-primary me-1"/>
+                                                <field name="film_name"/>
+
+                                            </div>
+
+                                        </t>
+                                    </templates>
+
+                                </kanban>
+
+                            </field>
+
+                        </div>
+
+                        <div class="alert alert-success">
+                            <strong>
+                                <i class="fa fa-film me-1"/>
+                                الفيلم الحالي:
+                            </strong>
+
+                            <field name="current_film_name"/>
+                        </div>
+
+                        <div class="mb-3">
+                            <button string="إضافة جزء"
+                                    type="object"
+                                    name="action_add_part_line"
+                                    class="btn btn-success"/>
+                        </div>
+
+                        <field name="part_line_ids"
+                               nolabel="1"
+                               domain="[('film_line_id','=',current_film_line_id)]">
+
+                            <tree editable="bottom" create="0" delete="1">
+
+                                <field name="selected"/>
+                                <field name="car_part_id"/>
+                                <field name="car_size_id"/>
+                                <field name="part_price"/>
+                                <field name="commission"/>
+                                <field name="discount_exceed_limit"/>
+                                <field name="tax_id"/>
+                                <field name="price_readonly"/>
+                                <field name="free_part"/>
+
+                                <field name="service_name" invisible="1"/>
+                                <field name="film_name" invisible="1"/>
+
+                            </tree>
+
+                        </field>
+
+                    </div>
+
                     <div class="mt-4 pt-3 border-top d-flex justify-content-start gap-2">
 
                         <button string="بدء التهيئة"
@@ -252,6 +380,24 @@
                                 class="btn btn-success"
                                 invisible="step != 'films'"/>
 
+                        <button string="رجوع للأفلام"
+                                type="object"
+                                name="action_back_films"
+                                class="btn btn-secondary"
+                                invisible="step != 'parts'"/>
+
+                        <button string="الفيلم التالي"
+                                type="object"
+                                name="action_next_film_part"
+                                class="btn btn-primary"
+                                invisible="step != 'parts'"/>
+
+                        <button string="إنهاء التهيئة"
+                                type="object"
+                                name="action_finish_setup"
+                                class="btn btn-success"
+                                invisible="step != 'parts'"/>
+
                     </div>
 
                 </sheet>
@@ -260,7 +406,6 @@
         </field>
     </record>
 
-    <!-- SERVICE LINE FORM -->
     <record id="view_wof_setup_service_line_form" model="ir.ui.view">
         <field name="name">wof.setup.service.line.form</field>
         <field name="model">wof.setup.wizard.service.line</field>
