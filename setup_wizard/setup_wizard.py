@@ -159,6 +159,31 @@ class WofSetupWizardServiceLine(models.TransientModel):
             'target': 'current',
         }
 
+    def action_view_service_films(self):
+        self.ensure_one()
+
+        company = self.env.company.parent_id or self.env.company
+
+        service = self.env['wof.service.type'].sudo().search([
+            ('service_options', '=', self.service_options),
+            ('company_id', '=', company.id),
+        ], limit=1)
+
+        if not service:
+            raise ValidationError(_("لم يتم إنشاء نوع الخدمة بعد."))
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('أفلام %s') % service.name,
+            'res_model': 'wof.film.category',
+            'view_mode': 'kanban,tree,form',
+            'domain': [('service_type_id', '=', service.id)],
+            'context': {
+                'default_service_type_id': service.id,
+            },
+            'target': 'current',
+        }
+
 
 class WofSetupFilmWizard(models.TransientModel):
     _name = 'wof.setup.film.wizard'
@@ -258,7 +283,7 @@ class WofSetupFilmWizard(models.TransientModel):
             ('company_id', '=', company.id),
         ], limit=1)
 
-        vals = {
+        film_vals = {
             'name': self.film_name,
             'service_type_id': service.id,
             'warranty_years': self.warranty_years,
@@ -266,9 +291,9 @@ class WofSetupFilmWizard(models.TransientModel):
         }
 
         if film:
-            film.write(vals)
+            film.write(film_vals)
         else:
-            film = Film.create(vals)
+            film = Film.create(film_vals)
 
         FilmPartLine = self.env['wof.film.parts.lines'].sudo()
 
@@ -277,9 +302,12 @@ class WofSetupFilmWizard(models.TransientModel):
             if not part.car_part_id:
                 raise ValidationError(_("يرجى اختيار الجزء."))
 
-            size_lines = part.size_line_ids
+            price_lines = part.price_line_ids
+            commission_lines = part.commission_line_ids
 
-            if not size_lines:
+            # لو المستخدم أضاف جزء بدون تسعير ولا عمولة
+            if not price_lines and not commission_lines:
+
                 domain = [
                     ('header_id', '=', film.id),
                     ('car_part_id', '=', part.car_part_id.id),
@@ -304,33 +332,67 @@ class WofSetupFilmWizard(models.TransientModel):
                 else:
                     FilmPartLine.create(vals)
 
-            for size in size_lines:
+                continue
+
+            # الأحجام الموجودة في التسعير أو العمولة
+            size_keys = set()
+
+            for price in price_lines:
+                size_keys.add(price.car_size_id.id if price.car_size_id else False)
+
+            for commission in commission_lines:
+                size_keys.add(commission.car_size_id.id if commission.car_size_id else False)
+
+            for size_id in size_keys:
+
+                price_line = price_lines.filtered(
+                    lambda l: (l.car_size_id.id if l.car_size_id else False) == size_id
+                )[:1]
+
+                commission_line = commission_lines.filtered(
+                    lambda l: (l.car_size_id.id if l.car_size_id else False) == size_id
+                )[:1]
+
                 domain = [
                     ('header_id', '=', film.id),
                     ('car_part_id', '=', part.car_part_id.id),
-                    ('car_size_id', '=', size.car_size_id.id if size.car_size_id else False),
+                    ('car_size_id', '=', size_id or False),
                 ]
 
                 vals = {
                     'header_id': film.id,
                     'car_part_id': part.car_part_id.id,
-                    'car_size_id': size.car_size_id.id if size.car_size_id else False,
-                    'part_price': size.part_price,
-                    'commission': size.commission,
-                    'discount_exceed_limit': size.discount_exceed_limit,
-                    'tax_id': size.tax_id.id if size.tax_id else False,
-                    'price_readonly': size.price_readonly,
-                    'free_part': size.free_part,
+                    'car_size_id': size_id or False,
+
+                    'part_price': price_line.part_price if price_line else 0.0,
+
+                    'commission': commission_line.commission if commission_line else 0.0,
+
+                    'discount_exceed_limit': (
+                        price_line.discount_exceed_limit if price_line else 0
+                    ),
+
+                    'tax_id': (
+                        price_line.tax_id.id if price_line and price_line.tax_id else False
+                    ),
+
+                    'price_readonly': (
+                        price_line.price_readonly if price_line else False
+                    ),
+
+                    'free_part': (
+                        price_line.free_part if price_line else False
+                    ),
                 }
 
                 existing = FilmPartLine.search(domain, limit=1)
+
                 if existing:
                     existing.write(vals)
                 else:
                     FilmPartLine.create(vals)
 
         return film
-
     def action_add_new_film(self):
         self.ensure_one()
 
@@ -404,11 +466,15 @@ class WofSetupFilmPartLine(models.TransientModel):
         required=True
     )
 
-    size_line_ids = fields.One2many(
-        'wof.setup.film.part.size.line',
+    price_line_ids = fields.One2many(
+        'wof.setup.film.part.price.line',
         'part_line_id',
-        string="التسعير والعمولة حسب الحجم"
-    )
+        string="التسعير حسب الحجم" )
+
+    commission_line_ids = fields.One2many(
+        'wof.setup.film.part.commission.line',
+        'part_line_id',
+        string="العمولة حسب الحجم"  )
 
     def action_open_price_popup(self):
         self.ensure_one()
@@ -479,4 +545,59 @@ class WofSetupFilmPartSizeLine(models.TransientModel):
 
     free_part = fields.Boolean(
         string="جزء مجاني"
+    )
+
+
+class WofSetupFilmPartPriceLine(models.TransientModel):
+    _name = 'wof.setup.film.part.price.line'
+    _description = 'WOF Setup Film Part Price Line'
+
+    part_line_id = fields.Many2one(
+        'wof.setup.film.part.line',
+        ondelete='cascade'
+    )
+
+    car_size_id = fields.Many2one(
+        'wof.car.size',
+        string="حجم السيارة"
+    )
+
+    part_price = fields.Float(
+        string="سعر الجزء"
+    )
+
+    discount_exceed_limit = fields.Integer(
+        string="نسبة الخصم المسموح"
+    )
+
+    tax_id = fields.Many2one(
+        'account.tax',
+        string="الضريبة",
+        domain=[('type_tax_use', '=', 'sale')]
+    )
+
+    price_readonly = fields.Boolean(
+        string="السعر ثابت"
+    )
+
+    free_part = fields.Boolean(
+        string="جزء مجاني"
+    )
+
+class WofSetupFilmPartCommissionLine(models.TransientModel):
+    _name = 'wof.setup.film.part.commission.line'
+    _description = 'WOF Setup Film Part Commission Line'
+
+    part_line_id = fields.Many2one(
+        'wof.setup.film.part.line',
+        ondelete='cascade'
+    )
+
+    car_size_id = fields.Many2one(
+        'wof.car.size',
+        string="حجم السيارة"
+    )
+
+    commission = fields.Float(
+        string="عمولة الفني"
     )
