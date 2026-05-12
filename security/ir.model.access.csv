@@ -1,7 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_wof_setup_wizard,wof.setup.wizard,model_wof_setup_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_wizard_service_line,wof.setup.wizard.service.line,model_wof_setup_wizard_service_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
-access_wof_setup_wizard_film_line,wof.setup.wizard.film.line,model_wof_setup_wizard_film_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_wizard_part_line,wof.setup.wizard.part.line,model_wof_setup_wizard_part_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_film_wizard,wof.setup.film.wizard,model_wof_setup_film_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_film_part_line,wof.setup.film.part.line,model_wof_setup_film_part_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
