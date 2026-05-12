@@ -342,10 +342,10 @@ class WofSetupWizard(models.TransientModel):
 
             next_service_index += 1
 
-    # =========================
-    # FINISH
-    # =========================
-    return self.action_finish_setup()
+        # =========================
+        # FINISH
+        # =========================
+        return self.action_finish_setup()
     # =========================
     # CREATE MAIN RECORDS
     # =========================
