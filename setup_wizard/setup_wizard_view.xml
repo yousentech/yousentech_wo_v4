@@ -139,7 +139,7 @@
                                             <div t-attf-class="
                                                 oe_kanban_card p-2 rounded border
                                                 #{record.is_current.raw_value ? 'bg-primary-subtle border-primary' : ''}
-                                                #{record.selected.raw_value ? 'bg-success-subtle border-success' : ''}
+                                                #{record.selected.raw_value and !record.is_current.raw_value ? 'bg-success-subtle border-success' : ''}
                                                 #{!record.selected.raw_value ? 'bg-light text-muted' : ''}
                                             ">
 
@@ -186,14 +186,16 @@
 
                         <field name="film_line_ids"
                                nolabel="1"
-                               domain="[('service_line_id','=',current_service_line_id)]">
+                               domain="[('is_current_service','=',True)]">
 
                             <tree editable="bottom" create="0" delete="1">
 
                                 <field name="selected"/>
                                 <field name="film_name"/>
                                 <field name="warranty_years"/>
+
                                 <field name="service_name" invisible="1"/>
+                                <field name="is_current_service" invisible="1"/>
 
                             </tree>
 
@@ -233,7 +235,7 @@
                                             <div t-attf-class="
                                                 oe_kanban_card p-2 rounded border
                                                 #{record.is_current.raw_value ? 'bg-primary-subtle border-primary' : ''}
-                                                #{record.selected.raw_value ? 'bg-success-subtle border-success' : ''}
+                                                #{record.selected.raw_value and !record.is_current.raw_value ? 'bg-success-subtle border-success' : ''}
                                                 #{!record.selected.raw_value ? 'bg-light text-muted' : ''}
                                             ">
 
@@ -271,13 +273,14 @@
 
                             <field name="film_line_ids"
                                    nolabel="1"
-                                   domain="[('service_line_id','=',current_service_line_id)]">
+                                   domain="[('is_current_service','=',True)]">
 
                                 <kanban create="0" delete="0" class="o_kanban_small_column">
 
                                     <field name="selected"/>
                                     <field name="film_name"/>
                                     <field name="is_current"/>
+                                    <field name="is_current_service"/>
 
                                     <templates>
                                         <t t-name="kanban-box">
@@ -319,7 +322,7 @@
 
                         <field name="part_line_ids"
                                nolabel="1"
-                               domain="[('film_line_id','=',current_film_line_id)]">
+                               domain="[('is_current_film','=',True)]">
 
                             <tree editable="bottom" create="0" delete="1">
 
@@ -335,6 +338,7 @@
 
                                 <field name="service_name" invisible="1"/>
                                 <field name="film_name" invisible="1"/>
+                                <field name="is_current_film" invisible="1"/>
 
                             </tree>
 

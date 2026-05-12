@@ -99,7 +99,17 @@ class WofSetupWizard(models.TransientModel):
         self.ensure_one()
         return self.service_line_ids.filtered('selected').sorted('sequence')
 
-    @api.depends('service_line_ids.selected', 'service_line_ids.sequence', 'current_service_index')
+    def _current_service_films(self):
+        self.ensure_one()
+        return self.film_line_ids.filtered(
+            lambda line: line.selected and line.service_line_id == self.current_service_line_id
+        ).sorted('sequence')
+
+    @api.depends(
+        'service_line_ids.selected',
+        'service_line_ids.sequence',
+        'current_service_index'
+    )
     def _compute_current_service_line(self):
         for rec in self:
             selected = rec.service_line_ids.filtered('selected').sorted('sequence')
@@ -108,16 +118,27 @@ class WofSetupWizard(models.TransientModel):
             else:
                 rec.current_service_line_id = False
 
-    @api.depends('film_line_ids.selected', 'film_line_ids.service_line_id', 'current_service_line_id', 'current_film_index')
+    @api.depends(
+        'film_line_ids.selected',
+        'film_line_ids.service_line_id',
+        'film_line_ids.sequence',
+        'current_service_line_id',
+        'current_film_index'
+    )
     def _compute_current_film_line(self):
         for rec in self:
             films = rec.film_line_ids.filtered(
                 lambda line: line.selected and line.service_line_id == rec.current_service_line_id
-            )
+            ).sorted('sequence')
+
             if films and rec.current_film_index < len(films):
                 rec.current_film_line_id = films[rec.current_film_index]
             else:
                 rec.current_film_line_id = False
+
+    # =========================
+    # NAVIGATION
+    # =========================
 
     def action_start_setup(self):
         self.ensure_one()
@@ -158,14 +179,55 @@ class WofSetupWizard(models.TransientModel):
 
         return self._reload_wizard()
 
+    def action_go_parts(self):
+        self.ensure_one()
+
+        selected_films = self.film_line_ids.filtered('selected')
+        if not selected_films:
+            raise ValidationError(_("يجب إضافة فيلم واحد على الأقل قبل إضافة الأجزاء."))
+
+        for film in selected_films:
+            if not film.film_name:
+                raise ValidationError(_("يرجى إدخال اسم الفيلم."))
+
+        selected_services = self._selected_service_lines()
+        first_service_index = 0
+
+        for index, service_line in enumerate(selected_services):
+            films = self.film_line_ids.filtered(
+                lambda line: line.selected and line.service_line_id == service_line
+            )
+            if films:
+                first_service_index = index
+                break
+
+        self.write({
+            'step': 'parts',
+            'current_service_index': first_service_index,
+            'current_film_index': 0,
+        })
+
+        return self._reload_wizard()
+
+    # =========================
+    # FILMS
+    # =========================
+
     def action_add_film_line(self):
         self.ensure_one()
 
         if not self.current_service_line_id:
             raise ValidationError(_("لا توجد خدمة حالية لإضافة فيلم لها."))
 
+        current_films = self.film_line_ids.filtered(
+            lambda line: line.service_line_id == self.current_service_line_id
+        )
+
+        next_sequence = max(current_films.mapped('sequence') or [0]) + 1
+
         self.write({
             'film_line_ids': [(0, 0, {
+                'sequence': next_sequence,
                 'service_line_id': self.current_service_line_id.id,
                 'film_name': '',
                 'warranty_years': '5',
@@ -191,32 +253,9 @@ class WofSetupWizard(models.TransientModel):
 
         return self._reload_wizard()
 
-    def action_go_parts(self):
-        self.ensure_one()
-
-        selected_films = self.film_line_ids.filtered('selected')
-        if not selected_films:
-            raise ValidationError(_("يجب إضافة فيلم واحد على الأقل قبل إضافة الأجزاء."))
-
-        for film in selected_films:
-            if not film.film_name:
-                raise ValidationError(_("يرجى إدخال اسم الفيلم."))
-
-        selected_services = self._selected_service_lines()
-        first_service_index = 0
-
-        for index, service_line in enumerate(selected_services):
-            if self.film_line_ids.filtered(lambda line: line.selected and line.service_line_id == service_line):
-                first_service_index = index
-                break
-
-        self.write({
-            'step': 'parts',
-            'current_service_index': first_service_index,
-            'current_film_index': 0,
-        })
-
-        return self._reload_wizard()
+    # =========================
+    # PARTS
+    # =========================
 
     def action_add_part_line(self):
         self.ensure_one()
@@ -227,8 +266,15 @@ class WofSetupWizard(models.TransientModel):
         if not self.current_film_line_id:
             raise ValidationError(_("لا يوجد فيلم حالي لإضافة الأجزاء له."))
 
+        current_parts = self.part_line_ids.filtered(
+            lambda line: line.film_line_id == self.current_film_line_id
+        )
+
+        next_sequence = max(current_parts.mapped('sequence') or [0]) + 1
+
         self.write({
             'part_line_ids': [(0, 0, {
+                'sequence': next_sequence,
                 'service_line_id': self.current_service_line_id.id,
                 'film_line_id': self.current_film_line_id.id,
                 'selected': True,
@@ -242,10 +288,7 @@ class WofSetupWizard(models.TransientModel):
 
         selected_services = self._selected_service_lines()
 
-        current_films = self.film_line_ids.filtered(
-            lambda line: line.selected and line.service_line_id == self.current_service_line_id
-        )
-
+        current_films = self._current_service_films()
         next_film_index = self.current_film_index + 1
 
         if next_film_index < len(current_films):
@@ -258,7 +301,7 @@ class WofSetupWizard(models.TransientModel):
             next_service = selected_services[next_service_index]
             service_films = self.film_line_ids.filtered(
                 lambda line: line.selected and line.service_line_id == next_service
-            )
+            ).sorted('sequence')
 
             if service_films:
                 self.write({
@@ -270,6 +313,10 @@ class WofSetupWizard(models.TransientModel):
             next_service_index += 1
 
         return self.action_finish_setup()
+
+    # =========================
+    # CREATE MAIN RECORDS
+    # =========================
 
     def _get_service_code(self, option):
         return {
@@ -314,6 +361,7 @@ class WofSetupWizard(models.TransientModel):
             raise ValidationError(_("يجب اختيار نوع خدمة واحد على الأقل."))
 
         company = self.env.company.parent_id or self.env.company
+
         Film = self.env['wof.film.category'].sudo()
         FilmPartLine = self.env['wof.film.parts.lines'].sudo()
 
@@ -327,7 +375,8 @@ class WofSetupWizard(models.TransientModel):
             service = self._ensure_service_type_from_line(service_line)
             service_map[service_line.id] = service
 
-        for film_line in self.film_line_ids.filtered('selected'):
+        for film_line in self.film_line_ids.filtered('selected').sorted('sequence'):
+
             if not film_line.film_name:
                 raise ValidationError(_("يرجى إدخال اسم الفيلم."))
 
@@ -356,7 +405,8 @@ class WofSetupWizard(models.TransientModel):
 
             film_map[film_line.id] = film
 
-        for part_line in self.part_line_ids.filtered('selected'):
+        for part_line in self.part_line_ids.filtered('selected').sorted('sequence'):
+
             if not part_line.car_part_id:
                 raise ValidationError(_("يرجى اختيار الجزء."))
 
@@ -447,7 +497,11 @@ class WofSetupWizardServiceLine(models.TransientModel):
         string="الخدمة الحالية"
     )
 
-    @api.depends('wizard_id.current_service_line_id', 'wizard_id.current_service_index', 'selected')
+    @api.depends(
+        'wizard_id.current_service_line_id',
+        'wizard_id.current_service_index',
+        'selected'
+    )
     def _compute_is_current(self):
         for rec in self:
             rec.is_current = bool(
@@ -458,6 +512,7 @@ class WofSetupWizardServiceLine(models.TransientModel):
 
     def action_open_line(self):
         self.ensure_one()
+
         return {
             'type': 'ir.actions.act_window',
             'name': 'تعديل الخدمة',
@@ -471,6 +526,9 @@ class WofSetupWizardServiceLine(models.TransientModel):
 class WofSetupWizardFilmLine(models.TransientModel):
     _name = 'wof.setup.wizard.film.line'
     _description = 'WOF Setup Wizard Film Line'
+    _order = 'sequence, id'
+
+    sequence = fields.Integer(default=10)
 
     wizard_id = fields.Many2one(
         'wof.setup.wizard',
@@ -495,20 +553,25 @@ class WofSetupWizardFilmLine(models.TransientModel):
         string="نوع الخدمة"
     )
 
-    film_name = fields.Char(
-        string="اسم الفيلم"
-    )
+    film_name = fields.Char(string="اسم الفيلم")
 
-    warranty_years = fields.Char(
-        string="سنوات الضمان"
-    )
+    warranty_years = fields.Char(string="سنوات الضمان")
 
     is_current = fields.Boolean(
         compute="_compute_is_current",
         string="الفيلم الحالي"
     )
 
-    @api.depends('wizard_id.current_film_line_id', 'wizard_id.current_film_index', 'selected')
+    is_current_service = fields.Boolean(
+        compute="_compute_is_current_service",
+        string="تابع للخدمة الحالية"
+    )
+
+    @api.depends(
+        'wizard_id.current_film_line_id',
+        'wizard_id.current_film_index',
+        'selected'
+    )
     def _compute_is_current(self):
         for rec in self:
             rec.is_current = bool(
@@ -517,10 +580,26 @@ class WofSetupWizardFilmLine(models.TransientModel):
                 and rec.id == rec.wizard_id.current_film_line_id.id
             )
 
+    @api.depends(
+        'wizard_id.current_service_line_id',
+        'service_line_id',
+        'selected'
+    )
+    def _compute_is_current_service(self):
+        for rec in self:
+            rec.is_current_service = bool(
+                rec.wizard_id
+                and rec.wizard_id.current_service_line_id
+                and rec.service_line_id == rec.wizard_id.current_service_line_id
+            )
+
 
 class WofSetupWizardPartLine(models.TransientModel):
     _name = 'wof.setup.wizard.part.line'
     _description = 'WOF Setup Wizard Part Line'
+    _order = 'sequence, id'
+
+    sequence = fields.Integer(default=10)
 
     wizard_id = fields.Many2one(
         'wof.setup.wizard',
@@ -557,6 +636,11 @@ class WofSetupWizardPartLine(models.TransientModel):
         string="الفيلم"
     )
 
+    is_current_film = fields.Boolean(
+        compute="_compute_is_current_film",
+        string="تابع للفيلم الحالي"
+    )
+
     car_part_id = fields.Many2one(
         'wof.car.parts',
         string="الجزء"
@@ -579,3 +663,16 @@ class WofSetupWizardPartLine(models.TransientModel):
 
     price_readonly = fields.Boolean(string="السعر ثابت")
     free_part = fields.Boolean(string="جزء مجاني")
+
+    @api.depends(
+        'wizard_id.current_film_line_id',
+        'film_line_id',
+        'selected'
+    )
+    def _compute_is_current_film(self):
+        for rec in self:
+            rec.is_current_film = bool(
+                rec.wizard_id
+                and rec.wizard_id.current_film_line_id
+                and rec.film_line_id == rec.wizard_id.current_film_line_id
+            )
