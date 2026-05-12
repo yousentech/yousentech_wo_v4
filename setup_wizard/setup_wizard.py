@@ -562,23 +562,24 @@ class WofSetupWizardFilmLine(models.TransientModel):
         string="الفيلم الحالي"
     )
 
-    is_current_service = fields.Boolean(
-        compute="_compute_is_current_service",
-        string="تابع للخدمة الحالية"
-    )
+    # is_current_service = fields.Boolean(
+    #     compute="_compute_is_current_service",
+    #     string="تابع للخدمة الحالية",
+    #     store=True
+    # )
 
-    @api.depends(
-        'wizard_id.current_film_line_id',
-        'wizard_id.current_film_index',
-        'selected'
-    )
-    def _compute_is_current(self):
-        for rec in self:
-            rec.is_current = bool(
-                rec.wizard_id
-                and rec.wizard_id.current_film_line_id
-                and rec.id == rec.wizard_id.current_film_line_id.id
-            )
+    # @api.depends(
+    #     'wizard_id.current_film_line_id',
+    #     'wizard_id.current_film_index',
+    #     'selected'
+    # )
+    # def _compute_is_current(self):
+    #     for rec in self:
+    #         rec.is_current = bool(
+    #             rec.wizard_id
+    #             and rec.wizard_id.current_film_line_id
+    #             and rec.id == rec.wizard_id.current_film_line_id.id
+    #         )
 
     @api.depends(
         'wizard_id.current_service_line_id',
@@ -636,10 +637,11 @@ class WofSetupWizardPartLine(models.TransientModel):
         string="الفيلم"
     )
 
-    is_current_film = fields.Boolean(
-        compute="_compute_is_current_film",
-        string="تابع للفيلم الحالي"
-    )
+    # is_current_film = fields.Boolean(
+    #     compute="_compute_is_current_film",
+    #     string="تابع للفيلم الحالي",
+    #      store=True
+    # )
 
     car_part_id = fields.Many2one(
         'wof.car.parts',
@@ -664,15 +666,15 @@ class WofSetupWizardPartLine(models.TransientModel):
     price_readonly = fields.Boolean(string="السعر ثابت")
     free_part = fields.Boolean(string="جزء مجاني")
 
-    @api.depends(
-        'wizard_id.current_film_line_id',
-        'film_line_id',
-        'selected'
-    )
-    def _compute_is_current_film(self):
-        for rec in self:
-            rec.is_current_film = bool(
-                rec.wizard_id
-                and rec.wizard_id.current_film_line_id
-                and rec.film_line_id == rec.wizard_id.current_film_line_id
-            )
+    # @api.depends(
+    #     'wizard_id.current_film_line_id',
+    #     'film_line_id',
+    #     'selected'
+    # )
+    # def _compute_is_current_film(self):
+    #     for rec in self:
+    #         rec.is_current_film = bool(
+    #             rec.wizard_id
+    #             and rec.wizard_id.current_film_line_id
+    #             and rec.film_line_id == rec.wizard_id.current_film_line_id
+    #         )

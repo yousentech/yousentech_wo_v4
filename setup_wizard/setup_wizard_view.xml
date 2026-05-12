@@ -186,7 +186,7 @@
 
                         <field name="film_line_ids"
                                nolabel="1"
-                               domain="[('is_current_service','=',True)]">
+                               domain="[('service_line_id','=',current_service_line_id)]">
 
                             <tree editable="bottom" create="0" delete="1">
 
@@ -195,7 +195,7 @@
                                 <field name="warranty_years"/>
 
                                 <field name="service_name" invisible="1"/>
-                                <field name="is_current_service" invisible="1"/>
+                                <!-- <field name="is_current_service" invisible="1"/> -->
 
                             </tree>
 
@@ -273,14 +273,14 @@
 
                             <field name="film_line_ids"
                                    nolabel="1"
-                                   domain="[('is_current_service','=',True)]">
+                                   domain="[('service_line_id','=',current_service_line_id)]">
 
                                 <kanban create="0" delete="0" class="o_kanban_small_column">
 
                                     <field name="selected"/>
                                     <field name="film_name"/>
                                     <field name="is_current"/>
-                                    <field name="is_current_service"/>
+                                    <!-- <field name="is_current_service"/> -->
 
                                     <templates>
                                         <t t-name="kanban-box">
@@ -322,7 +322,7 @@
 
                         <field name="part_line_ids"
                                nolabel="1"
-                               domain="[('is_current_film','=',True)]">
+                               domain="[('film_line_id','=',current_film_line_id)]">
 
                             <tree editable="bottom" create="0" delete="1">
 
@@ -338,7 +338,7 @@
 
                                 <field name="service_name" invisible="1"/>
                                 <field name="film_name" invisible="1"/>
-                                <field name="is_current_film" invisible="1"/>
+                                <!-- <field name="is_current_film" invisible="1"/> -->
 
                             </tree>
 
