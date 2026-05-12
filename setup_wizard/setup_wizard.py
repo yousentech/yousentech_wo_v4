@@ -37,7 +37,7 @@ class WofSetupWizard(models.TransientModel):
     film_line_ids = fields.One2many(
         'wof.setup.wizard.film.line',
         'wizard_id',
-        string="الأفلام"
+        string="الأفلام",domain="[('service_line_id','=',current_service_line_id)]"
     )
 
     part_line_ids = fields.One2many(
