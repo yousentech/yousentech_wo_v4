@@ -1,306 +1,239 @@
-# -*- coding: utf-8 -*-
-from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
-
-
-class film_category(models.Model):
-    _name = 'wof.film.category'
-    _description = 'Film Category'
-    _rec_name = 'name'
-    _order = 'code,name'
-    _company_auto = True   # 👈 هنا المكان الصحيح
-
-    code = fields.Char(
-        string="الكود",
-        index=True,
-        copy=False
-    )
-    name = fields.Char(
-        string="الاسم",
-        required=True,
-        index=True,
-        translate=True,   # 👈 مهم لو عندك لغات
-        tracking=True     # 👈 لو تستخدم chatter
-    )
-
-    def _default_company_parent(self):
-        company = self.env.company
-        return company.parent_id or company
-
-    company_id = fields.Many2one(
-        'res.company',
-        string="الشركة",
-        default=_default_company_parent,
-        required=True,
-        index=True
-    )
-
-    active = fields.Boolean(
-        string="تفعيل",
-        default=True
-    )
-
-    service_type_id = fields.Many2one('wof.service.type', string="نوع الخدمة",required=True, index=True,ondelete='restrict',)
-    warranty_years = fields.Char(string="فترة الضمان")
-
-    is_effected_in_inventory = fields.Boolean(default=False,string="الفلم يؤثر على المخزون")
-    car_film_product_required = fields.Boolean(default=False,string="كود المبيعات اجباري في امر التركيب")
-    film_category_line_ids = fields.One2many('wof.film.category.lines','header_id'  )
-    
-   
-    film_part_line_ids = fields.One2many('wof.film.parts.lines','header_id' )
-    film_part_size_line_ids = fields.One2many('wof.film.parts.size.lines','header_id' )
-
-    warning_film_line_ids = fields.Many2many('wof.film.category.lines',string="درجة اللون")
-    warning_msg = fields.Char(string="رسالة تحذير")
-
-
-    limpid_film_product_ids = fields.Many2many('product.product', string="الصنف المخزني",domain="[('measure_product','=',True),('type','=','product')]")
-    service_options = fields.Selection([('tint','عزل حراري'),
-                                        ('ppf','حماية'),
-                                        ('nano','نانو سيراميك'),
-                                        ('upholstery','تنجيد'),
-                                        ('floor_mats','أرضيات'),
-                                        ('others','أخرى')],string="النوع",default='tint',required=True,related="service_type_id.service_options")
-  
-
-    _sql_constraints = [
-        (
-            'film_category_unique',
-            "UNIQUE(name, company_id)",  # 👈 مهم جداً multi-company
-            "نوع الفلم مضاف مسبقاً لنفس الشركة"
-        ),
-        (
-            'film_category_code_unique',
-            "UNIQUE(code, company_id)",
-            "الكود مستخدم مسبقاً"
-        ),
-    ]
-
-
-    parts_count = fields.Integer(
-        string="عدد الأجزاء",
-        compute="_compute_parts_count"
-    )
-
-    def _compute_parts_count(self):
-        data = self.env['wof.film.parts.lines'].read_group(
-            [('header_id', 'in', self.ids)],
-            ['header_id'],
-            ['header_id']
-        )
-
-        mapped = {
-            d['header_id'][0]: d['header_id_count']
-            for d in data
-        }
-
-        for rec in self:
-            rec.parts_count = mapped.get(rec.id, 0)
-            
-
-    @api.model
-    def name_get(self):
-        result = []
-        for rec in self:
-            code = rec.code or ''
-            name = rec.name or ''
-
-            display_name = f"[{code}] {name}" if code else name
-            result.append((rec.id, display_name))
-
-        return result
-
-    @api.model
-    def name_search(self, name='', args=None, operator='ilike', limit=100):
-        args = args or []
-        domain = []
-        if name:
-            domain = [
-                '|',
-                ('name', operator, name),
-                ('code', operator, name),
-            ]
-            domain += args
-        else:
-            domain = args
-        
-        services = self.search(domain, limit=limit)
-        if services:
-            return services.name_get()
-        return super().name_search(name, args=args, operator=operator, limit=limit)
-
-    @api.constrains('is_effected_in_inventory', 'limpid_film_product_ids')
-    def _check_inventory_products(self):
-        for rec in self:
-            if rec.is_effected_in_inventory and not rec.limpid_film_product_ids:
-                raise ValidationError("تنبيه: يجب تحديد الصنف مخزني إذا الفلم يؤثر على المخزون")
-    
-
-class FilmCategoryLine(models.Model):
-    _name = 'wof.film.category.lines'
-    _rec_name = 'name'
-
-    name = fields.Char(string="درجة اللون", )
-    limpid_product_ids = fields.Many2many('product.product',domain=[('measure_product','=', True),('type','=','product')],   string="الصنف المخزني", )
-    header_id = fields.Many2one('wof.film.category',ondelete="cascade")
-
-    _sql_constraints = [
-        ("film_cat_line_unique",
-         "UNIQUE(name,header_id)",
-        "هذا السطر مضاف مسبقاً لنفس الفئة"),
-    ]
-
-
-class CarPartsCommissionLines(models.Model):
+class CarPartsLines(models.Model):
     _name = 'wof.film.parts.lines'
-    _description = 'Car film Parts Lines'
+    _description = 'Car Film Parts'
     _rec_name = 'car_part_id'
-    # ================= SERVICE TYPE (IMPORTANT) =================
+    _order = 'header_id, car_part_id'
+
     service_type_id = fields.Many2one(
         'wof.service.type',
         related='header_id.service_type_id',
         store=True,
         index=True
     )
-    # ================= RELATIONS =================
-    # available_part_ids = fields.Many2many('wof.car.parts',   compute='_compute_available_part_ids' )
-    part_selected = fields.Boolean(string="تفعيل",default=True)
-    # car_part_id = fields.Many2one(
-    #         'wof.car.parts',
-    #         required=True,
-    #         ondelete='restrict',
-    #         index=True,
-    #         domain="[('id', 'not in', available_part_ids)]"
-    #     )
+
+    header_id = fields.Many2one(
+        'wof.film.category',
+        string="نوع الفلم",
+        required=True,
+        ondelete="cascade",
+        index=True
+    )
+
+    part_selected = fields.Boolean(
+        string="تفعيل",
+        default=True
+    )
+
     car_part_id = fields.Many2one(
-            'wof.car.parts',
-            required=True,
-            ondelete='restrict',
-            index=True,
-           
-        )
-    car_size_id = fields.Many2one(
-        'wof.car.size',
-        string="حجم السيارة"
+        'wof.car.parts',
+        string="الجزء",
+        required=True,
+        ondelete='restrict',
+        index=True
     )
 
-    # ================= PRICING =================
-    part_price = fields.Float(string="سعر الجزء")
-    commission = fields.Float(string="عمولة الفني")
-    discount_exceed_limit = fields.Integer(string="نسبة الخصم المسموح")
-
-    tax_id = fields.Many2one(
-        'account.tax',
-        string="الضريبة",ondelete='restrict',
-        domain=[('type_tax_use', '=', 'sale')]
-    )
-    price_readonly = fields.Boolean(string="السعر ثابت")
-    free_part = fields.Boolean(string="جزء مجاني")
-
-    # ================= PRODUCTS =================
     film_category_line_id = fields.Many2one(
         'wof.film.category.lines',
         string="درجة اللون",
         domain="[('header_id','=',header_id)]"
     )
 
-    # ================= INVENTORY FLAG =================
     is_effected_in_inventory = fields.Boolean(
         related='header_id.is_effected_in_inventory',
         store=True
     )
 
-     # ================= RELATIONS =================
-    header_id = fields.Many2one('wof.film.category',ondelete="cascade",string="نوع الفلم")
+    price_line_ids = fields.One2many(
+        'wof.film.parts.price.lines',
+        'part_line_id',
+        string="التسعيرات"
+    )
 
-    # ================= CONSTRAINT =================
+    commission_line_ids = fields.One2many(
+        'wof.film.parts.commission.lines',
+        'part_line_id',
+        string="العمولات"
+    )
+
+    price_count = fields.Integer(
+        string="عدد التسعيرات",
+        compute="_compute_counts"
+    )
+
+    commission_count = fields.Integer(
+        string="عدد العمولات",
+        compute="_compute_counts"
+    )
+
     _sql_constraints = [
         (
-            'unique_commission_rule',
-            'unique(car_part_id, header_id, car_size_id)',
-            'هذا السجل موجود مسبقاً لهذه الإعدادات'
+            'unique_film_part_rule',
+            'unique(car_part_id, header_id)',
+            'هذا الجزء موجود مسبقاً لنفس الفلم'
         ),
-        
+    ]
+
+    def _compute_counts(self):
+        for rec in self:
+            rec.price_count = len(rec.price_line_ids)
+            rec.commission_count = len(rec.commission_line_ids)
+
+    def action_open_price_lines(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'تسعيرات الجزء',
+            'res_model': 'wof.film.parts.price.lines',
+            'view_mode': 'tree,form',
+            'domain': [('part_line_id', '=', self.id)],
+            'context': {
+                'default_part_line_id': self.id,
+                'default_header_id': self.header_id.id,
+                'default_car_part_id': self.car_part_id.id,
+            },
+            'target': 'current',
+        }
+
+    def action_open_commission_lines(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'عمولات الجزء',
+            'res_model': 'wof.film.parts.commission.lines',
+            'view_mode': 'tree,form',
+            'domain': [('part_line_id', '=', self.id)],
+            'context': {
+                'default_part_line_id': self.id,
+                'default_header_id': self.header_id.id,
+                'default_car_part_id': self.car_part_id.id,
+            },
+            'target': 'current',
+        }
+
+
+class FilmPartPriceLines(models.Model):
+    _name = 'wof.film.parts.price.lines'
+    _description = 'Film Part Price Lines'
+    _rec_name = 'car_part_id'
+    _order = 'part_line_id, car_size_id'
+
+    part_line_id = fields.Many2one(
+        'wof.film.parts.lines',
+        string="سطر الجزء",
+        required=True,
+        ondelete='cascade',
+        index=True
+    )
+
+    header_id = fields.Many2one(
+        'wof.film.category',
+        string="نوع الفلم",
+        related='part_line_id.header_id',
+        store=True,
+        index=True
+    )
+
+    service_type_id = fields.Many2one(
+        'wof.service.type',
+        related='part_line_id.service_type_id',
+        store=True,
+        index=True
+    )
+
+    car_part_id = fields.Many2one(
+        'wof.car.parts',
+        string="الجزء",
+        related='part_line_id.car_part_id',
+        store=True,
+        index=True
+    )
+
+    car_size_id = fields.Many2one(
+        'wof.car.size',
+        string="حجم السيارة",
+        ondelete='restrict',
+        index=True
+    )
+
+    part_price = fields.Float(string="سعر الجزء")
+    discount_exceed_limit = fields.Integer(string="نسبة الخصم المسموح")
+
+    tax_id = fields.Many2one(
+        'account.tax',
+        string="الضريبة",
+        ondelete='restrict',
+        domain=[('type_tax_use', '=', 'sale')]
+    )
+
+    price_readonly = fields.Boolean(string="السعر ثابت")
+    free_part = fields.Boolean(string="جزء مجاني")
+
+    _sql_constraints = [
+        (
+            'unique_film_part_price_size_rule',
+            'unique(part_line_id, car_size_id)',
+            'تسعيرة هذا الحجم مضافة مسبقاً لهذا الجزء'
+        ),
     ]
 
     @api.onchange('free_part')
-    def set_free_part(self):
+    def _onchange_free_part(self):
         for rec in self:
             if rec.free_part:
-                rec.part_price = 0
+                rec.part_price = 0.0
                 rec.tax_id = False
 
-    # @api.depends('header_id')
-    # def _compute_available_part_ids(self):
-    #     for rec in self:
-    #         available_part_ids=[]
-        
-    #         used_parts = rec.header_id.film_part_line_ids.fileterd(lambda x: x.car_size_id.id == rec.car_size_id.id).mapped('car_part_id')
 
-    #         # استثناء السطر الحالي أثناء التعديل
-    #         if used_parts:
-    #             available_part_ids = used_parts
-            
-    #         rec.available_part_ids = available_part_ids
-
-class CarPartssizeLines(models.Model):
-    _name = 'wof.film.parts.size.lines'
-    _description = 'Car film Parts size Lines'
+class FilmPartCommissionLines(models.Model):
+    _name = 'wof.film.parts.commission.lines'
+    _description = 'Film Part Commission Lines'
     _rec_name = 'car_part_id'
+    _order = 'part_line_id, car_size_id'
 
-    # ================= RELATIONS =================
+    part_line_id = fields.Many2one(
+        'wof.film.parts.lines',
+        string="سطر الجزء",
+        required=True,
+        ondelete='cascade',
+        index=True
+    )
+
+    header_id = fields.Many2one(
+        'wof.film.category',
+        string="نوع الفلم",
+        related='part_line_id.header_id',
+        store=True,
+        index=True
+    )
+
+    service_type_id = fields.Many2one(
+        'wof.service.type',
+        related='part_line_id.service_type_id',
+        store=True,
+        index=True
+    )
+
     car_part_id = fields.Many2one(
         'wof.car.parts',
-        required=True,
-        ondelete='restrict',
-        index=True,
-        domain="[('id', 'in', available_part_ids)]" )
-     
-    car_size_id = fields.Many2one(
-        'wof.car.size',ondelete='restrict',
-        string="حجم السيارة"
+        string="الجزء",
+        related='part_line_id.car_part_id',
+        store=True,
+        index=True
     )
-    available_part_ids = fields.Many2many('wof.car.parts', compute='_compute_available_parts')
 
-    # ================= QUANTITIES =================
-    default_qty = fields.Float(string="المقاس الافتراضي")
-    min_qty = fields.Float(string="الحد الأدنى")
-    max_qty = fields.Float(string="الحد الأعلى")
+    car_size_id = fields.Many2one(
+        'wof.car.size',
+        string="حجم السيارة",
+        ondelete='restrict',
+        index=True
+    )
 
-    size_readonly = fields.Boolean(string="المقاس ثابت")
+    commission = fields.Float(string="عمولة الفني")
 
-    
-     # ================= RELATIONS =================
-    header_id = fields.Many2one('wof.film.category',ondelete="cascade")
-
-
-
- # ================= CONSTRAINT =================
     _sql_constraints = [
         (
-            'unique_size_rule',
-            'unique(car_part_id, car_size_id, header_id)',
-            'هذا السجل موجود مسبقاً لنفس الإعدادات'
-        )
+            'unique_film_part_commission_size_rule',
+            'unique(part_line_id, car_size_id)',
+            'عمولة هذا الحجم مضافة مسبقاً لهذا الجزء'
+        ),
     ]
-
-    # ================= VALIDATION =================
-    @api.constrains('default_qty', 'min_qty', 'max_qty')
-    def _check_qty_range(self):
-        for rec in self:
-
-            if rec.min_qty and rec.max_qty and rec.default_qty:
-
-                if not (rec.min_qty <= rec.default_qty <= rec.max_qty):
-                    raise ValidationError(
-                        "المقاس الافتراضي يجب أن يكون بين الحد الأدنى والأعلى"
-                    )
-
-    @api.depends('header_id')
-    def _compute_available_parts(self):
-        for rec in self:
-            if rec.header_id:
-                rec.available_part_ids = rec.header_id.film_part_line_ids.mapped('car_part_id')
-            else:
-                rec.available_part_ids = False
