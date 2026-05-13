@@ -3,13 +3,12 @@ access_wof_setup_wizard,wof.setup.wizard,model_wof_setup_wizard,yousentech_wo_v4
 access_wof_setup_wizard_service_line,wof.setup.wizard.service.line,model_wof_setup_wizard_service_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_film_wizard,wof.setup.film.wizard,model_wof_setup_film_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_film_part_line,wof.setup.film.part.line,model_wof_setup_film_part_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
-access_wof_setup_film_part_size_line,wof.setup.film.part.size.line,model_wof_setup_film_part_size_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_film_part_price_line,wof.setup.film.part.price.line,model_wof_setup_film_part_price_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_setup_film_part_commission_line,wof.setup.film.part.commission.line,model_wof_setup_film_part_commission_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_temp_film,wof.setup.temp.film,model_wof_setup_temp_film,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_temp_film_part,wof.setup.temp.film.part,model_wof_setup_temp_film_part,yousentech_wo_v4.group_wo_manager,1,1,1,1
-access_wof_setup_film_part_price_line,wof.setup.film.part.price.line,model_wof_setup_film_part_price_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
-access_wof_setup_film_part_commission_line,wof.setup.film.part.commission.line,model_wof_setup_film_part_commission_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
-access_wof_setup_film_part_commission_line,wof.setup.film.part.commission.line,model_wof_setup_film_part_commission_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_setup_temp_film_part_price_line,wof.setup.temp.film.part.price.line,model_wof_setup_temp_film_part_price_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_setup_temp_film_part_commission_line,wof.setup.temp.film.part.commission.line,model_wof_setup_temp_film_part_commission_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_service_type_user,wof.service.type.user,model_wof_service_type,yousentech_wo_v4.group_wo_user,1,1,1,1
 access_wof_service_type_manager,service.type.manager,model_wof_service_type,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_film_category,wof.film.category,model_wof_film_category,yousentech_wo_v4.group_wo_manager,1,1,1,1
@@ -22,9 +21,6 @@ access_wof_car_parts_wizard,wof.car.parts.wizard,model_wof_car_parts_wizard,yous
 access_wof_car_parts_wizard_line,wof.car.parts.wizard.line,model_wof_car_parts_wizard_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts_wizard_size,wof.car.parts.wizard.size,model_wof_car_parts_wizard_size,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_parts_wizard_price,wof.car.parts.wizard.price,model_wof_car_parts_wizard_price,yousentech_wo_v4.group_wo_manager,1,1,1,1
-
-
-
 access_wof_car_type,wof.car.type,model_wof_car_type,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_manufactory,wof.car.manufactory,model_wof_car_manufactory,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_manufactory_year,wof.car.manufactory.year,model_wof_car_manufactory_year,yousentech_wo_v4.group_wo_manager,1,1,1,1
