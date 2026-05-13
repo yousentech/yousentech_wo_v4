@@ -202,22 +202,35 @@
 
                     <separator string="الأجزاء"/>
 
+                    <div class="alert alert-info d-flex align-items-start gap-2 mb-3">
+                        <i class="fa fa-info-circle mt-1"/>
+                        <div>
+                            أضف أجزاء الفيلم هنا، ثم افتح نافذة مستقلة لأسعار الجزء حسب الحجم ونافذة مستقلة لعمولة الفني حسب الحجم.
+                        </div>
+                    </div>
+
                     <field name="part_line_ids" nolabel="1">
-                        <tree editable="bottom" create="1" delete="1">
+                        <tree editable="bottom" create="1" delete="1"
+                              decoration-muted="not selected"
+                              decoration-danger="selected and not car_part_id">
                             <field name="selected"/>
                             <field name="car_part_id"/>
+                            <field name="price_line_count" string="أسعار" readonly="1"/>
+                            <field name="price_summary" string="ملخص أسعار الجزء" readonly="1"/>
+                            <field name="commission_line_count" string="عمولات" readonly="1"/>
+                            <field name="commission_summary" string="ملخص عمولة الفني" readonly="1"/>
 
                             <button name="action_open_price_popup"
                                     type="object"
-                                    string="التسعير"
+                                    string="أسعار الجزء"
                                     icon="fa-money"
-                                    class="btn btn-link"/>
+                                    class="btn btn-primary"/>
 
                             <button name="action_open_commission_popup"
                                     type="object"
-                                    string="العمولة"
+                                    string="عمولة الفني"
                                     icon="fa-users"
-                                    class="btn btn-link"/>
+                                    class="btn btn-secondary"/>
                         </tree>
                     </field>
 
@@ -248,16 +261,27 @@
         <field name="name">wof.setup.film.part.price.form</field>
         <field name="model">wof.setup.film.part.line</field>
         <field name="arch" type="xml">
-            <form string="تسعير الجزء حسب حجم السيارة">
+            <form string="أسعار الجزء حسب حجم السيارة">
                 <sheet>
-                    <group>
+                    <div class="alert alert-success d-flex align-items-start gap-2">
+                        <i class="fa fa-money mt-1"/>
+                        <div>
+                            أدخل سعر هذا الجزء لكل حجم سيارة بشكل مستقل. اترك حجم السيارة فارغاً فقط عند رغبتك بسعر عام لكل الأحجام.
+                        </div>
+                    </div>
+
+                    <group string="بيانات الجزء" col="2">
                         <field name="car_part_id" readonly="1"/>
+                        <field name="price_summary" readonly="1"/>
                     </group>
 
+                    <separator string="قائمة أسعار الجزء حسب الحجم"/>
                     <field name="price_line_ids" nolabel="1">
-                        <tree editable="bottom" create="1" delete="1">
-                            <field name="car_size_id"/>
-                            <field name="part_price"/>
+                        <tree editable="bottom" create="1" delete="1"
+                              decoration-success="free_part"
+                              decoration-warning="part_price == 0 and not free_part">
+                            <field name="car_size_id" placeholder="كل الأحجام"/>
+                            <field name="part_price" sum="الإجمالي"/>
                             <field name="discount_exceed_limit"/>
                             <field name="tax_id"/>
                             <field name="price_readonly"/>
@@ -266,7 +290,7 @@
                     </field>
 
                     <footer>
-                        <button string="حفظ" special="save" class="btn-primary"/>
+                        <button string="حفظ الأسعار" special="save" class="btn-primary"/>
                         <button string="إلغاء" special="cancel" class="btn-secondary"/>
                     </footer>
                 </sheet>
@@ -280,19 +304,29 @@
         <field name="arch" type="xml">
             <form string="عمولة الفني حسب حجم السيارة">
                 <sheet>
-                    <group>
+                    <div class="alert alert-warning d-flex align-items-start gap-2">
+                        <i class="fa fa-users mt-1"/>
+                        <div>
+                            أدخل عمولة الفني لكل حجم سيارة في نافذة منفصلة عن أسعار الجزء حتى تبقى البيانات واضحة للمستخدم.
+                        </div>
+                    </div>
+
+                    <group string="بيانات الجزء" col="2">
                         <field name="car_part_id" readonly="1"/>
+                        <field name="commission_summary" readonly="1"/>
                     </group>
 
+                    <separator string="قائمة عمولات الفني حسب الحجم"/>
                     <field name="commission_line_ids" nolabel="1">
-                        <tree editable="bottom" create="1" delete="1">
-                            <field name="car_size_id"/>
-                            <field name="commission"/>
+                        <tree editable="bottom" create="1" delete="1"
+                              decoration-warning="commission == 0">
+                            <field name="car_size_id" placeholder="كل الأحجام"/>
+                            <field name="commission" sum="الإجمالي"/>
                         </tree>
                     </field>
 
                     <footer>
-                        <button string="حفظ" special="save" class="btn-primary"/>
+                        <button string="حفظ العمولات" special="save" class="btn-primary"/>
                         <button string="إلغاء" special="cancel" class="btn-secondary"/>
                     </footer>
                 </sheet>
@@ -330,6 +364,35 @@
                                 <tree>
                                     <field name="car_part_id"/>
                                 </tree>
+                                <form>
+                                    <sheet>
+                                        <group>
+                                            <field name="car_part_id" readonly="1"/>
+                                        </group>
+                                        <notebook>
+                                            <page string="أسعار الجزء حسب الحجم">
+                                                <field name="price_line_ids" readonly="1">
+                                                    <tree>
+                                                        <field name="car_size_id"/>
+                                                        <field name="part_price"/>
+                                                        <field name="discount_exceed_limit"/>
+                                                        <field name="tax_id"/>
+                                                        <field name="price_readonly"/>
+                                                        <field name="free_part"/>
+                                                    </tree>
+                                                </field>
+                                            </page>
+                                            <page string="عمولة الفني حسب الحجم">
+                                                <field name="commission_line_ids" readonly="1">
+                                                    <tree>
+                                                        <field name="car_size_id"/>
+                                                        <field name="commission"/>
+                                                    </tree>
+                                                </field>
+                                            </page>
+                                        </notebook>
+                                    </sheet>
+                                </form>
                             </field>
                         </page>
                     </notebook>
