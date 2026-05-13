@@ -72,31 +72,192 @@ class WofSetupWizard(models.TransientModel):
     def action_finish_all_setup(self):
         self.ensure_one()
 
-        selected = self.service_line_ids.filtered('selected')
-        not_completed = selected.filtered(lambda line: not line.completed)
+        selected_services = self.service_line_ids.filtered('selected')
 
-        if not selected:
+        if not selected_services:
             raise ValidationError(_("يجب اختيار نوع خدمة واحد على الأقل."))
 
+        not_completed = selected_services.filtered(
+            lambda line: not line.completed
+        )
+
         if not_completed:
-            names = ", ".join(not_completed.mapped('custom_name'))
-            raise ValidationError(_("لم تكتمل تهيئة الخدمات التالية: %s") % names)
+
+            names = ", ".join(
+                not_completed.mapped('custom_name')
+            )
+
+            raise ValidationError(
+                _("الخدمات التالية لم تكتمل تهيئتها:\n%s") % names
+            )
+
+        company = self.env.company.parent_id or self.env.company
+
+        ServiceType = self.env['wof.service.type'].sudo()
+        FilmCategory = self.env['wof.film.category'].sudo()
+        FilmPartLine = self.env['wof.film.parts.lines'].sudo()
+
+        TempFilm = self.env['wof.setup.temp.film'].sudo()
+
+        for service_line in selected_services:
+
+            # =========================
+            # CREATE / UPDATE SERVICE
+            # =========================
+
+            service = ServiceType.search([
+                ('service_options', '=', service_line.service_options),
+                ('company_id', '=', company.id),
+            ], limit=1)
+
+            service_vals = {
+                'name': service_line.custom_name,
+                'service_options': service_line.service_options,
+                'company_id': company.id,
+            }
+
+            if service:
+                service.write(service_vals)
+            else:
+                service = ServiceType.create(service_vals)
+
+            # =========================
+            # TEMP FILMS
+            # =========================
+
+            temp_films = TempFilm.search([
+                ('wizard_id', '=', self.id),
+                ('service_line_id', '=', service_line.id),
+            ])
+
+            for temp_film in temp_films:
+
+                # =========================
+                # CREATE FILM
+                # =========================
+
+                existing_film = FilmCategory.search([
+                    ('name', '=', temp_film.film_name),
+                    ('service_type_id', '=', service.id),
+                    ('company_id', '=', company.id),
+                ], limit=1)
+
+                film_vals = {
+                    'name': temp_film.film_name,
+                    'service_type_id': service.id,
+                    'warranty_years': temp_film.warranty_years,
+                    'company_id': company.id,
+                }
+
+                if existing_film:
+                    existing_film.write(film_vals)
+                    film = existing_film
+                else:
+                    film = FilmCategory.create(film_vals)
+
+                # =========================
+                # PARTS
+                # =========================
+
+                for temp_part in temp_film.part_line_ids:
+
+                    # جميع الأحجام المستخدمة
+                    size_ids = set()
+
+                    for price in temp_part.price_line_ids:
+                        size_ids.add(
+                            price.car_size_id.id
+                            if price.car_size_id else False
+                        )
+
+                    for commission in temp_part.commission_line_ids:
+                        size_ids.add(
+                            commission.car_size_id.id
+                            if commission.car_size_id else False
+                        )
+
+                    # لو بدون أحجام
+                    if not size_ids:
+                        size_ids.add(False)
+
+                    for size_id in size_ids:
+
+                        price_line = temp_part.price_line_ids.filtered(
+                            lambda l:
+                                (
+                                    l.car_size_id.id
+                                    if l.car_size_id else False
+                                ) == size_id
+                        )[:1]
+
+                        commission_line = temp_part.commission_line_ids.filtered(
+                            lambda l:
+                                (
+                                    l.car_size_id.id
+                                    if l.car_size_id else False
+                                ) == size_id
+                        )[:1]
+
+                        domain = [
+                            ('header_id', '=', film.id),
+                            ('car_part_id', '=', temp_part.car_part_id.id),
+                            ('car_size_id', '=', size_id or False),
+                        ]
+
+                        vals = {
+                            'header_id': film.id,
+                            'car_part_id': temp_part.car_part_id.id,
+                            'car_size_id': size_id or False,
+
+                            'part_price':
+                                price_line.part_price
+                                if price_line else 0.0,
+
+                            'commission':
+                                commission_line.commission
+                                if commission_line else 0.0,
+
+                            'discount_exceed_limit':
+                                price_line.discount_exceed_limit
+                                if price_line else 0,
+
+                            'tax_id':
+                                price_line.tax_id.id
+                                if price_line and price_line.tax_id
+                                else False,
+
+                            'price_readonly':
+                                price_line.price_readonly
+                                if price_line else False,
+
+                            'free_part':
+                                price_line.free_part
+                                if price_line else False,
+                        }
+
+                        existing_part = FilmPartLine.search(
+                            domain,
+                            limit=1
+                        )
+
+                        if existing_part:
+                            existing_part.write(vals)
+                        else:
+                            FilmPartLine.create(vals)
+
+        # =========================
+        # COMPLETE SETUP
+        # =========================
 
         self.env['ir.config_parameter'].sudo().set_param(
             'yousentech_wo_v4.setup_completed',
             True
         )
 
-        for xmlid in [
-            'yousentech_wo_v4.action_service_types_wo_v4',
-            'yousentech_wo_v4.action_wof_service_type',
-        ]:
-            action = self.env.ref(xmlid, raise_if_not_found=False)
-            if action:
-                return action.read()[0]
-
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
 class WofSetupWizardServiceLine(models.TransientModel):
     _name = 'wof.setup.wizard.service.line'
@@ -162,28 +323,17 @@ class WofSetupWizardServiceLine(models.TransientModel):
     def action_view_service_films(self):
         self.ensure_one()
 
-        company = self.env.company.parent_id or self.env.company
-
-        service = self.env['wof.service.type'].sudo().search([
-            ('service_options', '=', self.service_options),
-            ('company_id', '=', company.id),
-        ], limit=1)
-
-        if not service:
-            raise ValidationError(_("لم يتم إنشاء نوع الخدمة بعد."))
-
         return {
             'type': 'ir.actions.act_window',
-            'name': _('أفلام %s') % service.name,
-            'res_model': 'wof.film.category',
-            'view_mode': 'kanban,tree,form',
-            'domain': [('service_type_id', '=', service.id)],
-            'context': {
-                'default_service_type_id': service.id,
-            },
+            'name': _('الأفلام المؤقتة'),
+            'res_model': 'wof.setup.temp.film',
+            'view_mode': 'tree,form',
+            'domain': [
+                ('wizard_id', '=', self.wizard_id.id),
+                ('service_line_id', '=', self.id),
+            ],
             'target': 'current',
         }
-
 
 class WofSetupFilmWizard(models.TransientModel):
     _name = 'wof.setup.film.wizard'
@@ -223,10 +373,9 @@ class WofSetupFilmWizard(models.TransientModel):
         default="5"
     )
 
-    part_line_ids = fields.One2many(
-        'wof.setup.film.part.line',
-        'wizard_id',
-        string="الأجزاء"
+    temp_part_id = fields.Many2one(
+        'wof.setup.temp.film.part',
+        ondelete='cascade'
     )
 
     def _get_service_code(self, option):
@@ -272,174 +421,101 @@ class WofSetupFilmWizard(models.TransientModel):
         if not self.film_name:
             raise ValidationError(_("يرجى إدخال اسم الفيلم."))
 
-        service = self._ensure_service_type()
-        company = self.env.company.parent_id or self.env.company
+        TempFilm = self.env['wof.setup.temp.film']
 
-        Film = self.env['wof.film.category'].sudo()
-
-        film = Film.search([
-            ('name', '=', self.film_name),
-            ('service_type_id', '=', service.id),
-            ('company_id', '=', company.id),
+        existing_film = TempFilm.search([
+            ('wizard_id', '=', self.parent_wizard_id.id),
+            ('service_line_id', '=', self.service_line_id.id),
+            ('film_name', '=', self.film_name),
         ], limit=1)
 
-        film_vals = {
-            'name': self.film_name,
-            'service_type_id': service.id,
+        if existing_film:
+            existing_film.unlink()
+
+        temp_film = TempFilm.create({
+            'wizard_id': self.parent_wizard_id.id,
+            'service_line_id': self.service_line_id.id,
+            'film_name': self.film_name,
             'warranty_years': self.warranty_years,
-            'company_id': company.id,
-        }
+        })
 
-        if film:
-            film.write(film_vals)
-        else:
-            film = Film.create(film_vals)
-
-        FilmPartLine = self.env['wof.film.parts.lines'].sudo()
+        TempPart = self.env['wof.setup.temp.film.part']
 
         for part in self.part_line_ids.filtered('selected'):
 
-            if not part.car_part_id:
-                raise ValidationError(_("يرجى اختيار الجزء."))
+            temp_part = TempPart.create({
+                'film_id': temp_film.id,
+                'car_part_id': part.car_part_id.id,
+            })
 
-            price_lines = part.price_line_ids
-            commission_lines = part.commission_line_ids
+            for price in part.price_line_ids:
 
-            # لو المستخدم أضاف جزء بدون تسعير ولا عمولة
-            if not price_lines and not commission_lines:
+                self.env['wof.setup.film.part.price.line'].create({
+                    'temp_part_id': temp_part.id,
+                    'car_size_id': price.car_size_id.id,
+                    'part_price': price.part_price,
+                    'discount_exceed_limit': price.discount_exceed_limit,
+                    'tax_id': price.tax_id.id if price.tax_id else False,
+                    'price_readonly': price.price_readonly,
+                    'free_part': price.free_part,
+                })
 
-                domain = [
-                    ('header_id', '=', film.id),
-                    ('car_part_id', '=', part.car_part_id.id),
-                    ('car_size_id', '=', False),
-                ]
+            for commission in part.commission_line_ids:
 
-                vals = {
-                    'header_id': film.id,
-                    'car_part_id': part.car_part_id.id,
-                    'car_size_id': False,
-                    'part_price': 0.0,
-                    'commission': 0.0,
-                    'discount_exceed_limit': 0,
-                    'tax_id': False,
-                    'price_readonly': False,
-                    'free_part': False,
-                }
+                self.env['wof.setup.film.part.commission.line'].create({
+                    'temp_part_id': temp_part.id,
+                    'car_size_id': commission.car_size_id.id,
+                    'commission': commission.commission,
+                })
 
-                existing = FilmPartLine.search(domain, limit=1)
-                if existing:
-                    existing.write(vals)
-                else:
-                    FilmPartLine.create(vals)
+        return temp_film   
+        def action_add_new_film(self):
+            self.ensure_one()
 
-                continue
+            self._save_current_film()
 
-            # الأحجام الموجودة في التسعير أو العمولة
-            size_keys = set()
+            self.write({
+                'film_name': False,
+                'warranty_years': '5',
+                'part_line_ids': [(5, 0, 0)],
+            })
 
-            for price in price_lines:
-                size_keys.add(price.car_size_id.id if price.car_size_id else False)
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('تهيئة الأفلام والأجزاء'),
+                'res_model': 'wof.setup.film.wizard',
+                'res_id': self.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
 
-            for commission in commission_lines:
-                size_keys.add(commission.car_size_id.id if commission.car_size_id else False)
+        def action_complete_service_setup(self):
+            self.ensure_one()
 
-            for size_id in size_keys:
+            self._save_current_film()
 
-                price_line = price_lines.filtered(
-                    lambda l: (l.car_size_id.id if l.car_size_id else False) == size_id
-                )[:1]
+            self.service_line_id.completed = True
+            self.service_line_id.selected = True
 
-                commission_line = commission_lines.filtered(
-                    lambda l: (l.car_size_id.id if l.car_size_id else False) == size_id
-                )[:1]
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('تهيئة النظام'),
+                'res_model': 'wof.setup.wizard',
+                'res_id': self.parent_wizard_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
 
-                domain = [
-                    ('header_id', '=', film.id),
-                    ('car_part_id', '=', part.car_part_id.id),
-                    ('car_size_id', '=', size_id or False),
-                ]
-
-                vals = {
-                    'header_id': film.id,
-                    'car_part_id': part.car_part_id.id,
-                    'car_size_id': size_id or False,
-
-                    'part_price': price_line.part_price if price_line else 0.0,
-
-                    'commission': commission_line.commission if commission_line else 0.0,
-
-                    'discount_exceed_limit': (
-                        price_line.discount_exceed_limit if price_line else 0
-                    ),
-
-                    'tax_id': (
-                        price_line.tax_id.id if price_line and price_line.tax_id else False
-                    ),
-
-                    'price_readonly': (
-                        price_line.price_readonly if price_line else False
-                    ),
-
-                    'free_part': (
-                        price_line.free_part if price_line else False
-                    ),
-                }
-
-                existing = FilmPartLine.search(domain, limit=1)
-
-                if existing:
-                    existing.write(vals)
-                else:
-                    FilmPartLine.create(vals)
-
-        return film
-    def action_add_new_film(self):
-        self.ensure_one()
-
-        self._save_current_film()
-
-        self.write({
-            'film_name': False,
-            'warranty_years': '5',
-            'part_line_ids': [(5, 0, 0)],
-        })
-
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('تهيئة الأفلام والأجزاء'),
-            'res_model': 'wof.setup.film.wizard',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
-
-    def action_complete_service_setup(self):
-        self.ensure_one()
-
-        self._save_current_film()
-
-        self.service_line_id.completed = True
-        self.service_line_id.selected = True
-
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('تهيئة النظام'),
-            'res_model': 'wof.setup.wizard',
-            'res_id': self.parent_wizard_id.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
-
-    def action_back_to_services(self):
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('تهيئة النظام'),
-            'res_model': 'wof.setup.wizard',
-            'res_id': self.parent_wizard_id.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+        def action_back_to_services(self):
+            self.ensure_one()
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('تهيئة النظام'),
+                'res_model': 'wof.setup.wizard',
+                'res_id': self.parent_wizard_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
 
 
 class WofSetupFilmPartLine(models.TransientModel):
@@ -510,9 +586,8 @@ class WofSetupFilmPartSizeLine(models.TransientModel):
     _description = 'WOF Setup Film Part Size Line'
     _order = 'id'
 
-    part_line_id = fields.Many2one(
-        'wof.setup.film.part.line',
-        string="سطر الجزء",
+    temp_part_id = fields.Many2one(
+        'wof.setup.temp.film.part',
         ondelete='cascade'
     )
 
@@ -600,4 +675,58 @@ class WofSetupFilmPartCommissionLine(models.TransientModel):
 
     commission = fields.Float(
         string="عمولة الفني"
+    )
+class WofSetupTempFilm(models.TransientModel):
+    _name = 'wof.setup.temp.film'
+    _description = 'WOF Setup Temp Film'
+    _order = 'id'
+
+    wizard_id = fields.Many2one(
+        'wof.setup.wizard',
+        ondelete='cascade'
+    )
+
+    service_line_id = fields.Many2one(
+        'wof.setup.wizard.service.line',
+        ondelete='cascade'
+    )
+
+    film_name = fields.Char(
+        string="اسم الفيلم"
+    )
+
+    warranty_years = fields.Char(
+        string="سنوات الضمان"
+    )
+
+    part_line_ids = fields.One2many(
+        'wof.setup.temp.film.part',
+        'film_id',
+        string="الأجزاء"
+    )
+class WofSetupTempFilmPart(models.TransientModel):
+    _name = 'wof.setup.temp.film.part'
+    _description = 'WOF Setup Temp Film Part'
+    _order = 'id'
+
+    film_id = fields.Many2one(
+        'wof.setup.temp.film',
+        ondelete='cascade'
+    )
+
+    car_part_id = fields.Many2one(
+        'wof.car.parts',
+        string="الجزء"
+    )
+
+    price_line_ids = fields.One2many(
+        'wof.setup.film.part.price.line',
+        'temp_part_id',
+        string="التسعير"
+    )
+
+    commission_line_ids = fields.One2many(
+        'wof.setup.film.part.commission.line',
+        'temp_part_id',
+        string="العمولة"
     )
