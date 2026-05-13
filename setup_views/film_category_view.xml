@@ -92,21 +92,39 @@
                     <!-- ================= PARTS ================= -->
                     <page string="🔧 الأجزاء">
 
+                        <div class="alert alert-info mb-3">
+                            <strong>
+                                <i class="fa fa-info-circle me-1"/>
+                                الأجزاء الأساسية
+                            </strong>
+                            <div class="text-muted mt-1">
+                                أضف الأجزاء أولاً، ثم افتح التسعيرات والعمولات لكل جزء حسب حجم السيارة.
+                            </div>
+                        </div>
+
                         <field name="film_part_line_ids">
-                            <tree editable="bottom">
-                                <field name="part_selected" />
-                                <field name="car_part_id" />
-                                <field name="car_size_id"/>
-                                <field name="free_part"/>
-                                <field name="part_price" readonly="free_part == True"/>
-                                <field name="tax_id"  readonly="free_part == True"/>
-                                <field name="commission"/>
-                                <field name="film_category_line_id" column_invisible="parent.service_options != 'tint'"/>
-                                <field name="discount_exceed_limit"/>
-                                <field name="price_readonly"/>
-                                <field name="tax_id"/>
+                            <tree editable="bottom" decoration-muted="not part_selected">
+
+                                <field name="part_selected"/>
+                                <field name="car_part_id"/>
+                                <field name="film_category_line_id"
+                                    column_invisible="parent.service_options != 'tint'"/>
+                                <field name="price_count" readonly="1"/>
+                                <field name="commission_count" readonly="1"/>
                                 <field name="header_id" invisible="1"/>
-                                <!-- <field name="available_part_ids" invisible="1"/> -->
+
+                                <button name="action_open_price_lines"
+                                        type="object"
+                                        string="التسعيرات"
+                                        icon="fa-money"
+                                        class="btn btn-link"/>
+
+                                <button name="action_open_commission_lines"
+                                        type="object"
+                                        string="العمولات"
+                                        icon="fa-users"
+                                        class="btn btn-link"/>
+
                             </tree>
                         </field>
 
@@ -341,7 +359,217 @@
         <field name="view_id" ref="view_film_category_wo_v4_kanban"/>
       
     </record>
- 
+    <!-- ================= FILM PART PRICE TREE ================= -->
+    <record id="view_film_parts_price_lines_tree" model="ir.ui.view">
+        <field name="name">wof.film.parts.price.lines.tree</field>
+        <field name="model">wof.film.parts.price.lines</field>
+        <field name="arch" type="xml">
+
+            <tree editable="bottom"
+                decoration-danger="part_price == 0"
+                decoration-success="free_part">
+
+                <field name="part_line_id" invisible="1"/>
+                <field name="header_id" readonly="1"/>
+                <field name="car_part_id" readonly="1"/>
+                <field name="car_size_id"/>
+                <field name="free_part"/>
+                <field name="part_price" readonly="free_part == True"/>
+                <field name="discount_exceed_limit"/>
+                <field name="tax_id" readonly="free_part == True"/>
+                <field name="price_readonly"/>
+
+            </tree>
+
+        </field>
+    </record>
+
+
+    <!-- ================= FILM PART PRICE FORM ================= -->
+    <record id="view_film_parts_price_lines_form" model="ir.ui.view">
+        <field name="name">wof.film.parts.price.lines.form</field>
+        <field name="model">wof.film.parts.price.lines</field>
+        <field name="arch" type="xml">
+
+            <form string="تسعيرة الجزء">
+                <sheet>
+
+                    <div class="alert alert-primary">
+                        <strong>
+                            <i class="fa fa-money me-1"/>
+                            تسعيرة الجزء حسب حجم السيارة
+                        </strong>
+                    </div>
+
+                    <group col="2">
+                        <group>
+                            <field name="part_line_id" readonly="1"/>
+                            <field name="header_id" readonly="1"/>
+                            <field name="car_part_id" readonly="1"/>
+                            <field name="car_size_id"/>
+                        </group>
+
+                        <group>
+                            <field name="free_part"/>
+                            <field name="part_price" readonly="free_part == True"/>
+                            <field name="discount_exceed_limit"/>
+                            <field name="tax_id" readonly="free_part == True"/>
+                            <field name="price_readonly"/>
+                        </group>
+                    </group>
+
+                </sheet>
+            </form>
+
+        </field>
+    </record>
+
+
+    <!-- ================= FILM PART PRICE SEARCH ================= -->
+    <record id="view_film_parts_price_lines_search" model="ir.ui.view">
+        <field name="name">wof.film.parts.price.lines.search</field>
+        <field name="model">wof.film.parts.price.lines</field>
+        <field name="arch" type="xml">
+
+            <search string="بحث التسعيرات">
+                <field name="header_id"/>
+                <field name="car_part_id"/>
+                <field name="car_size_id"/>
+
+                <filter string="مجاني"
+                        name="free_part"
+                        domain="[('free_part','=',True)]"/>
+
+                <filter string="السعر صفر"
+                        name="zero_price"
+                        domain="[('part_price','=',0)]"/>
+
+                <group expand="0" string="تجميع">
+                    <filter string="الفيلم"
+                            name="groupby_header"
+                            context="{'group_by':'header_id'}"/>
+
+                    <filter string="الجزء"
+                            name="groupby_part"
+                            context="{'group_by':'car_part_id'}"/>
+
+                    <filter string="حجم السيارة"
+                            name="groupby_size"
+                            context="{'group_by':'car_size_id'}"/>
+                </group>
+            </search>
+
+        </field>
+    </record>
+
+
+    <!-- ================= FILM PART PRICE ACTION ================= -->
+    <record id="action_film_parts_price_lines" model="ir.actions.act_window">
+        <field name="name">تسعيرات الأجزاء</field>
+        <field name="res_model">wof.film.parts.price.lines</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_film_parts_price_lines_search"/>
+    </record>
+
+
+    <!-- ================= FILM PART COMMISSION TREE ================= -->
+    <record id="view_film_parts_commission_lines_tree" model="ir.ui.view">
+        <field name="name">wof.film.parts.commission.lines.tree</field>
+        <field name="model">wof.film.parts.commission.lines</field>
+        <field name="arch" type="xml">
+
+            <tree editable="bottom"
+                decoration-warning="commission == 0">
+
+                <field name="part_line_id" invisible="1"/>
+                <field name="header_id" readonly="1"/>
+                <field name="car_part_id" readonly="1"/>
+                <field name="car_size_id"/>
+                <field name="commission"/>
+
+            </tree>
+
+        </field>
+    </record>
+
+
+    <!-- ================= FILM PART COMMISSION FORM ================= -->
+    <record id="view_film_parts_commission_lines_form" model="ir.ui.view">
+        <field name="name">wof.film.parts.commission.lines.form</field>
+        <field name="model">wof.film.parts.commission.lines</field>
+        <field name="arch" type="xml">
+
+            <form string="عمولة الجزء">
+                <sheet>
+
+                    <div class="alert alert-success">
+                        <strong>
+                            <i class="fa fa-users me-1"/>
+                            عمولة الفني حسب حجم السيارة
+                        </strong>
+                    </div>
+
+                    <group col="2">
+                        <group>
+                            <field name="part_line_id" readonly="1"/>
+                            <field name="header_id" readonly="1"/>
+                            <field name="car_part_id" readonly="1"/>
+                        </group>
+
+                        <group>
+                            <field name="car_size_id"/>
+                            <field name="commission"/>
+                        </group>
+                    </group>
+
+                </sheet>
+            </form>
+
+        </field>
+    </record>
+
+
+    <!-- ================= FILM PART COMMISSION SEARCH ================= -->
+    <record id="view_film_parts_commission_lines_search" model="ir.ui.view">
+        <field name="name">wof.film.parts.commission.lines.search</field>
+        <field name="model">wof.film.parts.commission.lines</field>
+        <field name="arch" type="xml">
+
+            <search string="بحث العمولات">
+                <field name="header_id"/>
+                <field name="car_part_id"/>
+                <field name="car_size_id"/>
+
+                <filter string="عمولة صفر"
+                        name="zero_commission"
+                        domain="[('commission','=',0)]"/>
+
+                <group expand="0" string="تجميع">
+                    <filter string="الفيلم"
+                            name="groupby_header"
+                            context="{'group_by':'header_id'}"/>
+
+                    <filter string="الجزء"
+                            name="groupby_part"
+                            context="{'group_by':'car_part_id'}"/>
+
+                    <filter string="حجم السيارة"
+                            name="groupby_size"
+                            context="{'group_by':'car_size_id'}"/>
+                </group>
+            </search>
+
+        </field>
+    </record>
+
+
+    <!-- ================= FILM PART COMMISSION ACTION ================= -->
+    <record id="action_film_parts_commission_lines" model="ir.actions.act_window">
+        <field name="name">عمولات الأجزاء</field>
+        <field name="res_model">wof.film.parts.commission.lines</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_film_parts_commission_lines_search"/>
+    </record>
   
     <menuitem id="menu_film_category_wo_v4"
               name="فئات الأفلام"
@@ -349,34 +577,19 @@
               action="action_film_category_wo_v4"
               sequence="20"/>
     
+    <menuitem id="menu_film_parts_price_lines"
+          name="تسعيرات الأجزاء"
+          parent="menu_wo_v4_configuration"
+          action="action_film_parts_price_lines"
+          sequence="31"
+          groups="yousentech_wo_v4.group_wo_manager"/>
+
+    <menuitem id="menu_film_parts_commission_lines"
+            name="عمولات الأجزاء"
+            parent="menu_wo_v4_configuration"
+            action="action_film_parts_commission_lines"
+            sequence="32"
+            groups="yousentech_wo_v4.group_wo_manager"/>
     
-    <!-- <record id="view_film_parts_lines_form" model="ir.ui.view">
-        <field name="name">view_film_parts_lines_form</field>
-        <field name="model">wof.film.parts.lines</field>
-        <field name="arch" type="xml">
-
-            <form>
-                <sheet> 
-                 
-                    <group>
-                        <field name="car_part_id"/>
-                        <field name="car_size_id"/>
-                    </group>
-
-                    <group>
-                        <field name="part_price"/>
-                        <field name="commission"/>
-                    </group>
-                    <group>
-                        <field name="discount_exceed_limit"/>
-                        <field name="price_readonly"/>
-                    </group>
-
-                </sheet>
-            </form>
-
-        </field>
-    </record> -->
-
 
 </odoo>
