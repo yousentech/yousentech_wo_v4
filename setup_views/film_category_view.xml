@@ -582,6 +582,7 @@
           parent="menu_wo_v4_configuration"
           action="action_film_parts_price_lines"
           sequence="31"
+          
           groups="yousentech_wo_v4.group_wo_manager"/>
 
     <menuitem id="menu_film_parts_commission_lines"
