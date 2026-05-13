@@ -544,7 +544,7 @@ class WofSetupFilmPartLine(models.TransientModel):
 
     price_line_ids = fields.One2many(
         'wof.setup.film.part.price.line',
-        'part_line_id',
+        'temp_part_id',
         string="التسعير حسب الحجم" )
 
     commission_line_ids = fields.One2many(
@@ -622,13 +622,13 @@ class WofSetupFilmPartSizeLine(models.TransientModel):
         string="جزء مجاني"
     )
 
-
-class WofSetupFilmPartPriceLine(models.TransientModel):
+ class WofSetupFilmPartPriceLine(models.TransientModel):
     _name = 'wof.setup.film.part.price.line'
     _description = 'WOF Setup Film Part Price Line'
 
-    part_line_id = fields.Many2one(
-        'wof.setup.film.part.line',
+    temp_part_id = fields.Many2one(
+        'wof.setup.temp.film.part',
+        string="الجزء المؤقت",
         ondelete='cascade'
     )
 
@@ -638,17 +638,16 @@ class WofSetupFilmPartPriceLine(models.TransientModel):
     )
 
     part_price = fields.Float(
-        string="سعر الجزء"
+        string="السعر"
     )
 
     discount_exceed_limit = fields.Integer(
-        string="نسبة الخصم المسموح"
+        string="حد الخصم"
     )
 
     tax_id = fields.Many2one(
         'account.tax',
-        string="الضريبة",
-        domain=[('type_tax_use', '=', 'sale')]
+        string="الضريبة"
     )
 
     price_readonly = fields.Boolean(
@@ -656,15 +655,15 @@ class WofSetupFilmPartPriceLine(models.TransientModel):
     )
 
     free_part = fields.Boolean(
-        string="جزء مجاني"
+        string="مجاني"
     )
-
 class WofSetupFilmPartCommissionLine(models.TransientModel):
     _name = 'wof.setup.film.part.commission.line'
     _description = 'WOF Setup Film Part Commission Line'
 
-    part_line_id = fields.Many2one(
-        'wof.setup.film.part.line',
+    temp_part_id = fields.Many2one(
+        'wof.setup.temp.film.part',
+        string="الجزء المؤقت",
         ondelete='cascade'
     )
 
@@ -674,7 +673,7 @@ class WofSetupFilmPartCommissionLine(models.TransientModel):
     )
 
     commission = fields.Float(
-        string="عمولة الفني"
+        string="العمولة"
     )
 class WofSetupTempFilm(models.TransientModel):
     _name = 'wof.setup.temp.film'

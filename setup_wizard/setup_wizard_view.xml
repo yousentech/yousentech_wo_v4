@@ -235,7 +235,7 @@
 
                     <separator string="الأجزاء"/>
 
-                    <field name="part_line_ids" nolabel="1">
+                    <field name="temp_part_id" nolabel="1">
 
                         <tree editable="bottom" create="1" delete="1">
 
