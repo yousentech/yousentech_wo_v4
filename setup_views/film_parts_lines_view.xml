@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ================= TREE VIEW ================= -->
+    <record id="view_film_parts_lines_wo_v4_tree" model="ir.ui.view">
+        <field name="name">wof.film.parts.lines.tree</field>
+        <field name="model">wof.film.parts.lines</field>
+        <field name="arch" type="xml">
+
+            <tree decoration-muted="price_readonly"
+                decoration-danger="part_price == 0"
+                decoration-warning="commission == 0">
+
+                <field name="car_part_id"/>
+                <field name="car_size_id"/>
+                <field name="header_id"/>
+                <field name="service_type_id"/>
+
+                <field name="part_price"/>
+                <field name="commission"/>
+                <field name="discount_exceed_limit"/>
+
+                <field name="price_readonly"/>
+
+            </tree>
+
+        </field>
+    </record>
+    <!-- ================= FORM VIEW ================= -->
+        <record id="view_film_parts_lines_wo_v4_form" model="ir.ui.view">
+            <field name="name">wof.film.parts.lines.form</field>
+            <field name="model">wof.film.parts.lines</field>
+            <field name="arch" type="xml">
+
+                <form string="جزء فيلم">
+
+                    <sheet>
+
+                        <!-- 🔴 Ribbon -->
+                        <widget name="web_ribbon"
+                                title="سعر ثابت"
+                                bg_color="bg-warning"
+                                invisible="not price_readonly"/>
+
+                        <!-- ================= HEADER ================= -->
+                        <!-- <div class="oe_title">
+                            <h2>
+                                <field name="car_part_id"/>
+                            </h2>
+                            <div class="text-muted">
+                                <i class="fa fa-film me-1"></i>
+                                <field name="header_id"/>
+                            </div>
+                        </div> -->
+
+                        <!-- ================= MAIN INFO ================= -->
+                        <group string="📋 المعلومات الأساسية" col="2">
+
+                            <group>
+                                <field name="header_id"/>
+                                <field name="car_part_id"/>
+                                <!-- <field name="available_part_ids" invisible="1"/> -->
+                              
+                             
+                            </group>
+
+                            <group> 
+                                <field name="service_type_id" readonly="1"/>
+                               <field name="car_size_id"/>
+                              
+                            </group>
+
+                        </group>
+
+                        <!-- ================= PRICING ================= -->
+                        <group string="💰 التسعير" col="2">
+
+                            <group>
+                                <field name="part_price"/>
+                                <field name="commission"/>
+                            </group>
+
+                            <group>
+                                <field name="discount_exceed_limit"/>
+                                <field name="price_readonly"/>
+                            </group>
+
+                        </group>
+
+                        <!-- ================= PRODUCT ================= -->
+                        <group string="📦 درجة اللون الافتراضي">
+
+                            <field name="film_category_line_id"/>
+
+                        </group>
+
+                        <!-- ================= STATUS ================= -->
+                        <group string="⚙️ الحالة">
+
+                            <field name="is_effected_in_inventory" readonly="1"/>
+
+                        </group>
+
+                    </sheet>
+
+                </form>
+
+            </field>
+        </record>
+    
+    <!-- ================= SEARCH VIEW ================= -->
+    <record id="view_film_parts_lines_wo_v4_search" model="ir.ui.view">
+        <field name="name">wof.film.parts.lines.search</field>
+        <field name="model">wof.film.parts.lines</field>
+        <field name="arch" type="xml">
+
+            <search string="بحث الأجزاء">
+
+                <!-- Fields -->
+                <field name="car_part_id"/>
+                <field name="header_id"/>
+                <field name="service_type_id"/>
+
+                <!-- Filters -->
+                <filter string="سعر = 0"  name = "price_srch"
+                        domain="[('part_price','=',0)]"/>
+
+                <filter string="عمولة = 0"  name = "comm_srch"
+                        domain="[('commission','=',0)]"/>
+
+                <filter string="سعر ثابت" name = "price_readonly_srch"
+                        domain="[('price_readonly','=',True)]"/>
+
+                <!-- Group By -->
+                <group expand="0" string="تجميع">
+
+                    <filter string="نوع الخدمة"  name = "service_type_groupby"
+                            context="{'group_by':'service_type_id'}"/>
+
+                    <filter string="الفلم"   name = "group_by_header_id"
+                            context="{'group_by':'header_id'}"/>
+
+                    <filter string="الجزء" name = "part_groupby"
+                            context="{'group_by':'car_part_id'}"/>
+
+                </group>
+
+            </search>
+
+        </field>
+    </record>
+
+    <!-- ================= ACTION ================= -->
+        <record id="action_film_parts_wo_v4_lines" model="ir.actions.act_window">
+            <field name="name">أجزاء الأفلام</field>
+            <field name="res_model">wof.film.parts.lines</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">
+                        {
+                            'search_default_group_by_header_id': 1
+                        }
+            </field>
+            <field name="view_id" ref="view_film_parts_lines_wo_v4_tree"/>
+            <field name="search_view_id" ref="view_film_parts_lines_wo_v4_search"/>
+        </record>
+ 
+ 
+</odoo>

@@ -1,0 +1,40 @@
+/* hover فقط للكارد */
+/* .hover-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.hover-card:hover {
+    border-color: #198754;
+} */
+
+/* KPI ثابت */
+.kpi-box {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* hover للكارد */
+.hover-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.hover-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.service-box{
+    transition: all .25s ease;
+    cursor: default;
+}
+
+.service-box:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0,0,0,.12)!important;
+}
+.o_kanban_record a{
+    transition: all .2s ease;
+}
+
+.o_kanban_record a:hover{
+    opacity:.85;
+}

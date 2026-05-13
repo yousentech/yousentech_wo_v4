@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ================= MAIN MENU ACTION ================= -->
+    <record id="action_menu_wo_v4" model="ir.actions.server">
+
+        <field name="name">العناية بالسيارات</field>
+
+        <field name="model_id" ref="base.model_res_company"/>
+
+        <field name="state">code</field>
+
+     <field name="code">
+
+setup = env['ir.config_parameter'].sudo().get_param(
+    'yousentech_wo_v4.setup_completed'
+)
+
+if not setup:
+
+    action = env.ref(
+        'yousentech_wo_v4.action_wof_setup_wizard'
+    ).read()[0]
+
+else:
+
+    action = env.ref(
+        'yousentech_wo_v4.action_service_types_wo_v4'
+    ).read()[0]
+
+</field>
+
+    </record>
+
+</odoo>

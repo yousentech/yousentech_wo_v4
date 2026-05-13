@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_wof_setup_wizard_form" model="ir.ui.view">
+        <field name="name">wof.setup.wizard.form</field>
+        <field name="model">wof.setup.wizard</field>
+        <field name="arch" type="xml">
+
+            <form string="تهيئة النظام" create="0" edit="1">
+                <sheet>
+
+                    <field name="step" invisible="1"/>
+
+                    <div invisible="step != 'welcome'">
+                        <div class="alert alert-primary text-center p-4">
+                            <h1>
+                                <i class="fa fa-magic me-2"/>
+                                مرحباً بك في نظام العناية بالسيارات
+                            </h1>
+                            <div class="text-muted mt-2">
+                                سنقوم بتهيئة النظام خطوة بخطوة.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div invisible="step != 'service_types'">
+
+                        <div class="alert alert-info text-center p-3">
+                            <h3>
+                                <i class="fa fa-cogs me-2"/>
+                                تهيئة أنواع الخدمات
+                            </h3>
+                            <div class="text-muted">
+                                اختر نوع الخدمة، ثم اضغط بدء التهيئة لإضافة الأفلام والأجزاء.
+                            </div>
+                        </div>
+
+                        <field name="service_line_ids" nolabel="1">
+                            <kanban create="0" delete="0" class="o_kanban_small_column">
+                                <field name="selected"/>
+                                <field name="completed"/>
+                                <field name="service_options"/>
+                                <field name="custom_name"/>
+
+                                <templates>
+                                    <t t-name="kanban-box">
+                                        <div t-attf-class="
+                                            oe_kanban_card p-3 rounded shadow-sm
+                                            #{record.completed.raw_value ? 'border border-success bg-success-subtle' : ''}
+                                            #{record.selected.raw_value and !record.completed.raw_value ? 'border border-primary bg-primary-subtle' : ''}
+                                            #{!record.selected.raw_value and !record.completed.raw_value ? 'border bg-white' : ''}
+                                        ">
+
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="fw-bold" style="font-size:16px;">
+                                                    <i t-attf-class="
+                                                        fa me-1
+                                                        #{record.completed.raw_value ? 'fa-check-circle text-success' : ''}
+                                                        #{record.selected.raw_value and !record.completed.raw_value ? 'fa-circle text-primary' : ''}
+                                                        #{!record.selected.raw_value and !record.completed.raw_value ? 'fa-circle-o text-muted' : ''}
+                                                    "/>
+                                                    <field name="service_options"/>
+                                                </div>
+
+                                                <field name="selected" widget="boolean_toggle"/>
+                                            </div>
+
+                                            <div class="mt-3">
+                                                <div class="text-muted small o_form_label">
+                                                    اسم الخدمة
+                                                </div>
+
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="fw-bold text-dark" style="font-size:15px;">
+                                                        <field name="custom_name"/>
+                                                    </div>
+
+                                                    <a type="object"
+                                                       name="action_open_line"
+                                                       class="text-primary ms-2"
+                                                       title="تعديل الاسم">
+                                                        <i class="fa fa-pencil"/>
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-3 d-flex justify-content-between align-items-center">
+                                                <span t-if="record.completed.raw_value"
+                                                      class="badge bg-success px-3 py-2">
+                                                    <i class="fa fa-check-circle me-1"/>
+                                                    مكتمل
+                                                </span>
+
+                                                <span t-if="record.selected.raw_value and !record.completed.raw_value"
+                                                      class="badge bg-primary">
+                                                    جاهز للتهيئة
+                                                </span>
+
+                                                <a type="object"
+                                                   name="action_open_service_setup"
+                                                   class="btn btn-sm btn-primary"
+                                                   invisible="not selected or completed">
+                                                    بدء التهيئة
+                                                </a>
+
+                                                <a type="object"
+                                                   name="action_view_service_films"
+                                                   class="btn btn-sm btn-outline-success"
+                                                   invisible="not completed">
+                                                    <i class="fa fa-eye me-1"/>
+                                                    عرض الأفلام
+                                                </a>
+                                            </div>
+
+                                        </div>
+                                    </t>
+                                </templates>
+                            </kanban>
+                        </field>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-start gap-2">
+                        <button string="بدء التهيئة"
+                                type="object"
+                                name="action_start_setup"
+                                class="btn btn-primary btn-lg"
+                                invisible="step != 'welcome'"/>
+
+                        <button string="رجوع"
+                                type="object"
+                                name="action_back_welcome"
+                                class="btn btn-secondary"
+                                invisible="step != 'service_types'"/>
+
+                        <button string="إنهاء كامل التهيئة"
+                                type="object"
+                                name="action_finish_all_setup"
+                                class="btn btn-success"
+                                invisible="step != 'service_types'"/>
+                    </div>
+
+                </sheet>
+            </form>
+
+        </field>
+    </record>
+
+    <record id="view_wof_setup_service_line_form" model="ir.ui.view">
+        <field name="name">wof.setup.service.line.form</field>
+        <field name="model">wof.setup.wizard.service.line</field>
+        <field name="arch" type="xml">
+            <form string="تعديل الخدمة">
+                <sheet>
+                    <group>
+                        <field name="selected"/>
+                        <field name="service_options" readonly="1"/>
+                        <field name="custom_name"/>
+                    </group>
+
+                    <footer>
+                        <button string="حفظ" special="save" class="btn-primary"/>
+                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wof_setup_film_wizard_form" model="ir.ui.view">
+        <field name="name">wof.setup.film.wizard.form</field>
+        <field name="model">wof.setup.film.wizard</field>
+        <field name="arch" type="xml">
+
+            <form string="تهيئة الأفلام والأجزاء" create="0" edit="1">
+                <sheet>
+
+                    <div class="alert alert-primary text-center p-3">
+                        <h3>
+                            <i class="fa fa-film me-2"/>
+                            تهيئة الأفلام والأجزاء
+                        </h3>
+                        <div class="text-muted">
+                            البيانات هنا مؤقتة ولن تحفظ في الجداول الرئيسية إلا عند إنهاء كامل التهيئة.
+                        </div>
+                    </div>
+
+                    <group string="نوع الخدمة">
+                        <group>
+                            <field name="service_name" readonly="1"/>
+                            <field name="service_options" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="بيانات الفيلم">
+                        <group>
+                            <field name="film_name"/>
+                        </group>
+                        <group>
+                            <field name="warranty_years"/>
+                        </group>
+                    </group>
+
+                    <separator string="الأجزاء"/>
+
+                    <field name="part_line_ids" nolabel="1">
+                        <tree editable="bottom" create="1" delete="1">
+                            <field name="selected"/>
+                            <field name="car_part_id"/>
+
+                            <button name="action_open_price_popup"
+                                    type="object"
+                                    string="التسعير"
+                                    icon="fa-money"
+                                    class="btn btn-link"/>
+
+                            <button name="action_open_commission_popup"
+                                    type="object"
+                                    string="العمولة"
+                                    icon="fa-users"
+                                    class="btn btn-link"/>
+                        </tree>
+                    </field>
+
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-start gap-2">
+                        <button string="رجوع للخدمات"
+                                type="object"
+                                name="action_back_to_services"
+                                class="btn btn-secondary"/>
+
+                        <button string="إضافة فيلم جديد"
+                                type="object"
+                                name="action_add_new_film"
+                                class="btn btn-primary"/>
+
+                        <button string="اكتمال"
+                                type="object"
+                                name="action_complete_service_setup"
+                                class="btn btn-success"/>
+                    </div>
+
+                </sheet>
+            </form>
+
+        </field>
+    </record>
+
+    <record id="view_wof_setup_film_part_price_form" model="ir.ui.view">
+        <field name="name">wof.setup.film.part.price.form</field>
+        <field name="model">wof.setup.film.part.line</field>
+        <field name="arch" type="xml">
+            <form string="تسعير الجزء حسب حجم السيارة">
+                <sheet>
+                    <group>
+                        <field name="car_part_id" readonly="1"/>
+                    </group>
+
+                    <field name="price_line_ids" nolabel="1">
+                        <tree editable="bottom" create="1" delete="1">
+                            <field name="car_size_id"/>
+                            <field name="part_price"/>
+                            <field name="discount_exceed_limit"/>
+                            <field name="tax_id"/>
+                            <field name="price_readonly"/>
+                            <field name="free_part"/>
+                        </tree>
+                    </field>
+
+                    <footer>
+                        <button string="حفظ" special="save" class="btn-primary"/>
+                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wof_setup_film_part_commission_form" model="ir.ui.view">
+        <field name="name">wof.setup.film.part.commission.form</field>
+        <field name="model">wof.setup.film.part.line</field>
+        <field name="arch" type="xml">
+            <form string="عمولة الفني حسب حجم السيارة">
+                <sheet>
+                    <group>
+                        <field name="car_part_id" readonly="1"/>
+                    </group>
+
+                    <field name="commission_line_ids" nolabel="1">
+                        <tree editable="bottom" create="1" delete="1">
+                            <field name="car_size_id"/>
+                            <field name="commission"/>
+                        </tree>
+                    </field>
+
+                    <footer>
+                        <button string="حفظ" special="save" class="btn-primary"/>
+                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wof_setup_temp_film_tree" model="ir.ui.view">
+        <field name="name">wof.setup.temp.film.tree</field>
+        <field name="model">wof.setup.temp.film</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="service_name"/>
+                <field name="film_name"/>
+                <field name="warranty_years"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_wof_setup_temp_film_form" model="ir.ui.view">
+        <field name="name">wof.setup.temp.film.form</field>
+        <field name="model">wof.setup.temp.film</field>
+        <field name="arch" type="xml">
+            <form string="فيلم مؤقت">
+                <sheet>
+                    <group>
+                        <field name="service_name" readonly="1"/>
+                        <field name="film_name" readonly="1"/>
+                        <field name="warranty_years" readonly="1"/>
+                    </group>
+
+                    <notebook>
+                        <page string="الأجزاء">
+                            <field name="part_line_ids" readonly="1">
+                                <tree>
+                                    <field name="car_part_id"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wof_setup_wizard" model="ir.actions.act_window">
+        <field name="name">تهيئة النظام</field>
+        <field name="res_model">wof.setup.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+
+</odoo>

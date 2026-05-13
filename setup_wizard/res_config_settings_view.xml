@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_wo_v4" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.wo.v4</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90"/>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <!-- ================= APP ================= -->
+                <app string="العناية بالسيارات"
+                     name="yousentech_wo_v4"
+                     data-string="العناية بالسيارات"
+                     groups="yousentech_wo_v4.group_wo_settings">
+
+                    <!-- ================= BLOCK ================= -->
+
+                    <block title="إعدادات النظام">
+
+                        <!-- SETUP FLAG -->
+                        <setting string="تمت التهيئة"
+                                 help="يحدد هل تمت التهيئة الأولية للنظام">
+
+                            <div class="d-flex align-items-center gap-3">
+
+                                <field name="wo_setup_completed"/>
+
+                                <button string="إعادة التهيئة"
+                                        type="object"
+                                        name="action_re_setup_wo_v4"
+                                        class="btn btn-primary"/>
+
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+          <!-- =========================
+                  SETTINGS ACTION
+            ========================== -->
+
+        <record id="action_wo_v4_settings"  model="ir.actions.act_window">
+            <field name="name">إعدادات العناية بالسيارات</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">
+                {
+                    'module' : 'yousentech_wo_v4'
+                }
+            </field>
+
+        </record>
+
+        
+    <menuitem id="menu_wo_v4_setting"
+              name="الاعدادات"
+         
+              action="action_wo_v4_settings"
+              parent="menu_wo_v4_configuration"
+              sequence="4"  />
+</odoo>
