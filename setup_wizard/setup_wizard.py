@@ -101,6 +101,34 @@ class WofSetupWizard(models.TransientModel):
 
         return service
 
+    def _get_size_key(self, line):
+        return line.car_size_id.id if line.car_size_id else False
+
+    def _get_part_size_ids(self, temp_part):
+        size_ids = set()
+        size_ids.update(temp_part.price_line_ids.mapped(lambda line: self._get_size_key(line)))
+        size_ids.update(temp_part.commission_line_ids.mapped(lambda line: self._get_size_key(line)))
+        return size_ids or {False}
+
+    def _get_line_for_size(self, lines, size_id):
+        return lines.filtered(lambda line: self._get_size_key(line) == size_id)[:1]
+
+    def _prepare_film_part_line_vals(self, film, temp_part, size_id):
+        price_line = self._get_line_for_size(temp_part.price_line_ids, size_id)
+        commission_line = self._get_line_for_size(temp_part.commission_line_ids, size_id)
+
+        return {
+            'header_id': film.id,
+            'car_part_id': temp_part.car_part_id.id,
+            'car_size_id': size_id or False,
+            'part_price': price_line.part_price if price_line else 0.0,
+            'commission': commission_line.commission if commission_line else 0.0,
+            'discount_exceed_limit': price_line.discount_exceed_limit if price_line else 0,
+            'tax_id': price_line.tax_id.id if price_line and price_line.tax_id else False,
+            'price_readonly': price_line.price_readonly if price_line else False,
+            'free_part': price_line.free_part if price_line else False,
+        }
+
     def action_finish_all_setup(self):
         self.ensure_one()
 
@@ -153,38 +181,8 @@ class WofSetupWizard(models.TransientModel):
                     if not temp_part.car_part_id:
                         continue
 
-                    size_ids = set()
-
-                    for price in temp_part.price_line_ids:
-                        size_ids.add(price.car_size_id.id if price.car_size_id else False)
-
-                    for commission in temp_part.commission_line_ids:
-                        size_ids.add(commission.car_size_id.id if commission.car_size_id else False)
-
-                    if not size_ids:
-                        size_ids.add(False)
-
-                    for size_id in size_ids:
-
-                        price_line = temp_part.price_line_ids.filtered(
-                            lambda l: (l.car_size_id.id if l.car_size_id else False) == size_id
-                        )[:1]
-
-                        commission_line = temp_part.commission_line_ids.filtered(
-                            lambda l: (l.car_size_id.id if l.car_size_id else False) == size_id
-                        )[:1]
-
-                        vals = {
-                            'header_id': film.id,
-                            'car_part_id': temp_part.car_part_id.id,
-                            'car_size_id': size_id or False,
-                            'part_price': price_line.part_price if price_line else 0.0,
-                            'commission': commission_line.commission if commission_line else 0.0,
-                            'discount_exceed_limit': price_line.discount_exceed_limit if price_line else 0,
-                            'tax_id': price_line.tax_id.id if price_line and price_line.tax_id else False,
-                            'price_readonly': price_line.price_readonly if price_line else False,
-                            'free_part': price_line.free_part if price_line else False,
-                        }
+                    for size_id in self._get_part_size_ids(temp_part):
+                        vals = self._prepare_film_part_line_vals(film, temp_part, size_id)
 
                         existing = FilmPartLine.search([
                             ('header_id', '=', film.id),
@@ -463,6 +461,26 @@ class WofSetupFilmPartLine(models.TransientModel):
         string="الجزء"
     )
 
+    price_line_count = fields.Integer(
+        string="عدد تسعيرات الجزء",
+        compute='_compute_pricing_summary'
+    )
+
+    commission_line_count = fields.Integer(
+        string="عدد تسعيرات العمولة",
+        compute='_compute_pricing_summary'
+    )
+
+    price_summary = fields.Char(
+        string="ملخص أسعار الجزء",
+        compute='_compute_pricing_summary'
+    )
+
+    commission_summary = fields.Char(
+        string="ملخص العمولات",
+        compute='_compute_pricing_summary'
+    )
+
     price_line_ids = fields.One2many(
         'wof.setup.film.part.price.line',
         'part_line_id',
@@ -475,8 +493,50 @@ class WofSetupFilmPartLine(models.TransientModel):
         string="العمولة حسب الحجم"
     )
 
+    def _format_size_name(self, line):
+        return line.car_size_id.display_name if line.car_size_id else _('كل الأحجام')
+
+    @api.depends(
+        'price_line_ids.car_size_id',
+        'price_line_ids.part_price',
+        'commission_line_ids.car_size_id',
+        'commission_line_ids.commission',
+    )
+    def _compute_pricing_summary(self):
+        for part in self:
+            part.price_line_count = len(part.price_line_ids)
+            part.commission_line_count = len(part.commission_line_ids)
+
+            price_items = [
+                _('%(size)s: %(amount).2f') % {
+                    'size': part._format_size_name(line),
+                    'amount': line.part_price,
+                }
+                for line in part.price_line_ids[:3]
+            ]
+            commission_items = [
+                _('%(size)s: %(amount).2f') % {
+                    'size': part._format_size_name(line),
+                    'amount': line.commission,
+                }
+                for line in part.commission_line_ids[:3]
+            ]
+
+            if len(part.price_line_ids) > 3:
+                price_items.append(_('والمزيد...'))
+            if len(part.commission_line_ids) > 3:
+                commission_items.append(_('والمزيد...'))
+
+            part.price_summary = ' | '.join(price_items) or _('لم يتم إدخال أسعار')
+            part.commission_summary = ' | '.join(commission_items) or _('لم يتم إدخال عمولات')
+
+    def _check_part_selected(self):
+        if not self.car_part_id:
+            raise ValidationError(_("يرجى اختيار الجزء قبل فتح التسعير."))
+
     def action_open_price_popup(self):
         self.ensure_one()
+        self._check_part_selected()
         return {
             'type': 'ir.actions.act_window',
             'name': _('تسعير الجزء حسب حجم السيارة'),
@@ -491,6 +551,7 @@ class WofSetupFilmPartLine(models.TransientModel):
 
     def action_open_commission_popup(self):
         self.ensure_one()
+        self._check_part_selected()
         return {
             'type': 'ir.actions.act_window',
             'name': _('عمولة الفني حسب حجم السيارة'),
@@ -532,6 +593,22 @@ class WofSetupFilmPartPriceLine(models.TransientModel):
     price_readonly = fields.Boolean(string="السعر ثابت")
     free_part = fields.Boolean(string="مجاني")
 
+    @api.onchange('free_part')
+    def _onchange_free_part(self):
+        if self.free_part:
+            self.part_price = 0.0
+
+    @api.constrains('part_line_id', 'car_size_id')
+    def _check_unique_price_size(self):
+        for line in self:
+            if not line.part_line_id:
+                continue
+            duplicates = line.part_line_id.price_line_ids.filtered(
+                lambda item: item != line and item.car_size_id == line.car_size_id
+            )
+            if duplicates:
+                raise ValidationError(_("لا يمكن تكرار نفس حجم السيارة في تسعير الجزء."))
+
 
 class WofSetupFilmPartCommissionLine(models.TransientModel):
     _name = 'wof.setup.film.part.commission.line'
@@ -550,6 +627,17 @@ class WofSetupFilmPartCommissionLine(models.TransientModel):
     )
 
     commission = fields.Float(string="العمولة")
+
+    @api.constrains('part_line_id', 'car_size_id')
+    def _check_unique_commission_size(self):
+        for line in self:
+            if not line.part_line_id:
+                continue
+            duplicates = line.part_line_id.commission_line_ids.filtered(
+                lambda item: item != line and item.car_size_id == line.car_size_id
+            )
+            if duplicates:
+                raise ValidationError(_("لا يمكن تكرار نفس حجم السيارة في تسعير العمولة."))
 
 
 class WofSetupTempFilm(models.TransientModel):
@@ -599,7 +687,6 @@ class WofSetupTempFilmPart(models.TransientModel):
         'wof.car.parts',
         string="الجزء"
     )
-
     price_line_ids = fields.One2many(
         'wof.setup.temp.film.part.price.line',
         'temp_part_id',
