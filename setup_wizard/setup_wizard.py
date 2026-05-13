@@ -622,7 +622,7 @@ class WofSetupFilmPartSizeLine(models.TransientModel):
         string="جزء مجاني"
     )
 
- class WofSetupFilmPartPriceLine(models.TransientModel):
+class WofSetupFilmPartPriceLine(models.TransientModel):
     _name = 'wof.setup.film.part.price.line'
     _description = 'WOF Setup Film Part Price Line'
 
