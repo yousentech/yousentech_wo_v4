@@ -90,46 +90,45 @@
                 <notebook>
 
                     <!-- ================= PARTS ================= -->
-                <page string="🔧 الأجزاء">
+                    <page string="🔧 الأجزاء">
 
-                    <div class="alert alert-info mb-3">
-                        <strong>
-                            <i class="fa fa-info-circle me-1"/>
-                            الأجزاء الأساسية
-                        </strong>
-                        <div class="text-muted mt-1">
-                            أضف الأجزاء أولاً، ثم افتح التسعيرات والعمولات لكل جزء حسب حجم السيارة.
+                        <div class="alert alert-info mb-3">
+                            <strong>
+                                <i class="fa fa-info-circle me-1"/>
+                                الأجزاء الأساسية
+                            </strong>
+                            <div class="text-muted mt-1">
+                                أضف الأجزاء أولاً، ثم افتح التسعيرات والعمولات لكل جزء حسب حجم السيارة.
+                            </div>
                         </div>
-                    </div>
 
-                    <field name="film_part_line_ids">
-                        <tree editable="bottom" decoration-muted="not part_selected">
+                        <field name="film_part_line_ids">
+                            <tree editable="bottom" decoration-muted="not part_selected">
 
-                            <field name="part_selected"/>
-                            <field name="car_part_id"/>
-                            <field name="film_category_line_id"
-                                column_invisible="parent.service_options != 'tint'"/>
-                            <field name="price_count" readonly="1"/>
-                            <field name="commission_count" readonly="1"/>
-                            <field name="header_id" invisible="1"/>
+                                <field name="part_selected"/>
+                                <field name="car_part_id"/>
+                                <field name="film_category_line_id"
+                                    column_invisible="parent.service_options != 'tint'"/>
+                                <field name="price_count" readonly="1"/>
+                                <field name="commission_count" readonly="1"/>
+                                <field name="header_id" invisible="1"/>
 
-                            <button name="action_open_price_lines"
-                                    type="object"
-                                    string="التسعيرات"
-                                    icon="fa-money"
-                                    class="btn btn-link"/>
+                                <button name="action_open_price_lines"
+                                        type="object"
+                                        string="التسعيرات"
+                                        icon="fa-money"
+                                        class="btn btn-link"/>
 
-                            <button name="action_open_commission_lines"
-                                    type="object"
-                                    string="العمولات"
-                                    icon="fa-users"
-                                    class="btn btn-link"/>
+                                <button name="action_open_commission_lines"
+                                        type="object"
+                                        string="العمولات"
+                                        icon="fa-users"
+                                        class="btn btn-link"/>
 
-                        </tree>
-                    </field>
+                            </tree>
+                        </field>
 
-                </page>
-
+                    </page>
                     <!-- ================= COLORS ================= -->
                     <page string="🎨 درجات اللون" invisible="service_options != 'tint'">
 
