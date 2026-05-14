@@ -3,6 +3,140 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 
+class film_category(models.Model):
+    _name = 'wof.film.category'
+    _description = 'Film Category'
+    _rec_name = 'name'
+    _order = 'code,name'
+    _company_auto = True   # 👈 هنا المكان الصحيح
+
+    code = fields.Char(
+        string="الكود",
+        index=True,
+        copy=False
+    )
+    name = fields.Char(
+        string="الاسم",
+        required=True,
+        index=True,
+        translate=True,   # 👈 مهم لو عندك لغات
+        tracking=True     # 👈 لو تستخدم chatter
+    )
+
+    def _default_company_parent(self):
+        company = self.env.company
+        return company.parent_id or company
+
+    company_id = fields.Many2one(
+        'res.company',
+        string="الشركة",
+        default=_default_company_parent,
+        required=True,
+        index=True
+    )
+
+    active = fields.Boolean(
+        string="تفعيل",
+        default=True
+    )
+
+    service_type_id = fields.Many2one('wof.service.type', string="نوع الخدمة",required=True, index=True,ondelete='restrict',)
+    warranty_years = fields.Char(string="فترة الضمان")
+
+    is_effected_in_inventory = fields.Boolean(default=False,string="الفلم يؤثر على المخزون")
+    car_film_product_required = fields.Boolean(default=False,string="كود المبيعات اجباري في امر التركيب")
+    film_category_line_ids = fields.One2many('wof.film.category.lines','header_id'  )
+    
+   
+    film_part_line_ids = fields.One2many('wof.film.parts.lines','header_id' )
+    film_part_size_line_ids = fields.One2many('wof.film.parts.size.lines','header_id' )
+
+    warning_film_line_ids = fields.Many2many('wof.film.category.lines',string="درجة اللون")
+    warning_msg = fields.Char(string="رسالة تحذير")
+
+
+    limpid_film_product_ids = fields.Many2many('product.product', string="الصنف المخزني",domain="[('measure_product','=',True),('type','=','product')]")
+    service_options = fields.Selection([('tint','عزل حراري'),
+                                        ('ppf','حماية'),
+                                        ('nano','نانو سيراميك'),
+                                        ('upholstery','تنجيد'),
+                                        ('floor_mats','أرضيات'),
+                                        ('others','أخرى')],string="النوع",default='tint',required=True,related="service_type_id.service_options")
+  
+
+    _sql_constraints = [
+        (
+            'film_category_unique',
+            "UNIQUE(name, company_id)",  # 👈 مهم جداً multi-company
+            "نوع الفلم مضاف مسبقاً لنفس الشركة"
+        ),
+        (
+            'film_category_code_unique',
+            "UNIQUE(code, company_id)",
+            "الكود مستخدم مسبقاً"
+        ),
+    ]
+
+
+    parts_count = fields.Integer(
+        string="عدد الأجزاء",
+        compute="_compute_parts_count"
+    )
+
+    def _compute_parts_count(self):
+        data = self.env['wof.film.parts.lines'].read_group(
+            [('header_id', 'in', self.ids)],
+            ['header_id'],
+            ['header_id']
+        )
+
+        mapped = {
+            d['header_id'][0]: d['header_id_count']
+            for d in data
+        }
+
+        for rec in self:
+            rec.parts_count = mapped.get(rec.id, 0)
+            
+
+    @api.model
+    def name_get(self):
+        result = []
+        for rec in self:
+            code = rec.code or ''
+            name = rec.name or ''
+
+            display_name = f"[{code}] {name}" if code else name
+            result.append((rec.id, display_name))
+
+        return result
+
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        args = args or []
+        domain = []
+        if name:
+            domain = [
+                '|',
+                ('name', operator, name),
+                ('code', operator, name),
+            ]
+            domain += args
+        else:
+            domain = args
+        
+        services = self.search(domain, limit=limit)
+        if services:
+            return services.name_get()
+        return super().name_search(name, args=args, operator=operator, limit=limit)
+
+    @api.constrains('is_effected_in_inventory', 'limpid_film_product_ids')
+    def _check_inventory_products(self):
+        for rec in self:
+            if rec.is_effected_in_inventory and not rec.limpid_film_product_ids:
+                raise ValidationError("تنبيه: يجب تحديد الصنف مخزني إذا الفلم يؤثر على المخزون")
+    
+
 class CarPartsLines(models.Model):
     _name = 'wof.film.parts.lines'
     _description = 'Car Film Parts'
