@@ -279,7 +279,7 @@ class FilmPartLines(models.Model):
             'context': {
                 'default_part_line_id': self.id,
             },
-            'target': 'current',
+            'target': 'new',
         }
 
     def action_open_commission_lines(self):
@@ -293,7 +293,7 @@ class FilmPartLines(models.Model):
             'context': {
                 'default_part_line_id': self.id,
             },
-            'target': 'current',
+            'target': 'new',
         }
 
 
