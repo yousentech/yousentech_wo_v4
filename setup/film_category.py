@@ -264,17 +264,19 @@ class FilmPartLines(models.Model):
     ]
 
     price_widget_trigger = fields.Char(
-    compute="_compute_widget_trigger"
+        string="التسعيرات",
+        compute="_compute_widget_trigger"
     )
 
     commission_widget_trigger = fields.Char(
+        string="العمولات",
         compute="_compute_widget_trigger"
     )
 
     def _compute_widget_trigger(self):
         for rec in self:
-            rec.price_widget_trigger = " "
-            rec.commission_widget_trigger = " "
+            rec.price_widget_trigger = "open"
+            rec.commission_widget_trigger = "open"
 
 
 

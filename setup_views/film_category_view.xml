@@ -113,15 +113,27 @@
                                 <field name="commission_count" readonly="1"/>
                                 <field name="header_id" invisible="1"/>
 
-                               <field name="price_widget_trigger"
+                                <field name="price_widget_trigger"
                                     widget="film_part_action_widget"
-                                    options="{'model': 'wof.film.parts.price.lines', 'title': 'تسعيرات الجزء'}"
-                                    string="التسعيرات"/>
+                                    string="التسعيرات"
+                                    readonly="1"
+                                    options="{
+                                        'model': 'wof.film.parts.price.lines',
+                                        'title': 'التسعيرات',
+                                        'icon': 'fa-money',
+                                        'action_name': 'تسعيرات الجزء'
+                                    }"/>
 
                                 <field name="commission_widget_trigger"
                                     widget="film_part_action_widget"
-                                    options="{'model': 'wof.film.parts.commission.lines', 'title': 'عمولات الجزء'}"
-                                    string="العمولات"/>
+                                    string="العمولات"
+                                    readonly="1"
+                                    options="{
+                                        'model': 'wof.film.parts.commission.lines',
+                                        'title': 'العمولات',
+                                        'icon': 'fa-users',
+                                        'action_name': 'عمولات الجزء'
+                                    }"/>
 
                             </tree>
                         </field>

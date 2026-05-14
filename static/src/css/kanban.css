@@ -38,3 +38,13 @@
 .o_kanban_record a:hover{
     opacity:.85;
 }
+.o_film_part_action_btn {
+    padding: 0;
+    font-weight: 600;
+    color: #875A7B !important;
+    text-decoration: none !important;
+}
+
+.o_film_part_action_btn:hover {
+    color: #68465f !important;
+}

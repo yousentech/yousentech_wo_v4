@@ -30,6 +30,7 @@
     'assets': {
                 'web.assets_backend': [
                     # ملفاتك السابقة
+                    'yousentech_wo_v4/static/src/js/film_part_action_widget.js',
                     'yousentech_wo_v4/static/src/css/kanban.css',
                 ],
             },
