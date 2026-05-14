@@ -133,48 +133,7 @@
                                             </a>
 
                                         </div>
-
-                                        <!-- ================= PARTS ================= -->
-                                        <!-- <div class="d-flex justify-content-between align-items-center py-2">
-
-                                          
-                                            <a type="action"
-                                            name="%(action_film_parts_wo_v4_lines)d"
-                                            class="text-decoration-none d-flex align-items-center"
-                                            context="{
-                                                    'search_default_service_type_id': active_id,
-                                                    'search_default_group_by_header_id': 1
-                                            }">
-
-                                              
-                                                <i class="fa fa-cogs text-success fa-lg me-2"></i>
-
-                                               
-                                                <div>
-
-                                                    <div class="fw-bold text-dark">
-                                                        الأجزاء
-                                                    </div>
-
-                                                    <small class="text-muted">
-                                                        <field name="parts_count"/> جزء مرتبط
-                                                    </small>
-
-                                                </div>
-
-                                            </a>
-
-                                           
-                                            <a type="object"
-                                            name="action_create_car_part"
-                                            class="text-success text-decoration-none fw-bold">
-
-                                                <i class="fa fa-plus-circle fa-lg"></i>
-
-                                            </a>
-
-                                        </div> -->
-
+ 
                                     </div>
                             <hr/>
 
