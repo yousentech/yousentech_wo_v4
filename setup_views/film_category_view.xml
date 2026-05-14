@@ -113,17 +113,15 @@
                                 <field name="commission_count" readonly="1"/>
                                 <field name="header_id" invisible="1"/>
 
-                                <button name="action_open_price_lines"
-                                        type="object"
-                                        string="التسعيرات"
-                                        icon="fa-money"
-                                        class="btn btn-link"/>
+                               <field name="price_widget_trigger"
+                                    widget="film_part_action_widget"
+                                    options="{'model': 'wof.film.parts.price.lines', 'title': 'تسعيرات الجزء'}"
+                                    string="التسعيرات"/>
 
-                                <button name="action_open_commission_lines"
-                                        type="object"
-                                        string="العمولات"
-                                        icon="fa-users"
-                                        class="btn btn-link"/>
+                                <field name="commission_widget_trigger"
+                                    widget="film_part_action_widget"
+                                    options="{'model': 'wof.film.parts.commission.lines', 'title': 'عمولات الجزء'}"
+                                    string="العمولات"/>
 
                             </tree>
                         </field>
@@ -367,16 +365,17 @@
             <tree editable="bottom"
                 decoration-danger="part_price == 0"
                 decoration-success="free_part">
-
-                <field name="part_line_id" invisible="1"/>
-                <field name="header_id" readonly="1"/>
-                <field name="car_part_id" readonly="1"/>
                 <field name="car_size_id"/>
-                <field name="free_part"/>
                 <field name="part_price" readonly="free_part == True"/>
-                <field name="discount_exceed_limit"/>
+                <field name="price_readonly" readonly="free_part == True"/>
+                <field name="discount_exceed_limit" readonly="free_part == True"/>
+                <field name="free_part"/>
+                <field name="part_line_id" column_invisible="1"/>
+                <field name="header_id" column_invisible="1"/>
+                <field name="car_part_id" column_invisible="1"/>
+           
                 <field name="tax_id" readonly="free_part == True"/>
-                <field name="price_readonly"/>
+              
 
             </tree>
 
@@ -479,12 +478,13 @@
 
             <tree editable="bottom"
                 decoration-warning="commission == 0">
-
-                <field name="part_line_id" invisible="1"/>
-                <field name="header_id" readonly="1"/>
-                <field name="car_part_id" readonly="1"/>
                 <field name="car_size_id"/>
                 <field name="commission"/>
+
+                <field name="part_line_id" column_invisible="1"/>
+                <field name="header_id" column_invisible="1"/>
+                <field name="car_part_id" column_invisible="1"/>
+       
 
             </tree>
 

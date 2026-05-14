@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =========================
+            BACKEND ASSETS
+    ========================== -->
+
+    <template id="assets_backend_wo_v4"
+              inherit_id="web.assets_backend"
+              name="WO V4 Backend Assets">
+
+        <xpath expr="." position="inside">
+
+            <!-- JS -->
+            <script type="text/javascript"
+                    src="/yousentech_wo_v4/static/src/js/film_part_action_widget.js"/>
+
+        </xpath>
+
+    </template>
+
+</odoo>

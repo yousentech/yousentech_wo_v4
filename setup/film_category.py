@@ -263,6 +263,21 @@ class FilmPartLines(models.Model):
         ),
     ]
 
+    price_widget_trigger = fields.Char(
+    compute="_compute_widget_trigger"
+    )
+
+    commission_widget_trigger = fields.Char(
+        compute="_compute_widget_trigger"
+    )
+
+    def _compute_widget_trigger(self):
+        for rec in self:
+            rec.price_widget_trigger = " "
+            rec.commission_widget_trigger = " "
+
+
+
     def _compute_counts(self):
         for rec in self:
             rec.price_count = len(rec.price_line_ids)
@@ -370,6 +385,8 @@ class FilmPartPriceLines(models.Model):
         for rec in self:
             if rec.free_part:
                 rec.part_price = 0.0
+                rec.price_readonly = True
+                rec.discount_exceed_limit = 0.0
                 rec.tax_id = False
 
 
