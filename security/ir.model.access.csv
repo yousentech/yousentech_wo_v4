@@ -9,6 +9,8 @@ access_wof_setup_temp_film,wof.setup.temp.film,model_wof_setup_temp_film,yousent
 access_wof_setup_temp_film_part,wof.setup.temp.film.part,model_wof_setup_temp_film_part,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_temp_film_part_price_line,wof.setup.temp.film.part.price.line,model_wof_setup_temp_film_part_price_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_temp_film_part_commission_line,wof.setup.temp.film.part.commission.line,model_wof_setup_temp_film_part_commission_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_film_parts_price_lines,wof.film.parts.price.lines,model_wof_film_parts_price_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_film_parts_commission_lines,wof.film.parts.commission.lines,model_wof_film_parts_commission_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_service_type_user,wof.service.type.user,model_wof_service_type,yousentech_wo_v4.group_wo_user,1,1,1,1
 access_wof_service_type_manager,service.type.manager,model_wof_service_type,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_film_category,wof.film.category,model_wof_film_category,yousentech_wo_v4.group_wo_manager,1,1,1,1
