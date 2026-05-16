@@ -314,7 +314,17 @@ class WofSetupWizardCarSizeLine(models.TransientModel):
     name = fields.Char(
         string="اسم الحجم"
     )
+    def action_open_line(self):
+        self.ensure_one()
 
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تعديل حجم السيارة'),
+            'res_model': 'wof.setup.wizard.car.size.line',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
 class WofSetupWizardServiceLine(models.TransientModel):
     _name = 'wof.setup.wizard.service.line'

@@ -59,11 +59,29 @@
                                                 <field name="selected" widget="boolean_toggle"/>
                                             </div>
 
-                                            <div class="mt-3">
+                                          <div class="mt-3">
+
                                                 <div class="text-muted small o_form_label">
                                                     اسم الحجم
                                                 </div>
-                                                <field name="name"/>
+
+                                                <div class="d-flex align-items-center justify-content-between">
+
+                                                    <div class="fw-bold text-dark" style="font-size:15px;">
+                                                        <field name="name"/>
+                                                    </div>
+
+                                                    <a type="object"
+                                                    name="action_open_line"
+                                                    class="text-primary ms-2"
+                                                    title="تعديل الاسم">
+
+                                                        <i class="fa fa-pencil"/>
+
+                                                    </a>
+
+                                                </div>
+
                                             </div>
                                         </div>
                                     </t>
@@ -462,6 +480,44 @@
             </form>
         </field>
     </record>
+
+    <record id="view_wof_setup_car_size_line_form" model="ir.ui.view">
+        <field name="name">wof.setup.car.size.line.form</field>
+        <field name="model">wof.setup.wizard.car.size.line</field>
+        <field name="arch" type="xml">
+
+            <form string="تعديل حجم السيارة">
+
+                <sheet>
+
+                    <group>
+
+                        <field name="selected"/>
+                        <field name="code" readonly="1"/>
+                        <field name="name"/>
+
+                    </group>
+
+                    <footer>
+
+                        <button string="حفظ"
+                                special="save"
+                                class="btn-primary"/>
+
+                        <button string="إلغاء"
+                                special="cancel"
+                                class="btn-secondary"/>
+
+                    </footer>
+
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
+
+
 
     <record id="action_wof_setup_wizard" model="ir.actions.act_window">
         <field name="name">تهيئة النظام</field>
