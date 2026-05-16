@@ -360,7 +360,7 @@
                         <tree editable="bottom" create="1" delete="1"
                               decoration-success="free_part"
                               decoration-warning="part_price == 0 and not free_part">
-                            <field name="car_size_id" placeholder="كل الأحجام"/>
+                            <field name="car_size_line_id" placeholder="كل الأحجام"/>
                             <field name="part_price" sum="الإجمالي"/>
                             <field name="discount_exceed_limit"/>
                             <field name="tax_id"/>
@@ -400,7 +400,7 @@
                     <field name="commission_line_ids" nolabel="1">
                         <tree editable="bottom" create="1" delete="1"
                               decoration-warning="commission == 0">
-                            <field name="car_size_id" placeholder="كل الأحجام"/>
+                            <field name="car_size_line_id" placeholder="كل الأحجام"/>
                             <field name="commission" sum="الإجمالي"/>
                         </tree>
                     </field>
@@ -453,7 +453,7 @@
                                             <page string="أسعار الجزء حسب الحجم">
                                                 <field name="price_line_ids" readonly="1">
                                                     <tree>
-                                                        <field name="car_size_id"/>
+                                                        <field name="car_size_line_id"/>
                                                         <field name="part_price"/>
                                                         <field name="discount_exceed_limit"/>
                                                         <field name="tax_id"/>
@@ -465,7 +465,7 @@
                                             <page string="عمولة الفني حسب الحجم">
                                                 <field name="commission_line_ids" readonly="1">
                                                     <tree>
-                                                        <field name="car_size_id"/>
+                                                        <field name="car_size_line_id"/>
                                                         <field name="commission"/>
                                                     </tree>
                                                 </field>

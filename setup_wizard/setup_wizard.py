@@ -47,6 +47,25 @@ class WofSetupWizard(models.TransientModel):
     )
 
     @api.model
+    def reset_setup_temp_data(self):
+        self.env['wof.setup.temp.film.part.commission.line'].sudo().search([]).unlink()
+        self.env['wof.setup.temp.film.part.price.line'].sudo().search([]).unlink()
+        self.env['wof.setup.temp.film.part'].sudo().search([]).unlink()
+        self.env['wof.setup.temp.film'].sudo().search([]).unlink()
+
+        self.env['wof.setup.film.part.commission.line'].sudo().search([]).unlink()
+        self.env['wof.setup.film.part.price.line'].sudo().search([]).unlink()
+        self.env['wof.setup.film.part.line'].sudo().search([]).unlink()
+        self.env['wof.setup.film.wizard'].sudo().search([]).unlink()
+
+        self.env['wof.setup.wizard.service.line'].sudo().search([]).unlink()
+        self.env['wof.setup.wizard.car.size.line'].sudo().search([]).unlink()
+
+        old_wizards = self.env['wof.setup.wizard'].sudo().search([])
+        old_wizards.unlink()
+
+
+    @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
 
@@ -105,9 +124,18 @@ class WofSetupWizard(models.TransientModel):
 
     def action_go_service_types(self):
         self.ensure_one()
-        self.action_save_car_sizes()
+
+        selected_sizes = self.car_size_line_ids.filtered('selected')
+        if not selected_sizes:
+            raise ValidationError(_("يجب اختيار حجم سيارة واحد على الأقل."))
+
+        for line in selected_sizes:
+            if not line.name:
+                raise ValidationError(_("يرجى إدخال اسم لكل حجم سيارة مختار."))
+
         self.step = 'service_types'
         return self._reload_wizard()
+
 
     def action_save_car_sizes(self):
         self.ensure_one()
@@ -117,6 +145,7 @@ class WofSetupWizard(models.TransientModel):
             raise ValidationError(_("يجب اختيار حجم سيارة واحد على الأقل."))
 
         CarSize = self.env['wof.car.size'].sudo()
+        size_map = {}
 
         for line in selected_sizes.sorted('sequence'):
             if not line.name:
@@ -139,11 +168,13 @@ class WofSetupWizard(models.TransientModel):
 
             if existing:
                 existing.write(vals)
+                size = existing
             else:
-                CarSize.create(vals)
+                size = CarSize.create(vals)
 
-        return True
+            size_map[line.id] = size.id
 
+        return size_map
     def _get_service_code(self, option):
         return {
             'tint': 'TINT',
@@ -178,8 +209,7 @@ class WofSetupWizard(models.TransientModel):
         return service
 
     def _get_size_key(self, line):
-        return line.car_size_id.id if line.car_size_id else False
-
+        return line.car_size_line_id.id if line.car_size_line_id else False
     def _get_part_size_ids(self, temp_part):
         size_ids = set()
         size_ids.update(temp_part.price_line_ids.mapped(lambda line: self._get_size_key(line)))
@@ -189,14 +219,16 @@ class WofSetupWizard(models.TransientModel):
     def _get_line_for_size(self, lines, size_id):
         return lines.filtered(lambda line: self._get_size_key(line) == size_id)[:1]
 
-    def _prepare_film_part_line_vals(self, film, temp_part, size_id):
+    def _prepare_film_part_line_vals(self, film, temp_part, size_id, size_map):
         price_line = self._get_line_for_size(temp_part.price_line_ids, size_id)
         commission_line = self._get_line_for_size(temp_part.commission_line_ids, size_id)
+
+        real_size_id = size_map.get(size_id) if size_id else False
 
         return {
             'header_id': film.id,
             'car_part_id': temp_part.car_part_id.id,
-            'car_size_id': size_id or False,
+            'car_size_id': real_size_id or False,
             'part_price': price_line.part_price if price_line else 0.0,
             'commission': commission_line.commission if commission_line else 0.0,
             'discount_exceed_limit': price_line.discount_exceed_limit if price_line else 0,
@@ -207,7 +239,7 @@ class WofSetupWizard(models.TransientModel):
 
     def action_finish_all_setup(self):
         self.ensure_one()
-
+        size_map = self.action_save_car_sizes()
         self.action_save_car_sizes()
 
         selected_services = self.service_line_ids.filtered('selected')
@@ -257,12 +289,11 @@ class WofSetupWizard(models.TransientModel):
                         continue
 
                     for size_id in self._get_part_size_ids(temp_part):
-                        vals = self._prepare_film_part_line_vals(film, temp_part, size_id)
-
+                        vals = self._prepare_film_part_line_vals(film, temp_part, size_id, size_map)
                         existing = FilmPartLine.search([
                             ('header_id', '=', film.id),
                             ('car_part_id', '=', temp_part.car_part_id.id),
-                            ('car_size_id', '=', size_id or False),
+                            ('car_size_id', '=', size_map.get(size_id) if size_id else False),
                         ], limit=1)
 
                         if existing:
@@ -485,7 +516,7 @@ class WofSetupFilmWizard(models.TransientModel):
             for price in part.price_line_ids:
                 TempPrice.create({
                     'temp_part_id': temp_part.id,
-                    'car_size_id': price.car_size_id.id if price.car_size_id else False,
+                    'car_size_line_id': price.car_size_line_id.id if price.car_size_line_id else False,
                     'part_price': price.part_price,
                     'discount_exceed_limit': price.discount_exceed_limit,
                     'tax_id': price.tax_id.id if price.tax_id else False,
@@ -496,7 +527,7 @@ class WofSetupFilmWizard(models.TransientModel):
             for commission in part.commission_line_ids:
                 TempCommission.create({
                     'temp_part_id': temp_part.id,
-                    'car_size_id': commission.car_size_id.id if commission.car_size_id else False,
+                    'car_size_line_id': commission.car_size_line_id.id if commission.car_size_line_id else False,
                     'commission': commission.commission,
                 })
 
@@ -691,9 +722,15 @@ class WofSetupFilmPartPriceLine(models.TransientModel):
         ondelete='cascade'
     )
 
-    car_size_id = fields.Many2one(
-        'wof.car.size',
-        string="حجم السيارة"
+    car_size_line_id = fields.Many2one(
+        'wof.setup.wizard.car.size.line',
+        string="حجم السيارة",
+        domain="[('wizard_id', '=', parent_wizard_id), ('selected', '=', True)]"
+    )
+
+    parent_wizard_id = fields.Many2one(
+        related='part_line_id.wizard_id.parent_wizard_id',
+        store=False
     )
 
     part_price = fields.Float(string="السعر")
@@ -736,9 +773,15 @@ class WofSetupFilmPartCommissionLine(models.TransientModel):
         ondelete='cascade'
     )
 
-    car_size_id = fields.Many2one(
-        'wof.car.size',
-        string="حجم السيارة"
+    car_size_line_id = fields.Many2one(
+        'wof.setup.wizard.car.size.line',
+        string="حجم السيارة",
+        domain="[('wizard_id', '=', parent_wizard_id), ('selected', '=', True)]"
+    )
+
+    parent_wizard_id = fields.Many2one(
+        related='part_line_id.wizard_id.parent_wizard_id',
+        store=False
     )
 
     commission = fields.Float(string="العمولة")
@@ -827,10 +870,10 @@ class WofSetupTempFilmPartPriceLine(models.TransientModel):
         ondelete='cascade'
     )
 
-    car_size_id = fields.Many2one(
-        'wof.car.size',
-        string="حجم السيارة"
-    )
+    car_size_line_id = fields.Many2one(
+            'wof.setup.wizard.car.size.line',
+            string="حجم السيارة"
+                )
 
     part_price = fields.Float(string="السعر")
     discount_exceed_limit = fields.Integer(string="حد الخصم")
@@ -856,8 +899,8 @@ class WofSetupTempFilmPartCommissionLine(models.TransientModel):
         ondelete='cascade'
     )
 
-    car_size_id = fields.Many2one(
-        'wof.car.size',
+    car_size_line_id = fields.Many2one(
+        'wof.setup.wizard.car.size.line',
         string="حجم السيارة"
     )
 

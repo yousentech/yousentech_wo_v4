@@ -17,13 +17,16 @@ setup = env['ir.config_parameter'].sudo().get_param(
 )
 
 if not setup:
+    env['wof.setup.wizard'].reset_setup_temp_data()
+
+    wizard = env['wof.setup.wizard'].create({})
 
     action = env.ref(
         'yousentech_wo_v4.action_wof_setup_wizard'
     ).read()[0]
 
 else:
-
+    
     action = env.ref(
         'yousentech_wo_v4.action_service_types_wo_v4'
     ).read()[0]
