@@ -8,7 +8,8 @@ import { useService } from "@web/core/utils/hooks";
 class FilmPartActionWidget extends Component {
     static template = xml`
         <button type="button"
-                class="btn btn-link o_film_part_action_btn"
+                class="btn btn-link o_film_part_action_btn p-0"
+                t-att-title="buttonTitle"
                 t-on-click.stop.prevent="openAction">
             <i t-att-class="'fa ' + iconClass"/>
             <span class="ms-1" t-esc="buttonTitle"/>
@@ -17,6 +18,7 @@ class FilmPartActionWidget extends Component {
 
     static props = {
         ...standardFieldProps,
+        options: { type: Object, optional: true },
     };
 
     setup() {
@@ -24,26 +26,37 @@ class FilmPartActionWidget extends Component {
         this.notification = useService("notification");
     }
 
+    get widgetOptions() {
+        return this.props.options || {};
+    }
+
     get buttonTitle() {
-        return this.props.options.title || "فتح";
+        return this.widgetOptions.title || "فتح";
     }
 
     get iconClass() {
-        return this.props.options.icon || "fa-external-link";
+        return this.widgetOptions.icon || "fa-external-link";
     }
 
     get targetModel() {
-        return this.props.options.model;
+        return this.widgetOptions.model;
     }
 
     get actionName() {
-        return this.props.options.action_name || this.buttonTitle;
+        return this.widgetOptions.action_name || this.buttonTitle;
+    }
+
+    get target() {
+        return this.widgetOptions.target || "current";
+    }
+
+    get resId() {
+        const resId = this.props.record.resId;
+        return Number.isInteger(resId) ? resId : false;
     }
 
     openAction() {
-        const resId = this.props.record.resId;
-
-        if (!resId || typeof resId !== "number") {
+        if (!this.resId) {
             this.notification.add(
                 "احفظ سطر الجزء أولاً، ثم افتح التسعيرات أو العمولات.",
                 {
@@ -70,17 +83,21 @@ class FilmPartActionWidget extends Component {
             name: this.actionName,
             res_model: this.targetModel,
             views: [[false, "list"], [false, "form"]],
-            domain: [["part_line_id", "=", resId]],
+            domain: [["part_line_id", "=", this.resId]],
             context: {
-                default_part_line_id: resId,
+                default_part_line_id: this.resId,
             },
-            target: "current",
+            target: this.target,
         });
     }
 }
 
 export const filmPartActionWidget = {
     component: FilmPartActionWidget,
+    supportedTypes: ["char"],
+    extractProps: ({ options }) => ({
+        options,
+    }),
 };
 
 registry.category("fields").add("film_part_action_widget", filmPartActionWidget);
