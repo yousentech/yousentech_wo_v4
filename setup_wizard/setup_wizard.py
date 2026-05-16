@@ -14,14 +14,31 @@ SERVICE_OPTIONS = [
 ]
 
 
+CAR_SIZE_OPTIONS = [
+    ('XS', 'صغير جداً'),
+    ('S', 'صغير'),
+    ('M', 'متوسط'),
+    ('L', 'كبير'),
+    ('XL', 'كبير جداً'),
+    ('SUV', 'دفع رباعي / SUV'),
+]
+
+
 class WofSetupWizard(models.TransientModel):
     _name = 'wof.setup.wizard'
     _description = 'WOF Setup Wizard'
 
     step = fields.Selection([
         ('welcome', 'الترحيب'),
+        ('car_sizes', 'أحجام السيارة'),
         ('service_types', 'أنواع الخدمات'),
     ], default='welcome')
+
+    car_size_line_ids = fields.One2many(
+        'wof.setup.wizard.car.size.line',
+        'wizard_id',
+        string="أحجام السيارة"
+    )
 
     service_line_ids = fields.One2many(
         'wof.setup.wizard.service.line',
@@ -33,17 +50,30 @@ class WofSetupWizard(models.TransientModel):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
 
+        if 'car_size_line_ids' in fields_list:
+            size_lines = []
+            sequence = 1
+            for code, name in CAR_SIZE_OPTIONS:
+                size_lines.append((0, 0, {
+                    'sequence': sequence,
+                    'selected': code in ['S', 'M', 'L', 'SUV'],
+                    'code': code,
+                    'name': name,
+                }))
+                sequence += 1
+            res['car_size_line_ids'] = size_lines
+
         if 'service_line_ids' in fields_list:
-            lines = []
+            service_lines = []
             sequence = 1
             for option_key, option_label in SERVICE_OPTIONS:
-                lines.append((0, 0, {
+                service_lines.append((0, 0, {
                     'sequence': sequence,
                     'service_options': option_key,
                     'custom_name': option_label,
                 }))
                 sequence += 1
-            res['service_line_ids'] = lines
+            res['service_line_ids'] = service_lines
 
         return res
 
@@ -60,13 +90,59 @@ class WofSetupWizard(models.TransientModel):
 
     def action_start_setup(self):
         self.ensure_one()
-        self.step = 'service_types'
+        self.step = 'car_sizes'
         return self._reload_wizard()
 
     def action_back_welcome(self):
         self.ensure_one()
         self.step = 'welcome'
         return self._reload_wizard()
+
+    def action_back_car_sizes(self):
+        self.ensure_one()
+        self.step = 'car_sizes'
+        return self._reload_wizard()
+
+    def action_go_service_types(self):
+        self.ensure_one()
+        self.action_save_car_sizes()
+        self.step = 'service_types'
+        return self._reload_wizard()
+
+    def action_save_car_sizes(self):
+        self.ensure_one()
+
+        selected_sizes = self.car_size_line_ids.filtered('selected')
+        if not selected_sizes:
+            raise ValidationError(_("يجب اختيار حجم سيارة واحد على الأقل."))
+
+        CarSize = self.env['wof.car.size'].sudo()
+
+        for line in selected_sizes.sorted('sequence'):
+            if not line.name:
+                raise ValidationError(_("يرجى إدخال اسم لكل حجم سيارة مختار."))
+
+            existing = CarSize.search([
+                ('name', '=', line.name),
+            ], limit=1)
+
+            vals = {
+                'name': line.name,
+                'active': True,
+            }
+
+            if 'sequence' in CarSize._fields:
+                vals['sequence'] = line.sequence
+
+            if 'code' in CarSize._fields:
+                vals['code'] = line.code
+
+            if existing:
+                existing.write(vals)
+            else:
+                CarSize.create(vals)
+
+        return True
 
     def _get_service_code(self, option):
         return {
@@ -132,6 +208,8 @@ class WofSetupWizard(models.TransientModel):
     def action_finish_all_setup(self):
         self.ensure_one()
 
+        self.action_save_car_sizes()
+
         selected_services = self.service_line_ids.filtered('selected')
         if not selected_services:
             raise ValidationError(_("يجب اختيار نوع خدمة واحد على الأقل."))
@@ -148,7 +226,6 @@ class WofSetupWizard(models.TransientModel):
         TempFilm = self.env['wof.setup.temp.film'].sudo()
 
         for service_line in selected_services:
-
             service = self._ensure_service_type_from_line(service_line)
 
             temp_films = TempFilm.search([
@@ -157,7 +234,6 @@ class WofSetupWizard(models.TransientModel):
             ])
 
             for temp_film in temp_films:
-
                 film = FilmCategory.search([
                     ('name', '=', temp_film.film_name),
                     ('service_type_id', '=', service.id),
@@ -177,7 +253,6 @@ class WofSetupWizard(models.TransientModel):
                     film = FilmCategory.create(film_vals)
 
                 for temp_part in temp_film.part_line_ids:
-
                     if not temp_part.car_part_id:
                         continue
 
@@ -209,6 +284,36 @@ class WofSetupWizard(models.TransientModel):
                 return action.read()[0]
 
         return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+
+class WofSetupWizardCarSizeLine(models.TransientModel):
+    _name = 'wof.setup.wizard.car.size.line'
+    _description = 'WOF Setup Wizard Car Size Line'
+    _order = 'sequence, id'
+
+    wizard_id = fields.Many2one(
+        'wof.setup.wizard',
+        string="المعالج",
+        ondelete='cascade'
+    )
+
+    sequence = fields.Integer(
+        string="الترتيب",
+        default=10
+    )
+
+    selected = fields.Boolean(
+        string="اختيار",
+        default=True
+    )
+
+    code = fields.Char(
+        string="الكود"
+    )
+
+    name = fields.Char(
+        string="اسم الحجم"
+    )
 
 
 class WofSetupWizardServiceLine(models.TransientModel):
@@ -687,6 +792,7 @@ class WofSetupTempFilmPart(models.TransientModel):
         'wof.car.parts',
         string="الجزء"
     )
+
     price_line_ids = fields.One2many(
         'wof.setup.temp.film.part.price.line',
         'temp_part_id',
