@@ -640,14 +640,13 @@ class WofSetupFilmPartLine(models.TransientModel):
     )
 
     def _format_size_name(self, line):
-        return line.car_size_id.display_name if line.car_size_id else _('كل الأحجام')
+        return line.car_size_line_id.display_name if line.car_size_line_id else _('كل الأحجام')
 
     @api.depends(
-        'price_line_ids.car_size_id',
+        'price_line_ids.car_size_line_id',
         'price_line_ids.part_price',
-        'commission_line_ids.car_size_id',
-        'commission_line_ids.commission',
-    )
+        'commission_line_ids.car_size_line_id',
+        'commission_line_ids.commission', )
     def _compute_pricing_summary(self):
         for part in self:
             part.price_line_count = len(part.price_line_ids)
@@ -750,17 +749,22 @@ class WofSetupFilmPartPriceLine(models.TransientModel):
         if self.free_part:
             self.part_price = 0.0
 
-    @api.constrains('part_line_id', 'car_size_id')
+    @api.constrains('part_line_id', 'car_size_line_id')
     def _check_unique_price_size(self):
         for line in self:
             if not line.part_line_id:
                 continue
-            duplicates = line.part_line_id.price_line_ids.filtered(
-                lambda item: item != line and item.car_size_id == line.car_size_id
-            )
-            if duplicates:
-                raise ValidationError(_("لا يمكن تكرار نفس حجم السيارة في تسعير الجزء."))
 
+            duplicates = line.part_line_id.price_line_ids.filtered(
+                lambda item:
+                    item != line
+                    and item.car_size_line_id == line.car_size_line_id
+            )
+
+            if duplicates:
+                raise ValidationError(
+                    _("لا يمكن تكرار نفس حجم السيارة في تسعير الجزء.")
+                )
 
 class WofSetupFilmPartCommissionLine(models.TransientModel):
     _name = 'wof.setup.film.part.commission.line'
@@ -786,17 +790,22 @@ class WofSetupFilmPartCommissionLine(models.TransientModel):
 
     commission = fields.Float(string="العمولة")
 
-    @api.constrains('part_line_id', 'car_size_id')
+    @api.constrains('part_line_id', 'car_size_line_id')
     def _check_unique_commission_size(self):
         for line in self:
             if not line.part_line_id:
                 continue
-            duplicates = line.part_line_id.commission_line_ids.filtered(
-                lambda item: item != line and item.car_size_id == line.car_size_id
-            )
-            if duplicates:
-                raise ValidationError(_("لا يمكن تكرار نفس حجم السيارة في تسعير العمولة."))
 
+            duplicates = line.part_line_id.commission_line_ids.filtered(
+                lambda item:
+                    item != line
+                    and item.car_size_line_id == line.car_size_line_id
+            )
+
+            if duplicates:
+                raise ValidationError(
+                    _("لا يمكن تكرار نفس حجم السيارة في تسعير العمولة.")
+                )
 
 class WofSetupTempFilm(models.TransientModel):
     _name = 'wof.setup.temp.film'
