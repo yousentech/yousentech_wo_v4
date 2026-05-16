@@ -356,6 +356,7 @@
                     </group>
 
                     <separator string="قائمة أسعار الجزء حسب الحجم"/>
+                    <field name="parent_wizard_id" invisible="1"/>
                     <field name="price_line_ids" nolabel="1">
                         <tree editable="bottom" create="1" delete="1"
                               decoration-success="free_part"
@@ -397,6 +398,7 @@
                     </group>
 
                     <separator string="قائمة عمولات الفني حسب الحجم"/>
+                    <field name="parent_wizard_id" invisible="1"/>
                     <field name="commission_line_ids" nolabel="1">
                         <tree editable="bottom" create="1" delete="1"
                               decoration-warning="commission == 0">
@@ -451,6 +453,7 @@
                                         </group>
                                         <notebook>
                                             <page string="أسعار الجزء حسب الحجم">
+
                                                 <field name="price_line_ids" readonly="1">
                                                     <tree>
                                                         <field name="car_size_line_id"/>
