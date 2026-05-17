@@ -394,45 +394,99 @@
                         </div>
                     </div>
 
-                    <div class="card border-primary shadow-sm mb-3">
-                        <div class="card-header bg-primary-subtle">
-                            <strong>
-                                <i class="fa fa-film me-1" title="النوع"/>
-                                أولاً: إضافة النوع
-                            </strong>
-                        </div>
+                    <div class="row g-3 mb-3">
 
-                        <div class="card-body">
-                            <group col="2">
-                                <group>
-                                    <field name="film_name" placeholder="مثال: عزل حراري أمريكي"/>
-                                    <field name="warranty_years" placeholder="مثال: 5 سنوات"/>
-                                </group>
-                            </group>
-                        </div>
-                    </div>
+                        <!-- =========================
+                                ADD FILM TYPE
+                        ========================== -->
+                        <div t-attf-class="#{service_options == 'tint' ? 'col-lg-6' : 'col-lg-12'} col-md-12">
 
-                    <div class="card border-dark shadow-sm mb-3" invisible="service_options != 'tint'">
-                        <div class="card-header bg-light">
-                            <strong>
-                                <i class="fa fa-adjust me-1" title="درجات اللون"/>
-                                درجات اللون لهذا النوع
-                            </strong>
-                        </div>
+                            <div class="card border-primary shadow-sm h-100">
 
-                        <div class="card-body">
-                            <div class="alert alert-info mb-3" role="status">
-                                اختر درجات اللون التي ينطبق عليها هذا النوع من أفلام العزل.
+                                <div class="card-header bg-primary-subtle d-flex align-items-center justify-content-between">
+
+                                    <strong>
+                                        <i class="fa fa-film me-1" title="النوع"/>
+                                        أولاً: إضافة النوع
+                                    </strong>
+
+                                    <span class="badge bg-primary">
+                                        <field name="service_name" readonly="1"/>
+                                    </span>
+
+                                </div>
+
+                                <div class="card-body">
+
+                                    <group col="2">
+                                        <group>
+                                            <field name="film_name"
+                                                placeholder="مثال: عزل حراري أمريكي"/>
+                                        </group>
+
+                                        <group>
+                                            <field name="warranty_years"
+                                                placeholder="مثال: 5 سنوات"/>
+                                        </group>
+                                    </group>
+
+                                    <div class="text-muted mt-2">
+                                        <i class="fa fa-info-circle me-1" title="معلومة"/>
+                                        أدخل اسم النوع ومدة الضمان، ثم اختر الدرجات والأجزاء المناسبة.
+                                    </div>
+
+                                </div>
+
                             </div>
 
-                            <field name="tint_degree_line_ids" nolabel="1">
-                                <tree editable="bottom" create="0" delete="0">
-                                    <field name="selected"/>
-                                    <field name="name" readonly="1"/>
-                                    <field name="value" readonly="1"/>
-                                </tree>
-                            </field>
                         </div>
+
+
+                        <!-- =========================
+                                TINT DEGREES
+                        ========================== -->
+                        <div class="col-lg-6 col-md-12" invisible="service_options != 'tint'">
+
+                            <div class="card border-dark shadow-sm h-100">
+
+                                <div class="card-header bg-light d-flex align-items-center justify-content-between">
+
+                                    <strong>
+                                        <i class="fa fa-adjust me-1" title="درجات اللون"/>
+                                        درجات اللون
+                                    </strong>
+
+                                    <span class="badge bg-dark">
+                                        للعزل الحراري فقط
+                                    </span>
+
+                                </div>
+
+                                <div class="card-body">
+
+                                    <div class="alert alert-info py-2 mb-2" role="status">
+                                        اختر الدرجات التي ينطبق عليها هذا النوع.
+                                    </div>
+
+                                    <field name="tint_degree_line_ids" nolabel="1">
+                                        <tree editable="bottom"
+                                            create="0"
+                                            delete="0"
+                                            class="o_list_view">
+
+                                            <field name="selected" string="اختيار"/>
+                                            <field name="value" string="القيمة" readonly="1"/>
+                                            <field name="name" string="المسمى" readonly="1"/>
+
+                                        </tree>
+                                    </field>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
                     <div class="card border-success shadow-sm mb-3">
