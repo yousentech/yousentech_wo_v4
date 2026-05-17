@@ -958,7 +958,10 @@ class WofSetupFilmPartLine(models.TransientModel):
         'part_line_id',
         string="العمولة حسب الحجم"
     )
-
+    service_options = fields.Selection(
+        related='wizard_id.service_options',
+        store=False
+    )
     def _format_size_name(self, line):
         return line.car_size_line_id.display_name if line.car_size_line_id else _('كل الأحجام')
 
