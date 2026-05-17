@@ -380,9 +380,10 @@
             <form string="تهيئة الأنواع" create="0" edit="1">
                 <sheet>
 
+                    <field name="film_step" invisible="1"/>
+                    <field name="service_options" invisible="1"/>
                     <field name="parent_wizard_id" invisible="1"/>
                     <field name="service_line_id" invisible="1"/>
-                    <field name="service_options" invisible="1"/>
 
                     <div class="alert alert-primary text-center p-4" role="status">
                         <h2 class="mb-1">
@@ -394,157 +395,166 @@
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3">
-
-                        <!-- =========================
-                                ADD FILM TYPE
-                        ========================== -->
-                        <div t-attf-class="#{service_options == 'tint' ? 'col-lg-6' : 'col-lg-12'} col-md-12">
-
-                            <div class="card border-primary shadow-sm h-100">
-
-                                <div class="card-header bg-primary-subtle d-flex align-items-center justify-content-between">
-
-                                    <strong>
-                                        <i class="fa fa-film me-1" title="النوع"/>
-                                        أولاً: إضافة النوع
-                                    </strong>
-
-                                    <span class="badge bg-primary">
-                                        <field name="service_name" readonly="1"/>
-                                    </span>
-
-                                </div>
-
-                                <div class="card-body">
-
-                                    <group col="2">
-                                        <group>
-                                            <field name="film_name"
-                                                placeholder="مثال: عزل حراري أمريكي"/>
-                                        </group>
-
-                                        <group>
-                                            <field name="warranty_years"
-                                                placeholder="مثال: 5 سنوات"/>
-                                        </group>
-                                    </group>
-
-                                    <div class="text-muted mt-2">
-                                        <i class="fa fa-info-circle me-1" title="معلومة"/>
-                                        أدخل اسم النوع ومدة الضمان، ثم اختر الدرجات والأجزاء المناسبة.
-                                    </div>
-
-                                </div>
-
-                            </div>
-
+                    <div class="alert alert-primary text-center p-4" role="status">
+                        <h2 class="mb-1">
+                            <i class="fa fa-magic me-2" title="تهيئة"/>
+                            تهيئة أنواع <field name="service_name" readonly="1"/>
+                        </h2>
+                        <div class="text-muted">
+                            مرّر على الخطوات: بيانات النوع ثم الدرجات ثم الأجزاء.
                         </div>
-
-
-                        <!-- =========================
-                                TINT DEGREES
-                        ========================== -->
-                        <div class="col-lg-6 col-md-12" invisible="service_options != 'tint'">
-
-                            <div class="card border-dark shadow-sm h-100">
-
-                                <div class="card-header bg-light d-flex align-items-center justify-content-between">
-
-                                    <strong>
-                                        <i class="fa fa-adjust me-1" title="درجات اللون"/>
-                                        درجات اللون
-                                    </strong>
-
-                                    <span class="badge bg-dark">
-                                        للعزل الحراري فقط
-                                    </span>
-
-                                </div>
-
-                                <div class="card-body">
-
-                                    <div class="alert alert-info py-2 mb-2" role="status">
-                                        اختر الدرجات التي ينطبق عليها هذا النوع.
-                                    </div>
-
-                                    <field name="tint_degree_line_ids" nolabel="1">
-                                        <tree editable="bottom"
-                                            create="0"
-                                            delete="0"
-                                            class="o_list_view">
-
-                                            <field name="selected" string="اختيار"/>
-                                            <field name="value" string="القيمة" readonly="1"/>
-                                            <field name="name" string="المسمى" readonly="1"/>
-
-                                        </tree>
-                                    </field>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
                     </div>
 
-                    <div class="card border-success shadow-sm mb-3">
-                        <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center">
+                    <div class="mb-3 d-flex justify-content-center gap-2">
+                        <span t-attf-class="badge #{film_step == 'info' ? 'bg-primary' : 'bg-secondary'} px-3 py-2">
+                            1 بيانات النوع
+                        </span>
+                        <span t-attf-class="badge #{film_step == 'degrees' ? 'bg-primary' : 'bg-secondary'} px-3 py-2"
+                            invisible="service_options != 'tint'">
+                            2 درجات اللون
+                        </span>
+                        <span t-attf-class="badge #{film_step == 'parts' ? 'bg-primary' : 'bg-secondary'} px-3 py-2">
+                            3 الأجزاء
+                        </span>
+                    </div>
 
-                            <strong>
-                                <i class="fa fa-cogs me-1" title="الأجزاء"/>
-                                ثانياً: أجزاء هذا النوع
-                            </strong>
-
-                            <button string="إضافة الأجزاء تلقائياً"
-                                    type="object"
-                                    name="action_load_service_parts"
-                                    class="btn btn-success"
-                                    icon="fa-download"/>
-                        </div>
-
-                        <div class="card-body">
-
-                            <div class="alert alert-info mb-3" role="status">
-                                <i class="fa fa-info-circle me-1" title="معلومة"/>
-                                يتم جلب الأجزاء تلقائياً حسب نوع الخدمة المحدد من حقل النوع في شاشة الأجزاء.
+                    <div invisible="film_step != 'info'">
+                        <div class="card border-primary shadow-sm mb-3">
+                            <div class="card-header bg-primary-subtle">
+                                <strong>
+                                    <i class="fa fa-film me-1" title="النوع"/>
+                                    بيانات النوع
+                                </strong>
                             </div>
 
-                            <field name="part_line_ids" nolabel="1">
-                                <tree editable="bottom"
-                                    create="1"
-                                    delete="1"
-                                    decoration-muted="not selected"
-                                    decoration-danger="selected and not car_part_id">
+                            <div class="card-body">
+                                <group col="2">
+                                    <group>
+                                        <field name="film_name" placeholder="مثال: عزل حراري أمريكي"/>
+                                    </group>
+                                    <group>
+                                        <field name="warranty_years" placeholder="مثال: 5 سنوات"/>
+                                    </group>
+                                </group>
+                            </div>
+                        </div>
 
-                                    <field name="service_options" invisible="1"/>
+                        <div class="mt-3 d-flex justify-content-start gap-2">
+                            <button string="التالي"
+                                    type="object"
+                                    name="action_film_next_degrees"
+                                    class="btn btn-primary"/>
+                        </div>
+                    </div>
 
-                                    <field name="selected"/>
+                    <div invisible="film_step != 'degrees' or service_options != 'tint'">
+                        <div class="card border-dark shadow-sm mb-3">
+                            <div class="card-header bg-light">
+                                <strong>
+                                    <i class="fa fa-adjust me-1" title="درجات اللون"/>
+                                    درجات اللون لهذا النوع
+                                </strong>
+                            </div>
 
-                                    <field name="car_part_id"
-                                        domain="[('service_options', '=', service_options)]"/>
+                            <div class="card-body">
+                                <div class="alert alert-info mb-3" role="status">
+                                    اختر درجات اللون التي ينطبق عليها هذا النوع من أفلام العزل.
+                                </div>
 
-                                    <field name="price_line_count" string="أسعار" readonly="1"/>
-                                    <field name="price_summary" string="ملخص الأسعار" readonly="1"/>
+                                <field name="tint_degree_line_ids" nolabel="1">
+                                    <tree editable="bottom" create="0" delete="0">
+                                        <field name="selected"/>
+                                        <field name="value" string="القيمة" readonly="1"/>
+                                        <field name="name" string="المسمى" readonly="1"/>
+                                    </tree>
+                                </field>
+                            </div>
+                        </div>
 
-                                    <field name="commission_line_count" string="عمولات" readonly="1"/>
-                                    <field name="commission_summary" string="ملخص العمولات" readonly="1"/>
+                        <div class="mt-3 d-flex justify-content-start gap-2">
+                            <button string="رجوع"
+                                    type="object"
+                                    name="action_film_back_info"
+                                    class="btn btn-secondary"/>
 
-                                    <button name="action_open_price_popup"
-                                            type="object"
-                                            string="التسعيرات"
-                                            icon="fa-money"
-                                            class="btn btn-primary"/>
+                            <button string="التالي: الأجزاء"
+                                    type="object"
+                                    name="action_film_next_parts"
+                                    class="btn btn-primary"/>
+                        </div>
+                    </div>
 
-                                    <button name="action_open_commission_popup"
-                                            type="object"
-                                            string="العمولات"
-                                            icon="fa-users"
-                                            class="btn btn-secondary"/>
+                    <div invisible="film_step != 'parts'">
+                        <div class="card border-success shadow-sm mb-3">
+                            <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center">
+                                <strong>
+                                    <i class="fa fa-cogs me-1" title="الأجزاء"/>
+                                    أجزاء هذا النوع
+                                </strong>
 
-                                </tree>
-                            </field>
+                                <button string="إضافة الأجزاء تلقائياً"
+                                        type="object"
+                                        name="action_load_service_parts"
+                                        class="btn btn-success"
+                                        icon="fa-download"/>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="alert alert-info mb-3" role="status">
+                                    <i class="fa fa-info-circle me-1" title="معلومة"/>
+                                    يتم جلب الأجزاء تلقائياً حسب نوع الخدمة المحدد.
+                                </div>
+
+                                <field name="part_line_ids" nolabel="1">
+                                    <tree editable="bottom"
+                                        create="1"
+                                        delete="1"
+                                        decoration-muted="not selected"
+                                        decoration-danger="selected and not car_part_id">
+
+                                        <field name="service_options" invisible="1"/>
+                                        <field name="selected"/>
+
+                                        <field name="car_part_id"
+                                            domain="[('service_options', '=', service_options)]"/>
+
+                                        <field name="price_line_count" string="أسعار" readonly="1"/>
+                                        <field name="price_summary" string="ملخص الأسعار" readonly="1"/>
+
+                                        <field name="commission_line_count" string="عمولات" readonly="1"/>
+                                        <field name="commission_summary" string="ملخص العمولات" readonly="1"/>
+
+                                        <button name="action_open_price_popup"
+                                                type="object"
+                                                string="التسعيرات"
+                                                icon="fa-money"
+                                                class="btn btn-primary"/>
+
+                                        <button name="action_open_commission_popup"
+                                                type="object"
+                                                string="العمولات"
+                                                icon="fa-users"
+                                                class="btn btn-secondary"/>
+                                    </tree>
+                                </field>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 d-flex justify-content-start gap-2">
+                            <button string="رجوع"
+                                    type="object"
+                                    name="action_film_back_degrees"
+                                    class="btn btn-secondary"/>
+
+                            <button string="إضافة نوع جديد"
+                                    type="object"
+                                    name="action_add_new_film"
+                                    class="btn btn-primary"/>
+
+                            <button string="اكتمال"
+                                    type="object"
+                                    name="action_complete_service_setup"
+                                    class="btn btn-success"/>
                         </div>
                     </div>
 

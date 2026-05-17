@@ -791,23 +791,17 @@ class WofSetupFilmWizard(models.TransientModel):
 
         self._save_current_film_to_temp()
 
-        commands = [(5, 0, 0)]
         self.write({
             'film_name': False,
             'warranty_years': '5',
-            'part_line_ids': commands,
+            'film_step': 'info',
+            'part_line_ids': [(5, 0, 0)],
+            'tint_degree_line_ids': [(5, 0, 0)],
         })
 
         self._prepare_tint_degree_lines()
 
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('تهيئة أنواع %s') % (self.service_name or ''),
-            'res_model': 'wof.setup.film.wizard',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+        return self._reload_film_wizard()
 
     def action_complete_service_setup(self):
         self.ensure_one()
@@ -878,7 +872,59 @@ class WofSetupFilmWizard(models.TransientModel):
             'view_mode': 'form',
             'target': 'current',
         }
+    film_step = fields.Selection([
+        ('info', 'بيانات النوع'),
+        ('degrees', 'درجات اللون'),
+        ('parts', 'الأجزاء'),
+    ], default='info', string="خطوة الفيلم")
 
+
+    def _reload_film_wizard(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تهيئة أنواع %s') % (self.service_name or ''),
+            'res_model': 'wof.setup.film.wizard',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+
+    def action_film_next_degrees(self):
+        self.ensure_one()
+
+        if not self.film_name:
+            raise ValidationError(_("يرجى إدخال اسم النوع."))
+
+        if self.service_options == 'tint':
+            self._prepare_tint_degree_lines()
+            self.film_step = 'degrees'
+        else:
+            self.film_step = 'parts'
+
+        return self._reload_film_wizard()
+
+
+    def action_film_back_info(self):
+        self.ensure_one()
+        self.film_step = 'info'
+        return self._reload_film_wizard()
+
+
+    def action_film_next_parts(self):
+        self.ensure_one()
+        self.film_step = 'parts'
+        return self._reload_film_wizard()
+
+
+    def action_film_back_degrees(self):
+        self.ensure_one()
+        if self.service_options == 'tint':
+            self.film_step = 'degrees'
+        else:
+            self.film_step = 'info'
+        return self._reload_film_wizard()
 
 class WofSetupFilmTintDegreeLine(models.TransientModel):
     _name = 'wof.setup.film.tint.degree.line'
