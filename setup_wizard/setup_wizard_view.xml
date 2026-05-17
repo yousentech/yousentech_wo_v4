@@ -356,18 +356,27 @@
                     </group>
 
                     <separator string="قائمة أسعار الجزء حسب الحجم"/>
-                    <field name="parent_wizard_id" invisible="1"/>
-                    <field name="price_line_ids" nolabel="1">
-                        <tree editable="bottom" create="1" delete="1"
-                              decoration-success="free_part"
-                              decoration-warning="part_price == 0 and not free_part">
-                            <field name="car_size_line_id" placeholder="كل الأحجام"/>
-                            <field name="part_price" sum="الإجمالي"/>
+                   <field name="price_line_ids" nolabel="1">
+
+                        <tree editable="bottom"
+                            create="1"
+                            delete="1"
+                            decoration-success="free_part"
+                            decoration-warning="part_price == 0 and not free_part">
+
+                            <field name="parent_wizard_id" invisible="1"/>
+
+                            <field name="car_size_line_id"
+                                placeholder="كل الأحجام"/>
+
+                            <field name="part_price"/>
                             <field name="discount_exceed_limit"/>
                             <field name="tax_id"/>
                             <field name="price_readonly"/>
                             <field name="free_part"/>
+
                         </tree>
+
                     </field>
 
                     <footer>
@@ -398,13 +407,22 @@
                     </group>
 
                     <separator string="قائمة عمولات الفني حسب الحجم"/>
-                    <field name="parent_wizard_id" invisible="1"/>
                     <field name="commission_line_ids" nolabel="1">
-                        <tree editable="bottom" create="1" delete="1"
-                              decoration-warning="commission == 0">
-                            <field name="car_size_line_id" placeholder="كل الأحجام"/>
-                            <field name="commission" sum="الإجمالي"/>
+
+                        <tree editable="bottom"
+                            create="1"
+                            delete="1"
+                            decoration-warning="commission == 0">
+
+                            <field name="parent_wizard_id" invisible="1"/>
+
+                            <field name="car_size_line_id"
+                                placeholder="كل الأحجام"/>
+
+                            <field name="commission"/>
+
                         </tree>
+
                     </field>
 
                     <footer>
