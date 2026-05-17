@@ -12,9 +12,9 @@
                     <field name="step" invisible="1"/>
 
                     <div invisible="step != 'welcome'">
-                        <div class="alert alert-primary text-center p-4">
+                        <div class="alert alert-primary text-center p-4" role="status">
                             <h1>
-                                <i class="fa fa-magic me-2"/>
+                                <i class="fa fa-magic me-2" title="تهيئة"/>
                                 مرحباً بك في نظام العناية بالسيارات
                             </h1>
                             <div class="text-muted mt-2">
@@ -25,9 +25,9 @@
 
                     <div invisible="step != 'car_sizes'">
 
-                        <div class="alert alert-warning text-center p-3">
+                        <div class="alert alert-warning text-center p-3" role="status">
                             <h3>
-                                <i class="fa fa-car me-2"/>
+                                <i class="fa fa-car me-2" title="أحجام السيارة"/>
                                 تهيئة أحجام السيارة
                             </h3>
                             <div class="text-muted">
@@ -53,35 +53,104 @@
                                                     <i t-attf-class="
                                                         fa me-1
                                                         #{record.selected.raw_value ? 'fa-check-circle text-success' : 'fa-circle-o text-muted'}
-                                                    "/>
+                                                    " title="اختيار"/>
                                                     <field name="code"/>
                                                 </div>
                                                 <field name="selected" widget="boolean_toggle"/>
                                             </div>
 
-                                          <div class="mt-3">
-
+                                            <div class="mt-3">
                                                 <div class="text-muted small o_form_label">
                                                     اسم الحجم
                                                 </div>
 
                                                 <div class="d-flex align-items-center justify-content-between">
-
                                                     <div class="fw-bold text-dark" style="font-size:15px;">
                                                         <field name="name"/>
                                                     </div>
 
                                                     <a type="object"
-                                                    name="action_open_line"
-                                                    class="text-primary ms-2"
-                                                    title="تعديل الاسم">
-
-                                                        <i class="fa fa-pencil"/>
-
+                                                       name="action_open_line"
+                                                       class="text-primary ms-2"
+                                                       title="تعديل الاسم">
+                                                        <i class="fa fa-pencil" title="تعديل"/>
                                                     </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </templates>
+                            </kanban>
+                        </field>
 
+                    </div>
+
+                    <div invisible="step != 'tint_degrees'">
+
+                        <div class="alert alert-dark text-center p-3" role="status">
+                            <h3>
+                                <i class="fa fa-adjust me-2" title="درجات اللون"/>
+                                تهيئة درجات اللون
+                            </h3>
+                            <div class="text-muted">
+                                درجات اللون تستخدم فقط مع العزل الحراري، ويتم اختيار المناسب لكل نوع فيلم لاحقاً.
+                            </div>
+                        </div>
+
+                        <group string="طريقة درجات اللون" col="2">
+                            <group>
+                                <field name="tint_degree_method"/>
+                            </group>
+                            <group>
+                                <button string="تطبيق الطريقة"
+                                        type="object"
+                                        name="action_apply_tint_degree_method"
+                                        class="btn btn-secondary"
+                                        icon="fa-refresh"/>
+                            </group>
+                        </group>
+
+                        <field name="tint_degree_line_ids" nolabel="1">
+                            <kanban create="0" delete="0" class="o_kanban_small_column">
+                                <field name="selected"/>
+                                <field name="name"/>
+                                <field name="value"/>
+                                <field name="sequence"/>
+
+                                <templates>
+                                    <t t-name="kanban-box">
+                                        <div t-attf-class="
+                                            oe_kanban_card p-3 rounded shadow-sm
+                                            #{record.selected.raw_value ? 'border border-success bg-success-subtle' : 'border bg-light text-muted'}
+                                        ">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="fw-bold" style="font-size:18px;">
+                                                    <i t-attf-class="
+                                                        fa me-1
+                                                        #{record.selected.raw_value ? 'fa-check-circle text-success' : 'fa-circle-o text-muted'}
+                                                    " title="اختيار"/>
+                                                    <field name="value"/>
+                                                </div>
+                                                <field name="selected" widget="boolean_toggle"/>
+                                            </div>
+
+                                            <div class="mt-3">
+                                                <div class="text-muted small o_form_label">
+                                                    المسمى
                                                 </div>
 
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="fw-bold text-dark" style="font-size:15px;">
+                                                        <field name="name"/>
+                                                    </div>
+
+                                                    <a type="object"
+                                                       name="action_open_line"
+                                                       class="text-primary ms-2"
+                                                       title="تعديل درجة اللون">
+                                                        <i class="fa fa-pencil" title="تعديل"/>
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </t>
@@ -93,9 +162,9 @@
 
                     <div invisible="step != 'service_types'">
 
-                        <div class="alert alert-info text-center p-3">
+                        <div class="alert alert-info text-center p-3" role="status">
                             <h3>
-                                <i class="fa fa-cogs me-2"/>
+                                <i class="fa fa-cogs me-2" title="أنواع الخدمات"/>
                                 تهيئة أنواع الخدمات
                             </h3>
                             <div class="text-muted">
@@ -126,7 +195,7 @@
                                                         #{record.completed.raw_value ? 'fa-check-circle text-success' : ''}
                                                         #{record.selected.raw_value and !record.completed.raw_value ? 'fa-circle text-primary' : ''}
                                                         #{!record.selected.raw_value and !record.completed.raw_value ? 'fa-circle-o text-muted' : ''}
-                                                    "/>
+                                                    " title="حالة الخدمة"/>
                                                     <field name="service_options"/>
                                                 </div>
 
@@ -147,7 +216,7 @@
                                                        name="action_open_line"
                                                        class="text-primary ms-2"
                                                        title="تعديل الاسم">
-                                                        <i class="fa fa-pencil"/>
+                                                        <i class="fa fa-pencil" title="تعديل"/>
                                                     </a>
                                                 </div>
                                             </div>
@@ -155,7 +224,7 @@
                                             <div class="mt-3 d-flex justify-content-between align-items-center">
                                                 <span t-if="record.completed.raw_value"
                                                       class="badge bg-success px-3 py-2">
-                                                    <i class="fa fa-check-circle me-1"/>
+                                                    <i class="fa fa-check-circle me-1" title="مكتمل"/>
                                                     مكتمل
                                                 </span>
 
@@ -167,6 +236,7 @@
                                                 <a type="object"
                                                    name="action_open_service_setup"
                                                    class="btn btn-sm btn-primary"
+                                                   role="button"
                                                    invisible="not selected or completed">
                                                     بدء التهيئة
                                                 </a>
@@ -174,8 +244,9 @@
                                                 <a type="object"
                                                    name="action_view_service_films"
                                                    class="btn btn-sm btn-outline-success"
+                                                   role="button"
                                                    invisible="not completed">
-                                                    <i class="fa fa-eye me-1"/>
+                                                    <i class="fa fa-eye me-1" title="عرض"/>
                                                     عرض الأفلام
                                                 </a>
                                             </div>
@@ -200,15 +271,27 @@
                                 class="btn btn-secondary"
                                 invisible="step != 'car_sizes'"/>
 
-                        <button string="التالي: أنواع الخدمات"
+                        <button string="التالي: درجات اللون"
                                 type="object"
-                                name="action_go_service_types"
+                                name="action_go_tint_degrees"
                                 class="btn btn-primary"
                                 invisible="step != 'car_sizes'"/>
 
                         <button string="رجوع لأحجام السيارة"
                                 type="object"
                                 name="action_back_car_sizes"
+                                class="btn btn-secondary"
+                                invisible="step != 'tint_degrees'"/>
+
+                        <button string="التالي: أنواع الخدمات"
+                                type="object"
+                                name="action_go_service_types"
+                                class="btn btn-primary"
+                                invisible="step != 'tint_degrees'"/>
+
+                        <button string="رجوع لدرجات اللون"
+                                type="object"
+                                name="action_back_tint_degrees"
                                 class="btn btn-secondary"
                                 invisible="step != 'service_types'"/>
 
@@ -246,6 +329,49 @@
         </field>
     </record>
 
+    <record id="view_wof_setup_car_size_line_form" model="ir.ui.view">
+        <field name="name">wof.setup.car.size.line.form</field>
+        <field name="model">wof.setup.wizard.car.size.line</field>
+        <field name="arch" type="xml">
+            <form string="تعديل حجم السيارة">
+                <sheet>
+                    <group>
+                        <field name="selected"/>
+                        <field name="code" readonly="1"/>
+                        <field name="name"/>
+                    </group>
+
+                    <footer>
+                        <button string="حفظ" special="save" class="btn-primary"/>
+                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wof_setup_tint_degree_line_form" model="ir.ui.view">
+        <field name="name">wof.setup.tint.degree.line.form</field>
+        <field name="model">wof.setup.wizard.tint.degree.line</field>
+        <field name="arch" type="xml">
+            <form string="تعديل درجة اللون">
+                <sheet>
+                    <group>
+                        <field name="selected"/>
+                        <field name="sequence"/>
+                        <field name="name"/>
+                        <field name="value"/>
+                    </group>
+
+                    <footer>
+                        <button string="حفظ" special="save" class="btn-primary"/>
+                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
     <record id="view_wof_setup_film_wizard_form" model="ir.ui.view">
         <field name="name">wof.setup.film.wizard.form</field>
         <field name="model">wof.setup.film.wizard</field>
@@ -254,31 +380,26 @@
             <form string="تهيئة الأنواع" create="0" edit="1">
                 <sheet>
 
-                    <div class="alert alert-primary text-center p-4">
+                    <div class="alert alert-primary text-center p-4" role="status">
                         <h2 class="mb-1">
-                            <i class="fa fa-magic me-2"/>
+                            <i class="fa fa-magic me-2" title="تهيئة"/>
                             تهيئة أنواع <field name="service_name" readonly="1"/>
                         </h2>
                         <div class="text-muted">
-                            أضف أنواع الخدمة، ثم أضف الأجزاء والتسعيرات والعمولات بشكل منظم.
+                            أضف أنواع الخدمة، ثم حدد درجات اللون للعزل الحراري، ثم أضف الأجزاء والتسعيرات والعمولات.
                         </div>
                     </div>
 
                     <div class="card border-primary shadow-sm mb-3">
                         <div class="card-header bg-primary-subtle">
                             <strong>
-                                <i class="fa fa-film me-1"/>
+                                <i class="fa fa-film me-1" title="النوع"/>
                                 أولاً: إضافة النوع
                             </strong>
                         </div>
 
                         <div class="card-body">
                             <group col="2">
-                                <group>
-                                    <field name="service_name" readonly="1"/>
-                                    <field name="service_options" readonly="1"/>
-                                </group>
-
                                 <group>
                                     <field name="film_name" placeholder="مثال: عزل حراري أمريكي"/>
                                     <field name="warranty_years" placeholder="مثال: 5 سنوات"/>
@@ -287,13 +408,34 @@
                         </div>
                     </div>
 
-                    <separator string="الأجزاء"/>
+                    <div class="card border-dark shadow-sm mb-3" invisible="service_options != 'tint'">
+                        <div class="card-header bg-light">
+                            <strong>
+                                <i class="fa fa-adjust me-1" title="درجات اللون"/>
+                                درجات اللون لهذا النوع
+                            </strong>
+                        </div>
 
-                   <div class="card border-success shadow-sm mb-3">
+                        <div class="card-body">
+                            <div class="alert alert-info mb-3" role="status">
+                                اختر درجات اللون التي ينطبق عليها هذا النوع من أفلام العزل.
+                            </div>
+
+                            <field name="tint_degree_line_ids" nolabel="1">
+                                <tree editable="bottom" create="0" delete="0">
+                                    <field name="selected"/>
+                                    <field name="name" readonly="1"/>
+                                    <field name="value" readonly="1"/>
+                                </tree>
+                            </field>
+                        </div>
+                    </div>
+
+                    <div class="card border-success shadow-sm mb-3">
                         <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center">
 
                             <strong>
-                                <i class="fa fa-cogs me-1"/>
+                                <i class="fa fa-cogs me-1" title="الأجزاء"/>
                                 ثانياً: أجزاء هذا النوع
                             </strong>
 
@@ -302,26 +444,25 @@
                                     name="action_load_service_parts"
                                     class="btn btn-success"
                                     icon="fa-download"/>
-
                         </div>
 
                         <div class="card-body">
 
-                            <div class="alert alert-info mb-3">
-                                <i class="fa fa-info-circle me-1"/>
+                            <div class="alert alert-info mb-3" role="status">
+                                <i class="fa fa-info-circle me-1" title="معلومة"/>
                                 يتم جلب الأجزاء تلقائياً حسب نوع الخدمة المحدد من حقل النوع في شاشة الأجزاء.
                             </div>
 
                             <field name="part_line_ids" nolabel="1">
                                 <tree editable="bottom"
-                                    create="1"
-                                    delete="1"
-                                    decoration-muted="not selected"
-                                    decoration-danger="selected and not car_part_id">
+                                      create="1"
+                                      delete="1"
+                                      decoration-muted="not selected"
+                                      decoration-danger="selected and not car_part_id">
 
                                     <field name="selected"/>
                                     <field name="car_part_id"
-                                        domain="[('service_options', '=', parent.service_options)]"/>
+                                           domain="[('service_options', '=', parent.service_options)]"/>
 
                                     <field name="price_line_count" string="أسعار" readonly="1"/>
                                     <field name="price_summary" string="ملخص الأسعار" readonly="1"/>
@@ -340,7 +481,6 @@
                                             string="العمولات"
                                             icon="fa-users"
                                             class="btn btn-secondary"/>
-
                                 </tree>
                             </field>
 
@@ -353,7 +493,7 @@
                                 name="action_back_to_services"
                                 class="btn btn-secondary"/>
 
-                        <button string="إضافة فيلم جديد"
+                        <button string="إضافة نوع جديد"
                                 type="object"
                                 name="action_add_new_film"
                                 class="btn btn-primary"/>
@@ -376,10 +516,10 @@
         <field name="arch" type="xml">
             <form string="أسعار الجزء حسب حجم السيارة">
                 <sheet>
-                    <div class="alert alert-success d-flex align-items-start gap-2">
-                        <i class="fa fa-money mt-1"/>
+                    <div class="alert alert-success d-flex align-items-start gap-2" role="status">
+                        <i class="fa fa-money mt-1" title="التسعير"/>
                         <div>
-                            أدخل سعر هذا الجزء لكل حجم سيارة بشكل مستقل. اترك حجم السيارة فارغاً فقط عند رغبتك بسعر عام لكل الأحجام.
+                            أدخل سعر هذا الجزء لكل حجم سيارة بشكل مستقل.
                         </div>
                     </div>
 
@@ -389,12 +529,13 @@
                     </group>
 
                     <separator string="قائمة أسعار الجزء حسب الحجم"/>
-                  <field name="price_line_ids" nolabel="1">
+
+                    <field name="price_line_ids" nolabel="1">
                         <tree editable="bottom"
-                            create="0"
-                            delete="1"
-                            decoration-success="free_part"
-                            decoration-warning="part_price == 0 and not free_part">
+                              create="0"
+                              delete="1"
+                              decoration-success="free_part"
+                              decoration-warning="part_price == 0 and not free_part">
 
                             <field name="parent_wizard_id" invisible="1"/>
                             <field name="car_size_line_id" readonly="1"/>
@@ -403,7 +544,6 @@
                             <field name="tax_id"/>
                             <field name="price_readonly"/>
                             <field name="free_part"/>
-
                         </tree>
                     </field>
 
@@ -422,10 +562,10 @@
         <field name="arch" type="xml">
             <form string="عمولة الفني حسب حجم السيارة">
                 <sheet>
-                    <div class="alert alert-warning d-flex align-items-start gap-2">
-                        <i class="fa fa-users mt-1"/>
+                    <div class="alert alert-warning d-flex align-items-start gap-2" role="status">
+                        <i class="fa fa-users mt-1" title="العمولة"/>
                         <div>
-                            أدخل عمولة الفني لكل حجم سيارة في نافذة منفصلة عن أسعار الجزء حتى تبقى البيانات واضحة للمستخدم.
+                            أدخل عمولة الفني لكل حجم سيارة في نافذة منفصلة عن أسعار الجزء.
                         </div>
                     </div>
 
@@ -435,16 +575,16 @@
                     </group>
 
                     <separator string="قائمة عمولات الفني حسب الحجم"/>
+
                     <field name="commission_line_ids" nolabel="1">
                         <tree editable="bottom"
-                            create="0"
-                            delete="1"
-                            decoration-warning="commission == 0">
+                              create="0"
+                              delete="1"
+                              decoration-warning="commission == 0">
 
                             <field name="parent_wizard_id" invisible="1"/>
                             <field name="car_size_line_id" readonly="1"/>
                             <field name="commission" sum="الإجمالي"/>
-
                         </tree>
                     </field>
 
@@ -482,6 +622,15 @@
                     </group>
 
                     <notebook>
+                        <page string="درجات اللون">
+                            <field name="tint_degree_line_ids" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="value"/>
+                                </tree>
+                            </field>
+                        </page>
+
                         <page string="الأجزاء">
                             <field name="part_line_ids" readonly="1">
                                 <tree>
@@ -494,7 +643,6 @@
                                         </group>
                                         <notebook>
                                             <page string="أسعار الجزء حسب الحجم">
-
                                                 <field name="price_line_ids" readonly="1">
                                                     <tree>
                                                         <field name="car_size_line_id"/>
@@ -524,44 +672,6 @@
             </form>
         </field>
     </record>
-
-    <record id="view_wof_setup_car_size_line_form" model="ir.ui.view">
-        <field name="name">wof.setup.car.size.line.form</field>
-        <field name="model">wof.setup.wizard.car.size.line</field>
-        <field name="arch" type="xml">
-
-            <form string="تعديل حجم السيارة">
-
-                <sheet>
-
-                    <group>
-
-                        <field name="selected"/>
-                        <field name="code" readonly="1"/>
-                        <field name="name"/>
-
-                    </group>
-
-                    <footer>
-
-                        <button string="حفظ"
-                                special="save"
-                                class="btn-primary"/>
-
-                        <button string="إلغاء"
-                                special="cancel"
-                                class="btn-secondary"/>
-
-                    </footer>
-
-                </sheet>
-
-            </form>
-
-        </field>
-    </record>
-
-
 
     <record id="action_wof_setup_wizard" model="ir.actions.act_window">
         <field name="name">تهيئة النظام</field>

@@ -12,6 +12,10 @@ access_wof_setup_temp_film_part_commission_line,wof.setup.temp.film.part.commiss
 access_wof_film_parts_price_lines,wof.film.parts.price.lines,model_wof_film_parts_price_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_film_parts_commission_lines,wof.film.parts.commission.lines,model_wof_film_parts_commission_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_wizard_car_size_line,wof.setup.wizard.car.size.line,model_wof_setup_wizard_car_size_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_tint_degree,wof.tint.degree,model_wof_tint_degree,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_setup_wizard_tint_degree_line,wof.setup.wizard.tint.degree.line,model_wof_setup_wizard_tint_degree_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_setup_film_tint_degree_line,wof.setup.film.tint.degree.line,model_wof_setup_film_tint_degree_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_setup_temp_film_tint_degree_line,wof.setup.temp.film.tint.degree.line,model_wof_setup_temp_film_tint_degree_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_service_type_user,wof.service.type.user,model_wof_service_type,yousentech_wo_v4.group_wo_user,1,1,1,1
 access_wof_service_type_manager,service.type.manager,model_wof_service_type,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_film_category,wof.film.category,model_wof_film_category,yousentech_wo_v4.group_wo_manager,1,1,1,1

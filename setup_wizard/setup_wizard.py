@@ -24,6 +24,18 @@ CAR_SIZE_OPTIONS = [
 ]
 
 
+TINT_DEGREE_METHODS = [
+    ('series', '01 - 02 - 03 - 05'),
+    ('percent', '00 - 35 - 50 - 75'),
+]
+
+
+TINT_DEGREE_PRESETS = {
+    'series': ['01', '02', '03', '05', '10', '15', '20'],
+    'percent': ['00', '35', '50', '70', '75', '80', '100'],
+}
+
+
 class WofSetupWizard(models.TransientModel):
     _name = 'wof.setup.wizard'
     _description = 'WOF Setup Wizard'
@@ -31,6 +43,7 @@ class WofSetupWizard(models.TransientModel):
     step = fields.Selection([
         ('welcome', 'الترحيب'),
         ('car_sizes', 'أحجام السيارة'),
+        ('tint_degrees', 'درجات اللون'),
         ('service_types', 'أنواع الخدمات'),
     ], default='welcome')
 
@@ -38,6 +51,19 @@ class WofSetupWizard(models.TransientModel):
         'wof.setup.wizard.car.size.line',
         'wizard_id',
         string="أحجام السيارة"
+    )
+
+    tint_degree_method = fields.Selection(
+        TINT_DEGREE_METHODS,
+        string="طريقة درجات اللون",
+        default='percent',
+        required=True
+    )
+
+    tint_degree_line_ids = fields.One2many(
+        'wof.setup.wizard.tint.degree.line',
+        'wizard_id',
+        string="درجات اللون"
     )
 
     service_line_ids = fields.One2many(
@@ -48,22 +74,23 @@ class WofSetupWizard(models.TransientModel):
 
     @api.model
     def reset_setup_temp_data(self):
+        self.env['wof.setup.temp.film.tint.degree.line'].sudo().search([]).unlink()
         self.env['wof.setup.temp.film.part.commission.line'].sudo().search([]).unlink()
         self.env['wof.setup.temp.film.part.price.line'].sudo().search([]).unlink()
         self.env['wof.setup.temp.film.part'].sudo().search([]).unlink()
         self.env['wof.setup.temp.film'].sudo().search([]).unlink()
 
+        self.env['wof.setup.film.tint.degree.line'].sudo().search([]).unlink()
         self.env['wof.setup.film.part.commission.line'].sudo().search([]).unlink()
         self.env['wof.setup.film.part.price.line'].sudo().search([]).unlink()
         self.env['wof.setup.film.part.line'].sudo().search([]).unlink()
         self.env['wof.setup.film.wizard'].sudo().search([]).unlink()
 
         self.env['wof.setup.wizard.service.line'].sudo().search([]).unlink()
+        self.env['wof.setup.wizard.tint.degree.line'].sudo().search([]).unlink()
         self.env['wof.setup.wizard.car.size.line'].sudo().search([]).unlink()
 
-        old_wizards = self.env['wof.setup.wizard'].sudo().search([])
-        old_wizards.unlink()
-
+        self.sudo().search([]).unlink()
 
     @api.model
     def default_get(self, fields_list):
@@ -81,6 +108,21 @@ class WofSetupWizard(models.TransientModel):
                 }))
                 sequence += 1
             res['car_size_line_ids'] = size_lines
+
+        if 'tint_degree_line_ids' in fields_list:
+            method = res.get('tint_degree_method') or 'percent'
+            values = TINT_DEGREE_PRESETS.get(method, [])
+            degree_lines = []
+
+            for index, value in enumerate(values, start=1):
+                degree_lines.append((0, 0, {
+                    'sequence': index,
+                    'selected': True,
+                    'name': _('الدرجة %s') % index,
+                    'value': value,
+                }))
+
+            res['tint_degree_line_ids'] = degree_lines
 
         if 'service_line_ids' in fields_list:
             service_lines = []
@@ -122,7 +164,7 @@ class WofSetupWizard(models.TransientModel):
         self.step = 'car_sizes'
         return self._reload_wizard()
 
-    def action_go_service_types(self):
+    def action_go_tint_degrees(self):
         self.ensure_one()
 
         selected_sizes = self.car_size_line_ids.filtered('selected')
@@ -133,9 +175,47 @@ class WofSetupWizard(models.TransientModel):
             if not line.name:
                 raise ValidationError(_("يرجى إدخال اسم لكل حجم سيارة مختار."))
 
-        self.step = 'service_types'
+        self.step = 'tint_degrees'
         return self._reload_wizard()
 
+    def action_back_tint_degrees(self):
+        self.ensure_one()
+        self.step = 'tint_degrees'
+        return self._reload_wizard()
+
+    def action_apply_tint_degree_method(self):
+        self.ensure_one()
+
+        values = TINT_DEGREE_PRESETS.get(self.tint_degree_method, [])
+        commands = [(5, 0, 0)]
+
+        for index, value in enumerate(values, start=1):
+            commands.append((0, 0, {
+                'sequence': index,
+                'selected': True,
+                'name': _('الدرجة %s') % index,
+                'value': value,
+            }))
+
+        self.write({
+            'tint_degree_line_ids': commands
+        })
+
+        return self._reload_wizard()
+
+    def action_go_service_types(self):
+        self.ensure_one()
+
+        selected_degrees = self.tint_degree_line_ids.filtered('selected')
+        if not selected_degrees:
+            raise ValidationError(_("يجب اختيار درجة لون واحدة على الأقل."))
+
+        for line in selected_degrees:
+            if not line.name or not line.value:
+                raise ValidationError(_("يرجى إدخال المسمى والقيمة لكل درجة لون مختارة."))
+
+        self.step = 'service_types'
+        return self._reload_wizard()
 
     def action_save_car_sizes(self):
         self.ensure_one()
@@ -175,6 +255,45 @@ class WofSetupWizard(models.TransientModel):
             size_map[line.id] = size.id
 
         return size_map
+
+    def action_save_tint_degrees(self):
+        self.ensure_one()
+
+        selected_degrees = self.tint_degree_line_ids.filtered('selected')
+        if not selected_degrees:
+            return {}
+
+        company = self.env.company.parent_id or self.env.company
+        TintDegree = self.env['wof.tint.degree'].sudo()
+        degree_map = {}
+
+        for line in selected_degrees.sorted('sequence'):
+            if not line.name or not line.value:
+                raise ValidationError(_("يرجى إدخال المسمى والقيمة لكل درجة لون مختارة."))
+
+            existing = TintDegree.search([
+                ('value', '=', line.value),
+                ('company_id', '=', company.id),
+            ], limit=1)
+
+            vals = {
+                'sequence': line.sequence,
+                'name': line.name,
+                'value': line.value,
+                'company_id': company.id,
+                'active': True,
+            }
+
+            if existing:
+                existing.write(vals)
+                degree = existing
+            else:
+                degree = TintDegree.create(vals)
+
+            degree_map[line.id] = degree.id
+
+        return degree_map
+
     def _get_service_code(self, option):
         return {
             'tint': 'TINT',
@@ -210,6 +329,7 @@ class WofSetupWizard(models.TransientModel):
 
     def _get_size_key(self, line):
         return line.car_size_line_id.id if line.car_size_line_id else False
+
     def _get_part_size_ids(self, temp_part):
         size_ids = set()
         size_ids.update(temp_part.price_line_ids.mapped(lambda line: self._get_size_key(line)))
@@ -219,28 +339,104 @@ class WofSetupWizard(models.TransientModel):
     def _get_line_for_size(self, lines, size_id):
         return lines.filtered(lambda line: self._get_size_key(line) == size_id)[:1]
 
-    def _prepare_film_part_line_vals(self, film, temp_part, size_id, size_map):
-        price_line = self._get_line_for_size(temp_part.price_line_ids, size_id)
-        commission_line = self._get_line_for_size(temp_part.commission_line_ids, size_id)
+    def _create_or_update_film_parts(self, film, temp_part, size_map):
+        FilmPartLine = self.env['wof.film.parts.lines'].sudo()
+        PriceLine = self.env['wof.film.parts.price.lines'].sudo()
+        CommissionLine = self.env['wof.film.parts.commission.lines'].sudo()
 
-        real_size_id = size_map.get(size_id) if size_id else False
+        part_line = FilmPartLine.search([
+            ('header_id', '=', film.id),
+            ('car_part_id', '=', temp_part.car_part_id.id),
+        ], limit=1)
 
-        return {
+        part_vals = {
             'header_id': film.id,
             'car_part_id': temp_part.car_part_id.id,
-            'car_size_id': real_size_id or False,
-            'part_price': price_line.part_price if price_line else 0.0,
-            'commission': commission_line.commission if commission_line else 0.0,
-            'discount_exceed_limit': price_line.discount_exceed_limit if price_line else 0,
-            'tax_id': price_line.tax_id.id if price_line and price_line.tax_id else False,
-            'price_readonly': price_line.price_readonly if price_line else False,
-            'free_part': price_line.free_part if price_line else False,
+            'part_selected': True,
         }
+
+        if part_line:
+            part_line.write(part_vals)
+        else:
+            part_line = FilmPartLine.create(part_vals)
+
+        for price in temp_part.price_line_ids:
+            real_size_id = size_map.get(price.car_size_line_id.id) if price.car_size_line_id else False
+
+            vals = {
+                'part_line_id': part_line.id,
+                'car_size_id': real_size_id or False,
+                'part_price': price.part_price,
+                'discount_exceed_limit': price.discount_exceed_limit,
+                'tax_id': price.tax_id.id if price.tax_id else False,
+                'price_readonly': price.price_readonly,
+                'free_part': price.free_part,
+            }
+
+            existing = PriceLine.search([
+                ('part_line_id', '=', part_line.id),
+                ('car_size_id', '=', real_size_id or False),
+            ], limit=1)
+
+            if existing:
+                existing.write(vals)
+            else:
+                PriceLine.create(vals)
+
+        for commission in temp_part.commission_line_ids:
+            real_size_id = size_map.get(commission.car_size_line_id.id) if commission.car_size_line_id else False
+
+            vals = {
+                'part_line_id': part_line.id,
+                'car_size_id': real_size_id or False,
+                'commission': commission.commission,
+            }
+
+            existing = CommissionLine.search([
+                ('part_line_id', '=', part_line.id),
+                ('car_size_id', '=', real_size_id or False),
+            ], limit=1)
+
+            if existing:
+                existing.write(vals)
+            else:
+                CommissionLine.create(vals)
+
+    def _create_film_tint_degrees(self, film, temp_film, degree_map):
+        self.ensure_one()
+
+        if film.service_options != 'tint':
+            return
+
+        FilmLine = self.env['wof.film.category.lines'].sudo()
+
+        for degree in temp_film.tint_degree_line_ids.filtered('selected').sorted('sequence'):
+            real_degree_id = degree_map.get(degree.setup_degree_line_id.id)
+
+            existing = FilmLine.search([
+                ('header_id', '=', film.id),
+                ('degree_value', '=', degree.value),
+            ], limit=1)
+
+            vals = {
+                'header_id': film.id,
+                'sequence': degree.sequence,
+                'tint_degree_id': real_degree_id or False,
+                'name': degree.value,
+                'degree_label': degree.name,
+                'degree_value': degree.value,
+            }
+
+            if existing:
+                existing.write(vals)
+            else:
+                FilmLine.create(vals)
 
     def action_finish_all_setup(self):
         self.ensure_one()
+
         size_map = self.action_save_car_sizes()
-        self.action_save_car_sizes()
+        degree_map = self.action_save_tint_degrees()
 
         selected_services = self.service_line_ids.filtered('selected')
         if not selected_services:
@@ -254,7 +450,6 @@ class WofSetupWizard(models.TransientModel):
         company = self.env.company.parent_id or self.env.company
 
         FilmCategory = self.env['wof.film.category'].sudo()
-        FilmPartLine = self.env['wof.film.parts.lines'].sudo()
         TempFilm = self.env['wof.setup.temp.film'].sudo()
 
         for service_line in selected_services:
@@ -284,22 +479,11 @@ class WofSetupWizard(models.TransientModel):
                 else:
                     film = FilmCategory.create(film_vals)
 
+                self._create_film_tint_degrees(film, temp_film, degree_map)
+
                 for temp_part in temp_film.part_line_ids:
-                    if not temp_part.car_part_id:
-                        continue
-
-                    for size_id in self._get_part_size_ids(temp_part):
-                        vals = self._prepare_film_part_line_vals(film, temp_part, size_id, size_map)
-                        existing = FilmPartLine.search([
-                            ('header_id', '=', film.id),
-                            ('car_part_id', '=', temp_part.car_part_id.id),
-                            ('car_size_id', '=', size_map.get(size_id) if size_id else False),
-                        ], limit=1)
-
-                        if existing:
-                            existing.write(vals)
-                        else:
-                            FilmPartLine.create(vals)
+                    if temp_part.car_part_id:
+                        self._create_or_update_film_parts(film, temp_part, size_map)
 
         self.env['ir.config_parameter'].sudo().set_param(
             'yousentech_wo_v4.setup_completed',
@@ -328,26 +512,13 @@ class WofSetupWizardCarSizeLine(models.TransientModel):
         ondelete='cascade'
     )
 
-    sequence = fields.Integer(
-        string="الترتيب",
-        default=10
-    )
+    sequence = fields.Integer(string="الترتيب", default=10)
+    selected = fields.Boolean(string="اختيار", default=True)
+    code = fields.Char(string="الكود")
+    name = fields.Char(string="اسم الحجم")
 
-    selected = fields.Boolean(
-        string="اختيار",
-        default=True
-    )
-
-    code = fields.Char(
-        string="الكود"
-    )
-
-    name = fields.Char(
-        string="اسم الحجم"
-    )
     def action_open_line(self):
         self.ensure_one()
-
         return {
             'type': 'ir.actions.act_window',
             'name': _('تعديل حجم السيارة'),
@@ -356,6 +527,45 @@ class WofSetupWizardCarSizeLine(models.TransientModel):
             'view_mode': 'form',
             'target': 'new',
         }
+
+
+class WofSetupWizardTintDegreeLine(models.TransientModel):
+    _name = 'wof.setup.wizard.tint.degree.line'
+    _description = 'WOF Setup Wizard Tint Degree Line'
+    _order = 'sequence, id'
+
+    wizard_id = fields.Many2one(
+        'wof.setup.wizard',
+        string="المعالج",
+        ondelete='cascade'
+    )
+
+    sequence = fields.Integer(string="الترتيب", default=10)
+    selected = fields.Boolean(string="اختيار", default=True)
+    name = fields.Char(string="المسمى")
+    value = fields.Char(string="القيمة")
+
+    display_name = fields.Char(
+        string="الاسم المعروض",
+        compute="_compute_display_name"
+    )
+
+    @api.depends('name', 'value')
+    def _compute_display_name(self):
+        for rec in self:
+            rec.display_name = "%s - %s" % (rec.name or '', rec.value or '')
+
+    def action_open_line(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تعديل درجة اللون'),
+            'res_model': 'wof.setup.wizard.tint.degree.line',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
+
 
 class WofSetupWizardServiceLine(models.TransientModel):
     _name = 'wof.setup.wizard.service.line'
@@ -408,9 +618,11 @@ class WofSetupWizardServiceLine(models.TransientModel):
             'service_name': self.custom_name,
         })
 
+        setup._prepare_tint_degree_lines()
+
         return {
             'type': 'ir.actions.act_window',
-            'name': _('تهيئة الأفلام والأجزاء'),
+            'name': _('تهيئة أنواع %s') % (self.custom_name or ''),
             'res_model': 'wof.setup.film.wizard',
             'res_id': setup.id,
             'view_mode': 'form',
@@ -470,11 +682,41 @@ class WofSetupFilmWizard(models.TransientModel):
         default="5"
     )
 
+    tint_degree_line_ids = fields.One2many(
+        'wof.setup.film.tint.degree.line',
+        'wizard_id',
+        string="درجات اللون"
+    )
+
     part_line_ids = fields.One2many(
         'wof.setup.film.part.line',
         'wizard_id',
         string="الأجزاء"
     )
+
+    def _prepare_tint_degree_lines(self):
+        self.ensure_one()
+
+        if self.service_options != 'tint':
+            return
+
+        existing = self.tint_degree_line_ids.mapped('setup_degree_line_id')
+        commands = []
+
+        for degree in self.parent_wizard_id.tint_degree_line_ids.filtered('selected').sorted('sequence'):
+            if degree not in existing:
+                commands.append((0, 0, {
+                    'sequence': degree.sequence,
+                    'selected': True,
+                    'setup_degree_line_id': degree.id,
+                    'name': degree.name,
+                    'value': degree.value,
+                }))
+
+        if commands:
+            self.write({
+                'tint_degree_line_ids': commands
+            })
 
     def _save_current_film_to_temp(self):
         self.ensure_one()
@@ -483,6 +725,7 @@ class WofSetupFilmWizard(models.TransientModel):
             raise ValidationError(_("يرجى إدخال اسم الفيلم."))
 
         TempFilm = self.env['wof.setup.temp.film'].sudo()
+        TempTint = self.env['wof.setup.temp.film.tint.degree.line'].sudo()
         TempPart = self.env['wof.setup.temp.film.part'].sudo()
         TempPrice = self.env['wof.setup.temp.film.part.price.line'].sudo()
         TempCommission = self.env['wof.setup.temp.film.part.commission.line'].sudo()
@@ -503,8 +746,18 @@ class WofSetupFilmWizard(models.TransientModel):
             'warranty_years': self.warranty_years,
         })
 
-        for part in self.part_line_ids.filtered('selected'):
+        if self.service_options == 'tint':
+            for degree in self.tint_degree_line_ids.filtered('selected').sorted('sequence'):
+                TempTint.create({
+                    'film_id': temp_film.id,
+                    'sequence': degree.sequence,
+                    'selected': True,
+                    'setup_degree_line_id': degree.setup_degree_line_id.id,
+                    'name': degree.name,
+                    'value': degree.value,
+                })
 
+        for part in self.part_line_ids.filtered('selected'):
             if not part.car_part_id:
                 raise ValidationError(_("يرجى اختيار الجزء."))
 
@@ -538,15 +791,18 @@ class WofSetupFilmWizard(models.TransientModel):
 
         self._save_current_film_to_temp()
 
+        commands = [(5, 0, 0)]
         self.write({
             'film_name': False,
             'warranty_years': '5',
-            'part_line_ids': [(5, 0, 0)],
+            'part_line_ids': commands,
         })
+
+        self._prepare_tint_degree_lines()
 
         return {
             'type': 'ir.actions.act_window',
-            'name': _('تهيئة الأفلام والأجزاء'),
+            'name': _('تهيئة أنواع %s') % (self.service_name or ''),
             'res_model': 'wof.setup.film.wizard',
             'res_id': self.id,
             'view_mode': 'form',
@@ -582,6 +838,7 @@ class WofSetupFilmWizard(models.TransientModel):
             'view_mode': 'form',
             'target': 'current',
         }
+
     def action_load_service_parts(self):
         self.ensure_one()
 
@@ -589,19 +846,16 @@ class WofSetupFilmWizard(models.TransientModel):
             raise ValidationError(_("لم يتم تحديد نوع الخدمة."))
 
         Parts = self.env['wof.car.parts'].sudo()
-
         parts = Parts.search([
             ('service_options', '=', self.service_options),
         ], order='name')
 
         if not parts:
-            raise ValidationError(
-                _("لا توجد أجزاء معرفة لهذا النوع من الخدمة.")
-            )
+            raise ValidationError(_("لا توجد أجزاء معرفة لهذا النوع من الخدمة."))
 
         existing_parts = self.part_line_ids.mapped('car_part_id')
-
         commands = []
+
         for part in parts:
             if part not in existing_parts:
                 commands.append((0, 0, {
@@ -610,9 +864,7 @@ class WofSetupFilmWizard(models.TransientModel):
                 }))
 
         if not commands:
-            raise ValidationError(
-                _("كل الأجزاء الخاصة بهذا النوع مضافة مسبقاً.")
-            )
+            raise ValidationError(_("كل الأجزاء الخاصة بهذا النوع مضافة مسبقاً."))
 
         self.write({
             'part_line_ids': commands
@@ -625,7 +877,32 @@ class WofSetupFilmWizard(models.TransientModel):
             'res_id': self.id,
             'view_mode': 'form',
             'target': 'current',
-    }
+        }
+
+
+class WofSetupFilmTintDegreeLine(models.TransientModel):
+    _name = 'wof.setup.film.tint.degree.line'
+    _description = 'WOF Setup Film Tint Degree Line'
+    _order = 'sequence, id'
+
+    wizard_id = fields.Many2one(
+        'wof.setup.film.wizard',
+        string="معالج الفيلم",
+        ondelete='cascade'
+    )
+
+    sequence = fields.Integer(string="الترتيب", default=10)
+    selected = fields.Boolean(string="اختيار", default=True)
+
+    setup_degree_line_id = fields.Many2one(
+        'wof.setup.wizard.tint.degree.line',
+        string="درجة التهيئة",
+        ondelete='cascade'
+    )
+
+    name = fields.Char(string="المسمى")
+    value = fields.Char(string="القيمة")
+
 
 class WofSetupFilmPartLine(models.TransientModel):
     _name = 'wof.setup.film.part.line'
@@ -689,7 +966,8 @@ class WofSetupFilmPartLine(models.TransientModel):
         'price_line_ids.car_size_line_id',
         'price_line_ids.part_price',
         'commission_line_ids.car_size_line_id',
-        'commission_line_ids.commission', )
+        'commission_line_ids.commission',
+    )
     def _compute_pricing_summary(self):
         for part in self:
             part.price_line_count = len(part.price_line_ids)
@@ -702,6 +980,7 @@ class WofSetupFilmPartLine(models.TransientModel):
                 }
                 for line in part.price_line_ids[:3]
             ]
+
             commission_items = [
                 _('%(size)s: %(amount).2f') % {
                     'size': part._format_size_name(line),
@@ -712,6 +991,7 @@ class WofSetupFilmPartLine(models.TransientModel):
 
             if len(part.price_line_ids) > 3:
                 price_items.append(_('والمزيد...'))
+
             if len(part.commission_line_ids) > 3:
                 commission_items.append(_('والمزيد...'))
 
@@ -731,7 +1011,6 @@ class WofSetupFilmPartLine(models.TransientModel):
 
         return wizard.car_size_line_ids.filtered('selected').sorted('sequence')
 
-
     def _ensure_price_lines(self):
         self.ensure_one()
 
@@ -750,10 +1029,7 @@ class WofSetupFilmPartLine(models.TransientModel):
                 }))
 
         if commands:
-            self.write({
-                'price_line_ids': commands
-            })
-
+            self.write({'price_line_ids': commands})
 
     def _ensure_commission_lines(self):
         self.ensure_one()
@@ -770,10 +1046,7 @@ class WofSetupFilmPartLine(models.TransientModel):
                 }))
 
         if commands:
-            self.write({
-                'commission_line_ids': commands
-            })
-
+            self.write({'commission_line_ids': commands})
 
     def action_open_price_popup(self):
         self.ensure_one()
@@ -792,7 +1065,6 @@ class WofSetupFilmPartLine(models.TransientModel):
             'target': 'new',
         }
 
-
     def action_open_commission_popup(self):
         self.ensure_one()
         self._check_part_selected()
@@ -810,6 +1082,7 @@ class WofSetupFilmPartLine(models.TransientModel):
             'target': 'new',
         }
 
+
 class WofSetupFilmPartPriceLine(models.TransientModel):
     _name = 'wof.setup.film.part.price.line'
     _description = 'WOF Setup Film Part Price Line'
@@ -821,15 +1094,15 @@ class WofSetupFilmPartPriceLine(models.TransientModel):
         ondelete='cascade'
     )
 
+    parent_wizard_id = fields.Many2one(
+        related='part_line_id.wizard_id.parent_wizard_id',
+        store=False
+    )
+
     car_size_line_id = fields.Many2one(
         'wof.setup.wizard.car.size.line',
         string="حجم السيارة",
         domain="[('wizard_id', '=', parent_wizard_id), ('selected', '=', True)]"
-    )
-
-    parent_wizard_id = fields.Many2one(
-        related='part_line_id.wizard_id.parent_wizard_id',
-        store=False
     )
 
     part_price = fields.Float(string="السعر")
@@ -848,6 +1121,9 @@ class WofSetupFilmPartPriceLine(models.TransientModel):
     def _onchange_free_part(self):
         if self.free_part:
             self.part_price = 0.0
+            self.price_readonly = True
+            self.tax_id = False
+            self.discount_exceed_limit = 0
 
     @api.constrains('part_line_id', 'car_size_line_id')
     def _check_unique_price_size(self):
@@ -862,9 +1138,8 @@ class WofSetupFilmPartPriceLine(models.TransientModel):
             )
 
             if duplicates:
-                raise ValidationError(
-                    _("لا يمكن تكرار نفس حجم السيارة في تسعير الجزء.")
-                )
+                raise ValidationError(_("لا يمكن تكرار نفس حجم السيارة في تسعير الجزء."))
+
 
 class WofSetupFilmPartCommissionLine(models.TransientModel):
     _name = 'wof.setup.film.part.commission.line'
@@ -877,15 +1152,15 @@ class WofSetupFilmPartCommissionLine(models.TransientModel):
         ondelete='cascade'
     )
 
+    parent_wizard_id = fields.Many2one(
+        related='part_line_id.wizard_id.parent_wizard_id',
+        store=False
+    )
+
     car_size_line_id = fields.Many2one(
         'wof.setup.wizard.car.size.line',
         string="حجم السيارة",
         domain="[('wizard_id', '=', parent_wizard_id), ('selected', '=', True)]"
-    )
-
-    parent_wizard_id = fields.Many2one(
-        related='part_line_id.wizard_id.parent_wizard_id',
-        store=False
     )
 
     commission = fields.Float(string="العمولة")
@@ -903,9 +1178,8 @@ class WofSetupFilmPartCommissionLine(models.TransientModel):
             )
 
             if duplicates:
-                raise ValidationError(
-                    _("لا يمكن تكرار نفس حجم السيارة في تسعير العمولة.")
-                )
+                raise ValidationError(_("لا يمكن تكرار نفس حجم السيارة في تسعير العمولة."))
+
 
 class WofSetupTempFilm(models.TransientModel):
     _name = 'wof.setup.temp.film'
@@ -932,11 +1206,41 @@ class WofSetupTempFilm(models.TransientModel):
     film_name = fields.Char(string="اسم الفيلم")
     warranty_years = fields.Char(string="سنوات الضمان")
 
+    tint_degree_line_ids = fields.One2many(
+        'wof.setup.temp.film.tint.degree.line',
+        'film_id',
+        string="درجات اللون"
+    )
+
     part_line_ids = fields.One2many(
         'wof.setup.temp.film.part',
         'film_id',
         string="الأجزاء"
     )
+
+
+class WofSetupTempFilmTintDegreeLine(models.TransientModel):
+    _name = 'wof.setup.temp.film.tint.degree.line'
+    _description = 'WOF Setup Temp Film Tint Degree Line'
+    _order = 'sequence, id'
+
+    film_id = fields.Many2one(
+        'wof.setup.temp.film',
+        string="الفيلم المؤقت",
+        ondelete='cascade'
+    )
+
+    sequence = fields.Integer(string="الترتيب", default=10)
+    selected = fields.Boolean(string="اختيار", default=True)
+
+    setup_degree_line_id = fields.Many2one(
+        'wof.setup.wizard.tint.degree.line',
+        string="درجة التهيئة",
+        ondelete='cascade'
+    )
+
+    name = fields.Char(string="المسمى")
+    value = fields.Char(string="القيمة")
 
 
 class WofSetupTempFilmPart(models.TransientModel):
@@ -980,9 +1284,9 @@ class WofSetupTempFilmPartPriceLine(models.TransientModel):
     )
 
     car_size_line_id = fields.Many2one(
-            'wof.setup.wizard.car.size.line',
-            string="حجم السيارة"
-                )
+        'wof.setup.wizard.car.size.line',
+        string="حجم السيارة"
+    )
 
     part_price = fields.Float(string="السعر")
     discount_exceed_limit = fields.Integer(string="حد الخصم")
