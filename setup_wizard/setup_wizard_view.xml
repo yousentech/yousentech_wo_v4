@@ -380,6 +380,10 @@
             <form string="تهيئة الأنواع" create="0" edit="1">
                 <sheet>
 
+                    <field name="parent_wizard_id" invisible="1"/>
+                    <field name="service_line_id" invisible="1"/>
+                    <field name="service_options" invisible="1"/>
+
                     <div class="alert alert-primary text-center p-4" role="status">
                         <h2 class="mb-1">
                             <i class="fa fa-magic me-2" title="تهيئة"/>
