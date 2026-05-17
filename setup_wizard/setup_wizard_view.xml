@@ -432,7 +432,7 @@
                         </div>
 
                         <div class="mt-3 d-flex justify-content-start gap-2">
-                            <button string="التالي"
+                            <button string="التالي: درجات اللون"
                                     type="object"
                                     name="action_film_next_degrees"
                                     class="btn btn-primary"/>
@@ -537,16 +537,7 @@
                                     type="object"
                                     name="action_film_back_degrees"
                                     class="btn btn-secondary"/>
-
-                            <button string="إضافة نوع جديد"
-                                    type="object"
-                                    name="action_add_new_film"
-                                    class="btn btn-primary"/>
-
-                            <button string="اكتمال"
-                                    type="object"
-                                    name="action_complete_service_setup"
-                                    class="btn btn-success"/>
+ 
                         </div>
                     </div>
 
