@@ -582,7 +582,50 @@ class WofSetupFilmWizard(models.TransientModel):
             'view_mode': 'form',
             'target': 'current',
         }
+    def action_load_service_parts(self):
+        self.ensure_one()
 
+        if not self.service_options:
+            raise ValidationError(_("لم يتم تحديد نوع الخدمة."))
+
+        Parts = self.env['wof.car.parts'].sudo()
+
+        parts = Parts.search([
+            ('service_options', '=', self.service_options),
+        ], order='name')
+
+        if not parts:
+            raise ValidationError(
+                _("لا توجد أجزاء معرفة لهذا النوع من الخدمة.")
+            )
+
+        existing_parts = self.part_line_ids.mapped('car_part_id')
+
+        commands = []
+        for part in parts:
+            if part not in existing_parts:
+                commands.append((0, 0, {
+                    'selected': True,
+                    'car_part_id': part.id,
+                }))
+
+        if not commands:
+            raise ValidationError(
+                _("كل الأجزاء الخاصة بهذا النوع مضافة مسبقاً.")
+            )
+
+        self.write({
+            'part_line_ids': commands
+        })
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تهيئة أنواع %s') % (self.service_name or ''),
+            'res_model': 'wof.setup.film.wizard',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'current',
+    }
 
 class WofSetupFilmPartLine(models.TransientModel):
     _name = 'wof.setup.film.part.line'
@@ -679,12 +722,67 @@ class WofSetupFilmPartLine(models.TransientModel):
         if not self.car_part_id:
             raise ValidationError(_("يرجى اختيار الجزء قبل فتح التسعير."))
 
+    def _get_selected_size_lines(self):
+        self.ensure_one()
+
+        wizard = self.wizard_id.parent_wizard_id
+        if not wizard:
+            return self.env['wof.setup.wizard.car.size.line']
+
+        return wizard.car_size_line_ids.filtered('selected').sorted('sequence')
+
+
+    def _ensure_price_lines(self):
+        self.ensure_one()
+
+        size_lines = self._get_selected_size_lines()
+        existing_sizes = self.price_line_ids.mapped('car_size_line_id')
+
+        commands = []
+        for size_line in size_lines:
+            if size_line not in existing_sizes:
+                commands.append((0, 0, {
+                    'car_size_line_id': size_line.id,
+                    'part_price': 0.0,
+                    'discount_exceed_limit': 0,
+                    'price_readonly': False,
+                    'free_part': False,
+                }))
+
+        if commands:
+            self.write({
+                'price_line_ids': commands
+            })
+
+
+    def _ensure_commission_lines(self):
+        self.ensure_one()
+
+        size_lines = self._get_selected_size_lines()
+        existing_sizes = self.commission_line_ids.mapped('car_size_line_id')
+
+        commands = []
+        for size_line in size_lines:
+            if size_line not in existing_sizes:
+                commands.append((0, 0, {
+                    'car_size_line_id': size_line.id,
+                    'commission': 0.0,
+                }))
+
+        if commands:
+            self.write({
+                'commission_line_ids': commands
+            })
+
+
     def action_open_price_popup(self):
         self.ensure_one()
         self._check_part_selected()
+        self._ensure_price_lines()
+
         return {
             'type': 'ir.actions.act_window',
-            'name': _('تسعير الجزء حسب حجم السيارة'),
+            'name': _('أسعار %s') % (self.car_part_id.display_name or ''),
             'res_model': 'wof.setup.film.part.line',
             'res_id': self.id,
             'view_mode': 'form',
@@ -694,12 +792,15 @@ class WofSetupFilmPartLine(models.TransientModel):
             'target': 'new',
         }
 
+
     def action_open_commission_popup(self):
         self.ensure_one()
         self._check_part_selected()
+        self._ensure_commission_lines()
+
         return {
             'type': 'ir.actions.act_window',
-            'name': _('عمولة الفني حسب حجم السيارة'),
+            'name': _('عمولة %s') % (self.car_part_id.display_name or ''),
             'res_model': 'wof.setup.film.part.line',
             'res_id': self.id,
             'view_mode': 'form',
@@ -708,7 +809,6 @@ class WofSetupFilmPartLine(models.TransientModel):
             ).id,
             'target': 'new',
         }
-
 
 class WofSetupFilmPartPriceLine(models.TransientModel):
     _name = 'wof.setup.film.part.price.line'
