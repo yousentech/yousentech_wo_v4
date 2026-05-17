@@ -385,15 +385,7 @@
                     <field name="parent_wizard_id" invisible="1"/>
                     <field name="service_line_id" invisible="1"/>
 
-                    <div class="alert alert-primary text-center p-4" role="status">
-                        <h2 class="mb-1">
-                            <i class="fa fa-magic me-2" title="تهيئة"/>
-                            تهيئة أنواع <field name="service_name" readonly="1"/>
-                        </h2>
-                        <div class="text-muted">
-                            أضف أنواع الخدمة، ثم حدد درجات اللون للعزل الحراري، ثم أضف الأجزاء والتسعيرات والعمولات.
-                        </div>
-                    </div>
+                   
 
                     <div class="alert alert-primary text-center p-4" role="status">
                         <h2 class="mb-1">
