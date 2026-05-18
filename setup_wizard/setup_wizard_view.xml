@@ -376,7 +376,7 @@
                     <header>
                         <field name="film_step"
                             widget="statusbar"
-                            statusbar_visible="info,degrees,parts,done"
+                            statusbar_visible="info,degrees,parts"
                             options="{'clickable': False}"/>
                     </header>
 
@@ -533,7 +533,7 @@
                         </div>
                     </div>
 
-                    <div invisible="film_step != 'done'">
+                    <!-- <div invisible="film_step != 'done'">
 
                         <div class="card border-success shadow-sm mb-3">
 
@@ -577,7 +577,7 @@
 
                         </div>
 
-                    </div>
+                    </div> -->
 
                    
 
@@ -749,7 +749,66 @@
             </form>
         </field>
     </record>
+    <record id="view_wof_generic_done_wizard_form" model="ir.ui.view">
+        <field name="name">wof.generic.done.wizard.form</field>
+        <field name="model">wof.generic.done.wizard</field>
+        <field name="arch" type="xml">
 
+            <form string="تم الحفظ" create="0" edit="0">
+
+                <sheet>
+
+                    <field name="ref_model" invisible="1"/>
+                    <field name="ref_id" invisible="1"/>
+                    <field name="primary_action_key" invisible="1"/>
+                    <field name="secondary_action_key" invisible="1"/>
+
+                    <div class="text-center p-3">
+
+                        <div class="mb-3">
+                            <i class="fa fa-check-circle text-success"
+                            title="نجاح"
+                            style="font-size:48px;"/>
+                        </div>
+
+                        <h2 class="text-success mb-3">
+                            <field name="title" readonly="1"/>
+                        </h2>
+
+                        <div class="alert alert-success text-center"
+                            role="status"
+                            style="white-space: pre-line;">
+                            <field name="message" readonly="1"/>
+                        </div>
+
+                    </div>
+
+                    <footer>
+
+                        <button name="action_primary"
+                                type="object"
+                                string="إضافة نوع آخر"
+                                class="btn btn-primary"
+                                icon="fa-plus"/>
+
+                        <button name="action_secondary"
+                                type="object"
+                                string="إنهاء تهيئة الخدمة"
+                                class="btn btn-success"
+                                icon="fa-check"/>
+
+                        <button string="إغلاق"
+                                special="cancel"
+                                class="btn btn-secondary"/>
+
+                    </footer>
+
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
     <record id="action_wof_setup_wizard" model="ir.actions.act_window">
         <field name="name">تهيئة النظام</field>
         <field name="res_model">wof.setup.wizard</field>

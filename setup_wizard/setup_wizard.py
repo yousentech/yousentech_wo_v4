@@ -873,11 +873,11 @@ class WofSetupFilmWizard(models.TransientModel):
             'view_mode': 'form',
             'target': 'current',
         }
+
     film_step = fields.Selection([
         ('info', 'بيانات النوع'),
         ('degrees', 'درجات اللون'),
         ('parts', 'الأجزاء'),
-        ('done', 'تم الحفظ'),
     ], default='info', string="مرحلة التهيئة")
 
     def _reload_film_wizard(self):
@@ -938,8 +938,28 @@ class WofSetupFilmWizard(models.TransientModel):
 
         self._save_current_film_to_temp()
 
-        self.film_step = 'done'
-        return self._reload_film_wizard()
+        wizard = self.env['wof.generic.done.wizard'].create({
+            'title': _('تم حفظ النوع بنجاح'),
+            'message': _(
+                "تم حفظ بيانات النوع والأجزاء والتسعيرات والعمولات مؤقتاً.\n"
+                "يمكنك الآن إضافة نوع آخر لنفس الخدمة أو إنهاء تهيئة هذه الخدمة."
+            ),
+            'primary_label': _('إضافة نوع آخر لنفس الخدمة'),
+            'primary_action_key': 'add_new_film',
+            'secondary_label': _('إنهاء تهيئة %s') % (self.service_name or _('الخدمة')),
+            'secondary_action_key': 'complete_service_setup',
+            'ref_model': self._name,
+            'ref_id': self.id,
+        })
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تم الحفظ'),
+            'res_model': 'wof.generic.done.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
 
     def action_prepare_new_film(self):
@@ -1398,3 +1418,91 @@ class WofSetupTempFilmPartCommissionLine(models.TransientModel):
     )
 
     commission = fields.Float(string="العمولة")
+
+
+class WofGenericDoneWizard(models.TransientModel):
+    _name = 'wof.generic.done.wizard'
+    _description = 'Generic Done Wizard'
+
+    title = fields.Char(
+        string="العنوان",
+        required=True,
+        default="تمت العملية بنجاح"
+    )
+
+    message = fields.Text(
+        string="الرسالة",
+        default="اختر الخطوة التالية."
+    )
+
+    primary_label = fields.Char(
+        string="زر أول",
+        default="متابعة"
+    )
+
+    secondary_label = fields.Char(
+        string="زر ثاني",
+        default="إنهاء"
+    )
+
+    ref_model = fields.Char(
+        string="الموديل المرجعي",
+        required=True
+    )
+
+    ref_id = fields.Integer(
+        string="السجل المرجعي",
+        required=True
+    )
+
+    primary_action_key = fields.Selection([
+        ('add_new_film', 'إضافة نوع آخر'),
+        ('complete_service_setup', 'إنهاء تهيئة الخدمة'),
+    ], string="إجراء الزر الأول")
+
+    secondary_action_key = fields.Selection([
+        ('add_new_film', 'إضافة نوع آخر'),
+        ('complete_service_setup', 'إنهاء تهيئة الخدمة'),
+    ], string="إجراء الزر الثاني")
+
+    def _get_ref_record(self):
+        self.ensure_one()
+
+        if not self.ref_model or not self.ref_id:
+            raise ValidationError(_("لا يوجد سجل مرجعي لتنفيذ العملية."))
+
+        if self.ref_model not in self.env:
+            raise ValidationError(_("الموديل المرجعي غير موجود."))
+
+        record = self.env[self.ref_model].browse(self.ref_id).exists()
+
+        if not record:
+            raise ValidationError(_("السجل المرجعي غير موجود أو تم حذفه."))
+
+        return record
+
+    def _execute_action_key(self, action_key):
+        record = self._get_ref_record()
+
+        allowed_actions = {
+            'add_new_film': 'action_prepare_new_film',
+            'complete_service_setup': 'action_complete_service_setup',
+        }
+
+        method_name = allowed_actions.get(action_key)
+
+        if not method_name:
+            raise ValidationError(_("الإجراء غير معروف."))
+
+        if not hasattr(record, method_name):
+            raise ValidationError(_("الإجراء غير متاح على السجل المرجعي."))
+
+        return getattr(record, method_name)()
+
+    def action_primary(self):
+        self.ensure_one()
+        return self._execute_action_key(self.primary_action_key)
+
+    def action_secondary(self):
+        self.ensure_one()
+        return self._execute_action_key(self.secondary_action_key)
