@@ -373,6 +373,12 @@
 
             <form string="تهيئة الأنواع" create="0" edit="1">
                 <sheet>
+                <header>
+                    <field name="film_step"
+                        widget="statusbar"
+                        statusbar_visible="info,degrees,parts"
+                        options="{'clickable': False}"/>
+                </header>
 
                     <field name="film_step" invisible="1"/>
                     <field name="service_options" invisible="1"/>
@@ -391,7 +397,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-3 d-flex justify-content-center gap-2">
+                    <!-- <div class="mb-3 d-flex justify-content-center gap-2">
                         <span t-attf-class="badge #{film_step == 'info' ? 'bg-primary' : 'bg-secondary'} px-3 py-2">
                             1 بيانات النوع
                         </span>
@@ -402,7 +408,7 @@
                         <span t-attf-class="badge #{film_step == 'parts' ? 'bg-primary' : 'bg-secondary'} px-3 py-2">
                             3 الأجزاء
                         </span>
-                    </div>
+                    </div> -->
 
                     <div invisible="film_step != 'info'">
                         <div class="card border-primary shadow-sm mb-3">

@@ -25,7 +25,7 @@ CAR_SIZE_OPTIONS = [
 
 
 TINT_DEGREE_METHODS = [
-    ('series', 'طريقة الأرقام 0-0'),
+    ('series', 'طريقة الأرقام 00-04'),
     ('percent', 'طريقة النسب شفاف - 35 -75'),
 ]
 
@@ -892,8 +892,7 @@ class WofSetupFilmWizard(models.TransientModel):
         ('info', 'بيانات النوع'),
         ('degrees', 'درجات اللون'),
         ('parts', 'الأجزاء'),
-    ], default='info', string="خطوة الفيلم")
-
+    ], default='info', string="مرحلة التهيئة")
 
     def _reload_film_wizard(self):
         self.ensure_one()
