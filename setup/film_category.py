@@ -42,7 +42,35 @@ class film_category(models.Model):
         ondelete='restrict'
     )
 
-    warranty_years = fields.Char(string="فترة الضمان")
+    warranty_duration = fields.Integer(
+        string="مدة الضمان",
+        default=5
+    )
+
+    warranty_period = fields.Selection([
+        ('day', 'يوم'),
+        ('month', 'شهر'),
+        ('year', 'سنة'),
+        ('lifetime', 'مدى الحياة'),
+    ], string="نوع مدة الضمان", default='year', required=True)
+
+    warranty_years = fields.Char(
+        string="مدة الضمان نصياً",
+        compute="_compute_warranty_years",
+        store=True
+    )
+
+    @api.depends('warranty_duration', 'warranty_period')
+    def _compute_warranty_years(self):
+        labels = dict(self._fields['warranty_period'].selection)
+        for rec in self:
+            if rec.warranty_period == 'lifetime':
+                rec.warranty_years = _('مدى الحياة')
+            else:
+                rec.warranty_years = "%s %s" % (
+                    rec.warranty_duration or 0,
+                    labels.get(rec.warranty_period, '')
+                )
 
     is_effected_in_inventory = fields.Boolean(
         default=False,

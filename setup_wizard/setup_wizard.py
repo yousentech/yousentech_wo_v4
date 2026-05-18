@@ -486,7 +486,8 @@ class WofSetupWizard(models.TransientModel):
                 film_vals = {
                     'name': temp_film.film_name,
                     'service_type_id': service.id,
-                    'warranty_years': temp_film.warranty_years,
+                    'warranty_duration': temp_film.warranty_duration,
+                    'warranty_period': temp_film.warranty_period,
                     'company_id': company.id,
                 }
 
@@ -693,10 +694,35 @@ class WofSetupFilmWizard(models.TransientModel):
         string="اسم الفيلم"
     )
 
-    warranty_years = fields.Char(
-        string="سنوات الضمان",
-        default="5"
+    warranty_duration = fields.Integer(
+        string="مدة الضمان",
+        default=5
     )
+
+    warranty_period = fields.Selection([
+        ('day', 'يوم'),
+        ('month', 'شهر'),
+        ('year', 'سنة'),
+        ('lifetime', 'مدى الحياة'),
+    ], string="نوع مدة الضمان", default='year', required=True)
+
+    warranty_years = fields.Char(
+        string="مدة الضمان نصياً",
+        compute="_compute_warranty_years",
+        store=True
+    )
+
+    @api.depends('warranty_duration', 'warranty_period')
+    def _compute_warranty_years(self):
+        labels = dict(self._fields['warranty_period'].selection)
+        for rec in self:
+            if rec.warranty_period == 'lifetime':
+                rec.warranty_years = _('مدى الحياة')
+            else:
+                rec.warranty_years = "%s %s" % (
+                    rec.warranty_duration or 0,
+                    labels.get(rec.warranty_period, '')
+                )
 
     tint_degree_line_ids = fields.One2many(
         'wof.setup.film.tint.degree.line',
@@ -759,6 +785,8 @@ class WofSetupFilmWizard(models.TransientModel):
             'wizard_id': self.parent_wizard_id.id,
             'service_line_id': self.service_line_id.id,
             'film_name': self.film_name,
+            'warranty_duration': self.warranty_duration,
+            'warranty_period': self.warranty_period,
             'warranty_years': self.warranty_years,
         })
 
@@ -967,7 +995,8 @@ class WofSetupFilmWizard(models.TransientModel):
 
         self.write({
             'film_name': False,
-            'warranty_years': '5',
+            'warranty_duration': 10,
+            'warranty_period': 'year',
             'film_step': 'info',
             'part_line_ids': [(5, 0, 0)],
             'tint_degree_line_ids': [(5, 0, 0)],
@@ -1304,7 +1333,26 @@ class WofSetupTempFilm(models.TransientModel):
     )
 
     film_name = fields.Char(string="اسم الفيلم")
-    warranty_years = fields.Char(string="سنوات الضمان")
+    warranty_duration = fields.Integer(string="مدة الضمان")
+    warranty_period = fields.Selection([
+        ('day', 'يوم'),
+        ('month', 'شهر'),
+        ('year', 'سنة'),
+        ('lifetime', 'مدى الحياة'),
+    ], string="نوع مدة الضمان")
+    warranty_years = fields.Char(string="مدة الضمان نصياً")
+
+    @api.depends('warranty_duration', 'warranty_period')
+    def _compute_warranty_years(self):
+        labels = dict(self._fields['warranty_period'].selection)
+        for rec in self:
+            if rec.warranty_period == 'lifetime':
+                rec.warranty_years = _('مدى الحياة')
+            else:
+                rec.warranty_years = "%s %s" % (
+                    rec.warranty_duration or 0,
+                    labels.get(rec.warranty_period, '')
+                )
 
     tint_degree_line_ids = fields.One2many(
         'wof.setup.temp.film.tint.degree.line',

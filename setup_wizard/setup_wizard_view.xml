@@ -413,7 +413,12 @@
                                         <field name="film_name" placeholder="مثال: عزل حراري أمريكي"/>
                                     </group>
                                     <group>
-                                        <field name="warranty_years" placeholder="مثال: 5 سنوات"/>
+                                        <label for="warranty_duration" string="مدة الضمان"/>
+                                        <div class="o_row">
+                                            <field name="warranty_duration" class="oe_inline"/>
+                                            <field name="warranty_period" class="oe_inline"/>
+                                        </div>
+                                        <field name="warranty_years" readonly="1"/>
                                     </group>
                                 </group>
                             </div>
