@@ -107,7 +107,7 @@
                             <div class="card-body">
                                 <group col="2">
                                     <group>
-                                        <field name="tint_degree_method" widget="radio"/>
+                                        <field name="tint_degree_method" widget="radio"  options="{'horizontal': true}"/>
                                     </group>
                                     <!-- <group>
                                         <button string="تطبيق الطريقة"
