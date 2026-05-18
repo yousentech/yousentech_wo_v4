@@ -493,17 +493,17 @@
                                     أجزاء هذا النوع
                                 </strong>
 
-                                <button string="إضافة الأجزاء تلقائياً"
-                                        type="object"
-                                        name="action_load_service_parts"
-                                        class="btn btn-success"
-                                        icon="fa-download"/>
+                                <button string="إنشاء جزء جديد"
+                                    type="object"
+                                    name="action_open_create_part_wizard"
+                                    class="btn btn-success"
+                                    icon="fa-plus"/>
                             </div>
 
                             <div class="card-body">
                                 <div class="alert alert-info mb-3" role="status">
                                     <i class="fa fa-info-circle me-1" title="معلومة"/>
-                                    يتم جلب الأجزاء تلقائياً حسب نوع الخدمة المحدد.
+                                        يتم جلب الأجزاء تلقائياً عند الدخول لهذه الخطوة حسب نوع الخدمة، ويمكنك إنشاء جزء جديد عند الحاجة.
                                 </div>
 
                                 <field name="part_line_ids" nolabel="1">
@@ -830,6 +830,65 @@
 
         </field>
     </record>
+
+    <record id="view_wof_setup_create_part_wizard_form" model="ir.ui.view">
+        <field name="name">wof.setup.create.part.wizard.form</field>
+        <field name="model">wof.setup.create.part.wizard</field>
+        <field name="arch" type="xml">
+
+            <form string="إنشاء جزء جديد" create="0" edit="0">
+
+                <sheet>
+
+                    <field name="setup_film_wizard_id" invisible="1"/>
+
+                    <div class="alert alert-success text-center p-3" role="status">
+                        <h3>
+                            <i class="fa fa-plus-circle me-1" title="إضافة"/>
+                            إنشاء جزء جديد
+                        </h3>
+                        <div class="text-muted">
+                            سيتم ربط الجزء تلقائياً بنفس نوع الخدمة الحالية وإضافته لقائمة الأجزاء.
+                        </div>
+                    </div>
+
+                    <group col="2">
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="priority_part"/>
+                        </group>
+
+                        <group>
+                            <field name="service_options" readonly="1"/>
+                            <field name="part_type"/>
+                            <field name="product_id"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <field name="notes"/>
+                    </group>
+
+                    <footer>
+                        <button string="إنشاء وإضافة"
+                                type="object"
+                                name="action_create_part"
+                                class="btn btn-primary"
+                                icon="fa-check"/>
+
+                        <button string="إلغاء"
+                                special="cancel"
+                                class="btn btn-secondary"/>
+                    </footer>
+
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
+
     <record id="action_wof_setup_wizard" model="ir.actions.act_window">
         <field name="name">تهيئة النظام</field>
         <field name="res_model">wof.setup.wizard</field>

@@ -893,14 +893,8 @@ class WofSetupFilmWizard(models.TransientModel):
             'part_line_ids': commands
         })
 
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('تهيئة أنواع %s') % (self.service_name or ''),
-            'res_model': 'wof.setup.film.wizard',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+        self._load_service_parts_to_lines()
+        return self._reload_film_wizard()
 
     film_step = fields.Selection([
         ('info', 'بيانات النوع'),
@@ -943,8 +937,39 @@ class WofSetupFilmWizard(models.TransientModel):
 
     def action_film_next_parts(self):
         self.ensure_one()
+
         self.film_step = 'parts'
+        self._load_service_parts_to_lines()
+
         return self._reload_film_wizard()
+
+    def _load_service_parts_to_lines(self):
+        self.ensure_one()
+
+        if not self.service_options:
+            return False
+
+        Parts = self.env['wof.car.parts'].sudo()
+
+        parts = Parts.search([
+            ('service_options', '=', self.service_options),
+            ('active', '=', True),
+        ], order='priority_part, name')
+
+        existing_parts = self.part_line_ids.mapped('car_part_id')
+
+        commands = []
+        for part in parts:
+            if part not in existing_parts:
+                commands.append((0, 0, {
+                    'selected': True,
+                    'car_part_id': part.id,
+                }))
+
+        if commands:
+            self.write({'part_line_ids': commands})
+
+        return True
 
 
     def action_film_back_degrees(self):
@@ -1005,6 +1030,23 @@ class WofSetupFilmWizard(models.TransientModel):
         self._prepare_tint_degree_lines()
 
         return self._reload_film_wizard()
+
+
+    def action_open_create_part_wizard(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('إنشاء جزء جديد'),
+            'res_model': 'wof.setup.create.part.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_setup_film_wizard_id': self.id,
+                'default_service_options': self.service_options,
+                'default_part_type': 'car_part',
+            }
+        }
 
 class WofSetupFilmTintDegreeLine(models.TransientModel):
     _name = 'wof.setup.film.tint.degree.line'
@@ -1554,3 +1596,106 @@ class WofGenericDoneWizard(models.TransientModel):
     def action_secondary(self):
         self.ensure_one()
         return self._execute_action_key(self.secondary_action_key)
+
+class WofSetupCreatePartWizard(models.TransientModel):
+    _name = 'wof.setup.create.part.wizard'
+    _description = 'WOF Setup Create Part Wizard'
+
+    setup_film_wizard_id = fields.Many2one(
+        'wof.setup.film.wizard',
+        string="معالج الفيلم",
+        required=True,
+        ondelete='cascade'
+    )
+
+    name = fields.Char(
+        string="اسم الجزء",
+        required=True
+    )
+
+    code = fields.Char(
+        string="الكود"
+    )
+
+    priority_part = fields.Integer(
+        string="ترتيب الأولوية",
+        default=10
+    )
+
+    service_options = fields.Selection(
+        SERVICE_OPTIONS,
+        string="نوع الخدمة",
+        required=True
+    )
+
+    part_type = fields.Selection([
+        ('car_part', 'جزء سيارة'),
+        ('service_area', 'منطقة خدمة'),
+    ], string="نوع الجزء", default='car_part', required=True)
+
+    product_id = fields.Many2one(
+        'product.product',
+        string="الصنف الخدمي",
+        domain=[('type', '!=', 'product')],
+        required=True
+    )
+
+    notes = fields.Char(string="ملاحظات")
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+
+        setup_id = self.env.context.get('default_setup_film_wizard_id')
+        if setup_id:
+            setup = self.env['wof.setup.film.wizard'].browse(setup_id).exists()
+            if setup:
+                res['setup_film_wizard_id'] = setup.id
+                res['service_options'] = setup.service_options
+
+        res.setdefault('part_type', 'car_part')
+
+        return res
+
+    def action_create_part(self):
+        self.ensure_one()
+
+        setup = self.setup_film_wizard_id
+        if not setup:
+            raise ValidationError(_("لم يتم العثور على معالج التهيئة."))
+
+        Parts = self.env['wof.car.parts'].sudo()
+
+        existing = Parts.search([
+            ('name', '=', self.name),
+        ], limit=1)
+
+        if existing:
+            raise ValidationError(_("هذا الجزء موجود مسبقاً."))
+
+        company = self.env.company.parent_id or self.env.company
+
+        vals = {
+            'name': self.name,
+            'code': self.code,
+            'priority_part': self.priority_part,
+            'company_id': company.id,
+            'product_id': self.product_id.id,
+            'service_options': setup.service_options,
+            'part_type': self.part_type or 'car_part',
+            'notes': self.notes,
+            'active': True,
+        }
+
+        part = Parts.create(vals)
+
+        existing_parts = setup.part_line_ids.mapped('car_part_id')
+        if part not in existing_parts:
+            setup.write({
+                'part_line_ids': [(0, 0, {
+                    'selected': True,
+                    'car_part_id': part.id,
+                })]
+            })
+
+        return setup._reload_film_wizard()
