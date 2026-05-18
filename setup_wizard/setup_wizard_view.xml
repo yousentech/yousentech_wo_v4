@@ -107,15 +107,15 @@
                             <div class="card-body">
                                 <group col="2">
                                     <group>
-                                        <field name="tint_degree_method"/>
+                                        <field name="tint_degree_method" widget="radio"/>
                                     </group>
-                                    <group>
+                                    <!-- <group>
                                         <button string="تطبيق الطريقة"
                                                 type="object"
                                                 name="action_apply_tint_degree_method"
                                                 class="btn btn-secondary"
                                                 icon="fa-refresh"/>
-                                    </group>
+                                    </group> -->
                                 </group>
                             </div>
                         </div>

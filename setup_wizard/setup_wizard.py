@@ -196,6 +196,7 @@ class WofSetupWizard(models.TransientModel):
         self.step = 'tint_degrees'
         return self._reload_wizard()
 
+    @api.onchange('tint_degree_method')
     def action_apply_tint_degree_method(self):
         self.ensure_one()
 
