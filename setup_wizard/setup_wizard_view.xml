@@ -412,14 +412,30 @@
                                     <group>
                                         <field name="film_name" placeholder="مثال: عزل حراري أمريكي"/>
                                     </group>
-                                    <group>
-                                        <label for="warranty_duration" string="مدة الضمان"/>
-                                        <div class="o_row">
-                                            <field name="warranty_duration" class="oe_inline"/>
-                                            <field name="warranty_period" class="oe_inline"/>
-                                        </div>
-                                        <field name="warranty_years" readonly="1"/>
-                                    </group>
+                                 <group>
+                                    <label for="warranty_duration" string="مدة الضمان"/>
+
+                                    <div class="o_row align-items-center">
+
+                                        <field name="warranty_duration"
+                                            class="oe_inline"
+                                            style="width:80px;"/>
+
+                                        <field name="warranty_period"
+                                            class="oe_inline ms-2"
+                                            style="width:120px;"/>
+
+                                        <span class="mx-2 text-muted">
+                                            =
+                                        </span>
+
+                                        <field name="warranty_years"
+                                            readonly="1"
+                                            nolabel="1"
+                                            class="oe_inline text-success fw-bold"/>
+
+                                    </div>
+                                </group>
                                 </group>
                             </div>
                         </div>
