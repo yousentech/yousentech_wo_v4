@@ -804,25 +804,10 @@ class WofSetupFilmWizard(models.TransientModel):
 
     def action_add_new_film(self):
         self.ensure_one()
-
-        self._save_current_film_to_temp()
-
-        self.write({
-            'film_name': False,
-            'warranty_years': '5',
-            'film_step': 'info',
-            'part_line_ids': [(5, 0, 0)],
-            'tint_degree_line_ids': [(5, 0, 0)],
-        })
-
-        self._prepare_tint_degree_lines()
-
-        return self._reload_film_wizard()
+        return self.action_prepare_new_film()
 
     def action_complete_service_setup(self):
         self.ensure_one()
-
-        self._save_current_film_to_temp()
 
         self.service_line_id.write({
             'completed': True,
@@ -892,6 +877,7 @@ class WofSetupFilmWizard(models.TransientModel):
         ('info', 'بيانات النوع'),
         ('degrees', 'درجات اللون'),
         ('parts', 'الأجزاء'),
+        ('done', 'تم الحفظ'),
     ], default='info', string="مرحلة التهيئة")
 
     def _reload_film_wizard(self):
@@ -939,6 +925,36 @@ class WofSetupFilmWizard(models.TransientModel):
             self.film_step = 'degrees'
         else:
             self.film_step = 'info'
+        return self._reload_film_wizard()
+
+    def action_finish_current_film(self):
+        self.ensure_one()
+
+        if not self.film_name:
+            raise ValidationError(_("يرجى إدخال اسم النوع."))
+
+        if not self.part_line_ids.filtered('selected'):
+            raise ValidationError(_("يرجى إضافة جزء واحد على الأقل قبل إنهاء تهيئة هذا النوع."))
+
+        self._save_current_film_to_temp()
+
+        self.film_step = 'done'
+        return self._reload_film_wizard()
+
+
+    def action_prepare_new_film(self):
+        self.ensure_one()
+
+        self.write({
+            'film_name': False,
+            'warranty_years': '5',
+            'film_step': 'info',
+            'part_line_ids': [(5, 0, 0)],
+            'tint_degree_line_ids': [(5, 0, 0)],
+        })
+
+        self._prepare_tint_degree_lines()
+
         return self._reload_film_wizard()
 
 class WofSetupFilmTintDegreeLine(models.TransientModel):

@@ -373,12 +373,12 @@
 
             <form string="تهيئة الأنواع" create="0" edit="1">
                 <sheet>
-                <header>
-                    <field name="film_step"
-                        widget="statusbar"
-                        statusbar_visible="info,degrees,parts"
-                        options="{'clickable': False}"/>
-                </header>
+                    <header>
+                        <field name="film_step"
+                            widget="statusbar"
+                            statusbar_visible="info,degrees,parts,done"
+                            options="{'clickable': False}"/>
+                    </header>
 
                     <field name="film_step" invisible="1"/>
                     <field name="service_options" invisible="1"/>
@@ -397,19 +397,7 @@
                         </div>
                     </div>
 
-                    <!-- <div class="mb-3 d-flex justify-content-center gap-2">
-                        <span t-attf-class="badge #{film_step == 'info' ? 'bg-primary' : 'bg-secondary'} px-3 py-2">
-                            1 بيانات النوع
-                        </span>
-                        <span t-attf-class="badge #{film_step == 'degrees' ? 'bg-primary' : 'bg-secondary'} px-3 py-2"
-                            invisible="service_options != 'tint'">
-                            2 درجات اللون
-                        </span>
-                        <span t-attf-class="badge #{film_step == 'parts' ? 'bg-primary' : 'bg-secondary'} px-3 py-2">
-                            3 الأجزاء
-                        </span>
-                    </div> -->
-
+                   
                     <div invisible="film_step != 'info'">
                         <div class="card border-primary shadow-sm mb-3">
                             <div class="card-header bg-primary-subtle">
@@ -476,7 +464,7 @@
                         </div>
                     </div>
 
-                    <div invisible="film_step != 'parts'">
+                   <div invisible="film_step != 'parts'">
                         <div class="card border-success shadow-sm mb-3">
                             <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center">
                                 <strong>
@@ -537,26 +525,61 @@
                                     type="object"
                                     name="action_film_back_degrees"
                                     class="btn btn-secondary"/>
- 
+
+                            <button string="إنهاء تهيئة هذا النوع"
+                                    type="object"
+                                    name="action_finish_current_film"
+                                    class="btn btn-success"/>
                         </div>
                     </div>
 
-                    <div class="mt-4 pt-3 border-top d-flex justify-content-start gap-2">
-                        <button string="رجوع للخدمات"
-                                type="object"
-                                name="action_back_to_services"
-                                class="btn btn-secondary"/>
+                    <div invisible="film_step != 'done'">
 
-                        <button string="إضافة نوع جديد"
-                                type="object"
-                                name="action_add_new_film"
-                                class="btn btn-primary"/>
+                        <div class="card border-success shadow-sm mb-3">
 
-                        <button string="اكتمال"
-                                type="object"
-                                name="action_complete_service_setup"
-                                class="btn btn-success"/>
+                            <div class="card-header bg-success-subtle">
+                                <strong>
+                                    <i class="fa fa-check-circle me-1" title="تم"/>
+                                    تم حفظ تهيئة هذا النوع
+                                </strong>
+                            </div>
+
+                            <div class="card-body text-center">
+
+                                <div class="alert alert-success p-4" role="status">
+                                    <h3 class="mb-2">
+                                        <i class="fa fa-check-circle me-2" title="نجاح"/>
+                                        تم حفظ النوع بنجاح
+                                    </h3>
+
+                                    <div class="text-muted">
+                                        يمكنك الآن إضافة نوع آخر لنفس الخدمة، أو إنهاء تهيئة نوع الخدمة والرجوع للقائمة.
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-center gap-3 mt-4">
+
+                                    <button string="إضافة نوع جديد"
+                                            type="object"
+                                            name="action_prepare_new_film"
+                                            class="btn btn-primary btn-lg"
+                                            icon="fa-plus"/>
+
+                                    <button string="إنهاء تهيئة نوع الخدمة"
+                                            type="object"
+                                            name="action_complete_service_setup"
+                                            class="btn btn-success btn-lg"
+                                            icon="fa-check"/>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
+
+                   
 
                 </sheet>
             </form>
