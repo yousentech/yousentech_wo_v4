@@ -144,7 +144,7 @@
                                         <field name="selected" string="اختيار"/>
                                         <field name="sequence" string="#" readonly="1"/>
                                         <field name="value" string="القيمة"/>
-                                        <field name="name" string="الليبل / المسمى"/>
+                                        <field name="name" readonly="1" force_save="1" string="المسمى"/>
 
                                     </tree>
                                 </field>
