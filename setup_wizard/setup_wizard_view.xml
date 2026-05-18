@@ -855,14 +855,13 @@
                     <group col="2">
                         <group>
                             <field name="name"/>
-                            <field name="code"/>
-                            <field name="priority_part"/>
+                        
                         </group>
 
                         <group>
                             <field name="service_options" readonly="1"/>
                             <field name="part_type"/>
-                            <field name="product_id"/>
+                       
                         </group>
                     </group>
 

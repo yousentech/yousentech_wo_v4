@@ -1633,12 +1633,7 @@ class WofSetupCreatePartWizard(models.TransientModel):
         ('service_area', 'منطقة خدمة'),
     ], string="نوع الجزء", default='car_part', required=True)
 
-    product_id = fields.Many2one(
-        'product.product',
-        string="الصنف الخدمي",
-        domain=[('type', '!=', 'product')],
-        required=True
-    )
+    
 
     notes = fields.Char(string="ملاحظات")
 
@@ -1680,7 +1675,7 @@ class WofSetupCreatePartWizard(models.TransientModel):
             'code': self.code,
             'priority_part': self.priority_part,
             'company_id': company.id,
-            'product_id': self.product_id.id,
+          
             'service_options': setup.service_options,
             'part_type': self.part_type or 'car_part',
             'notes': self.notes,
