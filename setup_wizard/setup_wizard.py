@@ -25,14 +25,26 @@ CAR_SIZE_OPTIONS = [
 
 
 TINT_DEGREE_METHODS = [
-    ('series', '01 - 02 - 03 - 05'),
-    ('percent', '00 - 35 - 50 - 75'),
+    ('series', 'طريقة الأرقام 00 - 01 - 02 - 03 - 04'),
+    ('percent', 'طريقة النسب شفاف - 00 - 35 - 50 - 70 - 75'),
 ]
 
-
 TINT_DEGREE_PRESETS = {
-    'series': ['01', '02', '03', '05', '10', '15', '20'],
-    'percent': ['00', '35', '50', '70', '75', '80', '100'],
+    'series': [
+        ('الدرجة 1', '00'),
+        ('الدرجة 2', '01'),
+        ('الدرجة 3', '02'),
+        ('الدرجة 4', '03'),
+        ('الدرجة 5', '04'),
+    ],
+    'percent': [
+        ('شفاف', 'شفاف'),
+        ('الدرجة 00', '00'),
+        ('الدرجة 35', '35'),
+        ('الدرجة 50', '50'),
+        ('الدرجة 70', '70'),
+        ('الدرجة 75', '75'),
+    ],
 }
 
 
@@ -114,11 +126,12 @@ class WofSetupWizard(models.TransientModel):
             values = TINT_DEGREE_PRESETS.get(method, [])
             degree_lines = []
 
-            for index, value in enumerate(values, start=1):
+            for index, item in enumerate(values, start=1):
+                label, value = item
                 degree_lines.append((0, 0, {
                     'sequence': index,
                     'selected': True,
-                    'name': _('الدرجة %s') % index,
+                    'name': label,
                     'value': value,
                 }))
 
@@ -189,11 +202,12 @@ class WofSetupWizard(models.TransientModel):
         values = TINT_DEGREE_PRESETS.get(self.tint_degree_method, [])
         commands = [(5, 0, 0)]
 
-        for index, value in enumerate(values, start=1):
+        for index, item in enumerate(values, start=1):
+            label, value = item
             commands.append((0, 0, {
                 'sequence': index,
                 'selected': True,
-                'name': _('الدرجة %s') % index,
+                'name': label,
                 'value': value,
             }))
 

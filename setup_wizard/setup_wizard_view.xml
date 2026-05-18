@@ -84,7 +84,6 @@
                         </field>
 
                     </div>
-
                     <div invisible="step != 'tint_degrees'">
 
                         <div class="alert alert-dark text-center p-3" role="status">
@@ -93,22 +92,33 @@
                                 تهيئة درجات اللون
                             </h3>
                             <div class="text-muted">
-                                درجات اللون تستخدم فقط مع العزل الحراري، ويتم اختيار المناسب لكل نوع فيلم لاحقاً.
+                                اختر طريقة التعامل، ثم فعّل الدرجات المطلوبة وعدّل المسميات حسب نظامك.
                             </div>
                         </div>
 
-                        <group string="طريقة درجات اللون" col="2">
-                            <group>
-                                <field name="tint_degree_method"/>
-                            </group>
-                            <group>
-                                <button string="تطبيق الطريقة"
-                                        type="object"
-                                        name="action_apply_tint_degree_method"
-                                        class="btn btn-secondary"
-                                        icon="fa-refresh"/>
-                            </group>
-                        </group>
+                        <div class="card border-dark shadow-sm mb-3">
+                            <div class="card-header bg-light">
+                                <strong>
+                                    <i class="fa fa-list me-1" title="طريقة الدرجات"/>
+                                    طريقة التعامل مع درجات اللون
+                                </strong>
+                            </div>
+
+                            <div class="card-body">
+                                <group col="2">
+                                    <group>
+                                        <field name="tint_degree_method"/>
+                                    </group>
+                                    <group>
+                                        <button string="تطبيق الطريقة"
+                                                type="object"
+                                                name="action_apply_tint_degree_method"
+                                                class="btn btn-secondary"
+                                                icon="fa-refresh"/>
+                                    </group>
+                                </group>
+                            </div>
+                        </div>
 
                         <field name="tint_degree_line_ids" nolabel="1">
                             <kanban create="0" delete="0" class="o_kanban_small_column">
@@ -123,20 +133,22 @@
                                             oe_kanban_card p-3 rounded shadow-sm
                                             #{record.selected.raw_value ? 'border border-success bg-success-subtle' : 'border bg-light text-muted'}
                                         ">
+
                                             <div class="d-flex justify-content-between align-items-center">
-                                                <div class="fw-bold" style="font-size:18px;">
+                                                <div class="fw-bold" style="font-size:20px;">
                                                     <i t-attf-class="
                                                         fa me-1
                                                         #{record.selected.raw_value ? 'fa-check-circle text-success' : 'fa-circle-o text-muted'}
                                                     " title="اختيار"/>
                                                     <field name="value"/>
                                                 </div>
+
                                                 <field name="selected" widget="boolean_toggle"/>
                                             </div>
 
                                             <div class="mt-3">
                                                 <div class="text-muted small o_form_label">
-                                                    المسمى
+                                                    الليبل / المسمى
                                                 </div>
 
                                                 <div class="d-flex align-items-center justify-content-between">
@@ -145,13 +157,14 @@
                                                     </div>
 
                                                     <a type="object"
-                                                       name="action_open_line"
-                                                       class="text-primary ms-2"
-                                                       title="تعديل درجة اللون">
+                                                    name="action_open_line"
+                                                    class="text-primary ms-2"
+                                                    title="تعديل الليبل">
                                                         <i class="fa fa-pencil" title="تعديل"/>
                                                     </a>
                                                 </div>
                                             </div>
+
                                         </div>
                                     </t>
                                 </templates>
