@@ -84,7 +84,7 @@
                         </field>
 
                     </div>
-                    <div invisible="step != 'tint_degrees'">
+                     <div invisible="step != 'tint_degrees'">
 
                         <div class="alert alert-dark text-center p-3" role="status">
                             <h3>
@@ -92,7 +92,7 @@
                                 تهيئة درجات اللون
                             </h3>
                             <div class="text-muted">
-                                اختر طريقة التعامل، ثم فعّل الدرجات المطلوبة وعدّل المسميات حسب نظامك.
+                                اختر طريقة التعامل، ثم فعّل الدرجات وعدّل المسميات من الجدول.
                             </div>
                         </div>
 
@@ -120,56 +120,37 @@
                             </div>
                         </div>
 
-                        <field name="tint_degree_line_ids" nolabel="1">
-                            <kanban create="0" delete="0" class="o_kanban_small_column">
-                                <field name="selected"/>
-                                <field name="name"/>
-                                <field name="value"/>
-                                <field name="sequence"/>
+                        <div class="card border-dark shadow-sm mb-3">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <strong>
+                                    <i class="fa fa-table me-1" title="جدول درجات اللون"/>
+                                    جدول درجات اللون
+                                </strong>
 
-                                <templates>
-                                    <t t-name="kanban-box">
-                                        <div t-attf-class="
-                                            oe_kanban_card p-3 rounded shadow-sm
-                                            #{record.selected.raw_value ? 'border border-success bg-success-subtle' : 'border bg-light text-muted'}
-                                        ">
+                                <span class="badge bg-dark">
+                                    فعّل الدرجات المطلوبة وعدّل الليبل
+                                </span>
+                            </div>
 
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div class="fw-bold" style="font-size:20px;">
-                                                    <i t-attf-class="
-                                                        fa me-1
-                                                        #{record.selected.raw_value ? 'fa-check-circle text-success' : 'fa-circle-o text-muted'}
-                                                    " title="اختيار"/>
-                                                    <field name="value"/>
-                                                </div>
+                            <div class="card-body">
 
-                                                <field name="selected" widget="boolean_toggle"/>
-                                            </div>
+                                <field name="tint_degree_line_ids" nolabel="1">
+                                    <tree editable="bottom"
+                                        create="0"
+                                        delete="0"
+                                        decoration-muted="not selected"
+                                        decoration-success="selected">
 
-                                            <div class="mt-3">
-                                                <div class="text-muted small o_form_label">
-                                                    الليبل / المسمى
-                                                </div>
+                                        <field name="selected" string="اختيار"/>
+                                        <field name="sequence" string="#" readonly="1"/>
+                                        <field name="value" string="القيمة"/>
+                                        <field name="name" string="الليبل / المسمى"/>
 
-                                                <div class="d-flex align-items-center justify-content-between">
-                                                    <div class="fw-bold text-dark" style="font-size:15px;">
-                                                        <field name="name"/>
-                                                    </div>
+                                    </tree>
+                                </field>
 
-                                                    <a type="object"
-                                                    name="action_open_line"
-                                                    class="text-primary ms-2"
-                                                    title="تعديل الليبل">
-                                                        <i class="fa fa-pencil" title="تعديل"/>
-                                                    </a>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </t>
-                                </templates>
-                            </kanban>
-                        </field>
+                            </div>
+                        </div>
 
                     </div>
 
