@@ -990,16 +990,16 @@
                         
                         </group>
 
-                        <group>
+                        <!-- <group>
                             <field name="service_options" readonly="1"/>
                             <field name="part_type"/>
                        
-                        </group>
+                        </group> -->
                     </group>
 
-                    <group>
+                    <!-- <group>
                         <field name="notes"/>
-                    </group>
+                    </group> -->
 
                     <footer>
                         <button string="إنشاء وإضافة"
