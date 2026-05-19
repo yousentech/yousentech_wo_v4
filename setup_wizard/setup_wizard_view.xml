@@ -570,8 +570,8 @@
                         <div class="card border-success shadow-sm mb-3">
                             <div class="card-header bg-success-subtle d-flex align-items-center gap-2">
 
-                                <!-- يسار -->
-                                <div class="flex-fill text-start">
+                                <!-- يسار: زر إنشاء جزء -->
+                                <div style="width:25%; text-align:left;">
                                     <button string="إنشاء جزء جديد"
                                             type="object"
                                             name="action_open_create_part_wizard"
@@ -579,37 +579,37 @@
                                             icon="fa-plus"/>
                                 </div>
 
-                                <!-- وسط -->
-                                <div class="flex-fill text-center">
+                                <!-- وسط: المرحلة الحالية -->
+                                <div style="width:50%; text-align:center;">
 
-                                    <span class="badge bg-light text-dark border px-3 py-2"
+                                    <span class="px-4 py-2 rounded-pill border bg-white shadow-sm"
                                         invisible="parts_mode != 'parts'">
-                                        <i class="fa fa-puzzle-piece me-1" title="الأجزاء"/>
-                                        مرحلة اختيار الأجزاء
+                                        <i class="fa fa-puzzle-piece text-secondary me-1" title="الأجزاء"/>
+                                        <strong>مرحلة اختيار الأجزاء</strong>
                                     </span>
 
-                                    <span class="badge bg-light text-dark border px-3 py-2"
+                                    <span class="px-4 py-2 rounded-pill border bg-primary-subtle shadow-sm"
                                         invisible="parts_mode != 'pricing'">
-                                        <i class="fa fa-money me-1" title="الأسعار"/>
-                                        مرحلة إدخال الأسعار
-                                        <span class="text-muted">
-                                            — قم بإدخال أسعار الأجزاء حسب حجم السيارة
+                                        <i class="fa fa-money text-primary me-1" title="الأسعار"/>
+                                        <strong>مرحلة إدخال الأسعار</strong>
+                                        <span class="text-muted small">
+                                            — حسب حجم السيارة
                                         </span>
                                     </span>
 
-                                    <span class="badge bg-light text-dark border px-3 py-2"
+                                    <span class="px-4 py-2 rounded-pill border bg-warning-subtle shadow-sm"
                                         invisible="parts_mode != 'commission'">
-                                        <i class="fa fa-users me-1" title="العمولات"/>
-                                        مرحلة إدخال عمولات الفنيين
-                                        <span class="text-muted">
-                                            — قم بإدخال عمولات الفنيين حسب حجم السيارة
+                                        <i class="fa fa-users text-warning me-1" title="العمولات"/>
+                                        <strong>مرحلة إدخال عمولات الفنيين</strong>
+                                        <span class="text-muted small">
+                                            — حسب حجم السيارة
                                         </span>
                                     </span>
 
                                 </div>
 
-                                <!-- يمين -->
-                                <div class="flex-fill text-end">
+                                <!-- يمين: العنوان -->
+                                <div style="width:25%; text-align:right;">
                                     <strong>
                                         <i class="fa fa-cogs me-1" title="الأجزاء"/>
                                         أجزاء هذا النوع
