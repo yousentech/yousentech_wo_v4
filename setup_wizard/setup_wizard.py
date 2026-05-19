@@ -524,6 +524,26 @@ class WofSetupWizard(models.TransientModel):
     def action_unlock_base_setup(self):
         self.ensure_one()
 
+        company = self.env.company.parent_id or self.env.company
+
+        service_options = self.service_line_ids.filtered('selected').mapped('service_options')
+
+        service_types = self.env['wof.service.type'].sudo().search([
+            ('service_options', 'in', service_options),
+            ('company_id', '=', company.id),
+        ])
+
+        films = self.env['wof.film.category'].sudo().search([
+            ('service_type_id', 'in', service_types.ids),
+            ('company_id', '=', company.id),
+        ], limit=1)
+
+        if films:
+            raise ValidationError(_(
+                "لا يمكن إعادة تهيئة المقاسات ودرجات اللون لأن هناك أفلام أو أجزاء تم إنشاؤها فعلياً وتعتمد على هذه الإعدادات.\n\n"
+                "إذا أردت التعديل، قم بأرشفة أو حذف البيانات الأصلية المرتبطة أولاً."
+            ))
+
         self.env['wof.setup.temp.film.tint.degree.line'].sudo().search([
             ('film_id.wizard_id', '=', self.id)
         ]).unlink()
