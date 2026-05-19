@@ -996,10 +996,9 @@ class WofSetupFilmWizard(models.TransientModel):
 
     def action_film_next_parts(self):
         self.ensure_one()
-
         self.film_step = 'parts'
+        self.parts_mode = 'parts'
         self._load_service_parts_to_lines()
-
         return self._reload_film_wizard()
 
     def _load_service_parts_to_lines(self):
