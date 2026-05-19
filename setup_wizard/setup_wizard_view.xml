@@ -577,15 +577,6 @@
                                         أجزاء هذا النوع
                                     </strong>
 
-                                    <span class="text-muted">
-                                        —
-                                        يتم جلب الأجزاء تلقائياً حسب نوع الخدمة
-                                    </span>
-
-                                    <span class="badge bg-info text-dark">
-                                        يمكنك إنشاء جزء جديد عند الحاجة
-                                    </span>
-
                                 </div>
 
                                 <button string="إنشاء جزء جديد"
