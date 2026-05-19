@@ -10,6 +10,7 @@
                 <sheet>
 
                     <field name="step" invisible="1"/>
+                    <field name="setup_locked" invisible="1"/>
 
                     <div invisible="step != 'welcome'">
                         <div class="alert alert-primary text-center p-4" role="status">
@@ -22,7 +23,17 @@
                             </div>
                         </div>
                     </div>
-
+                    <div class="alert alert-success text-center p-3"
+                        role="status"
+                        invisible="not setup_locked">
+                        <strong>
+                            <i class="fa fa-lock me-1" title="مقفل"/>
+                            تم اعتماد أحجام السيارة
+                        </strong>
+                        <div class="text-muted mt-1">
+                            لا يمكن تعديل أحجام السيارة بعد بدء تهيئة أنواع الخدمات إلا بإعادة تهيئة المقاسات والدرجات.
+                        </div>
+                    </div>
                     <div invisible="step != 'car_sizes'">
 
                         <div class="alert alert-warning text-center p-3" role="status">
@@ -37,7 +48,7 @@
 
                         <field name="car_size_line_ids" nolabel="1">
                             <kanban create="0" delete="0" class="o_kanban_small_column">
-                                <field name="selected"/>
+                                <field name="selected" widget="boolean_toggle" readonly="parent.setup_locked"/>
                                 <field name="code"/>
                                 <field name="name"/>
                                 <field name="sequence"/>
@@ -56,7 +67,7 @@
                                                     " title="اختيار"/>
                                                     <field name="code"/>
                                                 </div>
-                                                <field name="selected" widget="boolean_toggle"/>
+                                                <field name="selected" widget="boolean_toggle" />
                                             </div>
 
                                             <div class="mt-3">
@@ -70,11 +81,12 @@
                                                     </div>
 
                                                     <a type="object"
-                                                       name="action_open_line"
-                                                       class="text-primary ms-2"
-                                                       title="تعديل الاسم">
-                                                        <i class="fa fa-pencil" title="تعديل"/>
-                                                    </a>
+                                                        name="action_open_line"
+                                                        class="text-primary ms-2"
+                                                        title="تعديل الاسم"
+                                                        invisible="parent.setup_locked">
+                                                            <i class="fa fa-pencil" title="تعديل"/>
+                                                        </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -83,6 +95,17 @@
                             </kanban>
                         </field>
 
+                    </div>
+                    <div class="alert alert-success text-center p-3"
+                        role="status"
+                        invisible="not setup_locked">
+                        <strong>
+                            <i class="fa fa-lock me-1" title="مقفل"/>
+                            تم اعتماد درجات اللون
+                        </strong>
+                        <div class="text-muted mt-1">
+                            لا يمكن تعديل درجات اللون بعد بدء تهيئة الأنواع لأنها مستخدمة في أفلام العزل.
+                        </div>
                     </div>
                      <div invisible="step != 'tint_degrees'">
 
@@ -141,10 +164,10 @@
                                         decoration-muted="not selected"
                                         decoration-success="selected">
 
-                                        <field name="selected" string="اختيار"/>
+                                        <field name="selected" string="اختيار" readonly="parent.setup_locked"/>
                                         <field name="sequence" string="#" readonly="1"/>
-                                        <field name="value" string="القيمة"/>
-                                        <field name="name" readonly="1" force_save="1" string="المسمى"/>
+                                        <field name="value" string="القيمة" readonly="parent.setup_locked"/>
+                                        <field name="name" string="الليبل / المسمى" readonly="parent.setup_locked"/>
 
                                     </tree>
                                 </field>
@@ -165,6 +188,23 @@
                                 اختر نوع الخدمة، ثم اضغط بدء التهيئة لإضافة الأفلام والأجزاء.
                             </div>
                         </div>
+                        <div class="alert alert-success text-center p-3"
+                                role="status"
+                                invisible="not setup_locked">
+                                <strong>
+                                    <i class="fa fa-check-circle me-1" title="اعتماد"/>
+                                    تم اعتماد أحجام السيارات ودرجات اللون
+                                </strong>
+                                <div class="text-muted mt-1">
+                                    يمكنك الآن تهيئة أنواع الخدمات. إذا أردت تعديل المقاسات أو الدرجات سيتم حذف تهيئة الأنواع المؤقتة.
+                                </div>
+
+                                <button string="إعادة تهيئة المقاسات ودرجات اللون"
+                                        type="object"
+                                        name="action_unlock_base_setup"
+                                        class="btn btn-outline-danger mt-2"
+                                        icon="fa-unlock"/>
+                            </div>
 
                         <field name="service_line_ids" nolabel="1">
                             <kanban create="0" delete="0" class="o_kanban_small_column">

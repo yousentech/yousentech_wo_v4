@@ -84,6 +84,9 @@ class WofSetupWizard(models.TransientModel):
         'wizard_id',
         string="أنواع الخدمات"
     )
+    setup_locked = fields.Boolean(
+    string="تم اعتماد المقاسات والدرجات",
+    default=False )
 
     @api.model
     def reset_setup_temp_data(self):
@@ -200,24 +203,24 @@ class WofSetupWizard(models.TransientModel):
     @api.onchange('tint_degree_method')
     def action_apply_tint_degree_method(self):
         self.ensure_one()
+        if not self.setup_locked:
+            values = TINT_DEGREE_PRESETS.get(self.tint_degree_method, [])
+            commands = [(5, 0, 0)]
 
-        values = TINT_DEGREE_PRESETS.get(self.tint_degree_method, [])
-        commands = [(5, 0, 0)]
+            for index, item in enumerate(values, start=1):
+                label, value = item
+                commands.append((0, 0, {
+                    'sequence': index,
+                    'selected': True,
+                    'name': label,
+                    'value': value,
+                }))
 
-        for index, item in enumerate(values, start=1):
-            label, value = item
-            commands.append((0, 0, {
-                'sequence': index,
-                'selected': True,
-                'name': label,
-                'value': value,
-            }))
+            self.write({
+                'tint_degree_line_ids': commands
+            })
 
-        self.write({
-            'tint_degree_line_ids': commands
-        })
-
-        return self._reload_wizard()
+            return self._reload_wizard()
 
     def action_go_service_types(self):
         self.ensure_one()
@@ -230,6 +233,7 @@ class WofSetupWizard(models.TransientModel):
             if not line.name or not line.value:
                 raise ValidationError(_("يرجى إدخال المسمى والقيمة لكل درجة لون مختارة."))
 
+        self.setup_locked = True
         self.step = 'service_types'
         return self._reload_wizard()
 
@@ -517,7 +521,57 @@ class WofSetupWizard(models.TransientModel):
 
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
+    def action_unlock_base_setup(self):
+        self.ensure_one()
 
+        self.env['wof.setup.temp.film.tint.degree.line'].sudo().search([
+            ('film_id.wizard_id', '=', self.id)
+        ]).unlink()
+
+        self.env['wof.setup.temp.film.part.commission.line'].sudo().search([
+            ('temp_part_id.film_id.wizard_id', '=', self.id)
+        ]).unlink()
+
+        self.env['wof.setup.temp.film.part.price.line'].sudo().search([
+            ('temp_part_id.film_id.wizard_id', '=', self.id)
+        ]).unlink()
+
+        self.env['wof.setup.temp.film.part'].sudo().search([
+            ('film_id.wizard_id', '=', self.id)
+        ]).unlink()
+
+        self.env['wof.setup.temp.film'].sudo().search([
+            ('wizard_id', '=', self.id)
+        ]).unlink()
+
+        self.env['wof.setup.film.tint.degree.line'].sudo().search([
+            ('wizard_id.parent_wizard_id', '=', self.id)
+        ]).unlink()
+
+        self.env['wof.setup.film.part.commission.line'].sudo().search([
+            ('part_line_id.wizard_id.parent_wizard_id', '=', self.id)
+        ]).unlink()
+
+        self.env['wof.setup.film.part.price.line'].sudo().search([
+            ('part_line_id.wizard_id.parent_wizard_id', '=', self.id)
+        ]).unlink()
+
+        self.env['wof.setup.film.part.line'].sudo().search([
+            ('wizard_id.parent_wizard_id', '=', self.id)
+        ]).unlink()
+
+        self.env['wof.setup.film.wizard'].sudo().search([
+            ('parent_wizard_id', '=', self.id)
+        ]).unlink()
+
+        self.service_line_ids.write({
+            'completed': False,
+        })
+
+        self.setup_locked = False
+        self.step = 'car_sizes'
+
+        return self._reload_wizard()
 class WofSetupWizardCarSizeLine(models.TransientModel):
     _name = 'wof.setup.wizard.car.size.line'
     _description = 'WOF Setup Wizard Car Size Line'
@@ -536,6 +590,8 @@ class WofSetupWizardCarSizeLine(models.TransientModel):
 
     def action_open_line(self):
         self.ensure_one()
+        if self.wizard_id.setup_locked:
+            raise ValidationError(_("لا يمكن تعديل حجم السيارة بعد اعتماد الإعدادات."))
         return {
             'type': 'ir.actions.act_window',
             'name': _('تعديل حجم السيارة'),
@@ -574,6 +630,8 @@ class WofSetupWizardTintDegreeLine(models.TransientModel):
 
     def action_open_line(self):
         self.ensure_one()
+        if self.wizard_id.setup_locked:
+             raise ValidationError(_("لا يمكن تعديل درجة اللون بعد اعتماد الإعدادات."))
         return {
             'type': 'ir.actions.act_window',
             'name': _('تعديل درجة اللون'),
