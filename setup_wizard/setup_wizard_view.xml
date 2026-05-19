@@ -392,7 +392,7 @@
                             <i class="fa fa-magic me-2" title="تهيئة"/>
                             تهيئة أنواع <field name="service_name" readonly="1"/>
                         </h2>
-                        <div class="text-muted" invisible="service_options != 'tint'">
+                       <div class="text-muted" invisible="service_options != 'tint'">
                             الخطوات: بيانات النوع ثم الدرجات ثم الأجزاء.
                         </div>
 
@@ -444,11 +444,24 @@
                             </div>
                         </div>
 
-                        <div class="mt-3 d-flex justify-content-start gap-2">
+                       <div class="mt-3 d-flex justify-content-start gap-2">
+
+                            <!-- للعزل الحراري -->
                             <button string="التالي: درجات اللون"
                                     type="object"
                                     name="action_film_next_degrees"
-                                    class="btn btn-primary"/>
+                                    class="btn btn-primary"
+                                    icon="fa-adjust"
+                                    invisible="service_options != 'tint'"/>
+
+                            <!-- لباقي الخدمات -->
+                            <button string="التالي: الأجزاء"
+                                    type="object"
+                                    name="action_film_next_degrees"
+                                    class="btn btn-primary"
+                                    icon="fa-cogs"
+                                    invisible="service_options == 'tint'"/>
+
                         </div>
                     </div>
 
@@ -476,31 +489,17 @@
                             </div>
                         </div>
 
-                    
-                         
-                       <div class="mt-3 d-flex justify-content-start gap-2">
+                        <div class="mt-3 d-flex justify-content-start gap-2">
                             <button string="رجوع"
-                                type="object"
-                                name="action_film_back_info"
-                                class="btn btn-secondary"/>
-                            <!-- للعزل الحراري -->
-                            <button string="التالي: درجات اللون"
                                     type="object"
-                                    name="action_film_next_degrees"
-                                    class="btn btn-primary"
-                                    icon="fa-adjust"
-                                    invisible="service_options != 'tint'"/>
+                                    name="action_film_back_info"
+                                    class="btn btn-secondary"/>
 
-                            <!-- لباقي الخدمات -->
                             <button string="التالي: الأجزاء"
                                     type="object"
-                                    name="action_film_next_degrees"
-                                    class="btn btn-primary"
-                                    icon="fa-cogs"
-                                    invisible="service_options == 'tint'"/>
-
+                                    name="action_film_next_parts"
+                                    class="btn btn-primary"/>
                         </div>
-                    
                     </div>
 
                    <div invisible="film_step != 'parts'">
