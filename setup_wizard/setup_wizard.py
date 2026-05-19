@@ -1168,6 +1168,53 @@ class WofSetupFilmWizard(models.TransientModel):
         self.parts_mode = 'commission'
         return self._reload_film_wizard()
 
+    def _get_parts_without_commission(self):
+        self.ensure_one()
+
+        missing_parts = self.env['wof.setup.film.part.line']
+
+        for part in self.part_line_ids.filtered('selected'):
+            has_commission = any(
+                line.commission > 0
+                for line in part.commission_line_ids
+            )
+            if not has_commission:
+                missing_parts |= part
+
+        return missing_parts
+
+
+    def action_parts_back_to_pricing(self):
+        self.ensure_one()
+        self.parts_mode = 'pricing'
+        return self._reload_film_wizard()
+
+
+    def action_try_finish_current_film(self):
+        self.ensure_one()
+
+        missing_parts = self._get_parts_without_commission()
+
+        if missing_parts:
+            wizard = self.env['wof.setup.parts.commission.confirm.wizard'].create({
+                'setup_film_wizard_id': self.id,
+                'message': _(
+                    "توجد أجزاء لم يتم إدخال عمولات لها.\n\n"
+                    "هل تريد إنهاء تهيئة هذا النوع على كل حال؟"
+                ),
+            })
+
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('تنبيه العمولات'),
+                'res_model': 'wof.setup.parts.commission.confirm.wizard',
+                'res_id': wizard.id,
+                'view_mode': 'form',
+                'target': 'new',
+            }
+
+        return self.action_finish_current_film()
+
 class WofSetupFilmTintDegreeLine(models.TransientModel):
     _name = 'wof.setup.film.tint.degree.line'
     _description = 'WOF Setup Film Tint Degree Line'
@@ -1814,3 +1861,29 @@ class WofSetupCreatePartWizard(models.TransientModel):
             })
 
         return setup._reload_film_wizard()
+    
+class WofSetupPartsCommissionConfirmWizard(models.TransientModel):
+    _name = 'wof.setup.parts.commission.confirm.wizard'
+    _description = 'WOF Setup Parts Commission Confirm Wizard'
+
+    setup_film_wizard_id = fields.Many2one(
+        'wof.setup.film.wizard',
+        string="معالج الفيلم",
+        required=True,
+        ondelete='cascade'
+    )
+
+    message = fields.Text(
+        string="الرسالة",
+        readonly=True
+    )
+
+    def action_back_to_commission(self):
+        self.ensure_one()
+        setup = self.setup_film_wizard_id
+        setup.parts_mode = 'commission'
+        return setup._reload_film_wizard()
+
+    def action_finish_anyway(self):
+        self.ensure_one()
+        return self.setup_film_wizard_id.action_finish_current_film()
