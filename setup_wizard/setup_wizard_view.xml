@@ -568,25 +568,35 @@
 
                    <div invisible="film_step != 'parts'">
                         <div class="card border-success shadow-sm mb-3">
-                            <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center">
-                                <strong>
-                                    <i class="fa fa-cogs me-1" title="الأجزاء"/>
-                                    أجزاء هذا النوع
-                                </strong>
+                           <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center flex-wrap gap-2">
 
-                                <button string="إنشاء جزء جديد"
-                                    type="object"
-                                    name="action_open_create_part_wizard"
-                                    class="btn btn-success"
-                                    icon="fa-plus"/>
-                            </div>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
 
-                            <div class="card-body">
-                                <div class="alert alert-info mb-3" role="status">
-                                    <i class="fa fa-info-circle me-1" title="معلومة"/>
-                                        يتم جلب الأجزاء تلقائياً عند الدخول لهذه الخطوة حسب نوع الخدمة، ويمكنك إنشاء جزء جديد عند الحاجة.
+                                    <strong class="fs-5">
+                                        <i class="fa fa-cogs me-1" title="الأجزاء"/>
+                                        أجزاء هذا النوع
+                                    </strong>
+
+                                    <span class="text-muted">
+                                        —
+                                        يتم جلب الأجزاء تلقائياً حسب نوع الخدمة
+                                    </span>
+
+                                    <span class="badge bg-info text-dark">
+                                        يمكنك إنشاء جزء جديد عند الحاجة
+                                    </span>
+
                                 </div>
 
+                                <button string="إنشاء جزء جديد"
+                                        type="object"
+                                        name="action_open_create_part_wizard"
+                                        class="btn btn-success"
+                                        icon="fa-plus"/>
+
+                            </div>
+                            <div class="card-body">
+                                
                                 <field name="part_line_ids" nolabel="1">
                                     <tree editable="bottom"
                                         create="1"
