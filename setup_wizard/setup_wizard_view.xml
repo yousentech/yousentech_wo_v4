@@ -414,7 +414,13 @@
                             <div class="card-body">
                                 <group col="2">
                                     <group>
-                                        <field name="film_name" placeholder="مثال: عزل حراري أمريكي"/>
+                                        
+                                        <field name="film_name" placeholder="مثال: عزل حراري أمريكي" invisible="service_options != 'tint'"/>
+                                        <field name="film_name" placeholder="مثال: حماية PPF أمريكي" invisible="service_options != 'ppf'"/>
+                                        <field name="film_name" placeholder="مثال: نانو سيراميك" invisible="service_options != 'nano'"/>
+                                        <field name="film_name" placeholder="مثال: تنجيد" invisible="service_options != 'upholstery'"/>
+                                        <field name="film_name" placeholder="مثال: أرضيات" invisible="service_options != 'floor_mats'"/>
+
                                     </group>
                                  <group>
                                     <label for="warranty_duration" string="مدة الضمان"/>
