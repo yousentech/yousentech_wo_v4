@@ -392,8 +392,12 @@
                             <i class="fa fa-magic me-2" title="تهيئة"/>
                             تهيئة أنواع <field name="service_name" readonly="1"/>
                         </h2>
-                        <div class="text-muted">
-                            مرّر على الخطوات: بيانات النوع ثم الدرجات ثم الأجزاء.
+                        <div class="text-muted" invisible="service_options != 'tint'">
+                            الخطوات: بيانات النوع ثم الدرجات ثم الأجزاء.
+                        </div>
+
+                        <div class="text-muted" invisible="service_options == 'tint'">
+                            الخطوات: بيانات النوع ثم الأجزاء.
                         </div>
                     </div>
 

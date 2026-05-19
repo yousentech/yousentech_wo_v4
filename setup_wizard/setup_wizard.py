@@ -925,6 +925,7 @@ class WofSetupFilmWizard(models.TransientModel):
             self.film_step = 'degrees'
         else:
             self.film_step = 'parts'
+            self._load_service_parts_to_lines()
 
         return self._reload_film_wizard()
 
@@ -974,10 +975,12 @@ class WofSetupFilmWizard(models.TransientModel):
 
     def action_film_back_degrees(self):
         self.ensure_one()
+
         if self.service_options == 'tint':
             self.film_step = 'degrees'
         else:
             self.film_step = 'info'
+
         return self._reload_film_wizard()
 
     def action_finish_current_film(self):
