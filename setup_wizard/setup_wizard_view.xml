@@ -158,27 +158,55 @@
                     </div>
 
                     <div invisible="step != 'service_types'">
-                        <div class="alert alert-success text-center p-4 mb-4"
-                            role="status"
-                            invisible="not setup_locked">
+                           <div class="alert alert-success p-3 mb-4"
+                                role="status"
+                                invisible="not setup_locked">
 
-                            <h3 class="mb-2">
-                                <i class="fa fa-check-circle me-1"/>
-                                تم اعتماد الإعدادات الأساسية
-                            </h3>
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-                            <div class="text-muted mb-3">
-                                أحجام السيارات ودرجات اللون أصبحت معتمدة لأنها مستخدمة
-                                في تهيئة الأنواع والتسعيرات والعمولات.
+                                    <!-- النص -->
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                                        <i class="fa fa-check-circle text-success fs-4"
+                                        title="تم الاعتماد"/>
+
+                                        <strong class="fs-5">
+                                            تم اعتماد الإعدادات الأساسية
+                                        </strong>
+
+                                        <span class="text-muted">
+                                            —
+                                            أحجام السيارات ودرجات اللون أصبحت معتمدة لأنها مستخدمة في
+                                        </span>
+
+                                        <span class="fw-bold text-primary">
+                                            تهيئة الأنواع
+                                        </span>
+
+                                        <span class="text-muted">و</span>
+
+                                        <span class="fw-bold text-success">
+                                            التسعيرات
+                                        </span>
+
+                                        <span class="text-muted">و</span>
+
+                                        <span class="fw-bold text-warning">
+                                            العمولات
+                                        </span>
+
+                                    </div>
+
+                                    <!-- الزر -->
+                                    <button string="إعادة التهيئة"
+                                            type="object"
+                                            name="action_unlock_base_setup"
+                                            class="btn btn-outline-danger"
+                                            icon="fa-unlock"/>
+
+                                </div>
+
                             </div>
-
-                            <button string="إعادة تهيئة المقاسات ودرجات اللون"
-                                    type="object"
-                                    name="action_unlock_base_setup"
-                                    class="btn btn-outline-danger"
-                                    icon="fa-unlock"/>
-
-                        </div>
                         <div class="alert alert-info text-center p-3" role="status">
                             <h3>
                                 <i class="fa fa-cogs me-2" title="أنواع الخدمات"/>
@@ -308,11 +336,11 @@
                                 class="btn btn-primary"
                                 invisible="step != 'tint_degrees'"/>
 
-                        <button string="رجوع لدرجات اللون"
+                        <!-- <button string="رجوع لدرجات اللون"
                                 type="object"
                                 name="action_back_tint_degrees"
                                 class="btn btn-secondary"
-                                invisible="step != 'service_types'"/>
+                                invisible="step != 'service_types'"/> -->
 
                         <button string="إنهاء كامل التهيئة"
                                 type="object"
