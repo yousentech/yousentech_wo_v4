@@ -476,8 +476,13 @@
                             </div>
                         </div>
 
+                    
+                         
                        <div class="mt-3 d-flex justify-content-start gap-2">
-
+                            <button string="رجوع"
+                                type="object"
+                                name="action_film_back_info"
+                                class="btn btn-secondary"/>
                             <!-- للعزل الحراري -->
                             <button string="التالي: درجات اللون"
                                     type="object"
@@ -495,6 +500,7 @@
                                     invisible="service_options == 'tint'"/>
 
                         </div>
+                    
                     </div>
 
                    <div invisible="film_step != 'parts'">
