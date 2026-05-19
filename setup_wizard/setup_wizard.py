@@ -1051,6 +1051,66 @@ class WofSetupFilmWizard(models.TransientModel):
             }
         }
 
+    parts_mode = fields.Selection([
+    ('parts', 'الأجزاء'),
+    ('pricing', 'إدخال الأسعار'),
+    ('commission', 'عمولات الفنيين'), ], default='parts', string="وضع الأجزاء")
+
+
+    def action_parts_mode_parts(self):
+        self.ensure_one()
+        self.parts_mode = 'parts'
+        return self._reload_film_wizard()
+
+
+    def action_parts_mode_pricing(self):
+        self.ensure_one()
+        self.parts_mode = 'pricing'
+        return self._reload_film_wizard()
+
+
+    def _get_parts_without_prices(self):
+        self.ensure_one()
+
+        missing_parts = self.env['wof.setup.film.part.line']
+
+        for part in self.part_line_ids.filtered('selected'):
+            has_price = any(
+                line.free_part or line.part_price > 0
+                for line in part.price_line_ids
+            )
+            if not has_price:
+                missing_parts |= part
+
+        return missing_parts
+
+
+    def action_parts_mode_commission(self):
+        self.ensure_one()
+
+        missing_parts = self._get_parts_without_prices()
+
+        if missing_parts:
+            wizard = self.env['wof.setup.parts.mode.confirm.wizard'].create({
+                'setup_film_wizard_id': self.id,
+                'message': _(
+                    "توجد أجزاء لم يتم إدخال أسعار لها.\n\n"
+                    "هل تريد الاستمرار إلى إدخال عمولات الفنيين؟"
+                ),
+            })
+
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('تنبيه الأسعار'),
+                'res_model': 'wof.setup.parts.mode.confirm.wizard',
+                'res_id': wizard.id,
+                'view_mode': 'form',
+                'target': 'new',
+            }
+
+        self.parts_mode = 'commission'
+        return self._reload_film_wizard()
+
 class WofSetupFilmTintDegreeLine(models.TransientModel):
     _name = 'wof.setup.film.tint.degree.line'
     _description = 'WOF Setup Film Tint Degree Line'

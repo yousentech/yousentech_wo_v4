@@ -537,3 +537,35 @@ class CarPartssizeLines(models.Model):
                 rec.available_part_ids = rec.header_id.film_part_line_ids.mapped('car_part_id')
             else:
                 rec.available_part_ids = False
+
+class WofSetupPartsModeConfirmWizard(models.TransientModel):
+    _name = 'wof.setup.parts.mode.confirm.wizard'
+    _description = 'WOF Setup Parts Mode Confirm Wizard'
+
+    setup_film_wizard_id = fields.Many2one(
+        'wof.setup.film.wizard',
+        string="معالج الفيلم",
+        required=True,
+        ondelete='cascade'
+    )
+
+    message = fields.Text(
+        string="الرسالة",
+        readonly=True
+    )
+
+    def action_continue_commission(self):
+        self.ensure_one()
+
+        setup = self.setup_film_wizard_id
+        setup.parts_mode = 'commission'
+
+        return setup._reload_film_wizard()
+
+    def action_keep_pricing(self):
+        self.ensure_one()
+
+        setup = self.setup_film_wizard_id
+        setup.parts_mode = 'pricing'
+
+        return setup._reload_film_wizard()
