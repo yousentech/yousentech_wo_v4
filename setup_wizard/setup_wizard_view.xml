@@ -568,80 +568,53 @@
 
                    <div invisible="film_step != 'parts'">
                         <div class="card border-success shadow-sm mb-3">
-                           <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="card-header bg-success-subtle d-flex align-items-center gap-2">
 
-                                <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <!-- يسار -->
+                                <div class="flex-fill text-start">
+                                    <button string="إنشاء جزء جديد"
+                                            type="object"
+                                            name="action_open_create_part_wizard"
+                                            class="btn btn-success"
+                                            icon="fa-plus"/>
+                                </div>
 
-                                    <strong class="fs-5">
-                                        <i class="fa fa-cogs me-1" title="الأجزاء"/>
-                                        أجزاء هذا النوع
-                                    </strong>
-                                    <div class="alert alert-light border d-flex align-items-center gap-2 mb-3"
-                                        role="status"
+                                <!-- وسط -->
+                                <div class="flex-fill text-center">
+
+                                    <span class="badge bg-light text-dark border px-3 py-2"
                                         invisible="parts_mode != 'parts'">
+                                        <i class="fa fa-puzzle-piece me-1" title="الأجزاء"/>
+                                        مرحلة اختيار الأجزاء
+                                    </span>
 
-                                        <i class="fa fa-puzzle-piece text-secondary fs-4"
-                                        title="الأجزاء"/>
-
-                                        <div>
-                                            <strong>
-                                                مرحلة اختيار الأجزاء
-                                            </strong>
-
-                                            <div class="text-muted small">
-                                                اختر الأجزاء المطلوبة لهذا النوع.
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <!-- وضع الأسعار -->
-                                    <div class="alert alert-primary d-flex align-items-center gap-2 mb-3"
-                                        role="status"
+                                    <span class="badge bg-light text-dark border px-3 py-2"
                                         invisible="parts_mode != 'pricing'">
+                                        <i class="fa fa-money me-1" title="الأسعار"/>
+                                        مرحلة إدخال الأسعار
+                                        <span class="text-muted">
+                                            — قم بإدخال أسعار الأجزاء حسب حجم السيارة
+                                        </span>
+                                    </span>
 
-                                        <i class="fa fa-money text-primary fs-4"
-                                        title="الأسعار"/>
-
-                                        <div>
-                                            <strong>
-                                                مرحلة إدخال الأسعار
-                                            </strong>
-
-                                            <span class="small">
-                                              ( قم بإدخال أسعار الأجزاء حسب حجم السيارة.)
-                                            </span>
-                                        </div>
-
-                                    </div>
-
-                                    <!-- وضع العمولات -->
-                                    <div class="alert alert-warning d-flex align-items-center gap-2 mb-3"
-                                        role="status"
+                                    <span class="badge bg-light text-dark border px-3 py-2"
                                         invisible="parts_mode != 'commission'">
-
-                                        <i class="fa fa-users text-warning fs-4"
-                                        title="العمولات"/>
-
-                                        <div>
-                                            <strong>
-                                                مرحلة إدخال عمولات الفنيين
-                                            </strong>
-
-                                            <div class="small">
-                                                قم بإدخال عمولات الفنيين لكل جزء حسب الحجم.
-                                            </div>
-                                        </div>
-
-                                    </div>
+                                        <i class="fa fa-users me-1" title="العمولات"/>
+                                        مرحلة إدخال عمولات الفنيين
+                                        <span class="text-muted">
+                                            — قم بإدخال عمولات الفنيين حسب حجم السيارة
+                                        </span>
+                                    </span>
 
                                 </div>
 
-                                <button string="إنشاء جزء جديد"
-                                        type="object"
-                                        name="action_open_create_part_wizard"
-                                        class="btn btn-success"
-                                        icon="fa-plus"/>
+                                <!-- يمين -->
+                                <div class="flex-fill text-end">
+                                    <strong>
+                                        <i class="fa fa-cogs me-1" title="الأجزاء"/>
+                                        أجزاء هذا النوع
+                                    </strong>
+                                </div>
 
                             </div>
 
