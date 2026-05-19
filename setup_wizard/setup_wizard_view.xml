@@ -23,17 +23,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="alert alert-success text-center p-3"
-                        role="status"
-                        invisible="not setup_locked">
-                        <strong>
-                            <i class="fa fa-lock me-1" title="مقفل"/>
-                            تم اعتماد أحجام السيارة
-                        </strong>
-                        <div class="text-muted mt-1">
-                            لا يمكن تعديل أحجام السيارة بعد بدء تهيئة أنواع الخدمات إلا بإعادة تهيئة المقاسات والدرجات.
-                        </div>
-                    </div>
+                    
                     <div invisible="step != 'car_sizes'">
 
                         <div class="alert alert-warning text-center p-3" role="status">
@@ -96,17 +86,7 @@
                         </field>
 
                     </div>
-                    <div class="alert alert-success text-center p-3"
-                        role="status"
-                        invisible="not setup_locked">
-                        <strong>
-                            <i class="fa fa-lock me-1" title="مقفل"/>
-                            تم اعتماد درجات اللون
-                        </strong>
-                        <div class="text-muted mt-1">
-                            لا يمكن تعديل درجات اللون بعد بدء تهيئة الأنواع لأنها مستخدمة في أفلام العزل.
-                        </div>
-                    </div>
+                    
                      <div invisible="step != 'tint_degrees'">
 
                         <div class="alert alert-dark text-center p-3" role="status">
@@ -178,7 +158,27 @@
                     </div>
 
                     <div invisible="step != 'service_types'">
+                        <div class="alert alert-success text-center p-4 mb-4"
+                            role="status"
+                            invisible="not setup_locked">
 
+                            <h3 class="mb-2">
+                                <i class="fa fa-check-circle me-1"/>
+                                تم اعتماد الإعدادات الأساسية
+                            </h3>
+
+                            <div class="text-muted mb-3">
+                                أحجام السيارات ودرجات اللون أصبحت معتمدة لأنها مستخدمة
+                                في تهيئة الأنواع والتسعيرات والعمولات.
+                            </div>
+
+                            <button string="إعادة تهيئة المقاسات ودرجات اللون"
+                                    type="object"
+                                    name="action_unlock_base_setup"
+                                    class="btn btn-outline-danger"
+                                    icon="fa-unlock"/>
+
+                        </div>
                         <div class="alert alert-info text-center p-3" role="status">
                             <h3>
                                 <i class="fa fa-cogs me-2" title="أنواع الخدمات"/>
@@ -188,23 +188,8 @@
                                 اختر نوع الخدمة، ثم اضغط بدء التهيئة لإضافة الأفلام والأجزاء.
                             </div>
                         </div>
-                        <div class="alert alert-success text-center p-3"
-                                role="status"
-                                invisible="not setup_locked">
-                                <strong>
-                                    <i class="fa fa-check-circle me-1" title="اعتماد"/>
-                                    تم اعتماد أحجام السيارات ودرجات اللون
-                                </strong>
-                                <div class="text-muted mt-1">
-                                    يمكنك الآن تهيئة أنواع الخدمات. إذا أردت تعديل المقاسات أو الدرجات سيتم حذف تهيئة الأنواع المؤقتة.
-                                </div>
 
-                                <button string="إعادة تهيئة المقاسات ودرجات اللون"
-                                        type="object"
-                                        name="action_unlock_base_setup"
-                                        class="btn btn-outline-danger mt-2"
-                                        icon="fa-unlock"/>
-                            </div>
+                    
 
                         <field name="service_line_ids" nolabel="1">
                             <kanban create="0" delete="0" class="o_kanban_small_column">
