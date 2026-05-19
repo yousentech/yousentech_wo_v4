@@ -571,7 +571,11 @@
                             <div class="card-header bg-success-subtle d-flex align-items-center gap-2">
 
                                 <!-- يسار: زر إنشاء جزء -->
-                                <div style="width:25%; text-align:left;">
+
+                               
+
+
+                                <div style="width:25%; text-align:right;">
                                     <button string="إنشاء جزء جديد"
                                             type="object"
                                             name="action_open_create_part_wizard"
@@ -609,7 +613,7 @@
                                 </div>
 
                                 <!-- يمين: العنوان -->
-                                <div style="width:25%; text-align:right;">
+                                <div style="width:25%; text-align:left;">
                                     <strong>
                                         <i class="fa fa-cogs me-1" title="الأجزاء"/>
                                         أجزاء هذا النوع
