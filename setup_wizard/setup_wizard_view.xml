@@ -573,15 +573,15 @@
                                 <!-- يسار: زر إنشاء جزء -->
 
                                
-
-
-                                <div style="width:25%; text-align:right;">
+                                <div class="flex-fill text-start" style="width:25%;">
                                     <button string="إنشاء جزء جديد"
                                             type="object"
                                             name="action_open_create_part_wizard"
                                             class="btn btn-success"
                                             icon="fa-plus"/>
                                 </div>
+
+                                
 
                                 <!-- وسط: المرحلة الحالية -->
                                 <div style="width:50%; text-align:center;">
@@ -612,14 +612,13 @@
 
                                 </div>
 
-                                <!-- يمين: العنوان -->
-                                <div style="width:25%; text-align:left;">
+                                <div class="flex-fill text-end" style="width:25%;">
                                     <strong>
                                         <i class="fa fa-cogs me-1" title="الأجزاء"/>
                                         أجزاء هذا النوع
                                     </strong>
                                 </div>
-
+ 
                             </div>
 
                             <div class="card-body">
