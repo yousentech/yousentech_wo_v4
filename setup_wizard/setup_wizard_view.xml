@@ -598,13 +598,13 @@
                                     type="object"
                                     name="action_parts_mode_pricing"
                                     class="btn btn-primary"
-                                    icon="fa-money"/>
+                                    icon="fa-money" invisible="parts_mode != 'pricing'"/>
 
                             <button string="إدخال عمولات الفنيين"
                                     type="object"
                                     name="action_parts_mode_commission"
                                     class="btn btn-warning"
-                                    icon="fa-users"/>
+                                    icon="fa-users" invisible="parts_mode != 'commission'"/>
 
                             <button string="إنهاء تهيئة هذا النوع"
                                     type="object"
