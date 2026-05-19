@@ -130,7 +130,7 @@
                                     جدول درجات اللون
                                 </strong>
 
-                                <span class="badge bg-dark">
+                                <span>
                                     فعّل الدرجات المطلوبة وعدّل الليبل
                                 </span>
                             </div>
@@ -232,8 +232,7 @@
                                             oe_kanban_card p-3 rounded shadow-sm
                                             #{record.completed.raw_value ? 'border border-success bg-success-subtle' : ''}
                                             #{record.selected.raw_value and !record.completed.raw_value ? 'border border-primary bg-primary-subtle' : ''}
-                                            #{!record.selected.raw_value and !record.completed.raw_value ? 'border bg-white' : ''}
-                                        ">
+                                            #{!record.selected.raw_value and !record.completed.raw_value ? 'border bg-white' : ''}  ">
 
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div class="fw-bold" style="font-size:16px;">
