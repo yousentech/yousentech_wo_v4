@@ -928,8 +928,13 @@
                         </div>
                     </div>
 
-                    <group string="بيانات الجزء" col="2">
+                   <group string="بيانات الجزء" col="2">
                         <field name="car_part_id" readonly="1"/>
+                        <field name="line_role" invisible="1"/>
+
+                        <field name="service_area_commission_method"
+                            invisible="line_role != 'service_area'"/>
+
                         <field name="commission_summary" readonly="1"/>
                     </group>
 
@@ -1120,12 +1125,14 @@
                             <field name="name" placeholder="اكتب اسم الجزء المارد اضافته" />
                         
                         </group>
+                        
 
-                        <!-- <group>
-                            <field name="service_options" readonly="1"/>
-                            <field name="part_type"/>
-                       
-                        </group> -->
+                        <group>
+                            <field name="part_type" invisible="1"/>
+
+                            <field name="service_area_commission_method"
+                                invisible="part_type != 'service_area'"/>
+                        </group>
                     </group>
 
                     <!-- <group>

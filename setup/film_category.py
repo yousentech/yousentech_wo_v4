@@ -193,25 +193,13 @@ class FilmCategoryLine(models.Model):
 
     name = fields.Char(string="درجة اللون")
 
-    limpid_product_ids = fields.Many2many(
-        'product.product',
-        domain=[('measure_product', '=', True), ('type', '=', 'product')],
-        string="الصنف المخزني"
-    )
+    limpid_product_ids = fields.Many2many('product.product', domain=[('measure_product', '=', True), ('type', '=', 'product')],  string="الصنف المخزني" )
 
-    header_id = fields.Many2one(
-        'wof.film.category',
-        ondelete="cascade",
-        string="الفلم"
-    )
+    header_id = fields.Many2one('wof.film.category', ondelete="cascade",  string="الفلم" )
 
     _sql_constraints = [
-        (
-            "film_cat_line_unique",
-            "UNIQUE(name,header_id)",
-            "هذا السطر مضاف مسبقاً لنفس الفئة"
-        ),
-    ]
+        ("film_cat_line_unique", "UNIQUE(name,header_id)",
+            "هذا السطر مضاف مسبقاً لنفس الفئة" )]
 
 
 class FilmPartLines(models.Model):

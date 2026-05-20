@@ -1356,8 +1356,16 @@ class WofSetupFilmPartLine(models.TransientModel):
         ('car_part', 'جزء سيارة'),
         ('service_area', 'منطقة خدمة')], string="نوع السطر", default='car_part', required=True)
 
+
     def _format_size_name(self, line):
         return line.car_size_line_id.display_name if line.car_size_line_id else _('كل الأحجام')
+  
+  
+    service_area_commission_method = fields.Selection(
+        related='car_part_id.service_area_commission_method',
+        readonly=False,
+        string="طريقة احتساب عمولة الفنيين" )
+
 
     @api.depends(
         'price_line_ids.car_size_line_id',
@@ -1862,7 +1870,10 @@ class WofSetupCreatePartWizard(models.TransientModel):
         ('service_area', 'منطقة خدمة'),
     ], string="نوع الجزء", default='car_part', required=True)
 
-    
+    service_area_commission_method = fields.Selection([
+                ('equal_from_area', 'توزيع عمولة منطقة الخدمة بالتساوي'),
+                ('from_part', 'احتساب العمولة من الجزء'),
+            ], string="طريقة احتساب عمولة الفنيين", default='equal_from_area')
 
     notes = fields.Char(string="ملاحظات")
 
@@ -1904,7 +1915,7 @@ class WofSetupCreatePartWizard(models.TransientModel):
             'code': self.code,
             'priority_part': self.priority_part,
             'company_id': company.id,
-          
+            'service_area_commission_method': self.service_area_commission_method if self.part_type == 'service_area' else False,
             'service_options': setup.service_options,
             'part_type': self.part_type or 'car_part',
             'notes': self.notes,

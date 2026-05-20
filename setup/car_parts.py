@@ -67,7 +67,11 @@ class CarParts(models.Model):
 
    
     part_options_ids = fields.Many2many('wof.car.part.options', string="خيارات إضافية")
-   
+    service_area_commission_method = fields.Selection([
+                                                    ('equal_from_area', 'توزيع عمولة منطقة الخدمة بالتساوي'),
+                                                    ('from_part', 'احتساب العمولة من الجزء'), ], string="طريقة احتساب عمولة الفنيين", default='equal_from_area')
+
+
     _sql_constraints = [
         ("car_part_unique",
          "UNIQUE(name)",

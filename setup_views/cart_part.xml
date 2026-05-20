@@ -84,7 +84,7 @@
                         </group>
                         <group>
                           <field name="part_type" widget="radio"/>
-                          
+                          <field name="service_area_commission_method"   invisible="part_type != 'service_area'"/>
 
                         </group>
                         
