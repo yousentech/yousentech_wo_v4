@@ -947,32 +947,15 @@ class WofSetupFilmWizard(models.TransientModel):
         if not self.service_options:
             raise ValidationError(_("لم يتم تحديد نوع الخدمة."))
 
-        Parts = self.env['wof.car.parts'].sudo()
-        parts = Parts.search([
-            ('service_options', '=', self.service_options),
-        ], order='name')
+        part_type = 'service_area' if self.film_step == 'service_areas' else 'car_part'
+        before_count = len(self.part_line_ids.filtered(lambda line: line.line_role == part_type))
+        self._load_service_parts_to_lines(part_type)
+        after_count = len(self.part_line_ids.filtered(lambda line: line.line_role == part_type))
 
-        if not parts:
-            raise ValidationError(_("لا توجد أجزاء معرفة لهذا النوع من الخدمة."))
+        if before_count == after_count:
+            label = _("مناطق الخدمة") if part_type == 'service_area' else _("الأجزاء")
+            raise ValidationError(_("لا توجد %s جديدة لهذا النوع من الخدمة أو أنها مضافة مسبقاً.") % label)
 
-        existing_parts = self.part_line_ids.mapped('car_part_id')
-        commands = []
-
-        for part in parts:
-            if part not in existing_parts:
-                commands.append((0, 0, {
-                    'selected': True,
-                    'car_part_id': part.id,
-                }))
-
-        if not commands:
-            raise ValidationError(_("كل الأجزاء الخاصة بهذا النوع مضافة مسبقاً."))
-
-        self.write({
-            'part_line_ids': commands
-        })
-
-        self._load_service_parts_to_lines()
         return self._reload_film_wizard()
 
     film_step = fields.Selection([
@@ -1003,11 +986,9 @@ class WofSetupFilmWizard(models.TransientModel):
         if self.service_options == 'tint':
             self._prepare_tint_degree_lines()
             self.film_step = 'degrees'
-        else:
-            self.film_step = 'parts'
-            self._load_service_parts_to_lines()
+            return self._reload_film_wizard()
 
-        return self._reload_film_wizard()
+        return self.action_film_next_parts()
 
 
     def action_film_back_info(self):
@@ -1029,6 +1010,7 @@ class WofSetupFilmWizard(models.TransientModel):
 
         self.film_step = 'parts'
         self.parts_mode = 'parts'
+        self._load_service_parts_to_lines('car_part')
 
         return self._reload_film_wizard()
 
@@ -1047,6 +1029,9 @@ class WofSetupFilmWizard(models.TransientModel):
         if not self.service_options:
             return False
 
+        if part_type not in ('car_part', 'service_area'):
+            part_type = 'car_part'
+
         Parts = self.env['wof.car.parts'].sudo()
 
         parts = Parts.search([
@@ -1056,7 +1041,7 @@ class WofSetupFilmWizard(models.TransientModel):
         ], order='priority_part, name')
 
         existing_parts = self.part_line_ids.filtered(
-            lambda l: l.line_role == part_type
+            lambda line: line.line_role == part_type
         ).mapped('car_part_id')
 
         commands = []
@@ -1069,7 +1054,9 @@ class WofSetupFilmWizard(models.TransientModel):
                 }))
 
         if commands:
-            self.write({'part_line_ids': commands})
+            self.write({
+                'part_line_ids': commands
+            })
 
         return True
 

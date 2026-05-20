@@ -1,1268 +1,724 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
-    <record id="view_wof_setup_wizard_form" model="ir.ui.view">
-        <field name="name">wof.setup.wizard.form</field>
-        <field name="model">wof.setup.wizard</field>
-        <field name="arch" type="xml">
-
-            <form string="تهيئة النظام" create="0" edit="1">
-                <sheet>
-
-                    <field name="step" invisible="1"/>
-                    <field name="setup_locked" invisible="1"/>
-
-                    <div invisible="step != 'welcome'">
-                        <div class="alert alert-primary text-center p-4" role="status">
-                            <h1>
-                                <i class="fa fa-magic me-2" title="تهيئة"/>
-                                مرحباً بك في نظام العناية بالسيارات
-                            </h1>
-                            <div class="text-muted mt-2">
-                                سنقوم بتهيئة النظام خطوة بخطوة.
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div invisible="step != 'car_sizes'">
-
-                        <div class="alert alert-warning text-center p-3" role="status">
-                            <h3>
-                                <i class="fa fa-car me-2" title="أحجام السيارة"/>
-                                تهيئة أحجام السيارة
-                            </h3>
-                            <div class="text-muted">
-                                اختر الأحجام المستخدمة في التسعيرات والعمولات، ويمكنك إعادة تسمية كل حجم حسب نظامك.
-                            </div>
-                        </div>
-
-                        <field name="car_size_line_ids" nolabel="1">
-                            <kanban create="0" delete="0" class="o_kanban_small_column">
-                                <field name="selected" widget="boolean_toggle" readonly="parent.setup_locked"/>
-                                <field name="code"/>
-                                <field name="name"/>
-                                <field name="sequence"/>
-
-                                <templates>
-                                    <t t-name="kanban-box">
-                                        <div t-attf-class="
-                                            oe_kanban_card p-3 rounded shadow-sm
-                                            #{record.selected.raw_value ? 'border border-success bg-success-subtle' : 'border bg-light text-muted'}
-                                        ">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div class="fw-bold" style="font-size:16px;">
-                                                    <i t-attf-class="
-                                                        fa me-1
-                                                        #{record.selected.raw_value ? 'fa-check-circle text-success' : 'fa-circle-o text-muted'}
-                                                    " title="اختيار"/>
-                                                    <field name="code"/>
-                                                </div>
-                                                <field name="selected" widget="boolean_toggle" />
-                                            </div>
-
-                                            <div class="mt-3">
-                                                <div class="text-muted small o_form_label">
-                                                    اسم الحجم
-                                                </div>
-
-                                                <div class="d-flex align-items-center justify-content-between">
-                                                    <div class="fw-bold text-dark" style="font-size:15px;">
-                                                        <field name="name"/>
-                                                    </div>
-
-                                                    <a type="object"
-                                                        name="action_open_line"
-                                                        class="text-primary ms-2"
-                                                        title="تعديل الاسم"
-                                                        invisible="parent.setup_locked">
-                                                            <i class="fa fa-pencil" title="تعديل"/>
-                                                        </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </t>
-                                </templates>
-                            </kanban>
-                        </field>
-
-                    </div>
-                    
-                     <div invisible="step != 'tint_degrees'">
-
-                        <div class="alert alert-dark text-center p-3" role="status">
-                            <h3>
-                                <i class="fa fa-adjust me-2" title="درجات اللون"/>
-                                تهيئة درجات اللون
-                            </h3>
-                            <div class="text-muted">
-                                اختر طريقة التعامل، ثم فعّل الدرجات وعدّل المسميات من الجدول.
-                            </div>
-                        </div>
-
-                        <div class="card border-dark shadow-sm mb-3">
-                            <div class="card-header bg-light">
-                                <strong>
-                                    <i class="fa fa-list me-1" title="طريقة الدرجات"/>
-                                    طريقة التعامل مع درجات اللون
-                                </strong>
-                            </div>
-
-                            <div class="card-body">
-                                <group col="2">
-                                    <group>
-                                        <field name="tint_degree_method" widget="radio"  options="{'horizontal': true}"/>
-                                    </group>
-                                    <!-- <group>
+<record id="view_wof_setup_wizard_form" model="ir.ui.view">
+<field name="name">wof.setup.wizard.form</field>
+<field name="model">wof.setup.wizard</field>
+<field name="arch" type="xml">
+<form string="تهيئة النظام" create="0" edit="1">
+<sheet>
+<field name="step" invisible="1"/>
+<field name="setup_locked" invisible="1"/>
+<div invisible="step != 'welcome'">
+<div class="alert alert-primary text-center p-4" role="status">
+<h1>
+<i class="fa fa-magic me-2" title="تهيئة"/>
+مرحباً بك في نظام العناية بالسيارات
+</h1>
+<div class="text-muted mt-2"> سنقوم بتهيئة النظام خطوة بخطوة. </div>
+</div>
+</div>
+<div invisible="step != 'car_sizes'">
+<div class="alert alert-warning text-center p-3" role="status">
+<h3>
+<i class="fa fa-car me-2" title="أحجام السيارة"/>
+تهيئة أحجام السيارة
+</h3>
+<div class="text-muted"> اختر الأحجام المستخدمة في التسعيرات والعمولات، ويمكنك إعادة تسمية كل حجم حسب نظامك. </div>
+</div>
+<field name="car_size_line_ids" nolabel="1">
+<kanban create="0" delete="0" class="o_kanban_small_column">
+<field name="selected" widget="boolean_toggle" readonly="parent.setup_locked"/>
+<field name="code"/>
+<field name="name"/>
+<field name="sequence"/>
+<templates>
+<t t-name="kanban-box">
+<div t-attf-class=" oe_kanban_card p-3 rounded shadow-sm #{record.selected.raw_value ? 'border border-success bg-success-subtle' : 'border bg-light text-muted'} ">
+<div class="d-flex justify-content-between align-items-center">
+<div class="fw-bold" style="font-size:16px;">
+<i t-attf-class=" fa me-1 #{record.selected.raw_value ? 'fa-check-circle text-success' : 'fa-circle-o text-muted'} " title="اختيار"/>
+<field name="code"/>
+</div>
+<field name="selected" widget="boolean_toggle"/>
+</div>
+<div class="mt-3">
+<div class="text-muted small o_form_label"> اسم الحجم </div>
+<div class="d-flex align-items-center justify-content-between">
+<div class="fw-bold text-dark" style="font-size:15px;">
+<field name="name"/>
+</div>
+<a type="object" name="action_open_line" class="text-primary ms-2" title="تعديل الاسم" invisible="parent.setup_locked">
+<i class="fa fa-pencil" title="تعديل"/>
+</a>
+</div>
+</div>
+</div>
+</t>
+</templates>
+</kanban>
+</field>
+</div>
+<div invisible="step != 'tint_degrees'">
+<div class="alert alert-dark text-center p-3" role="status">
+<h3>
+<i class="fa fa-adjust me-2" title="درجات اللون"/>
+تهيئة درجات اللون
+</h3>
+<div class="text-muted"> اختر طريقة التعامل، ثم فعّل الدرجات وعدّل المسميات من الجدول. </div>
+</div>
+<div class="card border-dark shadow-sm mb-3">
+<div class="card-header bg-light">
+<strong>
+<i class="fa fa-list me-1" title="طريقة الدرجات"/>
+طريقة التعامل مع درجات اللون
+</strong>
+</div>
+<div class="card-body">
+<group col="2">
+<group>
+<field name="tint_degree_method" widget="radio" options="{'horizontal': true}"/>
+</group>
+<!--  <group>
                                         <button string="تطبيق الطريقة"
                                                 type="object"
                                                 name="action_apply_tint_degree_method"
                                                 class="btn btn-secondary"
                                                 icon="fa-refresh"/>
-                                    </group> -->
-                                </group>
-                            </div>
-                        </div>
-
-                        <div class="card border-dark shadow-sm mb-3">
-                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                <strong>
-                                    <i class="fa fa-table me-1" title="جدول درجات اللون"/>
-                                    جدول درجات اللون
-                                </strong>
-
-                                <span>
-                                    فعّل الدرجات المطلوبة وعدّل الليبل
-                                </span>
-                            </div>
-
-                            <div class="card-body">
-
-                                <field name="tint_degree_line_ids" nolabel="1">
-                                    <tree editable="bottom"
-                                        create="0"
-                                        delete="0"
-                                        decoration-muted="not selected"
-                                        decoration-success="selected">
-
-                                        <field name="selected" string="اختيار" readonly="parent.setup_locked"/>
-                                        <field name="sequence" string="#" readonly="1"/>
-                                        <field name="value" string="القيمة" readonly="parent.setup_locked"/>
-                                        <field name="name" string="الليبل / المسمى" readonly="parent.setup_locked"/>
-
-                                    </tree>
-                                </field>
-
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div invisible="step != 'service_types'">
-                           <div class="alert alert-success p-3 mb-4"
-                                role="status"
-                                invisible="not setup_locked">
-
-                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
-                                    <!-- النص -->
-                                    <div class="d-flex align-items-center gap-2 flex-wrap">
-
-                                        <i class="fa fa-check-circle text-success fs-4"
-                                        title="تم الاعتماد"/>
-
-                                        <strong class="fs-5">
-                                            تم اعتماد الإعدادات الأساسية
-                                        </strong>
-
-                                        <span class="text-muted">
-                                            —
-                                            أحجام السيارات ودرجات اللون أصبحت معتمدة لأنها مستخدمة في
-                                        </span>
-
-                                        <span class="fw-bold text-primary">
-                                            تهيئة الأنواع
-                                        </span>
-
-                                        <span class="text-muted">و</span>
-
-                                        <span class="fw-bold text-success">
-                                            التسعيرات
-                                        </span>
-
-                                        <span class="text-muted">و</span>
-
-                                        <span class="fw-bold text-warning">
-                                            العمولات
-                                        </span>
-
-                                    </div>
-
-                                    <!-- الزر -->
-                                    <button string="إعادة التهيئة"
-                                            type="object"
-                                            name="action_unlock_base_setup"
-                                            class="btn btn-outline-danger"
-                                            icon="fa-unlock"/>
-
-                                </div>
-
-                            </div>
-                        <div class="alert alert-info text-center p-3" role="status">
-                            <h3>
-                                <i class="fa fa-cogs me-2" title="أنواع الخدمات"/>
-                                تهيئة أنواع الخدمات
-                            </h3>
-                            <div class="text-muted">
-                                اختر نوع الخدمة، ثم اضغط بدء التهيئة لإضافة الأفلام والأجزاء.
-                            </div>
-                        </div>
-
-                    
-
-                        <field name="service_line_ids" nolabel="1">
-                            <kanban create="0" delete="0" class="o_kanban_small_column">
-                                <field name="selected"/>
-                                <field name="completed"/>
-                                <field name="service_options"/>
-                                <field name="custom_name"/>
-
-                                <templates>
-                                    <t t-name="kanban-box">
-                                        <div t-attf-class="
-                                            oe_kanban_card p-3 rounded shadow-sm
-                                            #{record.completed.raw_value ? 'border border-success bg-success-subtle' : ''}
-                                            #{record.selected.raw_value and !record.completed.raw_value ? 'border border-primary bg-primary-subtle' : ''}
-                                            #{!record.selected.raw_value and !record.completed.raw_value ? 'border bg-white' : ''}  ">
-
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div class="fw-bold" style="font-size:16px;">
-                                                    <i t-attf-class="
-                                                        fa me-1
-                                                        #{record.completed.raw_value ? 'fa-check-circle text-success' : ''}
-                                                        #{record.selected.raw_value and !record.completed.raw_value ? 'fa-circle text-primary' : ''}
-                                                        #{!record.selected.raw_value and !record.completed.raw_value ? 'fa-circle-o text-muted' : ''}
-                                                    " title="حالة الخدمة"/>
-                                                    <field name="service_options"/>
-                                                </div>
-
-                                                <field name="selected" widget="boolean_toggle"/>
-                                            </div>
-
-                                            <div class="mt-3">
-                                                <div class="text-muted small o_form_label">
-                                                    اسم الخدمة
-                                                </div>
-
-                                                <div class="d-flex align-items-center justify-content-between">
-                                                    <div class="fw-bold text-dark" style="font-size:15px;">
-                                                        <field name="custom_name"/>
-                                                    </div>
-
-                                                    <a type="object"
-                                                       name="action_open_line"
-                                                       class="text-primary ms-2"
-                                                       title="تعديل الاسم">
-                                                        <i class="fa fa-pencil" title="تعديل"/>
-                                                    </a>
-                                                </div>
-                                            </div>
-
-                                            <div class="mt-3 d-flex justify-content-between align-items-center">
-                                                <span t-if="record.completed.raw_value"
-                                                      class="badge bg-success px-3 py-2">
-                                                    <i class="fa fa-check-circle me-1" title="مكتمل"/>
-                                                    مكتمل
-                                                </span>
-
-                                                <span t-if="record.selected.raw_value and !record.completed.raw_value"
-                                                      class="badge bg-primary">
-                                                    جاهز للتهيئة
-                                                </span>
-
-                                                <a type="object"
-                                                   name="action_open_service_setup"
-                                                   class="btn btn-sm btn-primary"
-                                                   role="button"
-                                                   invisible="not selected or completed">
-                                                    بدء التهيئة
-                                                </a>
-
-                                                <a type="object"
-                                                   name="action_view_service_films"
-                                                   class="btn btn-sm btn-outline-success"
-                                                   role="button"
-                                                   invisible="not completed">
-                                                    <i class="fa fa-eye me-1" title="عرض"/>
-                                                    عرض الأفلام
-                                                </a>
-                                            </div>
-
-                                        </div>
-                                    </t>
-                                </templates>
-                            </kanban>
-                        </field>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-top d-flex justify-content-start gap-2">
-                        <button string="بدء التهيئة"
-                                type="object"
-                                name="action_start_setup"
-                                class="btn btn-primary btn-lg"
-                                invisible="step != 'welcome'"/>
-
-                        <button string="رجوع"
-                                type="object"
-                                name="action_back_welcome"
-                                class="btn btn-secondary"
-                                invisible="step != 'car_sizes'"/>
-
-                        <button string="التالي: درجات اللون"
-                                type="object"
-                                name="action_go_tint_degrees"
-                                class="btn btn-primary"
-                                invisible="step != 'car_sizes'"/>
-
-                        <button string="رجوع لأحجام السيارة"
-                                type="object"
-                                name="action_back_car_sizes"
-                                class="btn btn-secondary"
-                                invisible="step != 'tint_degrees'"/>
-
-                        <button string="التالي: أنواع الخدمات"
-                                type="object"
-                                name="action_go_service_types"
-                                class="btn btn-primary"
-                                invisible="step != 'tint_degrees'"/>
-
-                        <!-- <button string="رجوع لدرجات اللون"
+                                    </group>  -->
+</group>
+</div>
+</div>
+<div class="card border-dark shadow-sm mb-3">
+<div class="card-header bg-light d-flex justify-content-between align-items-center">
+<strong>
+<i class="fa fa-table me-1" title="جدول درجات اللون"/>
+جدول درجات اللون
+</strong>
+<span> فعّل الدرجات المطلوبة وعدّل الليبل </span>
+</div>
+<div class="card-body">
+<field name="tint_degree_line_ids" nolabel="1">
+<tree editable="bottom" create="0" delete="0" decoration-muted="not selected" decoration-success="selected">
+<field name="selected" string="اختيار" readonly="parent.setup_locked"/>
+<field name="sequence" string="#" readonly="1"/>
+<field name="value" string="القيمة" readonly="parent.setup_locked"/>
+<field name="name" string="الليبل / المسمى" readonly="parent.setup_locked"/>
+</tree>
+</field>
+</div>
+</div>
+</div>
+<div invisible="step != 'service_types'">
+<div class="alert alert-success p-3 mb-4" role="status" invisible="not setup_locked">
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+<!--  النص  -->
+<div class="d-flex align-items-center gap-2 flex-wrap">
+<i class="fa fa-check-circle text-success fs-4" title="تم الاعتماد"/>
+<strong class="fs-5"> تم اعتماد الإعدادات الأساسية </strong>
+<span class="text-muted"> — أحجام السيارات ودرجات اللون أصبحت معتمدة لأنها مستخدمة في </span>
+<span class="fw-bold text-primary"> تهيئة الأنواع </span>
+<span class="text-muted">و</span>
+<span class="fw-bold text-success"> التسعيرات </span>
+<span class="text-muted">و</span>
+<span class="fw-bold text-warning"> العمولات </span>
+</div>
+<!--  الزر  -->
+<button string="إعادة التهيئة" type="object" name="action_unlock_base_setup" class="btn btn-outline-danger" icon="fa-unlock"/>
+</div>
+</div>
+<div class="alert alert-info text-center p-3" role="status">
+<h3>
+<i class="fa fa-cogs me-2" title="أنواع الخدمات"/>
+تهيئة أنواع الخدمات
+</h3>
+<div class="text-muted"> اختر نوع الخدمة، ثم اضغط بدء التهيئة لإضافة الأفلام والأجزاء. </div>
+</div>
+<field name="service_line_ids" nolabel="1">
+<kanban create="0" delete="0" class="o_kanban_small_column">
+<field name="selected"/>
+<field name="completed"/>
+<field name="service_options"/>
+<field name="custom_name"/>
+<templates>
+<t t-name="kanban-box">
+<div t-attf-class=" oe_kanban_card p-3 rounded shadow-sm #{record.completed.raw_value ? 'border border-success bg-success-subtle' : ''} #{record.selected.raw_value and !record.completed.raw_value ? 'border border-primary bg-primary-subtle' : ''} #{!record.selected.raw_value and !record.completed.raw_value ? 'border bg-white' : ''} ">
+<div class="d-flex justify-content-between align-items-center">
+<div class="fw-bold" style="font-size:16px;">
+<i t-attf-class=" fa me-1 #{record.completed.raw_value ? 'fa-check-circle text-success' : ''} #{record.selected.raw_value and !record.completed.raw_value ? 'fa-circle text-primary' : ''} #{!record.selected.raw_value and !record.completed.raw_value ? 'fa-circle-o text-muted' : ''} " title="حالة الخدمة"/>
+<field name="service_options"/>
+</div>
+<field name="selected" widget="boolean_toggle"/>
+</div>
+<div class="mt-3">
+<div class="text-muted small o_form_label"> اسم الخدمة </div>
+<div class="d-flex align-items-center justify-content-between">
+<div class="fw-bold text-dark" style="font-size:15px;">
+<field name="custom_name"/>
+</div>
+<a type="object" name="action_open_line" class="text-primary ms-2" title="تعديل الاسم">
+<i class="fa fa-pencil" title="تعديل"/>
+</a>
+</div>
+</div>
+<div class="mt-3 d-flex justify-content-between align-items-center">
+<span t-if="record.completed.raw_value" class="badge bg-success px-3 py-2">
+<i class="fa fa-check-circle me-1" title="مكتمل"/>
+مكتمل
+</span>
+<span t-if="record.selected.raw_value and !record.completed.raw_value" class="badge bg-primary"> جاهز للتهيئة </span>
+<a type="object" name="action_open_service_setup" class="btn btn-sm btn-primary" role="button" invisible="not selected or completed"> بدء التهيئة </a>
+<a type="object" name="action_view_service_films" class="btn btn-sm btn-outline-success" role="button" invisible="not completed">
+<i class="fa fa-eye me-1" title="عرض"/>
+عرض الأفلام
+</a>
+</div>
+</div>
+</t>
+</templates>
+</kanban>
+</field>
+</div>
+<div class="mt-4 pt-3 border-top d-flex justify-content-start gap-2">
+<button string="بدء التهيئة" type="object" name="action_start_setup" class="btn btn-primary btn-lg" invisible="step != 'welcome'"/>
+<button string="رجوع" type="object" name="action_back_welcome" class="btn btn-secondary" invisible="step != 'car_sizes'"/>
+<button string="التالي: درجات اللون" type="object" name="action_go_tint_degrees" class="btn btn-primary" invisible="step != 'car_sizes'"/>
+<button string="رجوع لأحجام السيارة" type="object" name="action_back_car_sizes" class="btn btn-secondary" invisible="step != 'tint_degrees'"/>
+<button string="التالي: أنواع الخدمات" type="object" name="action_go_service_types" class="btn btn-primary" invisible="step != 'tint_degrees'"/>
+<!--  <button string="رجوع لدرجات اللون"
                                 type="object"
                                 name="action_back_tint_degrees"
                                 class="btn btn-secondary"
-                                invisible="step != 'service_types'"/> -->
-
-                        <button string="إنهاء كامل التهيئة"
-                                type="object"
-                                name="action_finish_all_setup"
-                                class="btn btn-success"
-                                invisible="step != 'service_types'"/>
-                    </div>
-
-                </sheet>
-            </form>
-
-        </field>
-    </record>
-
-    <record id="view_wof_setup_service_line_form" model="ir.ui.view">
-        <field name="name">wof.setup.service.line.form</field>
-        <field name="model">wof.setup.wizard.service.line</field>
-        <field name="arch" type="xml">
-            <form string="تعديل الخدمة">
-                <sheet>
-                    <group>
-                        <field name="selected"/>
-                        <field name="service_options" readonly="1"/>
-                        <field name="custom_name"/>
-                    </group>
-
-                    <footer>
-                        <button string="حفظ" special="save" class="btn-primary"/>
-                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
-                    </footer>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <record id="view_wof_setup_car_size_line_form" model="ir.ui.view">
-        <field name="name">wof.setup.car.size.line.form</field>
-        <field name="model">wof.setup.wizard.car.size.line</field>
-        <field name="arch" type="xml">
-            <form string="تعديل حجم السيارة">
-                <sheet>
-                    <group>
-                        <field name="selected"/>
-                        <field name="code" readonly="1"/>
-                        <field name="name"/>
-                    </group>
-
-                    <footer>
-                        <button string="حفظ" special="save" class="btn-primary"/>
-                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
-                    </footer>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <record id="view_wof_setup_tint_degree_line_form" model="ir.ui.view">
-        <field name="name">wof.setup.tint.degree.line.form</field>
-        <field name="model">wof.setup.wizard.tint.degree.line</field>
-        <field name="arch" type="xml">
-            <form string="تعديل درجة اللون">
-                <sheet>
-                    <group>
-                        <field name="selected"/>
-                        <field name="sequence"/>
-                        <field name="name"/>
-                        <field name="value"/>
-                    </group>
-
-                    <footer>
-                        <button string="حفظ" special="save" class="btn-primary"/>
-                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
-                    </footer>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <record id="view_wof_setup_film_wizard_form" model="ir.ui.view">
-        <field name="name">wof.setup.film.wizard.form</field>
-        <field name="model">wof.setup.film.wizard</field>
-        <field name="arch" type="xml">
-
-            <form string="تهيئة الأنواع" create="0" edit="1">
-                <sheet>
-                    <header>
-                        <field name="film_step"
-                            widget="statusbar"
-                            statusbar_visible="info,degrees,parts,service_areas"
-                            options="{'clickable': False}"/>
-                    </header>
-
-                    <field name="film_step" invisible="1"/>
-                    <field name="parts_mode" invisible="1"/>
-                    <field name="service_options" invisible="1"/>
-                    <field name="parent_wizard_id" invisible="1"/>
-                    <field name="service_line_id" invisible="1"/>
-                    
-
-                    <div class="alert alert-primary text-center p-4" role="status">
-                        <h2 class="mb-1">
-                            <i class="fa fa-magic me-2" title="تهيئة"/>
-                            تهيئة أنواع <field name="service_name" readonly="1"/>
-                        </h2>
-                       <div class="text-muted" invisible="service_options != 'tint'">
-                            الخطوات: بيانات النوع ثم الدرجات ثم الأجزاء.
-                        </div>
-
-                        <div class="text-muted" invisible="service_options == 'tint'">
-                            الخطوات: بيانات النوع ثم الأجزاء.
-                        </div>
-                    </div>
-
-                   
-                    <div invisible="film_step != 'info'">
-                        <div class="card border-primary shadow-sm mb-3">
-                            <div class="card-header bg-primary-subtle">
-                                <strong>
-                                    <i class="fa fa-film me-1" title="النوع"/>
-                                    بيانات النوع
-                                </strong>
-                            </div>
-
-                            <div class="card-body">
-                                <group col="2">
-                                    <group>
-                                        
-                                        <field name="film_name" placeholder="مثال: عزل حراري أمريكي" invisible="service_options != 'tint'"/>
-                                        <field name="film_name" placeholder="مثال: حماية PPF أمريكي" invisible="service_options != 'ppf'"/>
-                                        <field name="film_name" placeholder="مثال: نانو سيراميك" invisible="service_options != 'nano'"/>
-                                        <field name="film_name" placeholder="مثال: تنجيد" invisible="service_options != 'upholstery'"/>
-                                        <field name="film_name" placeholder="مثال: أرضيات" invisible="service_options != 'floor_mats'"/>
-
-                                    </group>
-                                 <group>
-                                    <label for="warranty_duration" string="مدة الضمان"/>
-
-                                    <div class="o_row align-items-center">
-
-                                        <field name="warranty_duration"
-                                            class="oe_inline"
-                                            style="width:80px;"/>
-
-                                        <field name="warranty_period"
-                                            class="oe_inline ms-2"
-                                            style="width:120px;"/>
-
-                                        <!-- <span class="mx-2 text-muted">
+                                invisible="step != 'service_types'"/>  -->
+<button string="إنهاء كامل التهيئة" type="object" name="action_finish_all_setup" class="btn btn-success" invisible="step != 'service_types'"/>
+</div>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_setup_service_line_form" model="ir.ui.view">
+<field name="name">wof.setup.service.line.form</field>
+<field name="model">wof.setup.wizard.service.line</field>
+<field name="arch" type="xml">
+<form string="تعديل الخدمة">
+<sheet>
+<group>
+<field name="selected"/>
+<field name="service_options" readonly="1"/>
+<field name="custom_name"/>
+</group>
+<footer>
+<button string="حفظ" special="save" class="btn-primary"/>
+<button string="إلغاء" special="cancel" class="btn-secondary"/>
+</footer>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_setup_car_size_line_form" model="ir.ui.view">
+<field name="name">wof.setup.car.size.line.form</field>
+<field name="model">wof.setup.wizard.car.size.line</field>
+<field name="arch" type="xml">
+<form string="تعديل حجم السيارة">
+<sheet>
+<group>
+<field name="selected"/>
+<field name="code" readonly="1"/>
+<field name="name"/>
+</group>
+<footer>
+<button string="حفظ" special="save" class="btn-primary"/>
+<button string="إلغاء" special="cancel" class="btn-secondary"/>
+</footer>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_setup_tint_degree_line_form" model="ir.ui.view">
+<field name="name">wof.setup.tint.degree.line.form</field>
+<field name="model">wof.setup.wizard.tint.degree.line</field>
+<field name="arch" type="xml">
+<form string="تعديل درجة اللون">
+<sheet>
+<group>
+<field name="selected"/>
+<field name="sequence"/>
+<field name="name"/>
+<field name="value"/>
+</group>
+<footer>
+<button string="حفظ" special="save" class="btn-primary"/>
+<button string="إلغاء" special="cancel" class="btn-secondary"/>
+</footer>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_setup_film_wizard_form" model="ir.ui.view">
+<field name="name">wof.setup.film.wizard.form</field>
+<field name="model">wof.setup.film.wizard</field>
+<field name="arch" type="xml">
+<form string="تهيئة الأنواع" create="0" edit="1">
+<sheet>
+<header>
+<field name="film_step" widget="statusbar" statusbar_visible="info,degrees,parts,service_areas" options="{'clickable': False}"/>
+</header>
+<field name="film_step" invisible="1"/>
+<field name="parts_mode" invisible="1"/>
+<field name="service_options" invisible="1"/>
+<field name="parent_wizard_id" invisible="1"/>
+<field name="service_line_id" invisible="1"/>
+<div class="alert alert-primary text-center p-4" role="status">
+<h2 class="mb-1">
+<i class="fa fa-magic me-2" title="تهيئة"/>
+تهيئة أنواع
+<field name="service_name" readonly="1"/>
+</h2>
+<div class="text-muted" invisible="service_options != 'tint'"> الخطوات: بيانات النوع ثم الدرجات ثم الأجزاء. </div>
+<div class="text-muted" invisible="service_options == 'tint'"> الخطوات: بيانات النوع ثم الأجزاء. </div>
+</div>
+<div invisible="film_step != 'info'">
+<div class="card border-primary shadow-sm mb-3">
+<div class="card-header bg-primary-subtle">
+<strong>
+<i class="fa fa-film me-1" title="النوع"/>
+بيانات النوع
+</strong>
+</div>
+<div class="card-body">
+<group col="2">
+<group>
+<field name="film_name" placeholder="مثال: عزل حراري أمريكي" invisible="service_options != 'tint'"/>
+<field name="film_name" placeholder="مثال: حماية PPF أمريكي" invisible="service_options != 'ppf'"/>
+<field name="film_name" placeholder="مثال: نانو سيراميك" invisible="service_options != 'nano'"/>
+<field name="film_name" placeholder="مثال: تنجيد" invisible="service_options != 'upholstery'"/>
+<field name="film_name" placeholder="مثال: أرضيات" invisible="service_options != 'floor_mats'"/>
+</group>
+<group>
+<label for="warranty_duration" string="مدة الضمان"/>
+<div class="o_row align-items-center">
+<field name="warranty_duration" class="oe_inline" style="width:80px;"/>
+<field name="warranty_period" class="oe_inline ms-2" style="width:120px;"/>
+<!--  <span class="mx-2 text-muted">
                                             =
                                         </span>
 
                                         <field name="warranty_years"
                                             readonly="1"
                                             nolabel="1"
-                                            class="oe_inline text-success fw-bold"/> -->
-
-                                    </div>
-                                </group>
-                                </group>
-                            </div>
-                        </div>
-
-                       <div class="mt-3 d-flex justify-content-start gap-2">
-                          
-                            <button string="رجوع للخدمات"
-                                    type="object"
-                                    name="action_back_to_services"
-                                    class="btn btn-secondary"
-                                    icon="fa-arrow-right"/>
-                            <!-- للعزل الحراري -->
-                            <button string="التالي: درجات اللون"
-                                    type="object"
-                                    name="action_film_next_degrees"
-                                    class="btn btn-primary"
-                                    icon="fa-adjust"
-                                    invisible="service_options != 'tint'"/>
-
-                            <!-- لباقي الخدمات -->
-                            <button string="التالي: الأجزاء"
-                                    type="object"
-                                    name="action_film_next_degrees"
-                                    class="btn btn-primary"
-                                    icon="fa-cogs"
-                                    invisible="service_options == 'tint'"/>
-
-                        </div>
-                    </div>
-
-                    <div invisible="film_step != 'degrees' or service_options != 'tint'">
-                        <div class="card border-dark shadow-sm mb-3">
-                            <div class="card-header bg-light">
-                                <strong>
-                                    <i class="fa fa-adjust me-1" title="درجات اللون"/>
-                                    درجات اللون لهذا النوع
-                                </strong>
-                            </div>
-
-                            <div class="card-body">
-                                <div class="alert alert-info mb-3" role="status">
-                                    اختر درجات اللون التي ينطبق عليها هذا النوع من أفلام العزل.
-                                </div>
-
-                                <field name="tint_degree_line_ids" nolabel="1">
-                                    <tree editable="bottom" create="0" delete="0">
-                                        <field name="selected"/>
-                                        <field name="value" string="القيمة" readonly="1"/>
-                                        <field name="name" string="المسمى" readonly="1"/>
-                                    </tree>
-                                </field>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 d-flex justify-content-start gap-2">
-                            <button string="رجوع"
-                                    type="object"
-                                    name="action_film_back_info"
-                                    class="btn btn-secondary"/>
-
-                            <button string="التالي: الأجزاء"
-                                    type="object"
-                                    name="action_back_to_car_parts"
-                                    class="btn btn-primary"/>
-                        </div>
-                    </div>
-
-                    <div invisible="film_step != 'parts'">
-                        <div class="card border-success shadow-sm mb-3">
-                             <div class="card-header bg-success-subtle d-flex align-items-center gap-2">
-
-                                <!-- يسار: زر إنشاء جزء -->
-
-                               
-                                <div class="flex-fill text-start" style="width:25%;">
-                                      <strong>
-                                        <i class="fa fa-cogs me-1" title="الأجزاء"/>
-                                        أجزاء هذا النوع
-                                    </strong>
-                                    
-                                </div>
-
-                                
-
-                                <!-- وسط: المرحلة الحالية -->
-                                <div style="width:50%; text-align:center;">
-
-                                    <span class="px-4 py-2 rounded-pill border bg-white shadow-sm" invisible="parts_mode != 'parts'">
-                                        <i class="fa fa-puzzle-piece text-secondary me-1" title="الأجزاء"/>
-                                        <strong>مرحلة اختيار الأجزاء</strong>
-                                    </span>
-
-                                    <span class="px-4 py-2 rounded-pill border bg-primary-subtle shadow-sm" invisible="parts_mode != 'pricing'">
-                                        <i class="fa fa-money text-primary me-1" title="الأسعار"/>
-                                        <strong>مرحلة إدخال الأسعار</strong>
-                                        <span class="text-muted small">
-                                            — حسب حجم السيارة
-                                        </span>
-                                    </span>
-
-                                    <span class="px-4 py-2 rounded-pill border bg-warning-subtle shadow-sm" invisible="parts_mode != 'commission'">
-                                        <i class="fa fa-users text-warning me-1" title="العمولات"/>
-                                        <strong>مرحلة إدخال عمولات الفنيين</strong>
-                                        <span class="text-muted small">
-                                            — حسب حجم السيارة
-                                        </span>
-                                    </span>
-
-                                </div>
-
-                                <div class="flex-fill text-end" style="width:25%;" >
-                                    
-                                    <button string="إنشاء جزء جديد" type="object" name="action_open_create_part_wizard" class="btn btn-success" icon="fa-plus"   invisible="parts_mode != 'parts'"/>
-
-                                </div>
- 
-                            </div>
-
-                            <div class="card-body">
-                            <!-- وضع الأجزاء -->
-
-                                
-                                <field name="part_line_ids" nolabel="1" domain="[('line_role','=','car_part')]">
-                                    <tree editable="bottom"
-                                        create="1"
-                                        delete="1"
-                                        decoration-muted="not selected"
-                                        decoration-danger="selected and not car_part_id">
-
-                                        <field name="service_options" invisible="1"/>
-                                        <field name="line_role" invisible="1"/>
-                                        <field name="selected"/>
-                                        <field name="car_part_id"
-                                            domain="[('service_options', '=', service_options), ('part_type', '=', 'car_part')]"/>
-
-                                        <!-- الأسعار -->
-                                        <field name="price_line_count"
-                                            string="أسعار"
-                                            readonly="1"
-                                            column_invisible="parent.parts_mode != 'pricing'"/>
-
-                                        <field name="price_summary"
-                                            string="ملخص الأسعار"
-                                            readonly="1"
-                                            column_invisible="parent.parts_mode != 'pricing'"/>
-
-                                        <button name="action_open_price_popup"
-                                                type="object"
-                                                string="التسعيرات"
-                                                icon="fa-money"
-                                                class="btn btn-primary"
-                                                column_invisible="parent.parts_mode != 'pricing'"/>
-
-                                        <!-- العمولات -->
-                                        <field name="commission_line_count"
-                                            string="عمولات"
-                                            readonly="1"
-                                            column_invisible="parent.parts_mode != 'commission'"/>
-
-                                        <field name="commission_summary"
-                                            string="ملخص العمولات"
-                                            readonly="1"
-                                            column_invisible="parent.parts_mode != 'commission'"/>
-
-                                        <button name="action_open_commission_popup"
-                                                type="object"
-                                                string="العمولات"
-                                                icon="fa-users"
-                                                class="btn btn-secondary"
-                                                column_invisible="parent.parts_mode != 'commission'"/>
-
-                                    </tree>
-                                </field>
-                            </div>
-                        </div>
-                        <div class="mt-3 d-flex justify-content-start gap-2 flex-wrap">
-
-                            <!-- وضع الأجزاء فقط -->
-                            <button string="رجوع"
-                                    type="object"
-                                    name="action_film_back_degrees"
-                                    class="btn btn-secondary"
-                                    icon="fa-arrow-right"
-                                    invisible="parts_mode != 'parts'"/>
-
-                            <button string="إدخال الأسعار"
-                                    type="object"
-                                    name="action_parts_mode_pricing"
-                                    class="btn btn-primary"
-                                    icon="fa-money"
-                                    invisible="parts_mode != 'parts'"/>
-
-                            <!-- وضع الأسعار -->
-                            <button string="رجوع لعرض الأجزاء"
-                                    type="object"
-                                    name="action_parts_mode_parts"
-                                    class="btn btn-secondary"
-                                    icon="fa-list"
-                                    invisible="parts_mode != 'pricing'"/>
-
-                            <button string="إدخال عمولات الفنيين"
-                                    type="object"
-                                    name="action_parts_mode_commission"
-                                    class="btn btn-warning"
-                                    icon="fa-users"
-                                    invisible="parts_mode != 'pricing'"/>
-
-                            <!-- وضع العمولات -->
-                            <button string="رجوع للأسعار"
-                                    type="object"
-                                    name="action_parts_back_to_pricing"
-                                    class="btn btn-secondary"
-                                    icon="fa-money"
-                                    invisible="parts_mode != 'commission'"/>
-
-                           <button string="التالي: مناطق الخدمة"
-                                type="object"
-                                name="action_go_service_areas"
-                                class="btn btn-success"
-                                icon="fa-map-marker"
-                                invisible="parts_mode != 'commission'"/>
-
-                        </div>
-                        
-                    </div>
-                    <div invisible="film_step != 'service_areas'">
-                        <div class="card border-info shadow-sm mb-3">
-
-                            <div class="card-header bg-info-subtle d-flex align-items-center gap-2">
-
-                                <div style="width:25%; text-align:left;">
-                                    <button string="إنشاء منطقة خدمة"
-                                            type="object"
-                                            name="action_open_create_part_wizard"
-                                            class="btn btn-info"
-                                            icon="fa-plus"/>
-                                </div>
-
-                                <div style="width:50%; text-align:center;">
-                                    <span class="px-4 py-2 rounded-pill border bg-white shadow-sm"
-                                        invisible="parts_mode != 'parts'">
-                                        <i class="fa fa-map-marker me-1" title="مناطق الخدمة"/>
-                                        <strong>مرحلة اختيار مناطق الخدمة</strong>
-                                    </span>
-
-                                    <span class="px-4 py-2 rounded-pill border bg-primary-subtle shadow-sm"
-                                        invisible="parts_mode != 'pricing'">
-                                        <i class="fa fa-money me-1" title="الأسعار"/>
-                                        <strong>مرحلة تسعير مناطق الخدمة</strong>
-                                    </span>
-
-                                    <span class="px-4 py-2 rounded-pill border bg-warning-subtle shadow-sm"
-                                        invisible="parts_mode != 'commission'">
-                                        <i class="fa fa-users me-1" title="العمولات"/>
-                                        <strong>مرحلة عمولات مناطق الخدمة</strong>
-                                    </span>
-                                </div>
-
-                                <div style="width:25%; text-align:right;">
-                                    <strong>
-                                        <i class="fa fa-map-marker me-1"/>
-                                        مناطق الخدمة
-                                    </strong>
-                                </div>
-
-                            </div>
-
-                            <div class="card-body">
-                                <field name="part_line_ids" nolabel="1" domain="[('line_role','=','service_area')]">
-                                    <tree editable="bottom"
-                                        create="1"
-                                        delete="1"
-                                        decoration-muted="not selected"
-                                        decoration-danger="selected and not car_part_id">
-
-                                        <field name="service_options" invisible="1"/>
-                                        <field name="line_role" invisible="1"/>
-                                        <field name="selected"/>
-
-                                        <field name="car_part_id"
-                                                domain="[('service_options', '=', service_options), ('part_type', '=', 'service_area')]"/>
-
-                                        <field name="price_line_count"
-                                            string="أسعار"
-                                            readonly="1"
-                                            column_invisible="parent.parts_mode != 'pricing'"/>
-
-                                        <field name="price_summary"
-                                            string="ملخص الأسعار"
-                                            readonly="1"
-                                            column_invisible="parent.parts_mode != 'pricing'"/>
-
-                                        <button name="action_open_price_popup"
-                                                type="object"
-                                                string="التسعيرات"
-                                                icon="fa-money"
-                                                class="btn btn-primary"
-                                                column_invisible="parent.parts_mode != 'pricing'"/>
-
-                                        <field name="commission_line_count"
-                                            string="عمولات"
-                                            readonly="1"
-                                            column_invisible="parent.parts_mode != 'commission'"/>
-
-                                        <field name="commission_summary"
-                                            string="ملخص العمولات"
-                                            readonly="1"
-                                            column_invisible="parent.parts_mode != 'commission'"/>
-
-                                        <button name="action_open_commission_popup"
-                                                type="object"
-                                                string="العمولات"
-                                                icon="fa-users"
-                                                class="btn btn-secondary"
-                                                column_invisible="parent.parts_mode != 'commission'"/>
-                                    </tree>
-                                </field>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 d-flex justify-content-start gap-2 flex-wrap">
-
-                            <button string="رجوع للأجزاء"
-                                    type="object"
-                                    name="action_back_to_car_parts"
-                                    class="btn btn-secondary"
-                                    invisible="parts_mode != 'parts'"/>
-
-                            <button string="إدخال الأسعار"
-                                    type="object"
-                                    name="action_parts_mode_pricing"
-                                    class="btn btn-primary"
-                                    icon="fa-money"
-                                    invisible="parts_mode != 'parts'"/>
-
-                            <button string="رجوع لعرض مناطق الخدمة"
-                                    type="object"
-                                    name="action_parts_mode_parts"
-                                    class="btn btn-secondary"
-                                    icon="fa-list"
-                                    invisible="parts_mode != 'pricing'"/>
-
-                            <button string="إدخال عمولات الفنيين"
-                                    type="object"
-                                    name="action_parts_mode_commission"
-                                    class="btn btn-warning"
-                                    icon="fa-users"
-                                    invisible="parts_mode != 'pricing'"/>
-
-                            <button string="رجوع للأسعار"
-                                    type="object"
-                                    name="action_parts_back_to_pricing"
-                                    class="btn btn-secondary"
-                                    icon="fa-money"
-                                    invisible="parts_mode != 'commission'"/>
-
-                            <button string="إنهاء تهيئة هذا النوع"
-                                    type="object"
-                                    name="action_try_finish_current_film"
-                                    class="btn btn-success"
-                                    icon="fa-check"
-                                    invisible="parts_mode != 'commission'"/>
-                        </div>
-                    </div>
-
-                </sheet>
-            </form>
-
-        </field>
-    </record>
-
-    <record id="view_wof_setup_film_part_price_form" model="ir.ui.view">
-        <field name="name">wof.setup.film.part.price.form</field>
-        <field name="model">wof.setup.film.part.line</field>
-        <field name="arch" type="xml">
-            <form string="أسعار الجزء حسب حجم السيارة">
-                <sheet>
-                    <div class="alert alert-success d-flex align-items-start gap-2" role="status">
-                        <i class="fa fa-money mt-1" title="التسعير"/>
-                        <div>
-                            أدخل سعر هذا الجزء لكل حجم سيارة بشكل مستقل.
-                        </div>
-                    </div>
-
-                    <group string="بيانات الجزء" col="2">
-                        <field name="car_part_id" readonly="1"/>
-                        <field name="price_summary" readonly="1"/>
-                    </group>
-
-                    <separator string="قائمة أسعار الجزء حسب الحجم"/>
-
-                    <field name="price_line_ids" nolabel="1">
-                        <tree editable="bottom"
-                              create="0"
-                              delete="1"
-                              decoration-success="free_part"
-                              decoration-warning="part_price == 0 and not free_part">
-
-                            <field name="parent_wizard_id" invisible="1"/>
-                            <field name="car_size_line_id" readonly="1"/>
-                            <field name="part_price" sum="الإجمالي"/>
-                            <field name="discount_exceed_limit"/>
-                            <field name="tax_id"/>
-                            <field name="price_readonly"/>
-                            <field name="free_part"/>
-                        </tree>
-                    </field>
-
-                    <footer>
-                        <button string="حفظ الأسعار" special="save" class="btn-primary"/>
-                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
-                    </footer>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <record id="view_wof_setup_film_part_commission_form" model="ir.ui.view">
-        <field name="name">wof.setup.film.part.commission.form</field>
-        <field name="model">wof.setup.film.part.line</field>
-        <field name="arch" type="xml">
-            <form string="عمولة الفني حسب حجم السيارة">
-                <sheet>
-                    <div class="alert alert-warning d-flex align-items-start gap-2" role="status">
-                        <i class="fa fa-users mt-1" title="العمولة"/>
-                        <div>
-                            أدخل عمولة الفني لكل حجم سيارة في نافذة منفصلة عن أسعار الجزء.
-                        </div>
-                    </div>
-
-                    <group string="بيانات الجزء" col="2">
-                        <field name="car_part_id" readonly="1"/>
-                        <field name="commission_summary" readonly="1"/>
-                    </group>
-
-                    <separator string="قائمة عمولات الفني حسب الحجم"/>
-
-                    <field name="commission_line_ids" nolabel="1">
-                        <tree editable="bottom"
-                              create="0"
-                              delete="1"
-                              decoration-warning="commission == 0">
-
-                            <field name="parent_wizard_id" invisible="1"/>
-                            <field name="car_size_line_id" readonly="1"/>
-                            <field name="commission" sum="الإجمالي"/>
-                        </tree>
-                    </field>
-
-                    <footer>
-                        <button string="حفظ العمولات" special="save" class="btn-primary"/>
-                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
-                    </footer>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <record id="view_wof_setup_temp_film_tree" model="ir.ui.view">
-        <field name="name">wof.setup.temp.film.tree</field>
-        <field name="model">wof.setup.temp.film</field>
-        <field name="arch" type="xml">
-            <tree>
-                <field name="service_name"/>
-                <field name="film_name"/>
-                <field name="warranty_years"/>
-            </tree>
-        </field>
-    </record>
-
-    <record id="view_wof_setup_temp_film_form" model="ir.ui.view">
-        <field name="name">wof.setup.temp.film.form</field>
-        <field name="model">wof.setup.temp.film</field>
-        <field name="arch" type="xml">
-            <form string="فيلم مؤقت">
-                <sheet>
-                    <group>
-                        <field name="service_name" readonly="1"/>
-                        <field name="film_name" readonly="1"/>
-                        <field name="warranty_years" readonly="1"/>
-                    </group>
-
-                    <notebook>
-                        <page string="درجات اللون">
-                            <field name="tint_degree_line_ids" readonly="1">
-                                <tree>
-                                    <field name="name"/>
-                                    <field name="value"/>
-                                </tree>
-                            </field>
-                        </page>
-
-                        <page string="الأجزاء">
-                            <field name="part_line_ids" readonly="1">
-                                <tree>
-                                    <field name="line_role" invisible="1"/>
-                                    <field name="car_part_id"/>
-                                </tree>
-                                <form>
-                                    <sheet>
-                                        <group>
-                                            <field name="car_part_id" readonly="1"/>
-                                        </group>
-                                        <notebook>
-                                            <page string="أسعار الجزء حسب الحجم">
-                                                <field name="price_line_ids" readonly="1">
-                                                    <tree>
-                                                     
-                                                        <field name="car_size_line_id"/>
-                                                        <field name="part_price"/>
-                                                        <field name="discount_exceed_limit"/>
-                                                        <field name="tax_id"/>
-                                                        <field name="price_readonly"/>
-                                                        <field name="free_part"/>
-                                                    </tree>
-                                                </field>
-                                            </page>
-                                            <page string="عمولة الفني حسب الحجم">
-                                                <field name="commission_line_ids" readonly="1">
-                                                    <tree>
-                                                        <field name="car_size_line_id"/>
-                                                        <field name="commission"/>
-                                                    </tree>
-                                                </field>
-                                            </page>
-                                        </notebook>
-                                    </sheet>
-                                </form>
-                            </field>
-                        </page>
-                    </notebook>
-                </sheet>
-            </form>
-        </field>
-    </record>
-    <record id="view_wof_generic_done_wizard_form" model="ir.ui.view">
-        <field name="name">wof.generic.done.wizard.form</field>
-        <field name="model">wof.generic.done.wizard</field>
-        <field name="arch" type="xml">
-
-            <form string="تم الحفظ" create="0" edit="0">
-
-                <sheet>
-
-                    <field name="ref_model" invisible="1"/>
-                    <field name="ref_id" invisible="1"/>
-                    <field name="primary_action_key" invisible="1"/>
-                    <field name="secondary_action_key" invisible="1"/>
-
-                    <div class="text-center p-3">
-
-                        <div class="mb-3">
-                            <i class="fa fa-check-circle text-success"
-                            title="نجاح"
-                            style="font-size:48px;"/>
-                        </div>
-
-                        <h2 class="text-success mb-3">
-                            <field name="title" readonly="1"/>
-                        </h2>
-
-                        <div class="alert alert-success text-center"
-                            role="status"
-                            style="white-space: pre-line;">
-                            <field name="message" readonly="1"/>
-                        </div>
-
-                    </div>
-
-                    <footer>
-
-                        <button name="action_primary"
-                                type="object"
-                                string="إضافة نوع آخر"
-                                class="btn btn-primary"
-                                icon="fa-plus"/>
-
-                        <button name="action_secondary"
-                                type="object"
-                                string="إنهاء تهيئة الخدمة"
-                                class="btn btn-success"
-                                icon="fa-check"/>
-
-                        <button string="إغلاق"
-                                special="cancel"
-                                class="btn btn-secondary"/>
-
-                    </footer>
-
-                </sheet>
-
-            </form>
-
-        </field>
-    </record>
-
-    <record id="view_wof_setup_create_part_wizard_form" model="ir.ui.view">
-        <field name="name">wof.setup.create.part.wizard.form</field>
-        <field name="model">wof.setup.create.part.wizard</field>
-        <field name="arch" type="xml">
-
-            <form string="إنشاء جزء جديد" create="0" edit="0">
-
-                <sheet>
-
-                    <field name="setup_film_wizard_id" invisible="1"/>
-
-                    <div class="alert alert-success text-center p-3" role="status">
-                        <h3>
-                            <i class="fa fa-plus-circle me-1" title="إضافة"/>
-                            إنشاء جزء جديد
-                        </h3>
-                        <div class="text-muted">
-                            سيتم ربط الجزء تلقائياً بنفس نوع الخدمة الحالية وإضافته لقائمة الأجزاء.
-                        </div>
-                    </div>
-
-                    <group col="2">
-                        <group>
-                            <field name="name" placeholder="اكتب اسم الجزء المارد اضافته" />
-                        
-                        </group>
-
-                        <!-- <group>
+                                            class="oe_inline text-success fw-bold"/>  -->
+</div>
+</group>
+</group>
+</div>
+</div>
+<div class="mt-3 d-flex justify-content-start gap-2">
+<button string="رجوع للخدمات" type="object" name="action_back_to_services" class="btn btn-secondary" icon="fa-arrow-right"/>
+<!--  للعزل الحراري  -->
+<button string="التالي: درجات اللون" type="object" name="action_film_next_degrees" class="btn btn-primary" icon="fa-adjust" invisible="service_options != 'tint'"/>
+<!--  لباقي الخدمات  -->
+<button string="التالي: الأجزاء" type="object" name="action_film_next_degrees" class="btn btn-primary" icon="fa-cogs" invisible="service_options == 'tint'"/>
+</div>
+</div>
+<div invisible="film_step != 'degrees' or service_options != 'tint'">
+<div class="card border-dark shadow-sm mb-3">
+<div class="card-header bg-light">
+<strong>
+<i class="fa fa-adjust me-1" title="درجات اللون"/>
+درجات اللون لهذا النوع
+</strong>
+</div>
+<div class="card-body">
+<div class="alert alert-info mb-3" role="status"> اختر درجات اللون التي ينطبق عليها هذا النوع من أفلام العزل. </div>
+<field name="tint_degree_line_ids" nolabel="1">
+<tree editable="bottom" create="0" delete="0">
+<field name="selected"/>
+<field name="value" string="القيمة" readonly="1"/>
+<field name="name" string="المسمى" readonly="1"/>
+</tree>
+</field>
+</div>
+</div>
+<div class="mt-3 d-flex justify-content-start gap-2">
+<button string="رجوع" type="object" name="action_film_back_info" class="btn btn-secondary"/>
+<button string="التالي: الأجزاء" type="object" name="action_back_to_car_parts" class="btn btn-primary"/>
+</div>
+</div>
+<div invisible="film_step != 'parts'">
+<div class="card border-success shadow-sm mb-3">
+<div class="card-header bg-success-subtle d-flex align-items-center gap-2">
+<!--  يسار: زر إنشاء جزء  -->
+<div class="flex-fill text-start" style="width:25%;">
+<strong>
+<i class="fa fa-cogs me-1" title="الأجزاء"/>
+أجزاء هذا النوع
+</strong>
+</div>
+<!--  وسط: المرحلة الحالية  -->
+<div style="width:50%; text-align:center;">
+<span class="px-4 py-2 rounded-pill border bg-white shadow-sm" invisible="parts_mode != 'parts'">
+<i class="fa fa-puzzle-piece text-secondary me-1" title="الأجزاء"/>
+<strong>مرحلة اختيار الأجزاء</strong>
+</span>
+<span class="px-4 py-2 rounded-pill border bg-primary-subtle shadow-sm" invisible="parts_mode != 'pricing'">
+<i class="fa fa-money text-primary me-1" title="الأسعار"/>
+<strong>مرحلة إدخال الأسعار</strong>
+<span class="text-muted small"> — حسب حجم السيارة </span>
+</span>
+<span class="px-4 py-2 rounded-pill border bg-warning-subtle shadow-sm" invisible="parts_mode != 'commission'">
+<i class="fa fa-users text-warning me-1" title="العمولات"/>
+<strong>مرحلة إدخال عمولات الفنيين</strong>
+<span class="text-muted small"> — حسب حجم السيارة </span>
+</span>
+</div>
+<div class="flex-fill text-end" style="width:25%;">
+<button string="إنشاء جزء جديد" type="object" name="action_open_create_part_wizard" class="btn btn-success" icon="fa-plus" invisible="parts_mode != 'parts'"/>
+</div>
+</div>
+<div class="card-body">
+<!--  وضع الأجزاء  -->
+<field name="part_line_ids" nolabel="1" domain="[('line_role','=','car_part')]">
+<tree editable="bottom" create="1" delete="1" decoration-muted="not selected" decoration-danger="selected and not car_part_id">
+<field name="service_options" invisible="1"/>
+<field name="line_role" invisible="1"/>
+<field name="selected"/>
+<field name="car_part_id" domain="[('service_options', '=', service_options), ('part_type', '=', 'car_part')]"/>
+<!--  الأسعار  -->
+<field name="price_line_count" string="أسعار" readonly="1" column_invisible="parent.parts_mode != 'pricing'"/>
+<field name="price_summary" string="ملخص الأسعار" readonly="1" column_invisible="parent.parts_mode != 'pricing'"/>
+<button name="action_open_price_popup" type="object" string="التسعيرات" icon="fa-money" class="btn btn-primary" column_invisible="parent.parts_mode != 'pricing'"/>
+<!--  العمولات  -->
+<field name="commission_line_count" string="عمولات" readonly="1" column_invisible="parent.parts_mode != 'commission'"/>
+<field name="commission_summary" string="ملخص العمولات" readonly="1" column_invisible="parent.parts_mode != 'commission'"/>
+<button name="action_open_commission_popup" type="object" string="العمولات" icon="fa-users" class="btn btn-secondary" column_invisible="parent.parts_mode != 'commission'"/>
+</tree>
+</field>
+</div>
+</div>
+<div class="mt-3 d-flex justify-content-start gap-2 flex-wrap">
+<!--  وضع الأجزاء فقط  -->
+<button string="رجوع" type="object" name="action_film_back_degrees" class="btn btn-secondary" icon="fa-arrow-right" invisible="parts_mode != 'parts'"/>
+<button string="إدخال الأسعار" type="object" name="action_parts_mode_pricing" class="btn btn-primary" icon="fa-money" invisible="parts_mode != 'parts'"/>
+<!--  وضع الأسعار  -->
+<button string="رجوع لعرض الأجزاء" type="object" name="action_parts_mode_parts" class="btn btn-secondary" icon="fa-list" invisible="parts_mode != 'pricing'"/>
+<button string="إدخال عمولات الفنيين" type="object" name="action_parts_mode_commission" class="btn btn-warning" icon="fa-users" invisible="parts_mode != 'pricing'"/>
+<!--  وضع العمولات  -->
+<button string="رجوع للأسعار" type="object" name="action_parts_back_to_pricing" class="btn btn-secondary" icon="fa-money" invisible="parts_mode != 'commission'"/>
+<button string="التالي: مناطق الخدمة" type="object" name="action_go_service_areas" class="btn btn-success" icon="fa-map-marker" invisible="parts_mode != 'commission'"/>
+</div>
+</div>
+<div invisible="film_step != 'service_areas'">
+<div class="card border-info shadow-sm mb-3">
+<div class="card-header bg-info-subtle d-flex align-items-center gap-2">
+<div style="width:25%; text-align:left;">
+<button string="إنشاء منطقة خدمة" type="object" name="action_open_create_part_wizard" class="btn btn-info" icon="fa-plus"/>
+</div>
+<div style="width:50%; text-align:center;">
+<span class="px-4 py-2 rounded-pill border bg-white shadow-sm" invisible="parts_mode != 'parts'">
+<i class="fa fa-map-marker me-1" title="مناطق الخدمة"/>
+<strong>مرحلة اختيار مناطق الخدمة</strong>
+</span>
+<span class="px-4 py-2 rounded-pill border bg-primary-subtle shadow-sm" invisible="parts_mode != 'pricing'">
+<i class="fa fa-money me-1" title="الأسعار"/>
+<strong>مرحلة تسعير مناطق الخدمة</strong>
+</span>
+<span class="px-4 py-2 rounded-pill border bg-warning-subtle shadow-sm" invisible="parts_mode != 'commission'">
+<i class="fa fa-users me-1" title="العمولات"/>
+<strong>مرحلة عمولات مناطق الخدمة</strong>
+</span>
+</div>
+<div style="width:25%; text-align:right;">
+<strong>
+<i class="fa fa-map-marker me-1"/>
+مناطق الخدمة
+</strong>
+</div>
+</div>
+<div class="card-body">
+<field name="part_line_ids" nolabel="1" domain="[('line_role','=','service_area')]">
+<tree editable="bottom" create="1" delete="1" decoration-muted="not selected" decoration-danger="selected and not car_part_id">
+<field name="service_options" invisible="1"/>
+<field name="line_role" invisible="1"/>
+<field name="selected"/>
+<field name="car_part_id" domain="[('service_options', '=', service_options), ('part_type', '=', 'service_area')]"/>
+<field name="price_line_count" string="أسعار" readonly="1" column_invisible="parent.parts_mode != 'pricing'"/>
+<field name="price_summary" string="ملخص الأسعار" readonly="1" column_invisible="parent.parts_mode != 'pricing'"/>
+<button name="action_open_price_popup" type="object" string="التسعيرات" icon="fa-money" class="btn btn-primary" column_invisible="parent.parts_mode != 'pricing'"/>
+<field name="commission_line_count" string="عمولات" readonly="1" column_invisible="parent.parts_mode != 'commission'"/>
+<field name="commission_summary" string="ملخص العمولات" readonly="1" column_invisible="parent.parts_mode != 'commission'"/>
+<button name="action_open_commission_popup" type="object" string="العمولات" icon="fa-users" class="btn btn-secondary" column_invisible="parent.parts_mode != 'commission'"/>
+</tree>
+</field>
+</div>
+</div>
+<div class="mt-3 d-flex justify-content-start gap-2 flex-wrap">
+<button string="رجوع للأجزاء" type="object" name="action_back_to_car_parts" class="btn btn-secondary" invisible="parts_mode != 'parts'"/>
+<button string="إدخال الأسعار" type="object" name="action_parts_mode_pricing" class="btn btn-primary" icon="fa-money" invisible="parts_mode != 'parts'"/>
+<button string="رجوع لعرض مناطق الخدمة" type="object" name="action_parts_mode_parts" class="btn btn-secondary" icon="fa-list" invisible="parts_mode != 'pricing'"/>
+<button string="إدخال عمولات الفنيين" type="object" name="action_parts_mode_commission" class="btn btn-warning" icon="fa-users" invisible="parts_mode != 'pricing'"/>
+<button string="رجوع للأسعار" type="object" name="action_parts_back_to_pricing" class="btn btn-secondary" icon="fa-money" invisible="parts_mode != 'commission'"/>
+<button string="إنهاء تهيئة هذا النوع" type="object" name="action_try_finish_current_film" class="btn btn-success" icon="fa-check" invisible="parts_mode != 'commission'"/>
+</div>
+</div>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_setup_film_part_price_form" model="ir.ui.view">
+<field name="name">wof.setup.film.part.price.form</field>
+<field name="model">wof.setup.film.part.line</field>
+<field name="arch" type="xml">
+<form string="أسعار الجزء حسب حجم السيارة">
+<sheet>
+<div class="alert alert-success d-flex align-items-start gap-2" role="status">
+<i class="fa fa-money mt-1" title="التسعير"/>
+<div> أدخل سعر هذا الجزء لكل حجم سيارة بشكل مستقل. </div>
+</div>
+<group string="بيانات الجزء" col="2">
+<field name="car_part_id" readonly="1"/>
+<field name="price_summary" readonly="1"/>
+</group>
+<separator string="قائمة أسعار الجزء حسب الحجم"/>
+<field name="price_line_ids" nolabel="1">
+<tree editable="bottom" create="0" delete="1" decoration-success="free_part" decoration-warning="part_price == 0 and not free_part">
+<field name="parent_wizard_id" invisible="1"/>
+<field name="car_size_line_id" readonly="1"/>
+<field name="part_price" sum="الإجمالي"/>
+<field name="discount_exceed_limit"/>
+<field name="tax_id"/>
+<field name="price_readonly"/>
+<field name="free_part"/>
+</tree>
+</field>
+<footer>
+<button string="حفظ الأسعار" special="save" class="btn-primary"/>
+<button string="إلغاء" special="cancel" class="btn-secondary"/>
+</footer>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_setup_film_part_commission_form" model="ir.ui.view">
+<field name="name">wof.setup.film.part.commission.form</field>
+<field name="model">wof.setup.film.part.line</field>
+<field name="arch" type="xml">
+<form string="عمولة الفني حسب حجم السيارة">
+<sheet>
+<div class="alert alert-warning d-flex align-items-start gap-2" role="status">
+<i class="fa fa-users mt-1" title="العمولة"/>
+<div> أدخل عمولة الفني لكل حجم سيارة في نافذة منفصلة عن أسعار الجزء. </div>
+</div>
+<group string="بيانات الجزء" col="2">
+<field name="car_part_id" readonly="1"/>
+<field name="commission_summary" readonly="1"/>
+</group>
+<separator string="قائمة عمولات الفني حسب الحجم"/>
+<field name="commission_line_ids" nolabel="1">
+<tree editable="bottom" create="0" delete="1" decoration-warning="commission == 0">
+<field name="parent_wizard_id" invisible="1"/>
+<field name="car_size_line_id" readonly="1"/>
+<field name="commission" sum="الإجمالي"/>
+</tree>
+</field>
+<footer>
+<button string="حفظ العمولات" special="save" class="btn-primary"/>
+<button string="إلغاء" special="cancel" class="btn-secondary"/>
+</footer>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_setup_temp_film_tree" model="ir.ui.view">
+<field name="name">wof.setup.temp.film.tree</field>
+<field name="model">wof.setup.temp.film</field>
+<field name="arch" type="xml">
+<tree>
+<field name="service_name"/>
+<field name="film_name"/>
+<field name="warranty_years"/>
+</tree>
+</field>
+</record>
+<record id="view_wof_setup_temp_film_form" model="ir.ui.view">
+<field name="name">wof.setup.temp.film.form</field>
+<field name="model">wof.setup.temp.film</field>
+<field name="arch" type="xml">
+<form string="فيلم مؤقت">
+<sheet>
+<group>
+<field name="service_name" readonly="1"/>
+<field name="film_name" readonly="1"/>
+<field name="warranty_years" readonly="1"/>
+</group>
+<notebook>
+<page string="درجات اللون">
+<field name="tint_degree_line_ids" readonly="1">
+<tree>
+<field name="name"/>
+<field name="value"/>
+</tree>
+</field>
+</page>
+<page string="الأجزاء">
+<field name="part_line_ids" readonly="1">
+<tree>
+<field name="line_role" invisible="1"/>
+<field name="car_part_id"/>
+</tree>
+<form>
+<sheet>
+<group>
+<field name="car_part_id" readonly="1"/>
+</group>
+<notebook>
+<page string="أسعار الجزء حسب الحجم">
+<field name="price_line_ids" readonly="1">
+<tree>
+<field name="car_size_line_id"/>
+<field name="part_price"/>
+<field name="discount_exceed_limit"/>
+<field name="tax_id"/>
+<field name="price_readonly"/>
+<field name="free_part"/>
+</tree>
+</field>
+</page>
+<page string="عمولة الفني حسب الحجم">
+<field name="commission_line_ids" readonly="1">
+<tree>
+<field name="car_size_line_id"/>
+<field name="commission"/>
+</tree>
+</field>
+</page>
+</notebook>
+</sheet>
+</form>
+</field>
+</page>
+</notebook>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_generic_done_wizard_form" model="ir.ui.view">
+<field name="name">wof.generic.done.wizard.form</field>
+<field name="model">wof.generic.done.wizard</field>
+<field name="arch" type="xml">
+<form string="تم الحفظ" create="0" edit="0">
+<sheet>
+<field name="ref_model" invisible="1"/>
+<field name="ref_id" invisible="1"/>
+<field name="primary_action_key" invisible="1"/>
+<field name="secondary_action_key" invisible="1"/>
+<div class="text-center p-3">
+<div class="mb-3">
+<i class="fa fa-check-circle text-success" title="نجاح" style="font-size:48px;"/>
+</div>
+<h2 class="text-success mb-3">
+<field name="title" readonly="1"/>
+</h2>
+<div class="alert alert-success text-center" role="status" style="white-space: pre-line;">
+<field name="message" readonly="1"/>
+</div>
+</div>
+<footer>
+<button name="action_primary" type="object" string="إضافة نوع آخر" class="btn btn-primary" icon="fa-plus"/>
+<button name="action_secondary" type="object" string="إنهاء تهيئة الخدمة" class="btn btn-success" icon="fa-check"/>
+<button string="إغلاق" special="cancel" class="btn btn-secondary"/>
+</footer>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_setup_create_part_wizard_form" model="ir.ui.view">
+<field name="name">wof.setup.create.part.wizard.form</field>
+<field name="model">wof.setup.create.part.wizard</field>
+<field name="arch" type="xml">
+<form string="إنشاء جزء جديد" create="0" edit="0">
+<sheet>
+<field name="setup_film_wizard_id" invisible="1"/>
+<div class="alert alert-success text-center p-3" role="status">
+<h3>
+<i class="fa fa-plus-circle me-1" title="إضافة"/>
+إنشاء جزء جديد
+</h3>
+<div class="text-muted"> سيتم ربط الجزء تلقائياً بنفس نوع الخدمة الحالية وإضافته لقائمة الأجزاء. </div>
+</div>
+<group col="2">
+<group>
+<field name="name" placeholder="اكتب اسم الجزء المارد اضافته"/>
+</group>
+<!--  <group>
                             <field name="service_options" readonly="1"/>
                             <field name="part_type"/>
                        
-                        </group> -->
-                    </group>
-
-                    <!-- <group>
+                        </group>  -->
+</group>
+<!--  <group>
                         <field name="notes"/>
-                    </group> -->
-
-                    <footer>
-                        <button string="إنشاء وإضافة"
-                                type="object"
-                                name="action_create_part"
-                                class="btn btn-primary"
-                                icon="fa-check"/>
-
-                        <button string="إلغاء"
-                                special="cancel"
-                                class="btn btn-secondary"/>
-                    </footer>
-
-                </sheet>
-
-            </form>
-
-        </field>
-     </record>
-    <record id="view_wof_setup_parts_mode_confirm_wizard_form" model="ir.ui.view">
-        <field name="name">wof.setup.parts.mode.confirm.wizard.form</field>
-        <field name="model">wof.setup.parts.mode.confirm.wizard</field>
-        <field name="arch" type="xml">
-
-            <form string="تنبيه الأسعار" create="0" edit="0">
-                <sheet>
-
-                    <field name="setup_film_wizard_id" invisible="1"/>
-
-                    <div class="text-center p-3">
-
-                        <div class="mb-3">
-                            <i class="fa fa-exclamation-triangle text-warning"
-                            title="تنبيه"
-                            style="font-size:48px;"/>
-                        </div>
-
-                        <h3 class="text-warning">
-                            تنبيه
-                        </h3>
-
-                        <div class="alert alert-warning"
-                            role="status"
-                            style="white-space: pre-line;">
-                            <field name="message" readonly="1"/>
-                        </div>
-
-                    </div>
-
-                    <footer>
-                        <button string="الاستمرار إلى العمولات"
-                                type="object"
-                                name="action_continue_commission"
-                                class="btn btn-warning"
-                                icon="fa-users"/>
-
-                        <button string="البقاء في إدخال الأسعار"
-                                type="object"
-                                name="action_keep_pricing"
-                                class="btn btn-primary"
-                                icon="fa-money"/>
-
-                        <button string="إلغاء"
-                                special="cancel"
-                                class="btn btn-secondary"/>
-                    </footer>
-
-                </sheet>
-            </form>
-
-        </field>
-    </record>
-
-    <record id="view_wof_setup_parts_commission_confirm_wizard_form" model="ir.ui.view">
-        <field name="name">wof.setup.parts.commission.confirm.wizard.form</field>
-        <field name="model">wof.setup.parts.commission.confirm.wizard</field>
-        <field name="arch" type="xml">
-
-            <form string="تنبيه العمولات" create="0" edit="0">
-                <sheet>
-
-                    <field name="setup_film_wizard_id" invisible="1"/>
-
-                    <div class="text-center p-3">
-
-                        <div class="mb-3">
-                            <i class="fa fa-exclamation-triangle text-warning"
-                            title="تنبيه"
-                            style="font-size:48px;"/>
-                        </div>
-
-                        <h3 class="text-warning">
-                            تنبيه
-                        </h3>
-
-                        <div class="alert alert-warning"
-                            role="status"
-                            style="white-space: pre-line;">
-                            <field name="message" readonly="1"/>
-                        </div>
-
-                    </div>
-
-                    <footer>
-                        <button string="الرجوع لإدخال العمولات"
-                                type="object"
-                                name="action_back_to_commission"
-                                class="btn btn-warning"
-                                icon="fa-users"/>
-
-                        <button string="الإنهاء على كل حال"
-                                type="object"
-                                name="action_finish_anyway"
-                                class="btn btn-success"
-                                icon="fa-check"/>
-
-                        <button string="إلغاء"
-                                special="cancel"
-                                class="btn btn-secondary"/>
-                    </footer>
-
-                </sheet>
-            </form>
-
-        </field>
-    </record>
-
-    <record id="action_wof_setup_wizard" model="ir.actions.act_window">
-        <field name="name">تهيئة النظام</field>
-        <field name="res_model">wof.setup.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">current</field>
-    </record>
-
+                    </group>  -->
+<footer>
+<button string="إنشاء وإضافة" type="object" name="action_create_part" class="btn btn-primary" icon="fa-check"/>
+<button string="إلغاء" special="cancel" class="btn btn-secondary"/>
+</footer>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_setup_parts_mode_confirm_wizard_form" model="ir.ui.view">
+<field name="name">wof.setup.parts.mode.confirm.wizard.form</field>
+<field name="model">wof.setup.parts.mode.confirm.wizard</field>
+<field name="arch" type="xml">
+<form string="تنبيه الأسعار" create="0" edit="0">
+<sheet>
+<field name="setup_film_wizard_id" invisible="1"/>
+<div class="text-center p-3">
+<div class="mb-3">
+<i class="fa fa-exclamation-triangle text-warning" title="تنبيه" style="font-size:48px;"/>
+</div>
+<h3 class="text-warning"> تنبيه </h3>
+<div class="alert alert-warning" role="status" style="white-space: pre-line;">
+<field name="message" readonly="1"/>
+</div>
+</div>
+<footer>
+<button string="الاستمرار إلى العمولات" type="object" name="action_continue_commission" class="btn btn-warning" icon="fa-users"/>
+<button string="البقاء في إدخال الأسعار" type="object" name="action_keep_pricing" class="btn btn-primary" icon="fa-money"/>
+<button string="إلغاء" special="cancel" class="btn btn-secondary"/>
+</footer>
+</sheet>
+</form>
+</field>
+</record>
+<record id="view_wof_setup_parts_commission_confirm_wizard_form" model="ir.ui.view">
+<field name="name">wof.setup.parts.commission.confirm.wizard.form</field>
+<field name="model">wof.setup.parts.commission.confirm.wizard</field>
+<field name="arch" type="xml">
+<form string="تنبيه العمولات" create="0" edit="0">
+<sheet>
+<field name="setup_film_wizard_id" invisible="1"/>
+<div class="text-center p-3">
+<div class="mb-3">
+<i class="fa fa-exclamation-triangle text-warning" title="تنبيه" style="font-size:48px;"/>
+</div>
+<h3 class="text-warning"> تنبيه </h3>
+<div class="alert alert-warning" role="status" style="white-space: pre-line;">
+<field name="message" readonly="1"/>
+</div>
+</div>
+<footer>
+<button string="الرجوع لإدخال العمولات" type="object" name="action_back_to_commission" class="btn btn-warning" icon="fa-users"/>
+<button string="الإنهاء على كل حال" type="object" name="action_finish_anyway" class="btn btn-success" icon="fa-check"/>
+<button string="إلغاء" special="cancel" class="btn btn-secondary"/>
+</footer>
+</sheet>
+</form>
+</field>
+</record>
+<record id="action_wof_setup_wizard" model="ir.actions.act_window">
+<field name="name">تهيئة النظام</field>
+<field name="res_model">wof.setup.wizard</field>
+<field name="view_mode">form</field>
+<field name="target">current</field>
+</record>
 </odoo>
