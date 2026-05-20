@@ -560,7 +560,7 @@
 
                             <button string="التالي: الأجزاء"
                                     type="object"
-                                    name="action_film_next_parts"
+                                    name="action_back_to_car_parts"
                                     class="btn btn-primary"/>
                         </div>
                     </div>
@@ -631,7 +631,7 @@
                                         <field name="line_role" invisible="1"/>
                                         <field name="selected"/>
                                         <field name="car_part_id"
-                                            domain="[('service_options', '=', service_options), ('part_type', '=', line_role)]"/>
+                                            domain="[('service_options', '=', service_options), ('part_type', '=', 'car_part')]"/>
 
                                         <!-- الأسعار -->
                                         <field name="price_line_count"
@@ -778,7 +778,7 @@
                                         <field name="selected"/>
 
                                         <field name="car_part_id"
-                                            domain="[('service_options', '=', service_options), ('part_type', '=', 'service_area')]"/>
+                                                domain="[('service_options', '=', service_options), ('part_type', '=', 'service_area')]"/>
 
                                         <field name="price_line_count"
                                             string="أسعار"
@@ -822,7 +822,7 @@
 
                             <button string="رجوع للأجزاء"
                                     type="object"
-                                    name="action_film_next_parts"
+                                    name="action_back_to_car_parts"
                                     class="btn btn-secondary"
                                     invisible="parts_mode != 'parts'"/>
 

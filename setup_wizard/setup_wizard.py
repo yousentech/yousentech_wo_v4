@@ -1017,16 +1017,28 @@ class WofSetupFilmWizard(models.TransientModel):
    
     def action_go_service_areas(self):
         self.ensure_one()
+
         self.film_step = 'service_areas'
         self.parts_mode = 'parts'
         self._load_service_parts_to_lines('service_area')
+
+        return self._reload_film_wizard()
+
+    def action_back_to_car_parts(self):
+        self.ensure_one()
+
+        self.film_step = 'parts'
+        self.parts_mode = 'parts'
+
         return self._reload_film_wizard()
 
     def action_film_next_parts(self):
         self.ensure_one()
+
         self.film_step = 'parts'
         self.parts_mode = 'parts'
         self._load_service_parts_to_lines('car_part')
+
         return self._reload_film_wizard()
   
     def _load_service_parts_to_lines(self, part_type='car_part'):
@@ -1034,6 +1046,9 @@ class WofSetupFilmWizard(models.TransientModel):
 
         if not self.service_options:
             return False
+
+        if part_type not in ('car_part', 'service_area'):
+            part_type = 'car_part'
 
         Parts = self.env['wof.car.parts'].sudo()
 
@@ -1044,7 +1059,7 @@ class WofSetupFilmWizard(models.TransientModel):
         ], order='priority_part, name')
 
         existing_parts = self.part_line_ids.filtered(
-            lambda l: l.line_role == part_type
+            lambda line: line.line_role == part_type
         ).mapped('car_part_id')
 
         commands = []
@@ -1057,7 +1072,9 @@ class WofSetupFilmWizard(models.TransientModel):
                 }))
 
         if commands:
-            self.write({'part_line_ids': commands})
+            self.write({
+                'part_line_ids': commands
+            })
 
         return True
 
@@ -1899,7 +1916,7 @@ class WofSetupCreatePartWizard(models.TransientModel):
                         'part_line_ids': [(0, 0, {
                         'selected': True,
                         'car_part_id': part.id,
-                        'line_role': self.part_type,
+                        'line_role': self.part_type or 'car_part',
                     })] })
 
         return setup._reload_film_wizard()
