@@ -1005,6 +1005,7 @@
                                             <page string="أسعار الجزء حسب الحجم">
                                                 <field name="price_line_ids" readonly="1">
                                                     <tree>
+                                                       <field name="line_role" invisible="1"/>
                                                         <field name="car_size_line_id"/>
                                                         <field name="part_price"/>
                                                         <field name="discount_exceed_limit"/>
