@@ -978,6 +978,7 @@ class WofSetupFilmWizard(models.TransientModel):
         ('info', 'بيانات النوع'),
         ('degrees', 'درجات اللون'),
         ('parts', 'الأجزاء'),
+        ('service_areas', 'مناطق الخدمة'),
     ], default='info', string="مرحلة التهيئة")
 
     def _reload_film_wizard(self):
@@ -1012,16 +1013,22 @@ class WofSetupFilmWizard(models.TransientModel):
         self.ensure_one()
         self.film_step = 'info'
         return self._reload_film_wizard()
-
+   
+    def action_go_service_areas(self):
+        self.ensure_one()
+        self.film_step = 'service_areas'
+        self.parts_mode = 'parts'
+        self._load_service_parts_to_lines('service_area')
+        return self._reload_film_wizard()
 
     def action_film_next_parts(self):
         self.ensure_one()
         self.film_step = 'parts'
         self.parts_mode = 'parts'
-        self._load_service_parts_to_lines()
+        self._load_service_parts_to_lines('car_part')
         return self._reload_film_wizard()
-
-    def _load_service_parts_to_lines(self):
+  
+    def _load_service_parts_to_lines(self, part_type='car_part'):
         self.ensure_one()
 
         if not self.service_options:
@@ -1031,10 +1038,13 @@ class WofSetupFilmWizard(models.TransientModel):
 
         parts = Parts.search([
             ('service_options', '=', self.service_options),
+            ('part_type', '=', part_type),
             ('active', '=', True),
         ], order='priority_part, name')
 
-        existing_parts = self.part_line_ids.mapped('car_part_id')
+        existing_parts = self.part_line_ids.filtered(
+            lambda l: l.line_role == part_type
+        ).mapped('car_part_id')
 
         commands = []
         for part in parts:
@@ -1042,6 +1052,7 @@ class WofSetupFilmWizard(models.TransientModel):
                 commands.append((0, 0, {
                     'selected': True,
                     'car_part_id': part.id,
+                    'line_role': part_type,
                 }))
 
         if commands:
@@ -1115,18 +1126,21 @@ class WofSetupFilmWizard(models.TransientModel):
     def action_open_create_part_wizard(self):
         self.ensure_one()
 
+        default_part_type = 'service_area' if self.film_step == 'service_areas' else 'car_part'
+
         return {
             'type': 'ir.actions.act_window',
-            'name': _('إنشاء جزء جديد'),
+            'name': _('إنشاء منطقة خدمة') if default_part_type == 'service_area' else _('إنشاء جزء جديد'),
             'res_model': 'wof.setup.create.part.wizard',
             'view_mode': 'form',
             'target': 'new',
             'context': {
                 'default_setup_film_wizard_id': self.id,
                 'default_service_options': self.service_options,
-                'default_part_type': 'car_part',
+                'default_part_type': default_part_type,
             }
         }
+
 
     parts_mode = fields.Selection([
     ('parts', 'الأجزاء'),
@@ -1317,6 +1331,10 @@ class WofSetupFilmPartLine(models.TransientModel):
         related='wizard_id.service_options',
         store=False
     )
+    line_role = fields.Selection([
+        ('car_part', 'جزء سيارة'),
+        ('service_area', 'منطقة خدمة')], string="نوع السطر", default='car_part', required=True)
+
     def _format_size_name(self, line):
         return line.car_size_line_id.display_name if line.car_size_line_id else _('كل الأحجام')
 
@@ -1874,11 +1892,11 @@ class WofSetupCreatePartWizard(models.TransientModel):
         existing_parts = setup.part_line_ids.mapped('car_part_id')
         if part not in existing_parts:
             setup.write({
-                'part_line_ids': [(0, 0, {
-                    'selected': True,
-                    'car_part_id': part.id,
-                })]
-            })
+                        'part_line_ids': [(0, 0, {
+                        'selected': True,
+                        'car_part_id': part.id,
+                        'line_role': self.part_type,
+                    })] })
 
         return setup._reload_film_wizard()
     

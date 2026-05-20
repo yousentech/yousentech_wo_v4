@@ -565,7 +565,7 @@
                         </div>
                     </div>
 
-                   <div invisible="film_step != 'parts'">
+                    <div invisible="film_step != 'parts'">
                         <div class="card border-success shadow-sm mb-3">
                              <div class="card-header bg-success-subtle d-flex align-items-center gap-2">
 
@@ -620,7 +620,7 @@
                             <!-- وضع الأجزاء -->
 
                                 
-                                <field name="part_line_ids" nolabel="1">
+                                <field name="part_line_ids" nolabel="1" domain="[('line_role','=','car_part')]">
                                     <tree editable="bottom"
                                         create="1"
                                         delete="1"
@@ -628,9 +628,10 @@
                                         decoration-danger="selected and not car_part_id">
 
                                         <field name="service_options" invisible="1"/>
+                                        <field name="line_role" invisible="1"/>
                                         <field name="selected"/>
                                         <field name="car_part_id"
-                                            domain="[('service_options', '=', service_options)]"/>
+                                            domain="[('service_options', '=', service_options), ('part_type', '=', line_role)]"/>
 
                                         <!-- الأسعار -->
                                         <field name="price_line_count"
@@ -712,17 +713,155 @@
                                     icon="fa-money"
                                     invisible="parts_mode != 'commission'"/>
 
+                           <button string="التالي: مناطق الخدمة"
+                                type="object"
+                                name="action_go_service_areas"
+                                class="btn btn-success"
+                                icon="fa-map-marker"
+                                invisible="parts_mode != 'commission'"/>
+
+                        </div>
+                        
+                    </div>
+                    <div invisible="film_step != 'service_areas'">
+                        <div class="card border-info shadow-sm mb-3">
+
+                            <div class="card-header bg-info-subtle d-flex align-items-center gap-2">
+
+                                <div style="width:25%; text-align:left;">
+                                    <button string="إنشاء منطقة خدمة"
+                                            type="object"
+                                            name="action_open_create_part_wizard"
+                                            class="btn btn-info"
+                                            icon="fa-plus"/>
+                                </div>
+
+                                <div style="width:50%; text-align:center;">
+                                    <span class="px-4 py-2 rounded-pill border bg-white shadow-sm"
+                                        invisible="parts_mode != 'parts'">
+                                        <i class="fa fa-map-marker me-1" title="مناطق الخدمة"/>
+                                        <strong>مرحلة اختيار مناطق الخدمة</strong>
+                                    </span>
+
+                                    <span class="px-4 py-2 rounded-pill border bg-primary-subtle shadow-sm"
+                                        invisible="parts_mode != 'pricing'">
+                                        <i class="fa fa-money me-1" title="الأسعار"/>
+                                        <strong>مرحلة تسعير مناطق الخدمة</strong>
+                                    </span>
+
+                                    <span class="px-4 py-2 rounded-pill border bg-warning-subtle shadow-sm"
+                                        invisible="parts_mode != 'commission'">
+                                        <i class="fa fa-users me-1" title="العمولات"/>
+                                        <strong>مرحلة عمولات مناطق الخدمة</strong>
+                                    </span>
+                                </div>
+
+                                <div style="width:25%; text-align:right;">
+                                    <strong>
+                                        <i class="fa fa-map-marker me-1"/>
+                                        مناطق الخدمة
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                            <div class="card-body">
+                                <field name="part_line_ids" nolabel="1" domain="[('line_role','=','service_area')]">
+                                    <tree editable="bottom"
+                                        create="1"
+                                        delete="1"
+                                        decoration-muted="not selected"
+                                        decoration-danger="selected and not car_part_id">
+
+                                        <field name="service_options" invisible="1"/>
+                                        <field name="line_role" invisible="1"/>
+                                        <field name="selected"/>
+
+                                        <field name="car_part_id"
+                                            domain="[('service_options', '=', service_options), ('part_type', '=', 'service_area')]"/>
+
+                                        <field name="price_line_count"
+                                            string="أسعار"
+                                            readonly="1"
+                                            column_invisible="parent.parts_mode != 'pricing'"/>
+
+                                        <field name="price_summary"
+                                            string="ملخص الأسعار"
+                                            readonly="1"
+                                            column_invisible="parent.parts_mode != 'pricing'"/>
+
+                                        <button name="action_open_price_popup"
+                                                type="object"
+                                                string="التسعيرات"
+                                                icon="fa-money"
+                                                class="btn btn-primary"
+                                                column_invisible="parent.parts_mode != 'pricing'"/>
+
+                                        <field name="commission_line_count"
+                                            string="عمولات"
+                                            readonly="1"
+                                            column_invisible="parent.parts_mode != 'commission'"/>
+
+                                        <field name="commission_summary"
+                                            string="ملخص العمولات"
+                                            readonly="1"
+                                            column_invisible="parent.parts_mode != 'commission'"/>
+
+                                        <button name="action_open_commission_popup"
+                                                type="object"
+                                                string="العمولات"
+                                                icon="fa-users"
+                                                class="btn btn-secondary"
+                                                column_invisible="parent.parts_mode != 'commission'"/>
+                                    </tree>
+                                </field>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 d-flex justify-content-start gap-2 flex-wrap">
+
+                            <button string="رجوع للأجزاء"
+                                    type="object"
+                                    name="action_film_next_parts"
+                                    class="btn btn-secondary"
+                                    invisible="parts_mode != 'parts'"/>
+
+                            <button string="إدخال الأسعار"
+                                    type="object"
+                                    name="action_parts_mode_pricing"
+                                    class="btn btn-primary"
+                                    icon="fa-money"
+                                    invisible="parts_mode != 'parts'"/>
+
+                            <button string="رجوع لعرض مناطق الخدمة"
+                                    type="object"
+                                    name="action_parts_mode_parts"
+                                    class="btn btn-secondary"
+                                    icon="fa-list"
+                                    invisible="parts_mode != 'pricing'"/>
+
+                            <button string="إدخال عمولات الفنيين"
+                                    type="object"
+                                    name="action_parts_mode_commission"
+                                    class="btn btn-warning"
+                                    icon="fa-users"
+                                    invisible="parts_mode != 'pricing'"/>
+
+                            <button string="رجوع للأسعار"
+                                    type="object"
+                                    name="action_parts_back_to_pricing"
+                                    class="btn btn-secondary"
+                                    icon="fa-money"
+                                    invisible="parts_mode != 'commission'"/>
+
                             <button string="إنهاء تهيئة هذا النوع"
                                     type="object"
                                     name="action_try_finish_current_film"
                                     class="btn btn-success"
                                     icon="fa-check"
                                     invisible="parts_mode != 'commission'"/>
-
                         </div>
-                        
                     </div>
- 
 
                 </sheet>
             </form>
@@ -854,6 +993,7 @@
                         <page string="الأجزاء">
                             <field name="part_line_ids" readonly="1">
                                 <tree>
+                                    <field name="line_role" invisible="1"/>
                                     <field name="car_part_id"/>
                                 </tree>
                                 <form>
