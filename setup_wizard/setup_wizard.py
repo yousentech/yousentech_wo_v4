@@ -814,6 +814,21 @@ class WofSetupFilmWizard(models.TransientModel):
         string="الأجزاء"
     )
 
+    # واجهات عرض منفصلة لنفس السطور؛ تمنع خلط أجزاء السيارة مع مناطق الخدمة في نفس One2many.
+    car_part_line_ids = fields.One2many(
+        'wof.setup.film.part.line',
+        'wizard_id',
+        string="أجزاء السيارة",
+        domain=[('line_role', '=', 'car_part')]
+    )
+
+    service_area_line_ids = fields.One2many(
+        'wof.setup.film.part.line',
+        'wizard_id',
+        string="مناطق الخدمة",
+        domain=[('line_role', '=', 'service_area')]
+    )
+
     def _prepare_tint_degree_lines(self):
         self.ensure_one()
 
@@ -942,20 +957,9 @@ class WofSetupFilmWizard(models.TransientModel):
         }
 
     def action_load_service_parts(self):
+        # توافق خلفي فقط: تحميل أجزاء السيارة عند استدعاء الزر القديم.
         self.ensure_one()
-
-        if not self.service_options:
-            raise ValidationError(_("لم يتم تحديد نوع الخدمة."))
-
-        part_type = 'service_area' if self.film_step == 'service_areas' else 'car_part'
-        before_count = len(self.part_line_ids.filtered(lambda line: line.line_role == part_type))
-        self._load_service_parts_to_lines(part_type)
-        after_count = len(self.part_line_ids.filtered(lambda line: line.line_role == part_type))
-
-        if before_count == after_count:
-            label = _("مناطق الخدمة") if part_type == 'service_area' else _("الأجزاء")
-            raise ValidationError(_("لا توجد %s جديدة لهذا النوع من الخدمة أو أنها مضافة مسبقاً.") % label)
-
+        self._load_service_parts_to_lines('car_part')
         return self._reload_film_wizard()
 
     film_step = fields.Selection([
@@ -986,9 +990,12 @@ class WofSetupFilmWizard(models.TransientModel):
         if self.service_options == 'tint':
             self._prepare_tint_degree_lines()
             self.film_step = 'degrees'
-            return self._reload_film_wizard()
+        else:
+            self.film_step = 'parts'
+            self.parts_mode = 'parts'
+            self._load_service_parts_to_lines('car_part')
 
-        return self.action_film_next_parts()
+        return self._reload_film_wizard()
 
 
     def action_film_back_info(self):
@@ -1032,8 +1039,14 @@ class WofSetupFilmWizard(models.TransientModel):
         if part_type not in ('car_part', 'service_area'):
             part_type = 'car_part'
 
-        Parts = self.env['wof.car.parts'].sudo()
+        # حذف السطور الفارغة لنفس النوع فقط؛ لا نلمس النوع الآخر.
+        empty_lines = self.part_line_ids.filtered(
+            lambda line: line.line_role == part_type and not line.car_part_id
+        )
+        if empty_lines:
+            empty_lines.unlink()
 
+        Parts = self.env['wof.car.parts'].sudo()
         parts = Parts.search([
             ('service_options', '=', self.service_options),
             ('part_type', '=', part_type),
@@ -1054,9 +1067,7 @@ class WofSetupFilmWizard(models.TransientModel):
                 }))
 
         if commands:
-            self.write({
-                'part_line_ids': commands
-            })
+            self.write({'part_line_ids': commands})
 
         return True
 
@@ -1159,12 +1170,23 @@ class WofSetupFilmWizard(models.TransientModel):
         return self._reload_film_wizard()
 
 
+    def _get_current_part_role(self):
+        self.ensure_one()
+        return 'service_area' if self.film_step == 'service_areas' else 'car_part'
+
+    def _get_current_selected_part_lines(self):
+        self.ensure_one()
+        role = self._get_current_part_role()
+        return self.part_line_ids.filtered(
+            lambda line: line.selected and line.line_role == role
+        )
+
     def _get_parts_without_prices(self):
         self.ensure_one()
 
         missing_parts = self.env['wof.setup.film.part.line']
 
-        for part in self.part_line_ids.filtered('selected'):
+        for part in self._get_current_selected_part_lines():
             has_price = any(
                 line.free_part or line.part_price > 0
                 for line in part.price_line_ids
@@ -1206,7 +1228,7 @@ class WofSetupFilmWizard(models.TransientModel):
 
         missing_parts = self.env['wof.setup.film.part.line']
 
-        for part in self.part_line_ids.filtered('selected'):
+        for part in self._get_current_selected_part_lines():
             has_commission = any(
                 line.commission > 0
                 for line in part.commission_line_ids
