@@ -914,53 +914,84 @@
             </form>
         </field>
     </record>
-
     <record id="view_wof_setup_film_part_commission_form" model="ir.ui.view">
         <field name="name">wof.setup.film.part.commission.form</field>
         <field name="model">wof.setup.film.part.line</field>
         <field name="arch" type="xml">
+
             <form string="عمولة الفني حسب حجم السيارة">
                 <sheet>
-                    <div class="alert alert-warning d-flex align-items-start gap-2" role="status">
+
+                    <div class="alert alert-warning d-flex align-items-start gap-2"
+                        role="status"
+                        invisible="line_role == 'service_area' and service_area_commission_method == 'from_part'">
                         <i class="fa fa-users mt-1" title="العمولة"/>
                         <div>
                             أدخل عمولة الفني لكل حجم سيارة في نافذة منفصلة عن أسعار الجزء.
                         </div>
                     </div>
 
-                   <group string="بيانات الجزء" col="2">
+                    <div class="alert alert-info d-flex align-items-start gap-2"
+                        role="status"
+                        invisible="line_role != 'service_area' or service_area_commission_method != 'from_part'">
+                        <i class="fa fa-info-circle mt-1" title="معلومة"/>
+                        <div>
+                            سيتم احتساب عمولة منطقة الخدمة تلقائياً من الأجزاء المرتبطة بها،
+                            لذلك لا يلزم إدخال عمولات يدوية هنا.
+                        </div>
+                    </div>
+
+                    <group string="بيانات الجزء" col="2">
                         <field name="car_part_id" readonly="1"/>
                         <field name="line_role" invisible="1"/>
 
                         <field name="service_area_commission_method"
                             invisible="line_role != 'service_area'"/>
 
-                        <field name="commission_summary" readonly="1"/>
+                        <field name="commission_summary"
+                            readonly="1"
+                            invisible="line_role == 'service_area' and service_area_commission_method == 'from_part'"/>
                     </group>
 
-                    <separator string="قائمة عمولات الفني حسب الحجم"/>
+                    <separator string="قائمة عمولات الفني حسب الحجم"
+                            invisible="line_role == 'service_area' and service_area_commission_method == 'from_part'"/>
 
-                    <field name="commission_line_ids" nolabel="1">
+                    <field name="commission_line_ids"
+                        nolabel="1"
+                        invisible="line_role == 'service_area' and service_area_commission_method == 'from_part'">
                         <tree editable="bottom"
-                              create="0"
-                              delete="1"
-                              decoration-warning="commission == 0">
+                            create="0"
+                            delete="1"
+                            decoration-warning="commission == 0">
 
                             <field name="parent_wizard_id" invisible="1"/>
                             <field name="car_size_line_id" readonly="1"/>
                             <field name="commission" sum="الإجمالي"/>
+
                         </tree>
                     </field>
 
                     <footer>
-                        <button string="حفظ العمولات" special="save" class="btn-primary"/>
-                        <button string="إلغاء" special="cancel" class="btn-secondary"/>
+                        <button string="حفظ"
+                                special="save"
+                                class="btn-primary"
+                                invisible="line_role != 'service_area' or service_area_commission_method != 'from_part'"/>
+
+                        <button string="حفظ العمولات"
+                                special="save"
+                                class="btn-primary"
+                                invisible="line_role == 'service_area' and service_area_commission_method == 'from_part'"/>
+
+                        <button string="إلغاء"
+                                special="cancel"
+                                class="btn-secondary"/>
                     </footer>
+
                 </sheet>
             </form>
+
         </field>
     </record>
-
     <record id="view_wof_setup_temp_film_tree" model="ir.ui.view">
         <field name="name">wof.setup.temp.film.tree</field>
         <field name="model">wof.setup.temp.film</field>
