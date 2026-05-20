@@ -886,6 +886,7 @@ class WofSetupFilmWizard(models.TransientModel):
             temp_part = TempPart.create({
                 'film_id': temp_film.id,
                 'car_part_id': part.car_part_id.id,
+                'line_role': part.line_role or 'car_part',
             })
 
             for price in part.price_line_ids:
@@ -1665,7 +1666,10 @@ class WofSetupTempFilmPart(models.TransientModel):
         'temp_part_id',
         string="العمولة"
     )
-
+    line_role = fields.Selection([
+        ('car_part', 'جزء سيارة'),
+        ('service_area', 'منطقة خدمة'),
+    ], string="نوع السطر", default='car_part')
 
 class WofSetupTempFilmPartPriceLine(models.TransientModel):
     _name = 'wof.setup.temp.film.part.price.line'
