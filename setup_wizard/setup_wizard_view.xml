@@ -431,7 +431,7 @@
                     <header>
                         <field name="film_step"
                             widget="statusbar"
-                            statusbar_visible="parts,service_areas"
+                            statusbar_visible="template_parts,info,degrees,parts,service_areas"
                             options="{'clickable': False}"/>
                     </header>
 
@@ -448,15 +448,82 @@
                             تهيئة أنواع <field name="service_name" readonly="1"/>
                         </h2>
                        <div class="text-muted" invisible="service_options != 'tint'">
-                            الخطوات: الأجزاء ثم الأسعار ثم العمولات ثم مناطق الخدمة.
+                            الخطوات: اختيار أجزاء الخدمة ثم إضافة النوع ثم الأسعار والعمولات ثم مناطق الخدمة.
                         </div>
 
                         <div class="text-muted" invisible="service_options == 'tint'">
-                            الخطوات: الأجزاء ثم الأسعار ثم العمولات ثم الإنهاء.
+                            الخطوات: اختيار أجزاء الخدمة ثم إضافة النوع ثم الأسعار والعمولات ثم الإنهاء.
                         </div>
                     </div>
 
                    
+                    <div invisible="film_step != 'template_parts'">
+                        <div class="card border-success shadow-sm mb-3">
+                            <div class="card-header bg-success-subtle d-flex align-items-center gap-2">
+                                <div class="flex-fill text-start" style="width:25%;">
+                                    <strong>
+                                        <i class="fa fa-cogs me-1" title="الأجزاء"/>
+                                        أجزاء الخدمة المعتمدة
+                                    </strong>
+                                </div>
+
+                                <div style="width:50%; text-align:center;">
+                                    <span class="px-4 py-2 rounded-pill border bg-white shadow-sm">
+                                        <i class="fa fa-puzzle-piece text-secondary me-1" title="قالب الأجزاء"/>
+                                        <strong>مرحلة اختيار قالب الأجزاء</strong>
+                                        <span class="text-muted small">— اختر الأجزاء التي ستُستخدم في الأنواع</span>
+                                    </span>
+                                </div>
+
+                                <div class="flex-fill text-end" style="width:25%;">
+                                    <button string="إنشاء جزء جديد"
+                                            type="object"
+                                            name="action_open_create_part_wizard"
+                                            class="btn btn-success"
+                                            icon="fa-plus"/>
+                                </div>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="alert alert-light border d-flex align-items-center gap-2 mb-3" role="status">
+                                    <i class="fa fa-info-circle text-primary" title="معلومة"/>
+                                    <span>
+                                        هذه المرحلة لا تحتوي أسعار أو عمولات. اختر الأجزاء أولاً، ثم اضغط <strong>إضافة نوع / فيلم</strong> لإدخال بيانات النوع والتسعيرات.
+                                    </span>
+                                </div>
+
+                                <field name="car_part_line_ids" nolabel="1">
+                                    <tree editable="bottom"
+                                          create="1"
+                                          delete="1"
+                                          decoration-muted="not selected"
+                                          decoration-danger="selected and not car_part_id">
+
+                                        <field name="service_options" invisible="1"/>
+                                        <field name="line_role" invisible="1"/>
+                                        <field name="selected"/>
+                                        <field name="car_part_id"
+                                               domain="[('service_options', '=', service_options), ('part_type', '=', 'car_part')]"/>
+                                    </tree>
+                                </field>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 d-flex justify-content-start gap-2 flex-wrap">
+                            <button string="رجوع للخدمات"
+                                    type="object"
+                                    name="action_back_to_services"
+                                    class="btn btn-secondary"
+                                    icon="fa-arrow-right"/>
+
+                            <button string="إضافة نوع / فيلم"
+                                    type="object"
+                                    name="action_start_new_film_from_template"
+                                    class="btn btn-primary"
+                                    icon="fa-plus"/>
+                        </div>
+                    </div>
+
                     <div invisible="film_step != 'info'">
                         <div class="card border-primary shadow-sm mb-3">
                             <div class="card-header bg-primary-subtle">
@@ -470,11 +537,12 @@
                                 <group col="2">
                                     <group>
                                         
-                                        <field name="film_name" placeholder="مثال: عزل حراري أمريكي" invisible="service_options != 'tint'"/>
-                                        <field name="film_name" placeholder="مثال: حماية PPF أمريكي" invisible="service_options != 'ppf'"/>
-                                        <field name="film_name" placeholder="مثال: نانو سيراميك" invisible="service_options != 'nano'"/>
-                                        <field name="film_name" placeholder="مثال: تنجيد" invisible="service_options != 'upholstery'"/>
-                                        <field name="film_name" placeholder="مثال: أرضيات" invisible="service_options != 'floor_mats'"/>
+                                        <field name="film_name"
+                                               placeholder="مثال: عزل حراري أمريكي"
+                                               invisible="service_options != 'tint'"/>
+                                        <field name="film_name"
+                                               placeholder="مثال: اسم النوع أو الباقة"
+                                               invisible="service_options == 'tint'"/>
 
                                     </group>
                                  <group>
@@ -521,11 +589,11 @@
                                     invisible="service_options != 'tint'"/>
 
                             <!-- لباقي الخدمات -->
-                            <button string="التالي: الأجزاء"
+                            <button string="التالي: إدخال الأسعار"
                                     type="object"
                                     name="action_film_next_degrees"
                                     class="btn btn-primary"
-                                    icon="fa-cogs"
+                                    icon="fa-money"
                                     invisible="service_options == 'tint'"/>
 
                         </div>
@@ -561,10 +629,11 @@
                                     name="action_film_back_info"
                                     class="btn btn-secondary"/>
 
-                            <button string="التالي: الأجزاء"
+                            <button string="التالي: إدخال الأسعار"
                                     type="object"
                                     name="action_film_next_parts"
-                                    class="btn btn-primary"/>
+                                    class="btn btn-primary"
+                                    icon="fa-money"/>
                         </div>
                     </div>
 
@@ -679,9 +748,9 @@
                         <div class="mt-3 d-flex justify-content-start gap-2 flex-wrap">
 
                             <!-- وضع الأجزاء فقط -->
-                            <button string="رجوع للخدمات"
+                            <button string="رجوع لبيانات النوع"
                                     type="object"
-                                    name="action_back_to_services"
+                                    name="action_film_back_info"
                                     class="btn btn-secondary"
                                     icon="fa-arrow-right"
                                     invisible="parts_mode != 'parts'"/>

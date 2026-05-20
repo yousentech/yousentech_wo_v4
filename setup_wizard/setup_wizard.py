@@ -733,20 +733,18 @@ class WofSetupWizardServiceLine(models.TransientModel):
         if not self.custom_name:
             self.custom_name = self.service_type_id.display_name
 
-        # افتح التهيئة مباشرة على شاشة الأجزاء كما اتفقنا.
+        # المرحلة الأولى: تجهيز قالب أجزاء الخدمة فقط.
+        # لا نطلب اسم الفيلم ولا الضمان هنا؛ المستخدم يختار الأجزاء المعتمدة أولاً.
         setup = self.env['wof.setup.film.wizard'].create({
             'parent_wizard_id': self.wizard_id.id,
             'service_line_id': self.id,
             'service_options': self.service_options or False,
             'service_name': self.custom_name,
-            'film_name': self.custom_name,
-            'film_step': 'parts',
+            'film_step': 'template_parts',
             'parts_mode': 'parts',
         })
 
-        if self.service_options == 'tint':
-            setup._prepare_tint_degree_lines()
-
+        # تحميل أجزاء السيارة كقالب أولي للخدمة.
         setup._load_service_parts_to_lines('car_part')
 
         return {
@@ -1006,9 +1004,12 @@ class WofSetupFilmWizard(models.TransientModel):
         return self._reload_film_wizard()
 
     film_step = fields.Selection([
-        ('parts', 'الأجزاء'),
+        ('template_parts', 'قالب الأجزاء'),
+        ('info', 'بيانات النوع'),
+        ('degrees', 'درجات اللون'),
+        ('parts', 'التسعير والعمولات'),
         ('service_areas', 'مناطق الخدمة'),
-    ], default='parts', string="مرحلة التهيئة")
+    ], default='template_parts', string="مرحلة التهيئة")
 
     def _reload_film_wizard(self):
         self.ensure_one()
@@ -1021,13 +1022,45 @@ class WofSetupFilmWizard(models.TransientModel):
             'target': 'current',
         }
 
+    def action_start_new_film_from_template(self):
+        self.ensure_one()
+
+        selected_parts = self.car_part_line_ids.filtered('selected')
+        if not selected_parts:
+            raise ValidationError(_("يرجى اختيار جزء واحد على الأقل قبل إضافة نوع/فيلم."))
+
+        self.write({
+            'film_step': 'info',
+            'parts_mode': 'parts',
+            'film_name': False,
+            'warranty_duration': 5,
+            'warranty_period': 'year',
+            'tint_degree_line_ids': [(5, 0, 0)],
+        })
+
+        if self.service_options == 'tint':
+            self._prepare_tint_degree_lines()
+
+        return self._reload_film_wizard()
+
 
     def action_film_next_degrees(self):
         self.ensure_one()
-        # توافق خلفي فقط: بدء التهيئة صار يفتح الأجزاء مباشرة.
-        self.film_step = 'parts'
-        self.parts_mode = 'parts'
-        self._load_service_parts_to_lines('car_part')
+
+        if not self.film_name:
+            raise ValidationError(_("يرجى إدخال اسم النوع."))
+
+        if self.service_options == 'tint':
+            self._prepare_tint_degree_lines()
+            self.film_step = 'degrees'
+            self.parts_mode = 'parts'
+        else:
+            # الخدمة العادية: بعد بيانات النوع ننتقل مباشرة إلى مرحلة إدخال الأسعار
+            # على نفس الأجزاء التي تم اعتمادها في قالب الخدمة.
+            self.film_step = 'parts'
+            self.parts_mode = 'pricing'
+            self._load_service_parts_to_lines('car_part')
+
         return self._reload_film_wizard()
 
 
@@ -1060,8 +1093,10 @@ class WofSetupFilmWizard(models.TransientModel):
     def action_film_next_parts(self):
         self.ensure_one()
 
+        # بعد بيانات النوع/درجات اللون ننتقل إلى شاشة الأجزاء في وضع الأسعار مباشرة،
+        # مع استخدام نفس الأجزاء التي اعتمدها المستخدم في قالب الخدمة.
         self.film_step = 'parts'
-        self.parts_mode = 'parts'
+        self.parts_mode = 'pricing'
         self._load_service_parts_to_lines('car_part')
 
         return self._reload_film_wizard()
@@ -1155,16 +1190,22 @@ class WofSetupFilmWizard(models.TransientModel):
     def action_prepare_new_film(self):
         self.ensure_one()
 
+        # عند إضافة نوع/فيلم آخر لنفس الخدمة نحتفظ بقالب الأجزاء المعتمد،
+        # ونصفر فقط بيانات النوع والتسعيرات والعمولات والدرجات المختارة.
+        self.part_line_ids.mapped('price_line_ids').unlink()
+        self.part_line_ids.mapped('commission_line_ids').unlink()
+
         self.write({
             'film_name': False,
-            'warranty_duration': 10,
+            'warranty_duration': 5,
             'warranty_period': 'year',
             'film_step': 'info',
-            'part_line_ids': [(5, 0, 0)],
+            'parts_mode': 'parts',
             'tint_degree_line_ids': [(5, 0, 0)],
         })
 
-        self._prepare_tint_degree_lines()
+        if self.service_options == 'tint':
+            self._prepare_tint_degree_lines()
 
         return self._reload_film_wizard()
 
