@@ -945,12 +945,16 @@
                         <field name="car_part_id" readonly="1"/>
                         <field name="line_role" invisible="1"/>
 
-                        <field name="service_area_commission_method"
-                            invisible="line_role != 'service_area'"/>
-
+                      
                         <field name="commission_summary"
                             readonly="1"
                             invisible="line_role == 'service_area' and service_area_commission_method == 'from_part'"/>
+                    </group>
+                    <group string="بيانات الجزء" col="2">
+                       
+                        <field name="service_area_commission_method"
+                            invisible="line_role != 'service_area'"/>
+ 
                     </group>
 
                     <separator string="قائمة عمولات الفني حسب الحجم"
