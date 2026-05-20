@@ -6,11 +6,6 @@ from odoo.exceptions import ValidationError
 
 SERVICE_OPTIONS = [
     ('tint', 'عزل حراري'),
-    ('ppf', 'حماية'),
-    ('nano', 'نانو سيراميك'),
-    ('upholstery', 'تنجيد'),
-    ('floor_mats', 'أرضيات'),
-    ('others', 'أخرى'),
 ]
 
 
@@ -45,6 +40,32 @@ TINT_DEGREE_PRESETS = {
         ('الدرجة 6', '75'),
     ],
 }
+
+
+class WofCarPartsSetupFields(models.Model):
+    _inherit = 'wof.car.parts'
+
+    service_options = fields.Selection(
+        SERVICE_OPTIONS,
+        string="نوع محرك الخدمة",
+        required=False,
+        help="اختر عزل حراري فقط للأجزاء الخاصة بالعزل. اتركه فارغاً لبقية الخدمات."
+    )
+
+    service_area_commission_method = fields.Selection([
+        ('equal_from_area', 'توزيع عمولة منطقة الخدمة بالتساوي'),
+        ('from_part', 'احتساب العمولة من الجزء'),
+    ], string="طريقة احتساب عمولة الفنيين", default='equal_from_area')
+
+
+class WofServiceTypeSetupFlag(models.Model):
+    _inherit = 'wof.service.type'
+
+    setup_enabled = fields.Boolean(
+        string="مفعلة في التهيئة",
+        default=False,
+        help="يتم تفعيلها عند إكمال تهيئة نوع الخدمة."
+    )
 
 
 class WofSetupWizard(models.TransientModel):
@@ -141,12 +162,21 @@ class WofSetupWizard(models.TransientModel):
 
         if 'service_line_ids' in fields_list:
             service_lines = []
+            ServiceType = self.env['wof.service.type'].sudo()
+            domain = []
+            if 'active' in ServiceType._fields:
+                domain.append(('active', '=', True))
+            services = ServiceType.search(domain, order='sequence, name' if 'sequence' in ServiceType._fields else 'name')
+
             sequence = 1
-            for option_key, option_label in SERVICE_OPTIONS:
+            for service in services:
                 service_lines.append((0, 0, {
                     'sequence': sequence,
-                    'service_options': option_key,
-                    'custom_name': option_label,
+                    'service_type_id': service.id,
+                    'selected': bool(getattr(service, 'setup_enabled', False)),
+                    'completed': bool(getattr(service, 'setup_enabled', False)),
+                    'service_options': 'tint' if ('service_options' in service._fields and service.service_options == 'tint') else False,
+                    'custom_name': service.display_name,
                 }))
                 sequence += 1
             res['service_line_ids'] = service_lines
@@ -323,27 +353,19 @@ class WofSetupWizard(models.TransientModel):
         }.get(option, 'SRV')
 
     def _ensure_service_type_from_line(self, service_line):
-        company = self.env.company.parent_id or self.env.company
-        ServiceType = self.env['wof.service.type'].sudo()
+        self.ensure_one()
+        if not service_line.service_type_id:
+            raise ValidationError(_("نوع الخدمة غير محدد في سطر التهيئة."))
 
-        service = ServiceType.search([
-            ('service_options', '=', service_line.service_options),
-            ('company_id', '=', company.id),
-        ], limit=1)
+        vals = {}
+        if 'service_options' in service_line.service_type_id._fields:
+            vals['service_options'] = service_line.service_options or False
+        if 'setup_enabled' in service_line.service_type_id._fields:
+            vals['setup_enabled'] = True
+        if vals:
+            service_line.service_type_id.sudo().write(vals)
 
-        vals = {
-            'name': service_line.custom_name,
-            'code': self._get_service_code(service_line.service_options),
-            'service_options': service_line.service_options,
-            'company_id': company.id,
-        }
-
-        if service:
-            service.write(vals)
-        else:
-            service = ServiceType.create(vals)
-
-        return service
+        return service_line.service_type_id.sudo()
 
     def _get_size_key(self, line):
         return line.car_size_line_id.id if line.car_size_line_id else False
@@ -420,29 +442,26 @@ class WofSetupWizard(models.TransientModel):
             else:
                 CommissionLine.create(vals)
 
-    def _create_film_tint_degrees(self, film, temp_film, degree_map):
+    def _create_film_tint_degrees(self, film, temp_film, degree_map=None):
         self.ensure_one()
 
-        if film.service_options != 'tint':
+        service_options = False
+        if film.service_type_id and 'service_options' in film.service_type_id._fields:
+            service_options = film.service_type_id.service_options
+        if service_options != 'tint':
             return
 
         FilmLine = self.env['wof.film.category.lines'].sudo()
 
         for degree in temp_film.tint_degree_line_ids.filtered('selected').sorted('sequence'):
-            real_degree_id = degree_map.get(degree.setup_degree_line_id.id)
-
             existing = FilmLine.search([
                 ('header_id', '=', film.id),
-                ('degree_value', '=', degree.value),
+                ('name', '=', degree.value),
             ], limit=1)
 
             vals = {
                 'header_id': film.id,
-                'sequence': degree.sequence,
-                'tint_degree_id': real_degree_id or False,
                 'name': degree.value,
-                'degree_label': degree.name,
-                'degree_value': degree.value,
             }
 
             if existing:
@@ -673,13 +692,20 @@ class WofSetupWizardServiceLine(models.TransientModel):
         ondelete='cascade'
     )
 
+    service_type_id = fields.Many2one(
+        'wof.service.type',
+        string="نوع الخدمة",
+        required=True,
+        ondelete='cascade'
+    )
+
     selected = fields.Boolean(string="اختيار")
     completed = fields.Boolean(string="مكتمل")
 
     service_options = fields.Selection(
         SERVICE_OPTIONS,
-        string="النوع",
-        required=False
+        string="محرك الخدمة",
+        help="اتركه فارغاً للخدمات العادية. اختر عزل حراري فقط للخدمات التي تحتاج درجات لون ومناطق خدمة."
     )
 
     custom_name = fields.Char(string="اسم الخدمة")
@@ -699,23 +725,33 @@ class WofSetupWizardServiceLine(models.TransientModel):
         self.ensure_one()
 
         if not self.selected:
-            raise ValidationError(_("يرجى اختيار نوع الخدمة أولاً."))
+            raise ValidationError(_("يرجى تفعيل نوع الخدمة أولاً."))
+
+        if not self.service_type_id:
+            raise ValidationError(_("نوع الخدمة غير محدد."))
 
         if not self.custom_name:
-            raise ValidationError(_("يرجى إدخال اسم نوع الخدمة."))
+            self.custom_name = self.service_type_id.display_name
 
+        # افتح التهيئة مباشرة على شاشة الأجزاء كما اتفقنا.
         setup = self.env['wof.setup.film.wizard'].create({
             'parent_wizard_id': self.wizard_id.id,
             'service_line_id': self.id,
-            'service_options': self.service_options,
+            'service_options': self.service_options or False,
             'service_name': self.custom_name,
+            'film_name': self.custom_name,
+            'film_step': 'parts',
+            'parts_mode': 'parts',
         })
 
-        setup._prepare_tint_degree_lines()
+        if self.service_options == 'tint':
+            setup._prepare_tint_degree_lines()
+
+        setup._load_service_parts_to_lines('car_part')
 
         return {
             'type': 'ir.actions.act_window',
-            'name': _('تهيئة أنواع %s') % (self.custom_name or ''),
+            'name': _('تهيئة %s') % (self.custom_name or ''),
             'res_model': 'wof.setup.film.wizard',
             'res_id': setup.id,
             'view_mode': 'form',
@@ -727,7 +763,7 @@ class WofSetupWizardServiceLine(models.TransientModel):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': _('الأفلام المؤقتة - %s') % (self.custom_name or ''),
+            'name': _('الأنواع المؤقتة - %s') % (self.custom_name or ''),
             'res_model': 'wof.setup.temp.film',
             'view_mode': 'tree,form',
             'domain': [
@@ -929,6 +965,15 @@ class WofSetupFilmWizard(models.TransientModel):
     def action_complete_service_setup(self):
         self.ensure_one()
 
+        if self.service_line_id.service_type_id:
+            vals = {}
+            if 'service_options' in self.service_line_id.service_type_id._fields:
+                vals['service_options'] = self.service_options or False
+            if 'setup_enabled' in self.service_line_id.service_type_id._fields:
+                vals['setup_enabled'] = True
+            if vals:
+                self.service_line_id.service_type_id.sudo().write(vals)
+
         self.service_line_id.write({
             'completed': True,
             'selected': True,
@@ -961,11 +1006,9 @@ class WofSetupFilmWizard(models.TransientModel):
         return self._reload_film_wizard()
 
     film_step = fields.Selection([
-        ('info', 'بيانات النوع'),
-        ('degrees', 'درجات اللون'),
         ('parts', 'الأجزاء'),
         ('service_areas', 'مناطق الخدمة'),
-    ], default='info', string="مرحلة التهيئة")
+    ], default='parts', string="مرحلة التهيئة")
 
     def _reload_film_wizard(self):
         self.ensure_one()
@@ -981,18 +1024,10 @@ class WofSetupFilmWizard(models.TransientModel):
 
     def action_film_next_degrees(self):
         self.ensure_one()
-
-        if not self.film_name:
-            raise ValidationError(_("يرجى إدخال اسم النوع."))
-
-        if self.service_options == 'tint':
-            self._prepare_tint_degree_lines()
-            self.film_step = 'degrees'
-        else:
-            self.film_step = 'parts'
-            self.parts_mode = 'parts'
-            self._load_service_parts_to_lines('car_part')
-
+        # توافق خلفي فقط: بدء التهيئة صار يفتح الأجزاء مباشرة.
+        self.film_step = 'parts'
+        self.parts_mode = 'parts'
+        self._load_service_parts_to_lines('car_part')
         return self._reload_film_wizard()
 
 
@@ -1003,6 +1038,9 @@ class WofSetupFilmWizard(models.TransientModel):
    
     def action_go_service_areas(self):
         self.ensure_one()
+
+        if self.service_options != 'tint':
+            return self.action_try_finish_current_film()
 
         self.film_step = 'service_areas'
         self.parts_mode = 'parts'
@@ -1031,9 +1069,6 @@ class WofSetupFilmWizard(models.TransientModel):
     def _load_service_parts_to_lines(self, part_type='car_part'):
         self.ensure_one()
 
-        if not self.service_options:
-            return False
-
         if part_type not in ('car_part', 'service_area'):
             part_type = 'car_part'
 
@@ -1045,11 +1080,14 @@ class WofSetupFilmWizard(models.TransientModel):
             empty_lines.unlink()
 
         Parts = self.env['wof.car.parts'].sudo()
-        parts = Parts.search([
-            ('service_options', '=', self.service_options),
+        domain = [
             ('part_type', '=', part_type),
             ('active', '=', True),
-        ], order='priority_part, name')
+        ]
+        if 'service_options' in Parts._fields:
+            domain.append(('service_options', '=', self.service_options or False))
+
+        parts = Parts.search(domain, order='priority_part, name')
 
         existing_parts = self.part_line_ids.filtered(
             lambda line: line.line_role == part_type
@@ -1227,6 +1265,12 @@ class WofSetupFilmWizard(models.TransientModel):
         missing_parts = self.env['wof.setup.film.part.line']
 
         for part in self._get_current_selected_part_lines():
+            if (
+                part.line_role == 'service_area'
+                and part.service_area_commission_method == 'from_part'
+            ):
+                continue
+
             has_commission = any(
                 line.commission > 0
                 for line in part.commission_line_ids
@@ -1860,7 +1904,7 @@ class WofSetupCreatePartWizard(models.TransientModel):
     service_options = fields.Selection(
         SERVICE_OPTIONS,
         string="نوع الخدمة",
-        required=True
+        required=False
     )
 
     part_type = fields.Selection([

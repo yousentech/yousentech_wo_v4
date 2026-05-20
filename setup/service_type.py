@@ -23,12 +23,7 @@ class ServiceType(models.Model):
         copy=False
     )
     
-    service_options = fields.Selection([('tint','عزل حراري'),
-                                        ('ppf','حماية'),
-                                        ('nano','نانو سيراميك'),
-                                        ('upholstery','تنجيد'),
-                                        ('floor_mats','أرضيات'),
-                                        ('others','أخرى')],string="النوع",default='tint',required=True)
+    service_options = fields.Selection([('tint','عزل حراري')],string="النوع",default='tint',required=True)
 
     def _default_company_parent(self):
         company = self.env.company
