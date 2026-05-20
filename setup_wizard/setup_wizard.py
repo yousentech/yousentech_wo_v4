@@ -1047,9 +1047,6 @@ class WofSetupFilmWizard(models.TransientModel):
         if not self.service_options:
             return False
 
-        if part_type not in ('car_part', 'service_area'):
-            part_type = 'car_part'
-
         Parts = self.env['wof.car.parts'].sudo()
 
         parts = Parts.search([
@@ -1059,7 +1056,7 @@ class WofSetupFilmWizard(models.TransientModel):
         ], order='priority_part, name')
 
         existing_parts = self.part_line_ids.filtered(
-            lambda line: line.line_role == part_type
+            lambda l: l.line_role == part_type
         ).mapped('car_part_id')
 
         commands = []
@@ -1072,12 +1069,9 @@ class WofSetupFilmWizard(models.TransientModel):
                 }))
 
         if commands:
-            self.write({
-                'part_line_ids': commands
-            })
+            self.write({'part_line_ids': commands})
 
         return True
-
 
     def action_film_back_degrees(self):
         self.ensure_one()
