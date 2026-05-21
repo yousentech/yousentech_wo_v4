@@ -10,11 +10,21 @@ _logger = logging.getLogger(__name__)
 class BaseSoftRestrict(models.AbstractModel):
     _inherit = 'base'
 
+    def _soft_restrict_is_protected_model(self):
+        protected_models = {
+            'base', 'res.company', 'res.users', 'res.groups', 'res.partner',
+            'res.currency', 'res.lang', 'res.country', 'ir.rule', 'ir.model',
+            'ir.model.access', 'ir.config_parameter', 'ir.module.module',
+        }
+        return self._name in protected_models or self._name.startswith('ir.')
+
     def check_access_rule(self, operation):
         try:
             return super().check_access_rule(operation)
         except AccessError as original_error:
             if self.env.su or operation != 'read':
+                raise original_error
+            if self._soft_restrict_is_protected_model():
                 raise original_error
             if self.env.context.get('soft_restrict_skip'):
                 raise original_error

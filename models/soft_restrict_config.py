@@ -31,7 +31,7 @@ class SoftRestrictConfig(models.Model):
         string='Applied Group',
         required=True,
         default=lambda self: self.env.ref(
-            'yousentech_soft_restrict.group_soft_restrict_own_records',
+            'yousentech_wo_v4.group_soft_restrict_own_records',
             raise_if_not_found=False,
         ),
         help='Users in this group will be restricted by the generated own-record rule and can use soft related access.',
@@ -107,6 +107,7 @@ class SoftRestrictConfig(models.Model):
         protected_models = {
             'base', 'res.users', 'res.groups', 'ir.rule', 'ir.model',
             'ir.model.access', 'ir.config_parameter', 'ir.module.module',
+            'res.company', 'res.partner', 'res.currency', 'res.lang', 'res.country',
         }
         for rec in self:
             if rec.model_name in protected_models:
@@ -136,10 +137,15 @@ class SoftRestrictConfig(models.Model):
                 'name': 'Soft Restrict Own Records - %s' % rec.model_name,
                 'model_id': rec.model_id.id,
                 'domain_force': domain,
+                # IMPORTANT:
+                # This generated rule must be READ ONLY.
+                # If perm_write/perm_create/perm_unlink are True, Odoo will also
+                # restrict write/create/delete operations and may block normal
+                # actions such as changing company/settings.
                 'perm_read': True,
-                'perm_write': True,
-                'perm_create': True,
-                'perm_unlink': True,
+                'perm_write': False,
+                'perm_create': False,
+                'perm_unlink': False,
                 'active': rec.active,
                 'groups': [(6, 0, rec.group_id.ids)],
             }
