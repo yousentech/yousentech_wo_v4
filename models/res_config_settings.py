@@ -7,6 +7,6 @@ class ResConfigSettings(models.TransientModel):
 
     soft_restrict_enabled = fields.Boolean(
         string='Enable Soft Restrict Access',
-        config_parameter='yousentech_soft_restrict.enabled',
+        config_parameter='yousentech_wo_v4.enabled',
         default=False,
     )

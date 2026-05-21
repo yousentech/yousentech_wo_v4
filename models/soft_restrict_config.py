@@ -174,6 +174,6 @@ class SoftRestrictConfig(models.Model):
 
     @api.model
     def _get_active_configs_for_model(self, model_name):
-        if not self.env['ir.config_parameter'].sudo().get_param('yousentech_soft_restrict.enabled'):
+        if not self.env['ir.config_parameter'].sudo().get_param('yousentech_wo_v4.enabled'):
             return self.browse()
         return self.sudo().search([('active', '=', True), ('model_name', '=', model_name)])
