@@ -38,3 +38,5 @@ access_wof_car_manufactory_year,wof.car.manufactory.year,model_wof_car_manufacto
 access_wof_car_agency,wof.car.agency,model_wof_car_agency,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_part_options,wof.car.part.options,model_wof_car_part_options,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_parts_transparency_level,wof.parts.transparency.level,model_wof_parts_transparency_level,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_soft_restrict_config_manager,soft.restrict.config manager,model_soft_restrict_config,yousentech_soft_restrict.group_soft_restrict_manager,1,1,1,1
+access_soft_restrict_config_system,soft.restrict.config system,model_soft_restrict_config,base.group_system,1,1,1,1

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_soft_restrict_config_tree" model="ir.ui.view">
+        <field name="name">soft.restrict.config.tree</field>
+        <field name="model">soft.restrict.config</field>
+        <field name="arch" type="xml">
+            <tree string="Soft Restrict Configurations">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="active"/>
+                <field name="model_id"/>
+                <field name="group_id"/>
+                <field name="create_own_rule"/>
+                <field name="rule_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_soft_restrict_config_form" model="ir.ui.view">
+        <field name="name">soft.restrict.config.form</field>
+        <field name="model">soft.restrict.config</field>
+        <field name="arch" type="xml">
+            <form string="Soft Restrict Configuration">
+                <header>
+                    <button name="action_sync_rule" type="object" string="Sync Rule" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Example: Payments Own or Related Invoices"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="active"/>
+                            <field name="sequence"/>
+                            <field name="model_id" options="{'no_create': True}"/>
+                            <field name="model_name" readonly="1"/>
+                            <field name="group_id"/>
+                        </group>
+                        <group>
+                            <field name="create_own_rule"/>
+                            <field name="rule_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Access Logic">
+                        <field name="owner_field_names" placeholder="create_uid,user_id,invoice_user_id,salesman_id"/>
+                        <field name="link_field_names" placeholder="sale_id,move_id,invoice_id,picking_id"/>
+                    </group>
+                    <group string="Generated Domain">
+                        <field name="rule_domain" readonly="1" nolabel="1"/>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        This module only extends READ access when the normal record rule blocks a record, and only if the user can normally read one of the configured related documents.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_soft_restrict_config" model="ir.actions.act_window">
+        <field name="name">Soft Restrict Configurations</field>
+        <field name="res_model">soft.restrict.config</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_soft_restrict_root" name="Soft Restrict" parent="base.menu_administration" groups="base.group_system" sequence="95"/>
+    <menuitem id="menu_soft_restrict_config" name="Configurations" parent="menu_soft_restrict_root" action="action_soft_restrict_config" groups="base.group_system" sequence="10"/>
+</odoo>
