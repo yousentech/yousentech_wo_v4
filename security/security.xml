@@ -37,13 +37,12 @@
 
     <record id="group_soft_restrict_manager" model="res.groups">
         <field name="name">Soft Restrict Manager</field>
-        <field name="category_id" ref="base.module_category_administration_administration"/>
-        <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
-    </record>
+        <field name="category_id" ref="wo_category_priv"/>
+     </record>
 
     <record id="group_soft_restrict_own_records" model="res.groups">
         <field name="name">Soft Restrict: Own Records Only</field>
-        <field name="category_id" ref="base.module_category_hidden"/>
+        <field name="category_id" ref="wo_category_priv"/>
     </record>
     
 
