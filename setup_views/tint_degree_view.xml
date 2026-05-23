@@ -90,6 +90,6 @@
               parent="menu_wo_v4_configuration"
               action="action_wof_tint_degree"
               sequence="35"
-              groups="yousentech_wo_v4.group_wo_manager"/>
+             />
 
 </odoo>
