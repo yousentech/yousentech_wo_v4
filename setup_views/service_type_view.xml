@@ -38,6 +38,7 @@
                 <field name="parts_count"/>
                 <field name="film_count"/>
                 <field name="active"/>
+                <field name="company_id"/>
 
                 <templates>
                     <t t-name="kanban-box">
@@ -70,12 +71,9 @@
                                         <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
 
                                             <!-- LEFT -->
-                                            <a type="action"
-                                            name="%(action_film_category_wo_v4)d"
-                                            class="text-decoration-none d-flex align-items-center"
-                                            context="{
-                                                    'search_default_service_type_id': active_id
-                                            }">
+                                            <a type="object"
+                                            name="action_open_films"
+                                            class="text-decoration-none d-flex align-items-center">
 
                                                 <!-- ICON -->
                                                 <i class="fa fa-film text-primary fa-lg me-2"></i>
