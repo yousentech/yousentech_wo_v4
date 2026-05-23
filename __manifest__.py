@@ -27,8 +27,7 @@
               'setup_views/car_type_view.xml',
               'setup_views/car_manufactory_year_view.xml',
               'setup_views/car_agency_view.xml',
-               'views/soft_restrict_config_views.xml',
-              'views/res_config_settings_views.xml',
+            
     ],
     'assets': {
                 'web.assets_backend': [
