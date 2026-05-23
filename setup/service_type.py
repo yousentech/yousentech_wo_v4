@@ -23,7 +23,19 @@ class ServiceType(models.Model):
         copy=False
     )
     
-    service_options = fields.Selection([('tint','عزل حراري')],string="النوع",default='tint',required=True)
+    service_options = fields.Selection(
+        [('tint', 'عزل حراري')],
+        string="نوع محرك الخدمة",
+        default=False,
+        required=False,
+        help="اختر عزل حراري فقط للخدمات التي تحتاج درجات لون ومناطق خدمة، واتركه فارغاً لبقية الخدمات."
+    )
+
+    setup_enabled = fields.Boolean(
+        string="مفعلة في التهيئة",
+        default=False,
+        help="يتم تفعيلها عند إكمال تهيئة نوع الخدمة من معالج التهيئة."
+    )
 
     def _default_company_parent(self):
         company = self.env.company

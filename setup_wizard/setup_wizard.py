@@ -42,32 +42,6 @@ TINT_DEGREE_PRESETS = {
 }
 
 
-class WofCarPartsSetupFields(models.Model):
-    _inherit = 'wof.car.parts'
-
-    service_options = fields.Selection(
-        SERVICE_OPTIONS,
-        string="نوع محرك الخدمة",
-        required=False,
-        help="اختر عزل حراري فقط للأجزاء الخاصة بالعزل. اتركه فارغاً لبقية الخدمات."
-    )
-
-    service_area_commission_method = fields.Selection([
-        ('equal_from_area', 'توزيع عمولة منطقة الخدمة بالتساوي'),
-        ('from_part', 'احتساب العمولة من الجزء'),
-    ], string="طريقة احتساب عمولة الفنيين", default='equal_from_area')
-
-
-class WofServiceTypeSetupFlag(models.Model):
-    _inherit = 'wof.service.type'
-
-    setup_enabled = fields.Boolean(
-        string="مفعلة في التهيئة",
-        default=False,
-        help="يتم تفعيلها عند إكمال تهيئة نوع الخدمة."
-    )
-
-
 class WofSetupWizard(models.TransientModel):
     _name = 'wof.setup.wizard'
     _description = 'WOF Setup Wizard'
@@ -1993,13 +1967,26 @@ class WofSetupCreatePartWizard(models.TransientModel):
 
         company = self.env.company.parent_id or self.env.company
 
+        Product = self.env['product.product'].sudo()
+        product = Product.search([
+            ('name', '=', self.name),
+            ('type', '!=', 'product'),
+        ], limit=1)
+        if not product:
+            product_template = self.env['product.template'].sudo().create({
+                'name': self.name,
+                'type': 'service',
+            })
+            product = product_template.product_variant_id
+
         vals = {
             'name': self.name,
             'code': self.code,
             'priority_part': self.priority_part,
             'company_id': company.id,
+            'product_id': product.id,
             'service_area_commission_method': self.service_area_commission_method if self.part_type == 'service_area' else False,
-            'service_options': setup.service_options,
+            'service_options': setup.service_options or False,
             'part_type': self.part_type or 'car_part',
             'notes': self.notes,
             'active': True,

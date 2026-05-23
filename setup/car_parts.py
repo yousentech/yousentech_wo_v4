@@ -58,12 +58,13 @@ class CarParts(models.Model):
     notes = fields.Char(string="ملاحظات")
     warning_msg = fields.Char(string="رسالة تحذير")
 
-    service_options = fields.Selection([('tint','عزل حراري'),
-                                        ('ppf','حماية'),
-                                        ('nano','نانو سيراميك'),
-                                        ('upholstery','تنجيد'),
-                                        ('floor_mats','أرضيات'),
-                                        ('others','أخرى')],string="النوع",default='tint',required=True)
+    service_options = fields.Selection(
+        [('tint', 'عزل حراري')],
+        string="نوع محرك الخدمة",
+        default=False,
+        required=False,
+        help="اختر عزل حراري فقط للأجزاء الخاصة بالعزل، واتركه فارغاً لبقية الخدمات."
+    )
 
    
     part_options_ids = fields.Many2many('wof.car.part.options', string="خيارات إضافية")
