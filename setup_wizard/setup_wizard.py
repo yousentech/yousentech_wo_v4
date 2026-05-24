@@ -62,7 +62,7 @@ class WofSetupWizard(models.TransientModel):
     tint_degree_method = fields.Selection(
         TINT_DEGREE_METHODS,
         string="طريقة درجات اللون",
-        default='percent',
+        default='series',
         required=True
     )
 
