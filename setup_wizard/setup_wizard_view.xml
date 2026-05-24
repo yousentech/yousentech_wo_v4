@@ -864,10 +864,10 @@
                                         <field name="car_part_id"
                                                 domain="[('service_type_id', '=', service_type_id), ('part_type', '=', 'service_area')]"/>
 
-                                        <field name="price_line_count"
+                                        <!-- <field name="price_line_count"
                                             string="أسعار"
                                             readonly="1"
-                                            column_invisible="parent.parts_mode != 'pricing'"/>
+                                            column_invisible="parent.parts_mode != 'pricing'"/> -->
 
                                         <field name="price_summary"
                                             string="ملخص الأسعار"
@@ -881,10 +881,10 @@
                                                 class="btn btn-primary"
                                                 column_invisible="parent.parts_mode != 'pricing'"/>
 
-                                        <field name="commission_line_count"
+                                        <!-- <field name="commission_line_count"
                                             string="عمولات"
                                             readonly="1"
-                                            column_invisible="parent.parts_mode != 'commission'"/>
+                                            column_invisible="parent.parts_mode != 'commission'"/> -->
 
                                         <field name="commission_summary"
                                             string="ملخص العمولات"
@@ -981,7 +981,7 @@
                               decoration-warning="part_price == 0 and not free_part">
 
                             <field name="parent_wizard_id" column_invisible="1"/>
-                            <field name="car_size_line_id" readonly="1"/>
+                            <field name="car_size_line_id"  readonly="1" force_save="1"/>
                             <field name="part_price" sum="الإجمالي"/>
                             <field name="discount_exceed_limit"/>
                             <field name="tax_id"/>
@@ -1053,7 +1053,7 @@
                             decoration-warning="commission == 0">
 
                             <field name="parent_wizard_id" column_invisible="1"/>
-                            <field name="car_size_line_id" />
+                            <field name="car_size_line_id" readonly="1" force_save="1"/>
                             <field name="commission" sum="الإجمالي"/>
 
                         </tree>
@@ -1142,7 +1142,7 @@
                                             <page string="عمولة الفني حسب الحجم">
                                                 <field name="commission_line_ids" readonly="1">
                                                     <tree>
-                                                        <field name="car_size_line_id"/>
+                                                        <field name="car_size_line_id"  readonly="1" force_save="1"/>
                                                         <field name="commission"/>
                                                     </tree>
                                                 </field>
