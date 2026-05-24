@@ -500,9 +500,9 @@
                                           decoration-muted="not selected"
                                           decoration-danger="selected and not car_part_id">
 
-                                        <field name="service_options" invisible="1"/>
-                                        <field name="service_type_id" invisible="1"/>
-                                        <field name="line_role" invisible="1"/>
+                                        <field name="service_options" column_invisible="1"/>
+                                        <field name="service_type_id" column_invisible="1"/>
+                                        <field name="line_role" column_invisible="1"/>
                                         <field name="selected"/>
                                         <field name="car_part_id"
                                                domain="[('service_type_id', '=', service_type_id), ('part_type', '=', 'car_part')]"/>
@@ -701,9 +701,9 @@
                                         decoration-muted="not selected"
                                         decoration-danger="selected and not car_part_id">
 
-                                        <field name="service_options" invisible="1"/>
-                                        <field name="service_type_id" invisible="1"/>
-                                        <field name="line_role" invisible="1"/>
+                                        <field name="service_options" column_invisible="1"/>
+                                        <field name="service_type_id" column_invisible="1"/>
+                                        <field name="line_role" column_invisible="1"/>
                                         <field name="selected"/>
                                         <field name="car_part_id"
                                             domain="[('service_type_id', '=', service_type_id), ('part_type', '=', 'car_part')]"/>
@@ -856,9 +856,9 @@
                                         decoration-muted="not selected"
                                         decoration-danger="selected and not car_part_id">
 
-                                        <field name="service_options" invisible="1"/>
-                                        <field name="service_type_id" invisible="1"/>
-                                        <field name="line_role" invisible="1"/>
+                                        <field name="service_options" column_invisible="1"/>
+                                        <field name="service_type_id" column_invisible="1"/>
+                                        <field name="line_role" column_invisible="1"/>
                                         <field name="selected"/>
 
                                         <field name="car_part_id"
@@ -980,7 +980,7 @@
                               decoration-success="free_part"
                               decoration-warning="part_price == 0 and not free_part">
 
-                            <field name="parent_wizard_id" invisible="1"/>
+                            <field name="parent_wizard_id" column_invisible="1"/>
                             <field name="car_size_line_id" readonly="1"/>
                             <field name="part_price" sum="الإجمالي"/>
                             <field name="discount_exceed_limit"/>
@@ -1052,8 +1052,8 @@
                             delete="1"
                             decoration-warning="commission == 0">
 
-                            <field name="parent_wizard_id" invisible="1"/>
-                            <field name="car_size_line_id" readonly="1"/>
+                            <field name="parent_wizard_id" column_invisible="1"/>
+                            <field name="car_size_line_id" column_invisible="1"/>
                             <field name="commission" sum="الإجمالي"/>
 
                         </tree>
@@ -1130,7 +1130,7 @@
                                                 <field name="price_line_ids" readonly="1">
                                                     <tree>
                                                      
-                                                        <field name="car_size_line_id"/>
+                                                        <field name="car_size_line_id" />
                                                         <field name="part_price"/>
                                                         <field name="discount_exceed_limit"/>
                                                         <field name="tax_id"/>
