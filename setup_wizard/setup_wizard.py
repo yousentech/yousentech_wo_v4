@@ -770,6 +770,9 @@ class WofSetupWizardServiceLine(models.TransientModel):
             'context': {
                 'default_wizard_id': self.wizard_id.id,
                 'default_service_line_id': self.id,
+                'setup_wizard_id': self.wizard_id.id,
+                'setup_service_line_id': self.id,
+                'setup_service_name': self.custom_name or '',
             },
             'target': 'current',
         }
@@ -1880,6 +1883,60 @@ class WofSetupTempFilm(models.TransientModel):
             'service_line_id': self.service_line_id.id,
             'service_options': self.service_options or False,
             'service_name': self.service_name or self.service_line_id.custom_name,
+            'film_step': 'template_parts',
+            'parts_mode': 'parts',
+        })
+        setup._load_service_parts_to_lines('car_part')
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('إضافة نوع / فيلم جديد'),
+            'res_model': 'wof.setup.film.wizard',
+            'res_id': setup.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+
+    @api.model
+    def action_back_to_service_types_from_context(self):
+        wizard_id = self.env.context.get('setup_wizard_id') or self.env.context.get('default_wizard_id')
+        if not wizard_id and self:
+            wizard_id = self[:1].wizard_id.id
+        if not wizard_id:
+            raise ValidationError(_("لا يمكن الرجوع لأن معالج التهيئة غير محدد."))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تهيئة أنواع الخدمات'),
+            'res_model': 'wof.setup.wizard',
+            'res_id': wizard_id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    @api.model
+    def action_add_new_film_from_context(self):
+        wizard_id = self.env.context.get('setup_wizard_id') or self.env.context.get('default_wizard_id')
+        service_line_id = self.env.context.get('setup_service_line_id') or self.env.context.get('default_service_line_id')
+
+        if not wizard_id or not service_line_id:
+            if self:
+                rec = self[:1]
+                wizard_id = wizard_id or rec.wizard_id.id
+                service_line_id = service_line_id or rec.service_line_id.id
+
+        if not wizard_id or not service_line_id:
+            raise ValidationError(_("لا يمكن إضافة فيلم جديد لأن بيانات الخدمة غير مكتملة."))
+
+        service_line = self.env['wof.setup.wizard.service.line'].browse(service_line_id)
+        if not service_line.exists():
+            raise ValidationError(_("نوع الخدمة المؤقت غير موجود."))
+
+        setup = self.env['wof.setup.film.wizard'].create({
+            'parent_wizard_id': wizard_id,
+            'service_line_id': service_line.id,
+            'service_options': service_line.service_options or False,
+            'service_name': service_line.custom_name or service_line.service_type_id.display_name,
             'film_step': 'template_parts',
             'parts_mode': 'parts',
         })
