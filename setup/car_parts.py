@@ -58,12 +58,13 @@ class CarParts(models.Model):
     notes = fields.Char(string="ملاحظات")
     warning_msg = fields.Char(string="رسالة تحذير")
 
-    service_options = fields.Selection(
-        [('tint', 'عزل حراري')],
-        string="نوع محرك الخدمة",
-        default=False,
-        required=False,
-        help="اختر عزل حراري فقط للأجزاء الخاصة بالعزل، واتركه فارغاً لبقية الخدمات."
+
+    service_type_id = fields.Many2one(
+        'wof.service.type',
+        string="نوع الخدمة",
+        required=True,
+        index=True,
+        ondelete='restrict'
     )
 
    

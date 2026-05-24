@@ -13,7 +13,7 @@
                   <field name="code"/>
                 <field name="name"/>
                 <field name="priority_part"/>
-                <field name="service_options"/>
+                <field name="service_type_id"/>
 
                 <field name="commission"/>
 
@@ -72,7 +72,7 @@
                         </group>
 
                         <group>
-                        <field name="service_options"/>
+                        <field name="service_oservice_type_idptions"/>
                              <field name="priority_part"/>
 
                             <field name="commission"/>
@@ -112,6 +112,7 @@
                 <!-- Fields -->
                 <field name="name"/>
             
+                <field name="service_type_id"/>
                 <field name="company_id"/>
              
                 <!-- Filters -->
