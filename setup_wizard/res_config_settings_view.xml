@@ -41,24 +41,23 @@
                   SETTINGS ACTION
             ========================== -->
 
-        <record id="action_wo_v4_settings"  model="ir.actions.act_window">
-            <field name="name">إعدادات العناية بالسيارات</field>
-            <field name="res_model">res.config.settings</field>
-            <field name="view_mode">form</field>
-            <field name="target">inline</field>
-            <field name="context">
-                {
-                    'module' : 'yousentech_wo_v4'
-                }
-            </field>
+    <record id="action_wo_v4_settings"  model="ir.actions.act_window">
+        <field name="name">إعدادات العناية بالسيارات</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">
+            {
+                'module' : 'yousentech_wo_v4'
+            }
+        </field>
 
-        </record>
+    </record>
 
         
     <menuitem id="menu_wo_v4_setting"
-              name="الاعدادات"
-         
-              action="action_wo_v4_settings"
-              parent="menu_wo_v4_configuration"
-              sequence="4"  />
+            name="الاعدادات"
+            action="action_wo_v4_settings"
+            parent="menu_wo_v4_configuration"
+            sequence="4"  />
 </odoo>
