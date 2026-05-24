@@ -1053,7 +1053,7 @@
                             decoration-warning="commission == 0">
 
                             <field name="parent_wizard_id" column_invisible="1"/>
-                            <field name="car_size_line_id" column_invisible="1"/>
+                            <field name="car_size_line_id" />
                             <field name="commission" sum="الإجمالي"/>
 
                         </tree>
