@@ -224,7 +224,7 @@
                                 <field name="selected"/>
                                 <field name="completed"/>
                                 <field name="service_type_id"/>
-                                <field name="service_options"/>
+                                <field name="service_options" invisible="1"/>
                                 <field name="custom_name"/>
 
                                 <templates>
@@ -438,9 +438,9 @@
                     <field name="film_step" invisible="1"/>
                     <field name="parts_mode" invisible="1"/>
                     <field name="service_options" invisible="1"/>
-                    <field name="service_type_id" invisible="1"/>
                     <field name="parent_wizard_id" invisible="1"/>
                     <field name="service_line_id" invisible="1"/>
+                    <field name="service_type_id" invisible="1"/>
                     
 
                     <div class="alert alert-primary text-center p-4" role="status">
