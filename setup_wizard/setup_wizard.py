@@ -466,12 +466,10 @@ class WofSetupWizard(models.TransientModel):
         for service_line in selected_services:
             service = self._ensure_service_type_from_line(service_line)
 
-            temp_domain = [('wizard_id', '=', self.id)]
-            if service_line.service_type_id:
-                temp_domain.append(('service_type_id', '=', service_line.service_type_id.id))
-            else:
-                temp_domain.append(('service_line_id', '=', service_line.id))
-            temp_films = TempFilm.search(temp_domain)
+            temp_films = TempFilm.search([
+                ('wizard_id', '=', self.id),
+                ('service_line_id', '=', service_line.id),
+            ])
 
             for temp_film in temp_films:
                 film = FilmCategory.search([
@@ -735,18 +733,36 @@ class WofSetupWizardServiceLine(models.TransientModel):
     def action_view_service_films(self):
         self.ensure_one()
 
-        domain = [('wizard_id', '=', self.wizard_id.id)]
-        if self.service_type_id:
-            domain.append(('service_type_id', '=', self.service_type_id.id))
-        else:
-            domain.append(('service_line_id', '=', self.id))
+        kanban_view = self.env.ref(
+            'yousentech_wo_v4.view_wof_setup_temp_film_kanban',
+            raise_if_not_found=False
+        )
+        tree_view = self.env.ref(
+            'yousentech_wo_v4.view_wof_setup_temp_film_tree',
+            raise_if_not_found=False
+        )
+        form_view = self.env.ref(
+            'yousentech_wo_v4.view_wof_setup_temp_film_form',
+            raise_if_not_found=False
+        )
 
+        views = []
+        if kanban_view:
+            views.append((kanban_view.id, 'kanban'))
+        if tree_view:
+            views.append((tree_view.id, 'tree'))
+        if form_view:
+            views.append((form_view.id, 'form'))
+
+        # نحدد الـ views صراحةً حتى لا يفتح أودو Tree كافتراضي
+        # إذا كان هناك View قديم محفوظ أو View آخر أولويته أعلى.
         return {
             'type': 'ir.actions.act_window',
             'name': _('أفلام / أنواع %s') % (self.custom_name or ''),
             'res_model': 'wof.setup.temp.film',
-
             'view_mode': 'kanban,tree,form',
+            'views': views or [(False, 'kanban'), (False, 'tree'), (False, 'form')],
+            'view_id': kanban_view.id if kanban_view else False,
             'domain': [
                 ('wizard_id', '=', self.wizard_id.id),
                 ('service_line_id', '=', self.id),
@@ -755,10 +771,6 @@ class WofSetupWizardServiceLine(models.TransientModel):
                 'default_wizard_id': self.wizard_id.id,
                 'default_service_line_id': self.id,
             },
-
-            'view_mode': 'tree,form',
-            'domain': domain,
-
             'target': 'current',
         }
 
@@ -917,7 +929,6 @@ class WofSetupFilmWizard(models.TransientModel):
         temp_film = TempFilm.create({
             'wizard_id': self.parent_wizard_id.id,
             'service_line_id': self.service_line_id.id,
-            'service_type_id': self.service_type_id.id if self.service_type_id else False,
             'film_name': self.film_name,
             'warranty_duration': self.warranty_duration,
             'warranty_period': self.warranty_period,
@@ -1707,13 +1718,6 @@ class WofSetupTempFilm(models.TransientModel):
         'wof.setup.wizard.service.line',
         string="نوع الخدمة المؤقت",
         ondelete='cascade'
-    )
-
-    service_type_id = fields.Many2one(
-        'wof.service.type',
-        string="نوع الخدمة الأساسي",
-        index=True,
-        ondelete='set null'
     )
 
     service_name = fields.Char(
