@@ -764,6 +764,14 @@ class WofSetupFilmWizard(models.TransientModel):
         ondelete='cascade'
     )
 
+    service_type_id = fields.Many2one(
+        'wof.service.type',
+        string="نوع الخدمة الأساسي",
+        related='service_line_id.service_type_id',
+        store=False,
+        readonly=True
+    )
+
     service_options = fields.Selection(
         SERVICE_OPTIONS,
         string="النوع"
@@ -1093,7 +1101,14 @@ class WofSetupFilmWizard(models.TransientModel):
             ('part_type', '=', part_type),
             ('active', '=', True),
         ]
-        if 'service_options' in Parts._fields:
+
+        # بعد تعديل جدول الأجزاء الأساسي، الفلترة الرسمية أصبحت حسب نوع الخدمة Many2one.
+        if 'service_type_id' in Parts._fields:
+            if not self.service_type_id:
+                raise ValidationError(_("نوع الخدمة غير محدد، لا يمكن جلب الأجزاء."))
+            domain.append(('service_type_id', '=', self.service_type_id.id))
+        elif 'service_options' in Parts._fields:
+            # توافق خلفي فقط لو كان عندك نسخة قديمة من جدول الأجزاء.
             domain.append(('service_options', '=', self.service_options or False))
 
         parts = Parts.search(domain, order='priority_part, name')
@@ -1197,6 +1212,7 @@ class WofSetupFilmWizard(models.TransientModel):
             'target': 'new',
             'context': {
                 'default_setup_film_wizard_id': self.id,
+                'default_service_type_id': self.service_type_id.id if self.service_type_id else False,
                 'default_service_options': self.service_options,
                 'default_part_type': default_part_type,
             }
@@ -1405,6 +1421,14 @@ class WofSetupFilmPartLine(models.TransientModel):
         'part_line_id',
         string="العمولة حسب الحجم"
     )
+    service_type_id = fields.Many2one(
+        'wof.service.type',
+        string="نوع الخدمة",
+        related='wizard_id.service_type_id',
+        store=False,
+        readonly=True
+    )
+
     service_options = fields.Selection(
         related='wizard_id.service_options',
         store=False
@@ -1916,9 +1940,15 @@ class WofSetupCreatePartWizard(models.TransientModel):
         default=10
     )
 
+    service_type_id = fields.Many2one(
+        'wof.service.type',
+        string="نوع الخدمة",
+        readonly=True
+    )
+
     service_options = fields.Selection(
         SERVICE_OPTIONS,
-        string="نوع الخدمة",
+        string="محرك الخدمة",
         required=False
     )
 
@@ -1943,6 +1973,7 @@ class WofSetupCreatePartWizard(models.TransientModel):
             setup = self.env['wof.setup.film.wizard'].browse(setup_id).exists()
             if setup:
                 res['setup_film_wizard_id'] = setup.id
+                res['service_type_id'] = setup.service_type_id.id if setup.service_type_id else False
                 res['service_options'] = setup.service_options
 
         res.setdefault('part_type', 'car_part')
@@ -1986,11 +2017,18 @@ class WofSetupCreatePartWizard(models.TransientModel):
             'company_id': company.id,
             'product_id': product.id,
             'service_area_commission_method': self.service_area_commission_method if self.part_type == 'service_area' else False,
-            'service_options': setup.service_options or False,
             'part_type': self.part_type or 'car_part',
             'notes': self.notes,
             'active': True,
         }
+
+        # جدول الأجزاء الأساسي أصبح يعتمد على service_type_id بدلاً من service_options.
+        if 'service_type_id' in Parts._fields:
+            if not setup.service_type_id:
+                raise ValidationError(_("نوع الخدمة غير محدد، لا يمكن إنشاء الجزء."))
+            vals['service_type_id'] = setup.service_type_id.id
+        elif 'service_options' in Parts._fields:
+            vals['service_options'] = setup.service_options or False
 
         part = Parts.create(vals)
 

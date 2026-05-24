@@ -438,6 +438,7 @@
                     <field name="film_step" invisible="1"/>
                     <field name="parts_mode" invisible="1"/>
                     <field name="service_options" invisible="1"/>
+                    <field name="service_type_id" invisible="1"/>
                     <field name="parent_wizard_id" invisible="1"/>
                     <field name="service_line_id" invisible="1"/>
                     
@@ -500,10 +501,11 @@
                                           decoration-danger="selected and not car_part_id">
 
                                         <field name="service_options" invisible="1"/>
+                                        <field name="service_type_id" invisible="1"/>
                                         <field name="line_role" invisible="1"/>
                                         <field name="selected"/>
                                         <field name="car_part_id"
-                                               domain="[('service_options', '=', service_options), ('part_type', '=', 'car_part')]"/>
+                                               domain="[('service_type_id', '=', service_type_id), ('part_type', '=', 'car_part')]"/>
                                     </tree>
                                 </field>
                             </div>
@@ -700,10 +702,11 @@
                                         decoration-danger="selected and not car_part_id">
 
                                         <field name="service_options" invisible="1"/>
+                                        <field name="service_type_id" invisible="1"/>
                                         <field name="line_role" invisible="1"/>
                                         <field name="selected"/>
                                         <field name="car_part_id"
-                                            domain="[('service_options', '=', service_options), ('part_type', '=', 'car_part')]"/>
+                                            domain="[('service_type_id', '=', service_type_id), ('part_type', '=', 'car_part')]"/>
 
                                         <!-- الأسعار -->
                                         <field name="price_line_count"
@@ -854,11 +857,12 @@
                                         decoration-danger="selected and not car_part_id">
 
                                         <field name="service_options" invisible="1"/>
+                                        <field name="service_type_id" invisible="1"/>
                                         <field name="line_role" invisible="1"/>
                                         <field name="selected"/>
 
                                         <field name="car_part_id"
-                                                domain="[('service_options', '=', service_options), ('part_type', '=', 'service_area')]"/>
+                                                domain="[('service_type_id', '=', service_type_id), ('part_type', '=', 'service_area')]"/>
 
                                         <field name="price_line_count"
                                             string="أسعار"
@@ -1224,6 +1228,7 @@
                 <sheet>
 
                     <field name="setup_film_wizard_id" invisible="1"/>
+                    <field name="service_type_id" invisible="1"/>
 
                     <div class="alert alert-success text-center p-3" role="status">
                         <h3>
