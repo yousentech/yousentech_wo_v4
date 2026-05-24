@@ -1080,14 +1080,97 @@
 
         </field>
     </record>
+    <record id="view_wof_setup_temp_film_kanban" model="ir.ui.view">
+        <field name="name">wof.setup.temp.film.kanban</field>
+        <field name="model">wof.setup.temp.film</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_large" create="0">
+                <field name="film_name"/>
+                <field name="service_name"/>
+                <field name="warranty_years"/>
+                <field name="part_count"/>
+                <field name="service_area_count"/>
+                <field name="tint_degree_count"/>
+                <field name="service_options"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card p-3 rounded shadow-sm border">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h4 class="mb-1">
+                                        <i class="fa fa-film text-primary me-1" title="فيلم"/>
+                                        <field name="film_name"/>
+                                    </h4>
+                                    <div class="text-muted">
+                                        <i class="fa fa-cogs me-1" title="نوع الخدمة"/>
+                                        <field name="service_name"/>
+                                    </div>
+                                </div>
+                                <span class="badge bg-success px-3 py-2">
+                                    مؤقت
+                                </span>
+                            </div>
+
+                            <div class="mt-3 d-flex flex-wrap gap-2">
+                                <span class="badge bg-light text-dark border">
+                                    <i class="fa fa-shield me-1" title="الضمان"/>
+                                    <field name="warranty_years"/>
+                                </span>
+                                <span class="badge bg-primary">
+                                    <i class="fa fa-cogs me-1" title="الأجزاء"/>
+                                    <field name="part_count"/> أجزاء
+                                </span>
+                                <span class="badge bg-info text-dark" t-if="record.service_options.raw_value == 'tint'">
+                                    <i class="fa fa-map-marker me-1" title="مناطق الخدمة"/>
+                                    <field name="service_area_count"/> مناطق خدمة
+                                </span>
+                                <span class="badge bg-dark" t-if="record.service_options.raw_value == 'tint'">
+                                    <i class="fa fa-adjust me-1" title="درجات اللون"/>
+                                    <field name="tint_degree_count"/> درجات
+                                </span>
+                            </div>
+
+                            <div class="mt-3 d-flex justify-content-between align-items-center">
+                                <button type="object"
+                                        name="action_edit_temp_film"
+                                        string="تعديل الفيلم"
+                                        class="btn btn-primary btn-sm"
+                                        icon="fa-pencil"/>
+
+                                <button type="object"
+                                        name="action_add_new_film_from_list"
+                                        string="إضافة فيلم جديد"
+                                        class="btn btn-outline-success btn-sm"
+                                        icon="fa-plus"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
     <record id="view_wof_setup_temp_film_tree" model="ir.ui.view">
         <field name="name">wof.setup.temp.film.tree</field>
         <field name="model">wof.setup.temp.film</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="0">
                 <field name="service_name"/>
                 <field name="film_name"/>
                 <field name="warranty_years"/>
+                <field name="part_count"/>
+                <field name="service_area_count"/>
+                <field name="tint_degree_count"/>
+                <button name="action_edit_temp_film"
+                        type="object"
+                        string="تعديل"
+                        icon="fa-pencil"
+                        class="btn-primary"/>
+                <button name="action_add_new_film_from_list"
+                        type="object"
+                        string="إضافة فيلم جديد"
+                        icon="fa-plus"
+                        class="btn-secondary"/>
             </tree>
         </field>
     </record>
@@ -1097,11 +1180,36 @@
         <field name="model">wof.setup.temp.film</field>
         <field name="arch" type="xml">
             <form string="فيلم مؤقت">
+                <header>
+                    <button name="action_edit_temp_film"
+                            type="object"
+                            string="تعديل الفيلم"
+                            class="btn-primary"
+                            icon="fa-pencil"/>
+                    <button name="action_add_new_film_from_list"
+                            type="object"
+                            string="إضافة فيلم جديد"
+                            class="btn-secondary"
+                            icon="fa-plus"/>
+                </header>
                 <sheet>
+                    <div class="alert alert-info text-center p-3" role="status">
+                        <h3>
+                            <i class="fa fa-film me-1" title="فيلم"/>
+                            <field name="film_name" readonly="1"/>
+                        </h3>
+                        <div class="text-muted">
+                            هذه بيانات مؤقتة قبل إنهاء كامل التهيئة. يمكنك تعديلها أو إضافة فيلم جديد.
+                        </div>
+                    </div>
+
                     <group>
                         <field name="service_name" readonly="1"/>
                         <field name="film_name" readonly="1"/>
                         <field name="warranty_years" readonly="1"/>
+                        <field name="part_count" readonly="1"/>
+                        <field name="service_area_count" readonly="1"/>
+                        <field name="tint_degree_count" readonly="1"/>
                     </group>
 
                     <notebook>
