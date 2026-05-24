@@ -72,7 +72,7 @@
                         </group>
 
                         <group>
-                        <field name="service_oservice_type_idptions"/>
+                        <field name="service_type_id"/>
                              <field name="priority_part"/>
 
                             <field name="commission"/>
