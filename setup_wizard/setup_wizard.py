@@ -466,10 +466,12 @@ class WofSetupWizard(models.TransientModel):
         for service_line in selected_services:
             service = self._ensure_service_type_from_line(service_line)
 
-            temp_films = TempFilm.search([
-                ('wizard_id', '=', self.id),
-                ('service_line_id', '=', service_line.id),
-            ])
+            temp_domain = [('wizard_id', '=', self.id)]
+            if service_line.service_type_id:
+                temp_domain.append(('service_type_id', '=', service_line.service_type_id.id))
+            else:
+                temp_domain.append(('service_line_id', '=', service_line.id))
+            temp_films = TempFilm.search(temp_domain)
 
             for temp_film in temp_films:
                 film = FilmCategory.search([
@@ -733,15 +735,18 @@ class WofSetupWizardServiceLine(models.TransientModel):
     def action_view_service_films(self):
         self.ensure_one()
 
+        domain = [('wizard_id', '=', self.wizard_id.id)]
+        if self.service_type_id:
+            domain.append(('service_type_id', '=', self.service_type_id.id))
+        else:
+            domain.append(('service_line_id', '=', self.id))
+
         return {
             'type': 'ir.actions.act_window',
             'name': _('الأنواع المؤقتة - %s') % (self.custom_name or ''),
             'res_model': 'wof.setup.temp.film',
             'view_mode': 'tree,form',
-            'domain': [
-                ('wizard_id', '=', self.wizard_id.id),
-                ('service_line_id', '=', self.id),
-            ],
+            'domain': domain,
             'target': 'current',
         }
 
@@ -891,6 +896,7 @@ class WofSetupFilmWizard(models.TransientModel):
         temp_film = TempFilm.create({
             'wizard_id': self.parent_wizard_id.id,
             'service_line_id': self.service_line_id.id,
+            'service_type_id': self.service_type_id.id if self.service_type_id else False,
             'film_name': self.film_name,
             'warranty_duration': self.warranty_duration,
             'warranty_period': self.warranty_period,
@@ -1678,6 +1684,13 @@ class WofSetupTempFilm(models.TransientModel):
         'wof.setup.wizard.service.line',
         string="نوع الخدمة المؤقت",
         ondelete='cascade'
+    )
+
+    service_type_id = fields.Many2one(
+        'wof.service.type',
+        string="نوع الخدمة الأساسي",
+        index=True,
+        ondelete='set null'
     )
 
     service_name = fields.Char(
