@@ -39,7 +39,7 @@ class CarParts(models.Model):
         'product.product',
         string="الصنف الخدمي",
         domain=[('type', '!=', 'product')],
-        required=True
+        # required=True
     )
     # ================= PRICING & COMMISSION =================
     commission = fields.Float(string="عمولة الفني (%)")
