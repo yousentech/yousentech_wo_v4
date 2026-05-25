@@ -1118,7 +1118,7 @@
                             #{record.service_options.raw_value == 'tint'
                                 ? 'border border-info border-2'
                                 : 'border border-success border-2'}
-                        "
+                                     "
                             style="min-width:390px; max-width:450px; transition: all .25s ease;">
 
                             <!-- Header -->
@@ -1126,8 +1126,7 @@
                                 px-4 py-4
                                 #{record.service_options.raw_value == 'tint'
                                     ? 'bg-info-subtle'
-                                    : 'bg-success-subtle'}
-                            ">
+                                    : 'bg-success-subtle'} ">
 
                                 <div class="d-flex justify-content-between align-items-start gap-3">
 
