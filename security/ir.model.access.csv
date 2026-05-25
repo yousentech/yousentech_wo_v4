@@ -20,6 +20,8 @@ access_wof_setup_temp_film_tint_degree_line,wof.setup.temp.film.tint.degree.line
 access_wof_setup_parts_mode_confirm_wizard,wof.setup.parts.mode.confirm.wizard,model_wof_setup_parts_mode_confirm_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_parts_commission_confirm_wizard,wof.setup.parts.commission.confirm.wizard,model_wof_setup_parts_commission_confirm_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_setup_create_part_wizard,wof.setup.create.part.wizard,model_wof_setup_create_part_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_setup_temp_film_board,wof.setup.temp.film.board,model_wof_setup_temp_film_board,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_setup_temp_film_board_user,wof.setup.temp.film.board.user,model_wof_setup_temp_film_board,yousentech_wo_v4.group_wo_user,1,1,1,1
 access_wof_service_type_user,wof.service.type.user,model_wof_service_type,yousentech_wo_v4.group_wo_user,1,1,1,1
 access_wof_service_type_manager,service.type.manager,model_wof_service_type,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_film_category,wof.film.category,model_wof_film_category,yousentech_wo_v4.group_wo_manager,1,1,1,1
