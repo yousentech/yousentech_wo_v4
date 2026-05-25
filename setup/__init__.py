@@ -9,3 +9,5 @@ from . import car_parts_wizard
 from . import car_types
 from . import car_manufactory_year
 from . import car_agency
+
+from . import system_settings

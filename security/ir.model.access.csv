@@ -40,3 +40,5 @@ access_wof_car_manufactory_year,wof.car.manufactory.year,model_wof_car_manufacto
 access_wof_car_agency,wof.car.agency,model_wof_car_agency,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_car_part_options,wof.car.part.options,model_wof_car_part_options,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_parts_transparency_level,wof.parts.transparency.level,model_wof_parts_transparency_level,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_system_settings_manager,wof.system.settings.manager,model_wof_system_settings,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_system_settings_user,wof.system.settings.user,model_wof_system_settings,yousentech_wo_v4.group_wo_user,1,0,0,0

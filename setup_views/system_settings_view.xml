@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_wof_system_settings_tree" model="ir.ui.view">
+        <field name="name">wof.system.settings.tree</field>
+        <field name="model">wof.system.settings</field>
+        <field name="arch" type="xml">
+            <tree string="Car Film Settings" create="1" delete="0">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="enable_work_order"/>
+                <field name="enable_discounts"/>
+                <field name="enable_roll_consumption_tracking"/>
+                <field name="enable_warranty_qr"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_wof_system_settings_form" model="ir.ui.view">
+        <field name="name">wof.system.settings.form</field>
+        <field name="model">wof.system.settings</field>
+        <field name="arch" type="xml">
+            <form string="Car Film System Settings" create="1" delete="0" class="o_wof_settings_form">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" nolabel="1"/>
+                        </h1>
+                        <div class="text-muted">إعدادات تشغيل نظام أفلام السيارات حسب الشركة</div>
+                    </div>
+
+                    <group>
+                        <field name="company_id" options="{'no_create': True}"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+
+                    <div class="row mt16 mb16">
+                        <div class="col-lg-3 col-md-6 mb-2">
+                            <div class="o_wof_setting_card">
+                                <div class="o_wof_setting_icon">🧾</div>
+                                <div>
+                                    <strong>أوامر التركيب</strong>
+                                    <div class="text-muted">تفعيل المتطلبات الأساسية</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-2">
+                            <div class="o_wof_setting_card">
+                                <div class="o_wof_setting_icon">%</div>
+                                <div>
+                                    <strong>الخصومات</strong>
+                                    <div class="text-muted">تحديد مستوى الخصم</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-2">
+                            <div class="o_wof_setting_card">
+                                <div class="o_wof_setting_icon">📦</div>
+                                <div>
+                                    <strong>المخزون</strong>
+                                    <div class="text-muted">استهلاك رول الفلم</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-2">
+                            <div class="o_wof_setting_card">
+                                <div class="o_wof_setting_icon">QR</div>
+                                <div>
+                                    <strong>التقارير والضمان</strong>
+                                    <div class="text-muted">صور وشروط و QR</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <page string="أوامر التركيب" name="work_order">
+                            <group>
+                                <group string="التفعيل والمتطلبات">
+                                    <field name="enable_work_order"/>
+                                    <field name="plate_number_required"/>
+                                    <field name="chassis_number_required"/>
+                                    <field name="customer_mobile_required"/>
+                                    <field name="manufacture_year_required"/>
+                                    <field name="car_color_required"/>
+                                    <field name="car_agency_required"/>
+                                    <field name="delivery_datetime_required"/>
+                                </group>
+                                <group string="الفنيين والعمولات">
+                                    <field name="allow_multiple_technicians"/>
+                                    <field name="technician_required"/>
+                                    <field name="technician_commission_trigger" widget="radio"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="الخصومات" name="discounts">
+                            <group>
+                                <group string="سياسة الخصم">
+                                    <field name="enable_discounts"/>
+                                    <field name="discount_level" widget="radio" invisible="not enable_discounts"/>
+                                </group>
+                                <group string="الترحيل والباقات">
+                                    <field name="allow_package_discount" invisible="not enable_discounts"/>
+                                    <field name="propagate_discount_to_invoice" invisible="not enable_discounts"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="المخزون والأفلام" name="inventory">
+                            <group>
+                                <group string="المقاسات والاستهلاك">
+                                    <field name="enable_film_area_m2"/>
+                                    <field name="enable_roll_consumption_tracking"/>
+                                    <field name="roll_consumption_method" widget="radio" invisible="not enable_roll_consumption_tracking"/>
+                                </group>
+                                <group string="خدمات إضافية">
+                                    <field name="removal_as_extra_service"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="الفاتورة والدفع" name="invoice_payment">
+                            <group>
+                                <group string="إنشاء الفواتير">
+                                    <field name="auto_create_invoice_on_confirm"/>
+                                    <field name="create_invoice_after_full_payment"/>
+                                </group>
+                                <group string="التسليم">
+                                    <field name="block_delivery_until_full_payment"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                لا يمكن تفعيل إنشاء الفاتورة عند التأكيد وبعد اكتمال الدفع معاً، حتى لا تتكرر الفواتير.
+                            </div>
+                        </page>
+
+                        <page string="التقارير والضمان" name="reports">
+                            <group>
+                                <group string="صور التقارير">
+                                    <field name="report_car_diagram_image" filename="report_car_diagram_filename" widget="image"/>
+                                    <field name="report_car_diagram_filename" invisible="1"/>
+                                    <field name="report_work_order_terms_image" filename="report_work_order_terms_filename" widget="image"/>
+                                    <field name="report_work_order_terms_filename" invisible="1"/>
+                                    <field name="report_warranty_terms_image" filename="report_warranty_terms_filename" widget="image"/>
+                                    <field name="report_warranty_terms_filename" invisible="1"/>
+                                    <field name="report_invoice_terms_image" filename="report_invoice_terms_filename" widget="image"/>
+                                    <field name="report_invoice_terms_filename" invisible="1"/>
+                                </group>
+                                <group string="ملاحظات و QR">
+                                    <field name="enable_warranty_qr"/>
+                                    <field name="report_footer_note" placeholder="ملاحظة تظهر أسفل تقرير أمر التركيب..."/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="واجهة الشاشة الرئيسية" name="main_screen_ui">
+                            <group>
+                                <group string="إخفاء بيانات السيارة">
+                                    <field name="hide_plate_number"/>
+                                    <field name="hide_chassis_number"/>
+                                    <field name="hide_manufacture_year"/>
+                                    <field name="hide_car_color"/>
+                                    <field name="hide_odometer"/>
+                                </group>
+                                <group string="إخفاء بيانات تشغيلية">
+                                    <field name="hide_agency"/>
+                                    <field name="hide_salesperson"/>
+                                    <field name="hide_delivery_time"/>
+                                    <field name="hide_sticker_removal"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-warning" role="alert">
+                                هذه الخيارات لا تحذف البيانات، فقط تساعد لاحقاً في تبسيط شاشة أمر التركيب حسب احتياج كل شركة.
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wof_system_settings" model="ir.actions.act_window">
+        <field name="name">إعدادات نظام أفلام السيارات</field>
+        <field name="res_model">wof.system.settings</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'default_enable_work_order': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">أنشئ إعدادات نظام أفلام السيارات لهذه الشركة</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_wof_system_settings"
+              name="إعدادات نظام الأفلام"
+              parent="menu_wo_v4_configuration"
+              action="action_wof_system_settings"
+              sequence="1"/>
+</odoo>
