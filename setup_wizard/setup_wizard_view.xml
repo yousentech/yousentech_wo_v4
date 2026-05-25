@@ -11,6 +11,10 @@
 
                     <field name="step" invisible="1"/>
                     <field name="setup_locked" invisible="1"/>
+                    <field name="setup_enable_work_order" invisible="1"/>
+                    <field name="setup_enable_discounts" invisible="1"/>
+                    <field name="setup_enable_roll_consumption_tracking" invisible="1"/>
+                    <field name="setup_enable_warranty_qr" invisible="1"/>
 
                     <div invisible="step != 'welcome'">
                         <div class="alert alert-primary text-center p-4" role="status">
@@ -305,6 +309,191 @@
                         </field>
                     </div>
 
+
+                    <div invisible="step != 'system_settings'">
+                        <div class="alert alert-primary p-4 mb-4 border-0 shadow-sm" role="status" style="border-radius:18px;">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                <div>
+                                    <h2 class="mb-1">
+                                        <i class="fa fa-sliders me-2" title="الإعدادات العامة"/>
+                                        تهيئة الإعدادات العامة للنظام
+                                    </h2>
+                                    <div class="text-muted">
+                                        هذه آخر خطوة: راجع الخيارات ثم اضغط تطبيق الإعدادات ليتم عكسها في شاشة الإعدادات الأصلية حسب الشركة.
+                                    </div>
+                                </div>
+                                <span class="badge bg-success px-3 py-2">
+                                    <i class="fa fa-check-circle me-1" title="جاهز"/>
+                                    الأنواع محفوظة
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card shadow-sm border-0 h-100" style="border-radius:16px;">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="fw-bold">أوامر التركيب</div>
+                                                <div class="text-muted small">المتطلبات والفنيين</div>
+                                            </div>
+                                            <i class="fa fa-wrench fa-2x text-primary" title="أوامر التركيب"/>
+                                        </div>
+                                        <field name="setup_enable_work_order" widget="boolean_toggle" class="mt-3"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card shadow-sm border-0 h-100" style="border-radius:16px;">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="fw-bold">الخصومات</div>
+                                                <div class="text-muted small">المستوى والترحيل</div>
+                                            </div>
+                                            <i class="fa fa-percent fa-2x text-warning" title="الخصومات"/>
+                                        </div>
+                                        <field name="setup_enable_discounts" widget="boolean_toggle" class="mt-3"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card shadow-sm border-0 h-100" style="border-radius:16px;">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="fw-bold">المخزون والأفلام</div>
+                                                <div class="text-muted small">الرول والمتر المربع</div>
+                                            </div>
+                                            <i class="fa fa-archive fa-2x text-info" title="المخزون"/>
+                                        </div>
+                                        <field name="setup_enable_roll_consumption_tracking" widget="boolean_toggle" class="mt-3"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card shadow-sm border-0 h-100" style="border-radius:16px;">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div class="fw-bold">التقارير والضمان</div>
+                                                <div class="text-muted small">QR والملاحظات</div>
+                                            </div>
+                                            <i class="fa fa-qrcode fa-2x text-success" title="الضمان"/>
+                                        </div>
+                                        <field name="setup_enable_warranty_qr" widget="boolean_toggle" class="mt-3"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <notebook>
+                            <page string="أوامر التركيب">
+                                <group string="التفعيل والمتطلبات" col="2">
+                                    <group>
+                                        <field name="setup_enable_work_order"/>
+                                        <field name="setup_plate_number_required"/>
+                                        <field name="setup_chassis_number_required"/>
+                                        <field name="setup_customer_mobile_required"/>
+                                        <field name="setup_manufacture_year_required"/>
+                                    </group>
+                                    <group>
+                                        <field name="setup_car_color_required"/>
+                                        <field name="setup_car_agency_required"/>
+                                        <field name="setup_delivery_datetime_required"/>
+                                        <field name="setup_allow_multiple_technicians"/>
+                                        <field name="setup_technician_required"/>
+                                        <field name="setup_technician_commission_trigger" widget="radio" options="{'horizontal': true}"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <page string="الخصومات">
+                                <group col="2">
+                                    <group string="سياسة الخصم">
+                                        <field name="setup_enable_discounts"/>
+                                        <field name="setup_discount_level" widget="radio" options="{'horizontal': true}" invisible="not setup_enable_discounts"/>
+                                    </group>
+                                    <group string="الربط مع الفاتورة والباقات">
+                                        <field name="setup_allow_package_discount" invisible="not setup_enable_discounts"/>
+                                        <field name="setup_propagate_discount_to_invoice" invisible="not setup_enable_discounts"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <page string="المخزون والأفلام">
+                                <group col="2">
+                                    <group string="المقاسات والرول">
+                                        <field name="setup_enable_film_area_m2"/>
+                                        <field name="setup_enable_roll_consumption_tracking"/>
+                                        <field name="setup_roll_consumption_method" widget="radio" options="{'horizontal': true}" invisible="not setup_enable_roll_consumption_tracking"/>
+                                    </group>
+                                    <group string="الخدمات الإضافية">
+                                        <field name="setup_removal_as_extra_service"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <page string="الفواتير والدفع">
+                                <div class="alert alert-warning" role="alert">
+                                    اختر سياسة واحدة لإنشاء الفاتورة حتى لا تتعارض القواعد المحاسبية.
+                                </div>
+                                <group col="2">
+                                    <group>
+                                        <field name="setup_create_invoice_after_full_payment"/>
+                                        <field name="setup_auto_create_invoice_on_confirm"/>
+                                    </group>
+                                    <group>
+                                        <field name="setup_block_delivery_until_full_payment"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <page string="التقارير والضمان">
+                                <group col="2">
+                                    <group string="الضمان والملاحظات">
+                                        <field name="setup_enable_warranty_qr"/>
+                                        <field name="setup_report_footer_note" placeholder="مثال: يرجى الاحتفاظ بالفاتورة وشهادة الضمان..."/>
+                                    </group>
+                                    <group string="صور التقارير">
+                                        <field name="setup_report_car_diagram_image" widget="image" filename="setup_report_car_diagram_filename"/>
+                                        <field name="setup_report_car_diagram_filename" invisible="1"/>
+                                        <field name="setup_report_work_order_terms_image" widget="image" filename="setup_report_work_order_terms_filename"/>
+                                        <field name="setup_report_work_order_terms_filename" invisible="1"/>
+                                        <field name="setup_report_warranty_terms_image" widget="image" filename="setup_report_warranty_terms_filename"/>
+                                        <field name="setup_report_warranty_terms_filename" invisible="1"/>
+                                        <field name="setup_report_invoice_terms_image" widget="image" filename="setup_report_invoice_terms_filename"/>
+                                        <field name="setup_report_invoice_terms_filename" invisible="1"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <page string="واجهة النظام">
+                                <div class="alert alert-info" role="alert">
+                                    فعّل الإخفاء للحقول التي لا تريد ظهورها في شاشة أمر التركيب الرئيسية.
+                                </div>
+                                <group col="3">
+                                    <group string="بيانات السيارة">
+                                        <field name="setup_hide_plate_number"/>
+                                        <field name="setup_hide_chassis_number"/>
+                                        <field name="setup_hide_manufacture_year"/>
+                                        <field name="setup_hide_car_color"/>
+                                    </group>
+                                    <group string="بيانات إضافية">
+                                        <field name="setup_hide_odometer"/>
+                                        <field name="setup_hide_agency"/>
+                                        <field name="setup_hide_salesperson"/>
+                                    </group>
+                                    <group string="التسليم والخدمات">
+                                        <field name="setup_hide_delivery_time"/>
+                                        <field name="setup_hide_sticker_removal"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </div>
+
                     <div class="mt-4 pt-3 border-top d-flex justify-content-start gap-2">
                         <button string="بدء التهيئة"
                                 type="object"
@@ -342,11 +531,23 @@
                                 class="btn btn-secondary"
                                 invisible="step != 'service_types'"/> -->
 
-                        <button string="إنهاء كامل التهيئة"
+                        <button string="التالي: تهيئة الإعدادات العامة"
                                 type="object"
-                                name="action_finish_all_setup"
+                                name="action_go_system_settings"
                                 class="btn btn-success"
                                 invisible="step != 'service_types'"/>
+
+                        <button string="رجوع لأنواع الخدمات"
+                                type="object"
+                                name="action_back_service_types"
+                                class="btn btn-secondary"
+                                invisible="step != 'system_settings'"/>
+
+                        <button string="تطبيق الإعدادات وإنهاء التهيئة"
+                                type="object"
+                                name="action_apply_general_settings"
+                                class="btn btn-success btn-lg"
+                                invisible="step != 'system_settings'"/>
                     </div>
 
                 </sheet>

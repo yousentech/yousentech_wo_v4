@@ -51,6 +51,7 @@ class WofSetupWizard(models.TransientModel):
         ('car_sizes', 'أحجام السيارة'),
         ('tint_degrees', 'درجات اللون'),
         ('service_types', 'أنواع الخدمات'),
+        ('system_settings', 'الإعدادات العامة'),
     ], default='welcome')
 
     car_size_line_ids = fields.One2many(
@@ -80,6 +81,64 @@ class WofSetupWizard(models.TransientModel):
     setup_locked = fields.Boolean(
     string="تم اعتماد المقاسات والدرجات",
     default=False )
+
+
+    # الإعدادات العامة التي ستُرحّل إلى wof.system.settings في آخر خطوة من المعالج
+    setup_enable_work_order = fields.Boolean(string='تفعيل أوامر التركيب', default=True)
+    setup_plate_number_required = fields.Boolean(string='رقم اللوحة إجباري', default=True)
+    setup_chassis_number_required = fields.Boolean(string='رقم الشاصي إجباري')
+    setup_customer_mobile_required = fields.Boolean(string='رقم جوال العميل إجباري', default=True)
+    setup_manufacture_year_required = fields.Boolean(string='سنة الصنع إجبارية')
+    setup_car_color_required = fields.Boolean(string='لون السيارة إجباري')
+    setup_car_agency_required = fields.Boolean(string='الوكالة إجبارية')
+    setup_delivery_datetime_required = fields.Boolean(string='تاريخ ووقت التسليم إجباري')
+    setup_allow_multiple_technicians = fields.Boolean(string='السماح بتعدد الفنيين', default=True)
+    setup_technician_required = fields.Boolean(string='الفني إجباري')
+    setup_technician_commission_trigger = fields.Selection(
+        [('invoice_posted', 'بعد ترحيل الفاتورة'), ('work_order_done', 'بعد إنجاز أمر التركيب')],
+        string='اعتماد عمولة الفني', default='work_order_done', required=True,
+    )
+
+    setup_enable_discounts = fields.Boolean(string='تفعيل الخصومات', default=True)
+    setup_discount_level = fields.Selection(
+        [('total', 'على مستوى الإجمالي'), ('service', 'على مستوى الخدمة'), ('service_detail', 'على مستوى تفاصيل الخدمة')],
+        string='مستوى الخصم', default='total', required=True,
+    )
+    setup_allow_package_discount = fields.Boolean(string='السماح بالخصم في الباقات')
+    setup_propagate_discount_to_invoice = fields.Boolean(string='ترحيل الخصم إلى الفاتورة')
+
+    setup_enable_film_area_m2 = fields.Boolean(string='احتساب مقاس الفلم بالمتر المربع')
+    setup_enable_roll_consumption_tracking = fields.Boolean(string='تتبع استهلاك رول الفلم')
+    setup_roll_consumption_method = fields.Selection(
+        [('manual', 'يدوي'), ('car_parts', 'حسب أجزاء السيارة'), ('sizes', 'حسب المقاسات')],
+        string='طريقة احتساب استهلاك الرول', default='manual', required=True,
+    )
+    setup_removal_as_extra_service = fields.Boolean(string='إزالة الرواصق كخدمة إضافية', default=True)
+
+    setup_create_invoice_after_full_payment = fields.Boolean(string='إنشاء الفاتورة بعد اكتمال الدفع')
+    setup_auto_create_invoice_on_confirm = fields.Boolean(string='إنشاء فاتورة تلقائياً عند تأكيد أمر التركيب')
+    setup_block_delivery_until_full_payment = fields.Boolean(string='منع التسليم حتى سداد كامل المبلغ')
+
+    setup_enable_warranty_qr = fields.Boolean(string='تفعيل QR الضمان', default=True)
+    setup_report_footer_note = fields.Text(string='ملاحظة أسفل تقرير أمر التركيب')
+    setup_report_car_diagram_image = fields.Binary(string='صورة مخطط السيارة', attachment=True)
+    setup_report_car_diagram_filename = fields.Char(string='اسم ملف مخطط السيارة')
+    setup_report_work_order_terms_image = fields.Binary(string='صورة شروط أمر التركيب', attachment=True)
+    setup_report_work_order_terms_filename = fields.Char(string='اسم ملف شروط أمر التركيب')
+    setup_report_warranty_terms_image = fields.Binary(string='صورة شروط الضمان', attachment=True)
+    setup_report_warranty_terms_filename = fields.Char(string='اسم ملف شروط الضمان')
+    setup_report_invoice_terms_image = fields.Binary(string='صورة شروط الفاتورة', attachment=True)
+    setup_report_invoice_terms_filename = fields.Char(string='اسم ملف شروط الفاتورة')
+
+    setup_hide_plate_number = fields.Boolean(string='إخفاء رقم اللوحة')
+    setup_hide_chassis_number = fields.Boolean(string='إخفاء رقم الشاصي')
+    setup_hide_manufacture_year = fields.Boolean(string='إخفاء سنة الصنع')
+    setup_hide_car_color = fields.Boolean(string='إخفاء لون السيارة')
+    setup_hide_odometer = fields.Boolean(string='إخفاء رقم العداد')
+    setup_hide_agency = fields.Boolean(string='إخفاء الوكالة')
+    setup_hide_salesperson = fields.Boolean(string='إخفاء المندوب')
+    setup_hide_delivery_time = fields.Boolean(string='إخفاء وقت التسليم')
+    setup_hide_sticker_removal = fields.Boolean(string='إخفاء إزالة الرواصق')
 
     @api.model
     def reset_setup_temp_data(self):
@@ -154,6 +213,13 @@ class WofSetupWizard(models.TransientModel):
                 }))
                 sequence += 1
             res['service_line_ids'] = service_lines
+
+        setup_field_map = self._get_setup_settings_field_map()
+        if any(field in fields_list for field in setup_field_map):
+            settings = self.env['wof.system.settings'].sudo().get_company_settings()
+            for wizard_field, settings_field in setup_field_map.items():
+                if wizard_field in fields_list and settings_field in settings._fields:
+                    res[wizard_field] = settings[settings_field]
 
         return res
 
@@ -443,12 +509,53 @@ class WofSetupWizard(models.TransientModel):
             else:
                 FilmLine.create(vals)
 
-    def action_finish_all_setup(self):
+    def _get_setup_settings_field_map(self):
+        return {
+            'setup_enable_work_order': 'enable_work_order',
+            'setup_plate_number_required': 'plate_number_required',
+            'setup_chassis_number_required': 'chassis_number_required',
+            'setup_customer_mobile_required': 'customer_mobile_required',
+            'setup_manufacture_year_required': 'manufacture_year_required',
+            'setup_car_color_required': 'car_color_required',
+            'setup_car_agency_required': 'car_agency_required',
+            'setup_delivery_datetime_required': 'delivery_datetime_required',
+            'setup_allow_multiple_technicians': 'allow_multiple_technicians',
+            'setup_technician_required': 'technician_required',
+            'setup_technician_commission_trigger': 'technician_commission_trigger',
+            'setup_enable_discounts': 'enable_discounts',
+            'setup_discount_level': 'discount_level',
+            'setup_allow_package_discount': 'allow_package_discount',
+            'setup_propagate_discount_to_invoice': 'propagate_discount_to_invoice',
+            'setup_enable_film_area_m2': 'enable_film_area_m2',
+            'setup_enable_roll_consumption_tracking': 'enable_roll_consumption_tracking',
+            'setup_roll_consumption_method': 'roll_consumption_method',
+            'setup_removal_as_extra_service': 'removal_as_extra_service',
+            'setup_create_invoice_after_full_payment': 'create_invoice_after_full_payment',
+            'setup_auto_create_invoice_on_confirm': 'auto_create_invoice_on_confirm',
+            'setup_block_delivery_until_full_payment': 'block_delivery_until_full_payment',
+            'setup_enable_warranty_qr': 'enable_warranty_qr',
+            'setup_report_footer_note': 'report_footer_note',
+            'setup_report_car_diagram_image': 'report_car_diagram_image',
+            'setup_report_car_diagram_filename': 'report_car_diagram_filename',
+            'setup_report_work_order_terms_image': 'report_work_order_terms_image',
+            'setup_report_work_order_terms_filename': 'report_work_order_terms_filename',
+            'setup_report_warranty_terms_image': 'report_warranty_terms_image',
+            'setup_report_warranty_terms_filename': 'report_warranty_terms_filename',
+            'setup_report_invoice_terms_image': 'report_invoice_terms_image',
+            'setup_report_invoice_terms_filename': 'report_invoice_terms_filename',
+            'setup_hide_plate_number': 'hide_plate_number',
+            'setup_hide_chassis_number': 'hide_chassis_number',
+            'setup_hide_manufacture_year': 'hide_manufacture_year',
+            'setup_hide_car_color': 'hide_car_color',
+            'setup_hide_odometer': 'hide_odometer',
+            'setup_hide_agency': 'hide_agency',
+            'setup_hide_salesperson': 'hide_salesperson',
+            'setup_hide_delivery_time': 'hide_delivery_time',
+            'setup_hide_sticker_removal': 'hide_sticker_removal',
+        }
+
+    def _validate_selected_services_ready(self):
         self.ensure_one()
-
-        size_map = self.action_save_car_sizes()
-        degree_map = self.action_save_tint_degrees()
-
         selected_services = self.service_line_ids.filtered('selected')
         if not selected_services:
             raise ValidationError(_("يجب اختيار نوع خدمة واحد على الأقل."))
@@ -457,15 +564,21 @@ class WofSetupWizard(models.TransientModel):
         if not_completed:
             names = ", ".join(not_completed.mapped('custom_name'))
             raise ValidationError(_("الخدمات التالية لم تكتمل تهيئتها:\n%s") % names)
+        return selected_services
+
+    def _apply_catalog_setup(self):
+        self.ensure_one()
+
+        size_map = self.action_save_car_sizes()
+        degree_map = self.action_save_tint_degrees()
+        selected_services = self._validate_selected_services_ready()
 
         company = self.env.company.parent_id or self.env.company
-
         FilmCategory = self.env['wof.film.category'].sudo()
         TempFilm = self.env['wof.setup.temp.film'].sudo()
 
         for service_line in selected_services:
             service = self._ensure_service_type_from_line(service_line)
-
             temp_films = TempFilm.search([
                 ('wizard_id', '=', self.id),
                 ('service_line_id', '=', service_line.id),
@@ -497,20 +610,50 @@ class WofSetupWizard(models.TransientModel):
                     if temp_part.car_part_id:
                         self._create_or_update_film_parts(film, temp_part, size_map)
 
-        self.env['ir.config_parameter'].sudo().set_param(
-            'yousentech_wo_v4.setup_completed',
-            True
-        )
+    def action_go_system_settings(self):
+        self.ensure_one()
+        self._apply_catalog_setup()
+        self.step = 'system_settings'
+        return self._reload_wizard()
 
-        for xmlid in [
-            'yousentech_wo_v4.action_service_types_wo_v4',
-            'yousentech_wo_v4.action_wof_service_type',
-        ]:
-            action = self.env.ref(xmlid, raise_if_not_found=False)
-            if action:
-                return action.read()[0]
+    def action_back_service_types(self):
+        self.ensure_one()
+        self.step = 'service_types'
+        return self._reload_wizard()
 
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+    @api.constrains('setup_create_invoice_after_full_payment', 'setup_auto_create_invoice_on_confirm')
+    def _check_setup_invoice_policy(self):
+        for wizard in self:
+            if wizard.setup_create_invoice_after_full_payment and wizard.setup_auto_create_invoice_on_confirm:
+                raise ValidationError(_('لا يمكن تفعيل سياستي إنشاء الفاتورة معاً. اختر بعد اكتمال الدفع أو عند التأكيد فقط.'))
+
+    def action_apply_general_settings(self):
+        self.ensure_one()
+        if self.setup_create_invoice_after_full_payment and self.setup_auto_create_invoice_on_confirm:
+            raise ValidationError(_('لا يمكن تفعيل سياستي إنشاء الفاتورة معاً. اختر بعد اكتمال الدفع أو عند التأكيد فقط.'))
+
+        settings = self.env['wof.system.settings'].sudo().get_company_settings()
+        vals = {}
+        for wizard_field, settings_field in self._get_setup_settings_field_map().items():
+            if settings_field in settings._fields:
+                vals[settings_field] = self[wizard_field]
+        settings.write(vals)
+
+        self.env['ir.config_parameter'].sudo().set_param('yousentech_wo_v4.setup_completed', True)
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('إعدادات أفلام السيارات'),
+            'res_model': 'wof.system.settings',
+            'view_mode': 'form',
+            'res_id': settings.id,
+            'target': 'current',
+        }
+
+    def action_finish_all_setup(self):
+        """توافق خلفي مع الزر القديم: يحفظ التهيئة وينقل المستخدم لخطوة الإعدادات العامة."""
+        self.ensure_one()
+        return self.action_go_system_settings()
 
     def action_unlock_base_setup(self):
         self.ensure_one()
