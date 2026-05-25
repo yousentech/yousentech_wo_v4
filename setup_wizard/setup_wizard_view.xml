@@ -1084,7 +1084,7 @@
         <field name="name">wof.setup.temp.film.kanban</field>
         <field name="model">wof.setup.temp.film</field>
         <field name="arch" type="xml">
-            <kanban class="o_kanban_large" create="0">
+            <kanban class="o_kanban_large" create="0" quick_create="0">
                 <header>
                     <button type="object"
                             name="action_back_to_service_types_from_context"
@@ -1097,6 +1097,7 @@
                             class="btn btn-primary"
                             icon="fa-plus"/>
                 </header>
+
                 <field name="film_name"/>
                 <field name="service_name"/>
                 <field name="warranty_years"/>
@@ -1104,71 +1105,104 @@
                 <field name="service_area_count"/>
                 <field name="tint_degree_count"/>
                 <field name="service_options"/>
+
                 <templates>
                     <t t-name="kanban-box">
-                        <div class="oe_kanban_card p-3 rounded shadow-sm border border-primary-subtle">
-                            <div class="alert alert-info py-2 px-3 mb-3 text-center" role="status">
-                                <strong>
-                                    <i class="fa fa-film me-1" title="الأفلام"/>
-                                    أفلام / أنواع الخدمة المؤقتة
-                                </strong>
-                                <div class="small text-muted">
-                                    راجع الأفلام، عدّل أي فيلم، أو أضف فيلم جديد قبل إنهاء كامل التهيئة.
+                        <div t-attf-class="oe_kanban_card rounded shadow-sm p-0 overflow-hidden border #{record.service_options.raw_value == 'tint' ? 'border-info' : 'border-success'}"
+                             style="min-width:360px; max-width:430px;">
+
+                            <div t-attf-class="px-3 py-3 #{record.service_options.raw_value == 'tint' ? 'bg-info-subtle' : 'bg-success-subtle'}">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <div>
+                                        <div class="small text-muted mb-1">
+                                            <i class="fa fa-folder-open me-1" title="قائمة مؤقتة"/>
+                                            أفلام / أنواع الخدمة المؤقتة
+                                        </div>
+                                        <h3 class="mb-1 fw-bold text-dark">
+                                            <i class="fa fa-film text-primary me-1" title="فيلم"/>
+                                            <field name="film_name"/>
+                                        </h3>
+                                        <div class="text-muted">
+                                            <i class="fa fa-cogs me-1" title="نوع الخدمة"/>
+                                            <field name="service_name"/>
+                                        </div>
+                                    </div>
+
+                                    <span class="badge bg-success px-3 py-2">
+                                        <i class="fa fa-clock-o me-1" title="مؤقت"/>
+                                        مؤقت
+                                    </span>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h4 class="mb-1">
-                                        <i class="fa fa-film text-primary me-1" title="فيلم"/>
-                                        <field name="film_name"/>
-                                    </h4>
-                                    <div class="text-muted">
-                                        <i class="fa fa-cogs me-1" title="نوع الخدمة"/>
-                                        <field name="service_name"/>
+
+                            <div class="px-3 py-3">
+                                <div class="alert alert-light border py-2 px-3 mb-3" role="status">
+                                    <i class="fa fa-info-circle text-primary me-1" title="معلومة"/>
+                                    <span class="small">
+                                        راجع النوع، عدّل بياناته أو أضف نوعاً جديداً قبل إنهاء كامل التهيئة.
+                                    </span>
+                                </div>
+
+                                <div class="row g-2 text-center mb-3">
+                                    <div class="col-6">
+                                        <div class="border rounded p-2 bg-light">
+                                            <div class="text-muted small">مدة الضمان</div>
+                                            <div class="fw-bold">
+                                                <i class="fa fa-shield text-success me-1" title="ضمان"/>
+                                                <field name="warranty_years"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-2 bg-light">
+                                            <div class="text-muted small">الأجزاء</div>
+                                            <div class="fw-bold">
+                                                <i class="fa fa-cogs text-primary me-1" title="الأجزاء"/>
+                                                <field name="part_count"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6" t-if="record.service_options.raw_value == 'tint'">
+                                        <div class="border rounded p-2 bg-light">
+                                            <div class="text-muted small">مناطق الخدمة</div>
+                                            <div class="fw-bold">
+                                                <i class="fa fa-map-marker text-info me-1" title="مناطق الخدمة"/>
+                                                <field name="service_area_count"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6" t-if="record.service_options.raw_value == 'tint'">
+                                        <div class="border rounded p-2 bg-light">
+                                            <div class="text-muted small">درجات اللون</div>
+                                            <div class="fw-bold">
+                                                <i class="fa fa-adjust text-dark me-1" title="درجات اللون"/>
+                                                <field name="tint_degree_count"/>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <span class="badge bg-success px-3 py-2">
-                                    مؤقت
-                                </span>
-                            </div>
 
-                            <div class="mt-3 d-flex flex-wrap gap-2">
-                                <span class="badge bg-light text-dark border">
-                                    <i class="fa fa-shield me-1" title="الضمان"/>
-                                    <field name="warranty_years"/>
-                                </span>
-                                <span class="badge bg-primary">
-                                    <i class="fa fa-cogs me-1" title="الأجزاء"/>
-                                    <field name="part_count"/> أجزاء
-                                </span>
-                                <span class="badge bg-info text-dark" t-if="record.service_options.raw_value == 'tint'">
-                                    <i class="fa fa-map-marker me-1" title="مناطق الخدمة"/>
-                                    <field name="service_area_count"/> مناطق خدمة
-                                </span>
-                                <span class="badge bg-dark" t-if="record.service_options.raw_value == 'tint'">
-                                    <i class="fa fa-adjust me-1" title="درجات اللون"/>
-                                    <field name="tint_degree_count"/> درجات
-                                </span>
-                            </div>
+                                <div class="d-grid gap-2">
+                                    <button type="object"
+                                            name="action_edit_temp_film"
+                                            string="تعديل الفيلم"
+                                            class="btn btn-primary"
+                                            icon="fa-pencil"/>
 
-                            <div class="mt-3 d-flex justify-content-between align-items-center gap-2 flex-wrap">
-                                <button type="object"
-                                        name="action_edit_temp_film"
-                                        string="تعديل الفيلم"
-                                        class="btn btn-primary btn-sm"
-                                        icon="fa-pencil"/>
+                                    <div class="d-flex gap-2">
+                                        <button type="object"
+                                                name="action_add_new_film_from_list"
+                                                string="إضافة فيلم جديد"
+                                                class="btn btn-outline-success flex-fill"
+                                                icon="fa-plus"/>
 
-                                <button type="object"
-                                        name="action_add_new_film_from_list"
-                                        string="إضافة فيلم جديد"
-                                        class="btn btn-outline-success btn-sm"
-                                        icon="fa-plus"/>
-
-                                <button type="object"
-                                        name="action_back_to_service_types_from_context"
-                                        string="رجوع للخدمات"
-                                        class="btn btn-outline-secondary btn-sm"
-                                        icon="fa-arrow-right"/>
+                                        <button type="object"
+                                                name="action_back_to_service_types_from_context"
+                                                string="رجوع"
+                                                class="btn btn-outline-secondary flex-fill"
+                                                icon="fa-arrow-right"/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </t>
