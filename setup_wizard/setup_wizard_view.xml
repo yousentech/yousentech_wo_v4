@@ -1084,26 +1084,27 @@
         <field name="name">wof.setup.temp.film.kanban</field>
         <field name="model">wof.setup.temp.film</field>
         <field name="arch" type="xml">
-            <sheet>
-                <div class="alert alert-light border rounded-4 py-3 px-3 mb-4 shadow-sm" role="status">
-                    <div class="small text-muted mb-2 fw-bold">
-                        <i class="fa fa-folder-open me-1" title="قائمة مؤقتة"/>
-                        أفلام / أنواع الخدمة المؤقتة
-                    </div>
+            <sheet  create="0" quick_create="0">
 
-                    <div class="d-flex align-items-start gap-2">
-                        <i class="fa fa-info-circle text-primary mt-1" title="معلومة"/>
-
-                        <div class="small text-muted">
-                            راجع بيانات الفيلم، عدّل الأسعار والعمولات أو أضف فيلماً جديداً
-                            قبل إنهاء كامل التهيئة.
+                <header>
+                    <div class="alert alert-light border rounded-4 py-3 px-3 mb-4 shadow-sm" role="status">
+                        <div class="small text-muted mb-2 fw-bold">
+                            <i class="fa fa-folder-open me-1" title="قائمة مؤقتة"/>
+                            أفلام / أنواع الخدمة المؤقتة
                         </div>
+
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="fa fa-info-circle text-primary mt-1" title="معلومة"/>
+
+                            <div class="small text-muted">
+                                راجع بيانات الفيلم، عدّل الأسعار والعمولات أو أضف فيلماً جديداً
+                                قبل إنهاء كامل التهيئة.
+                            </div>
+                        </div>
+
                     </div>
+         
 
-                </div>
-                <kanban class="o_kanban_large" create="0" quick_create="0">
-
-                    <header>
                         <button type="object"
                                 name="action_back_to_service_types_from_context"
                                 string="رجوع لأنواع الخدمات"
@@ -1265,7 +1266,7 @@
 
                     </templates>
 
-                </kanban>
+                 
             </sheet>
         </field>
     </record>
