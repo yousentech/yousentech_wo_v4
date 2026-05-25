@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 class WofSystemSettings(models.Model):
@@ -187,15 +187,29 @@ class WofSystemSettings(models.Model):
             if rec.create_invoice_after_full_payment and rec.auto_create_invoice_on_confirm:
                 raise ValidationError(_('لا يمكن تفعيل سياستي إنشاء الفاتورة معاً. اختر بعد اكتمال الدفع أو عند التأكيد فقط.'))
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        # إعدادات النظام لا تُنشأ يدوياً من زر جديد.
+        # الإنشاء مسموح فقط من المعالج أو من الدالة المركزية التي تفتح إعدادات الشركة الأم.
+        if not self.env.context.get('allow_wof_settings_create'):
+            raise UserError(_('غير مسموح بإنشاء إعدادات جديدة يدوياً. افتح إعدادات النظام وسيتم استخدام سجل الشركة الأم تلقائياً.'))
+        for vals in vals_list:
+            company_id = vals.get('company_id') or self._default_company_id()
+            company = self.env['res.company'].browse(company_id)
+            parent_company = company.parent_id or company
+            vals['company_id'] = parent_company.id
+        return super().create(vals_list)
+
     @api.model
     def get_company_settings(self, company=None):
         company = company or self.env.company
         company = company.parent_id or company
         settings = self.search([('company_id', '=', company.id)], limit=1)
         if not settings:
-            settings = self.create({'company_id': company.id})
+            settings = self.with_context(allow_wof_settings_create=True).create({'company_id': company.id})
         return settings
 
+    @api.model
     def action_open_current_company_settings(self):
         settings = self.get_company_settings()
         return {
@@ -205,4 +219,10 @@ class WofSystemSettings(models.Model):
             'view_mode': 'form',
             'res_id': settings.id,
             'target': 'current',
+            'context': {
+                'create': False,
+                'delete': False,
+                'default_company_id': settings.company_id.id,
+            },
+            'flags': {'mode': 'edit'},
         }

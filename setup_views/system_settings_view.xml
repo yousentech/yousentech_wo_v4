@@ -259,16 +259,23 @@
     <record id="action_wof_system_settings" model="ir.actions.act_window">
         <field name="name">إعدادات نظام أفلام السيارات</field>
         <field name="res_model">wof.system.settings</field>
-        <field name="view_mode">tree,form</field>
-        <field name="context">{'default_enable_work_order': True}</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'create': False, 'delete': False}</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">أنشئ إعدادات نظام أفلام السيارات لهذه الشركة</p>
+            <p class="o_view_nocontent_smiling_face">يتم فتح سجل إعدادات الشركة الأم تلقائياً.</p>
         </field>
+    </record>
+
+    <record id="action_wof_system_settings_open" model="ir.actions.server">
+        <field name="name">إعدادات نظام أفلام السيارات</field>
+        <field name="model_id" ref="model_wof_system_settings"/>
+        <field name="state">code</field>
+        <field name="code">action = env['wof.system.settings'].action_open_current_company_settings()</field>
     </record>
 
     <menuitem id="menu_wof_system_settings"
               name="إعدادات نظام الأفلام"
               parent="menu_wo_v4_configuration"
-              action="action_wof_system_settings"
+              action="action_wof_system_settings_open"
               sequence="1"/>
 </odoo>
