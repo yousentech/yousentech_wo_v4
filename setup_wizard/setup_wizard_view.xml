@@ -1080,6 +1080,207 @@
 
         </field>
     </record>
+
+    <!-- Board screen for reviewing temporary films before final setup completion -->
+    <record id="view_wof_setup_temp_film_board_form" model="ir.ui.view">
+        <field name="name">wof.setup.temp.film.board.form</field>
+        <field name="model">wof.setup.temp.film.board</field>
+        <field name="arch" type="xml">
+            <form string="أفلام / أنواع الخدمة" create="0" edit="0">
+                <sheet>
+                    <field name="wizard_id" invisible="1"/>
+                    <field name="service_line_id" invisible="1"/>
+                    <field name="service_type_id" invisible="1"/>
+                    <field name="service_options" invisible="1"/>
+
+                    <div class="p-4 mb-4 rounded-4 shadow-sm border"
+                         style="background: linear-gradient(135deg, #e8f7fb 0%, #f7fbff 55%, #eef8ef 100%);">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <div>
+                                <div class="text-muted fw-bold mb-2">
+                                    <i class="fa fa-folder-open me-1" title="مراجعة"/>
+                                    شاشة مراجعة الأفلام المؤقتة
+                                </div>
+
+                                <h1 class="fw-bold mb-2 text-dark">
+                                    <i class="fa fa-film text-primary me-2" title="فيلم"/>
+                                    أفلام / أنواع
+                                    <field name="service_name" readonly="1" class="oe_inline"/>
+                                </h1>
+
+                                <div class="text-muted fs-6">
+                                    راجع الأفلام المؤقتة، عدّل بياناتها أو أضف فيلم جديد لهذا النوع قبل إنهاء كامل التهيئة.
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="object"
+                                        name="action_back_to_service_types"
+                                        string="رجوع لأنواع الخدمات"
+                                        class="btn btn-outline-secondary btn-lg"
+                                        icon="fa-arrow-right"/>
+
+                                <button type="object"
+                                        name="action_add_new_film"
+                                        string="إنشاء فيلم جديد لهذا النوع"
+                                        class="btn btn-primary btn-lg"
+                                        icon="fa-plus"/>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-4 text-center">
+                            <div class="col-6 col-lg-3">
+                                <div class="bg-white border rounded-4 p-3 shadow-sm h-100">
+                                    <div class="text-muted small mb-1">عدد الأفلام</div>
+                                    <div class="fw-bold fs-2 text-primary">
+                                        <i class="fa fa-film me-1" title="الأفلام"/>
+                                        <field name="film_count"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-lg-3">
+                                <div class="bg-white border rounded-4 p-3 shadow-sm h-100">
+                                    <div class="text-muted small mb-1">إجمالي الأجزاء</div>
+                                    <div class="fw-bold fs-2 text-success">
+                                        <i class="fa fa-cogs me-1" title="الأجزاء"/>
+                                        <field name="part_count"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-lg-3" invisible="service_options != 'tint'">
+                                <div class="bg-white border rounded-4 p-3 shadow-sm h-100">
+                                    <div class="text-muted small mb-1">مناطق الخدمة</div>
+                                    <div class="fw-bold fs-2 text-info">
+                                        <i class="fa fa-map-marker me-1" title="مناطق الخدمة"/>
+                                        <field name="service_area_count"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-lg-3" invisible="service_options != 'tint'">
+                                <div class="bg-white border rounded-4 p-3 shadow-sm h-100">
+                                    <div class="text-muted small mb-1">درجات اللون</div>
+                                    <div class="fw-bold fs-2 text-dark">
+                                        <i class="fa fa-adjust me-1" title="درجات اللون"/>
+                                        <field name="tint_degree_count"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h3 class="fw-bold mb-0">
+                            <i class="fa fa-th-large me-1" title="الكروت"/>
+                            الأفلام المؤقتة
+                        </h3>
+                        <span class="text-muted">
+                            اضغط تعديل الفيلم لفتح نفس خطوات التهيئة السابقة.
+                        </span>
+                    </div>
+
+                    <field name="film_ids" nolabel="1" mode="kanban" readonly="1">
+                        <kanban class="o_kanban_large" create="0" quick_create="0">
+                            <field name="film_name"/>
+                            <field name="service_name"/>
+                            <field name="warranty_years"/>
+                            <field name="part_count"/>
+                            <field name="service_area_count"/>
+                            <field name="tint_degree_count"/>
+                            <field name="service_options"/>
+
+                            <templates>
+                                <t t-name="kanban-box">
+                                    <div t-attf-class="oe_kanban_card rounded-4 shadow-sm overflow-hidden border-0 h-100 #{record.service_options.raw_value == 'tint' ? 'border border-info border-2' : 'border border-success border-2'}"
+                                         style="min-width:390px; max-width:450px;">
+
+                                        <div t-attf-class="px-4 py-4 #{record.service_options.raw_value == 'tint' ? 'bg-info-subtle' : 'bg-success-subtle'}">
+                                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                                <div>
+                                                    <div class="small text-muted mb-2 fw-bold">
+                                                        <i class="fa fa-layer-group me-1" title="فيلم مؤقت"/>
+                                                        فيلم مؤقت
+                                                    </div>
+
+                                                    <h2 class="fw-bold mb-2 text-dark">
+                                                        <i class="fa fa-film text-primary me-2" title="فيلم"/>
+                                                        <field name="film_name"/>
+                                                    </h2>
+
+                                                    <div class="text-muted fs-6">
+                                                        <i class="fa fa-cogs me-1" title="نوع الخدمة"/>
+                                                        <field name="service_name"/>
+                                                    </div>
+                                                </div>
+
+                                                <span class="badge rounded-pill bg-success px-3 py-2 fs-6 shadow-sm">
+                                                    <i class="fa fa-clock-o me-1" title="مؤقت"/>
+                                                    مؤقت
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="px-4 py-4">
+                                            <div class="row g-3 mb-4 text-center">
+                                                <div class="col-6">
+                                                    <div class="border rounded-4 bg-light p-3 h-100 shadow-sm">
+                                                        <div class="text-muted small mb-2">مدة الضمان</div>
+                                                        <div class="fw-bold fs-4 text-success">
+                                                            <i class="fa fa-shield me-1" title="ضمان"/>
+                                                            <field name="warranty_years"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <div class="border rounded-4 bg-light p-3 h-100 shadow-sm">
+                                                        <div class="text-muted small mb-2">الأجزاء</div>
+                                                        <div class="fw-bold fs-4 text-primary">
+                                                            <i class="fa fa-cogs me-1" title="الأجزاء"/>
+                                                            <field name="part_count"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6" t-if="record.service_options.raw_value == 'tint'">
+                                                    <div class="border rounded-4 bg-light p-3 h-100 shadow-sm">
+                                                        <div class="text-muted small mb-2">مناطق الخدمة</div>
+                                                        <div class="fw-bold fs-4 text-info">
+                                                            <i class="fa fa-map-marker me-1" title="مناطق الخدمة"/>
+                                                            <field name="service_area_count"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6" t-if="record.service_options.raw_value == 'tint'">
+                                                    <div class="border rounded-4 bg-light p-3 h-100 shadow-sm">
+                                                        <div class="text-muted small mb-2">درجات اللون</div>
+                                                        <div class="fw-bold fs-4 text-dark">
+                                                            <i class="fa fa-adjust me-1" title="درجات اللون"/>
+                                                            <field name="tint_degree_count"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <button type="object"
+                                                    name="action_edit_temp_film"
+                                                    string="تعديل الفيلم"
+                                                    class="btn btn-primary btn-lg rounded-3 w-100"
+                                                    icon="fa-pencil"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </templates>
+                        </kanban>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
    <record id="view_wof_setup_temp_film_kanban" model="ir.ui.view">
         <field name="name">wof.setup.temp.film.kanban</field>
         <field name="model">wof.setup.temp.film</field>

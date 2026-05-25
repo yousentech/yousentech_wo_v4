@@ -731,49 +731,32 @@ class WofSetupWizardServiceLine(models.TransientModel):
         }
 
     def action_view_service_films(self):
+        """Open a proper review board instead of a direct kanban.
+
+        The board gives the user a summary header, a smart Add Film button,
+        and the temporary film cards below it. This keeps the setup flow clear
+        before finalizing the data into the real tables.
+        """
         self.ensure_one()
 
-        kanban_view = self.env.ref(
-            'yousentech_wo_v4.view_wof_setup_temp_film_kanban',
-            raise_if_not_found=False
-        )
-        tree_view = self.env.ref(
-            'yousentech_wo_v4.view_wof_setup_temp_film_tree',
-            raise_if_not_found=False
-        )
-        form_view = self.env.ref(
-            'yousentech_wo_v4.view_wof_setup_temp_film_form',
+        board = self.env['wof.setup.temp.film.board'].create({
+            'wizard_id': self.wizard_id.id,
+            'service_line_id': self.id,
+        })
+        board._load_films()
+
+        view = self.env.ref(
+            'yousentech_wo_v4.view_wof_setup_temp_film_board_form',
             raise_if_not_found=False
         )
 
-        views = []
-        if kanban_view:
-            views.append((kanban_view.id, 'kanban'))
-        if tree_view:
-            views.append((tree_view.id, 'tree'))
-        if form_view:
-            views.append((form_view.id, 'form'))
-
-        # نحدد الـ views صراحةً حتى لا يفتح أودو Tree كافتراضي
-        # إذا كان هناك View قديم محفوظ أو View آخر أولويته أعلى.
         return {
             'type': 'ir.actions.act_window',
-            'name': _('أفلام / أنواع %s') % (self.custom_name or ''),
-            'res_model': 'wof.setup.temp.film',
-            'view_mode': 'kanban,tree,form',
-            'views': views or [(False, 'kanban'), (False, 'tree'), (False, 'form')],
-            'view_id': kanban_view.id if kanban_view else False,
-            'domain': [
-                ('wizard_id', '=', self.wizard_id.id),
-                ('service_line_id', '=', self.id),
-            ],
-            'context': {
-                'default_wizard_id': self.wizard_id.id,
-                'default_service_line_id': self.id,
-                'setup_wizard_id': self.wizard_id.id,
-                'setup_service_line_id': self.id,
-                'setup_service_name': self.custom_name or '',
-            },
+            'name': _('أفلام / أنواع %s') % (self.custom_name or self.service_type_id.display_name or ''),
+            'res_model': 'wof.setup.temp.film.board',
+            'res_id': board.id,
+            'view_mode': 'form',
+            'views': [(view.id, 'form')] if view else [(False, 'form')],
             'target': 'current',
         }
 
@@ -1950,6 +1933,125 @@ class WofSetupTempFilm(models.TransientModel):
             'view_mode': 'form',
             'target': 'current',
         }
+
+
+class WofSetupTempFilmBoard(models.TransientModel):
+    _name = 'wof.setup.temp.film.board'
+    _description = 'Temporary Film Setup Board'
+
+    wizard_id = fields.Many2one(
+        'wof.setup.wizard',
+        string="معالج التهيئة",
+        required=True,
+        ondelete='cascade'
+    )
+
+    service_line_id = fields.Many2one(
+        'wof.setup.wizard.service.line',
+        string="نوع الخدمة",
+        required=True,
+        ondelete='cascade'
+    )
+
+    service_type_id = fields.Many2one(
+        related='service_line_id.service_type_id',
+        string="نوع الخدمة الأساسي",
+        readonly=True,
+        store=False
+    )
+
+    service_name = fields.Char(
+        related='service_line_id.custom_name',
+        string="اسم الخدمة",
+        readonly=True,
+        store=False
+    )
+
+    service_options = fields.Selection(
+        SERVICE_OPTIONS,
+        related='service_line_id.service_options',
+        string="محرك الخدمة",
+        readonly=True,
+        store=False
+    )
+
+    film_ids = fields.Many2many(
+        'wof.setup.temp.film',
+        'wof_setup_temp_film_board_rel',
+        'board_id',
+        'film_id',
+        string="الأفلام المؤقتة",
+        readonly=True
+    )
+
+    film_count = fields.Integer(
+        string="عدد الأفلام",
+        compute='_compute_summary'
+    )
+    part_count = fields.Integer(
+        string="إجمالي الأجزاء",
+        compute='_compute_summary'
+    )
+    service_area_count = fields.Integer(
+        string="مناطق الخدمة",
+        compute='_compute_summary'
+    )
+    tint_degree_count = fields.Integer(
+        string="درجات اللون",
+        compute='_compute_summary'
+    )
+
+    @api.depends(
+        'film_ids',
+        'film_ids.part_count',
+        'film_ids.service_area_count',
+        'film_ids.tint_degree_count'
+    )
+    def _compute_summary(self):
+        for rec in self:
+            rec.film_count = len(rec.film_ids)
+            rec.part_count = sum(rec.film_ids.mapped('part_count'))
+            rec.service_area_count = sum(rec.film_ids.mapped('service_area_count'))
+            rec.tint_degree_count = sum(rec.film_ids.mapped('tint_degree_count'))
+
+    def _load_films(self):
+        self.ensure_one()
+        films = self.env['wof.setup.temp.film'].sudo().search([
+            ('wizard_id', '=', self.wizard_id.id),
+            ('service_line_id', '=', self.service_line_id.id),
+        ], order='id desc')
+        self.film_ids = [(6, 0, films.ids)]
+        return True
+
+    def action_back_to_service_types(self):
+        self.ensure_one()
+        self.wizard_id.step = 'service_types'
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تهيئة النظام'),
+            'res_model': 'wof.setup.wizard',
+            'res_id': self.wizard_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def action_add_new_film(self):
+        self.ensure_one()
+
+        setup = self.env['wof.setup.film.wizard'].create({
+            'parent_wizard_id': self.wizard_id.id,
+            'service_line_id': self.service_line_id.id,
+            'service_options': self.service_line_id.service_options or False,
+            'service_name': self.service_line_id.custom_name or self.service_line_id.service_type_id.display_name,
+            'film_step': 'info',
+            'parts_mode': 'parts',
+        })
+
+        setup._load_service_parts_to_lines('car_part')
+        if setup.service_options == 'tint':
+            setup._prepare_tint_degree_lines()
+
+        return setup._reload_film_wizard()
 
 
 class WofSetupTempFilmTintDegreeLine(models.TransientModel):
