@@ -1085,9 +1085,8 @@
         <field name="model">wof.setup.temp.film</field>
         <field name="arch" type="xml">
             <sheet>
-                <div class="alert alert-light border rounded-4 py-3 px-3 mb-4 shadow-sm"
-                    role="status">
-                     <div class="small text-muted mb-2 fw-bold">
+                <div class="alert alert-light border rounded-4 py-3 px-3 mb-4 shadow-sm" role="status">
+                    <div class="small text-muted mb-2 fw-bold">
                         <i class="fa fa-folder-open me-1" title="قائمة مؤقتة"/>
                         أفلام / أنواع الخدمة المؤقتة
                     </div>
@@ -1102,8 +1101,6 @@
                     </div>
 
                 </div>
-
-
                 <kanban class="o_kanban_large" create="0" quick_create="0">
 
                     <header>
