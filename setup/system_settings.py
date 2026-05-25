@@ -5,102 +5,111 @@ from odoo.exceptions import ValidationError
 
 class WofSystemSettings(models.Model):
     _name = 'wof.system.settings'
-    _description = 'Car Film System Settings'
+    _description = 'إعدادات نظام أفلام السيارات'
     _rec_name = 'name'
     _order = 'company_id'
 
-    name = fields.Char(string='Name', compute='_compute_name', store=True)
+    name = fields.Char(string='الاسم', compute='_compute_name', store=True)
     company_id = fields.Many2one(
         'res.company',
-        string='Company',
+        string='الشركة',
         required=True,
         default=lambda self: self._default_company_id(),
         index=True,
     )
 
     # Work Order settings
-    enable_work_order = fields.Boolean(string='Enable Work Orders', default=True)
-    plate_number_required = fields.Boolean(string='Plate Number Required', default=True)
-    chassis_number_required = fields.Boolean(string='Chassis Number Required')
-    customer_mobile_required = fields.Boolean(string='Customer Mobile Required', default=True)
-    manufacture_year_required = fields.Boolean(string='Manufacture Year Required')
-    car_color_required = fields.Boolean(string='Car Color Required')
-    car_agency_required = fields.Boolean(string='Agency Required')
-    delivery_datetime_required = fields.Boolean(string='Delivery Date/Time Required')
-    allow_multiple_technicians = fields.Boolean(string='Allow Multiple Technicians', default=True)
-    technician_required = fields.Boolean(string='Technician Required')
+    enable_work_order = fields.Boolean(string='تفعيل أوامر التركيب', default=True)
+    plate_number_required = fields.Boolean(string='رقم اللوحة إجباري', default=True)
+    chassis_number_required = fields.Boolean(string='رقم الشاصي إجباري')
+    customer_mobile_required = fields.Boolean(string='رقم جوال العميل إجباري', default=True)
+    manufacture_year_required = fields.Boolean(string='سنة الصنع إجبارية')
+    car_color_required = fields.Boolean(string='لون السيارة إجباري')
+    car_agency_required = fields.Boolean(string='الوكالة إجبارية')
+    delivery_datetime_required = fields.Boolean(string='تاريخ ووقت التسليم إجباري')
+    allow_multiple_technicians = fields.Boolean(string='السماح بتعدد الفنيين', default=True)
+    technician_required = fields.Boolean(string='الفني إجباري')
     technician_commission_trigger = fields.Selection(
         [
-            ('invoice_posted', 'After Invoice Posting'),
-            ('work_order_done', 'After Work Order Completion'),
+            ('invoice_posted', 'بعد ترحيل الفاتورة'),
+            ('work_order_done', 'بعد إنجاز أمر التركيب'),
         ],
-        string='Technician Commission Eligibility',
+        string='اعتماد عمولة الفني',
         default='work_order_done',
         required=True,
     )
 
     # Discount settings
-    enable_discounts = fields.Boolean(string='Enable Discounts', default=True)
+    enable_discounts = fields.Boolean(string='تفعيل الخصومات', default=True)
     discount_level = fields.Selection(
         [
-            ('total', 'Total Level'),
-            ('service', 'Service Level'),
-            ('service_detail', 'Service Detail Level'),
+            ('total', 'على مستوى الإجمالي'),
+            ('service', 'على مستوى الخدمة'),
+            ('service_detail', 'على مستوى تفاصيل الخدمة'),
         ],
-        string='Discount Level',
+        string='مستوى الخصم',
         default='total',
         required=True,
     )
-    allow_package_discount = fields.Boolean(string='Allow Discount in Packages')
-    propagate_discount_to_invoice = fields.Boolean(string='Propagate Discount to Invoice')
+    allow_package_discount = fields.Boolean(string='السماح بالخصم في الباقات')
+    propagate_discount_to_invoice = fields.Boolean(string='ترحيل الخصم إلى الفاتورة')
 
     # Inventory and films
-    enable_film_area_m2 = fields.Boolean(string='Use Film Area in Square Meter')
-    enable_roll_consumption_tracking = fields.Boolean(string='Track Film Roll Consumption')
+    enable_film_area_m2 = fields.Boolean(string='احتساب مقاس الفلم بالمتر المربع')
+    enable_roll_consumption_tracking = fields.Boolean(string='تتبع استهلاك رول الفلم')
     roll_consumption_method = fields.Selection(
         [
-            ('manual', 'Manual'),
-            ('car_parts', 'By Car Parts'),
-            ('sizes', 'By Sizes'),
+            ('manual', 'يدوي'),
+            ('car_parts', 'حسب أجزاء السيارة'),
+            ('sizes', 'حسب المقاسات'),
         ],
-        string='Roll Consumption Method',
+        string='طريقة احتساب استهلاك الرول',
         default='manual',
         required=True,
     )
-    removal_as_extra_service = fields.Boolean(string='Remove Old Stickers as Extra Service', default=True)
+    removal_as_extra_service = fields.Boolean(string='إزالة الرواصق كخدمة إضافية', default=True)
 
     # Invoice and payment
-    create_invoice_after_full_payment = fields.Boolean(string='Create Invoice After Full Payment')
-    auto_create_invoice_on_confirm = fields.Boolean(string='Auto Create Invoice on Work Order Confirmation')
-    block_delivery_until_full_payment = fields.Boolean(string='Block Delivery Until Full Payment')
+    create_invoice_after_full_payment = fields.Boolean(string='إنشاء الفاتورة بعد اكتمال الدفع')
+    auto_create_invoice_on_confirm = fields.Boolean(string='إنشاء فاتورة تلقائياً عند تأكيد أمر التركيب')
+    block_delivery_until_full_payment = fields.Boolean(string='منع التسليم حتى سداد كامل المبلغ')
 
     # Reports
-    report_car_diagram_image = fields.Binary(string='Car Diagram Image', attachment=True)
-    report_car_diagram_filename = fields.Char(string='Car Diagram Filename')
-    report_work_order_terms_image = fields.Binary(string='Work Order Terms Image', attachment=True)
-    report_work_order_terms_filename = fields.Char(string='Work Order Terms Filename')
-    report_warranty_terms_image = fields.Binary(string='Warranty Terms Image', attachment=True)
-    report_warranty_terms_filename = fields.Char(string='Warranty Terms Filename')
-    report_invoice_terms_image = fields.Binary(string='Invoice Terms Image', attachment=True)
-    report_invoice_terms_filename = fields.Char(string='Invoice Terms Filename')
-    report_footer_note = fields.Text(string='Work Order Report Footer Note')
-    enable_warranty_qr = fields.Boolean(string='Enable Warranty QR', default=True)
+    report_car_diagram_image = fields.Binary(string='صورة مخطط السيارة', attachment=True)
+    report_car_diagram_filename = fields.Char(string='اسم ملف مخطط السيارة')
+    report_work_order_terms_image = fields.Binary(string='صورة شروط أمر التركيب', attachment=True)
+    report_work_order_terms_filename = fields.Char(string='اسم ملف شروط أمر التركيب')
+    report_warranty_terms_image = fields.Binary(string='صورة شروط الضمان', attachment=True)
+    report_warranty_terms_filename = fields.Char(string='اسم ملف شروط الضمان')
+    report_invoice_terms_image = fields.Binary(string='صورة شروط الفاتورة', attachment=True)
+    report_invoice_terms_filename = fields.Char(string='اسم ملف شروط الفاتورة')
+    report_footer_note = fields.Text(string='ملاحظة أسفل تقرير أمر التركيب')
+    enable_warranty_qr = fields.Boolean(string='تفعيل QR الضمان', default=True)
 
     # Main screen UI
-    hide_plate_number = fields.Boolean(string='Hide Plate Number')
-    hide_chassis_number = fields.Boolean(string='Hide Chassis Number')
-    hide_manufacture_year = fields.Boolean(string='Hide Manufacture Year')
-    hide_car_color = fields.Boolean(string='Hide Car Color')
-    hide_odometer = fields.Boolean(string='Hide Odometer')
-    hide_agency = fields.Boolean(string='Hide Agency')
-    hide_salesperson = fields.Boolean(string='Hide Salesperson')
-    hide_delivery_time = fields.Boolean(string='Hide Delivery Time')
-    hide_sticker_removal = fields.Boolean(string='Hide Sticker Removal')
+    hide_plate_number = fields.Boolean(string='إخفاء رقم اللوحة')
+    hide_chassis_number = fields.Boolean(string='إخفاء رقم الشاصي')
+    hide_manufacture_year = fields.Boolean(string='إخفاء سنة الصنع')
+    hide_car_color = fields.Boolean(string='إخفاء لون السيارة')
+    hide_odometer = fields.Boolean(string='إخفاء رقم العداد')
+    hide_agency = fields.Boolean(string='إخفاء الوكالة')
+    hide_salesperson = fields.Boolean(string='إخفاء المندوب')
+    hide_delivery_time = fields.Boolean(string='إخفاء وقت التسليم')
+    hide_sticker_removal = fields.Boolean(string='إخفاء إزالة الرواصق')
 
-    active = fields.Boolean(default=True)
+    active = fields.Boolean(string='نشط', default=True)
+
+    # UX summary fields
+    work_order_enabled_count = fields.Integer(string='عدد إعدادات أوامر التركيب المفعلة', compute='_compute_ux_summary')
+    work_order_total_count = fields.Integer(string='إجمالي إعدادات أوامر التركيب', compute='_compute_ux_summary')
+    work_order_completion = fields.Char(string='اكتمال أوامر التركيب', compute='_compute_ux_summary')
+    discount_summary = fields.Char(string='ملخص الخصومات', compute='_compute_ux_summary')
+    inventory_summary = fields.Char(string='ملخص المخزون والأفلام', compute='_compute_ux_summary')
+    report_summary = fields.Char(string='ملخص التقارير والضمان', compute='_compute_ux_summary')
+    ui_summary = fields.Char(string='ملخص واجهة النظام', compute='_compute_ux_summary')
 
     _sql_constraints = [
-        ('wof_system_settings_company_unique', 'unique(company_id)', 'Only one car film settings record is allowed per company.'),
+        ('wof_system_settings_company_unique', 'unique(company_id)', 'يسمح بسجل إعدادات واحد فقط لكل شركة.'),
     ]
 
     @api.model
@@ -111,13 +120,72 @@ class WofSystemSettings(models.Model):
     @api.depends('company_id')
     def _compute_name(self):
         for rec in self:
-            rec.name = _('Car Film Settings - %s') % (rec.company_id.display_name or '')
+            rec.name = _('إعدادات أفلام السيارات - %s') % (rec.company_id.display_name or '')
+
+    @api.depends(
+        'enable_work_order', 'plate_number_required', 'chassis_number_required',
+        'customer_mobile_required', 'manufacture_year_required', 'car_color_required',
+        'car_agency_required', 'delivery_datetime_required', 'allow_multiple_technicians',
+        'technician_required', 'technician_commission_trigger', 'enable_discounts',
+        'discount_level', 'allow_package_discount', 'propagate_discount_to_invoice',
+        'enable_film_area_m2', 'enable_roll_consumption_tracking', 'roll_consumption_method',
+        'removal_as_extra_service', 'create_invoice_after_full_payment',
+        'auto_create_invoice_on_confirm', 'block_delivery_until_full_payment',
+        'report_car_diagram_image', 'report_work_order_terms_image',
+        'report_warranty_terms_image', 'report_invoice_terms_image',
+        'enable_warranty_qr', 'report_footer_note', 'hide_plate_number',
+        'hide_chassis_number', 'hide_manufacture_year', 'hide_car_color',
+        'hide_odometer', 'hide_agency', 'hide_salesperson', 'hide_delivery_time',
+        'hide_sticker_removal'
+    )
+    def _compute_ux_summary(self):
+        for rec in self:
+            work_fields = [
+                rec.enable_work_order, rec.plate_number_required, rec.chassis_number_required,
+                rec.customer_mobile_required, rec.manufacture_year_required, rec.car_color_required,
+                rec.car_agency_required, rec.delivery_datetime_required, rec.allow_multiple_technicians,
+                rec.technician_required,
+            ]
+            rec.work_order_total_count = len(work_fields)
+            rec.work_order_enabled_count = sum(1 for value in work_fields if value)
+            rec.work_order_completion = '%s/%s مفعلة' % (rec.work_order_enabled_count, rec.work_order_total_count)
+
+            if rec.enable_discounts:
+                rec.discount_summary = dict(rec._fields['discount_level'].selection).get(rec.discount_level, '')
+            else:
+                rec.discount_summary = 'الخصومات غير مفعلة'
+
+            inventory_parts = []
+            if rec.enable_roll_consumption_tracking:
+                inventory_parts.append(dict(rec._fields['roll_consumption_method'].selection).get(rec.roll_consumption_method, ''))
+            else:
+                inventory_parts.append('تتبع الرول غير مفعل')
+            if rec.enable_film_area_m2:
+                inventory_parts.append('المتر المربع مفعل')
+            rec.inventory_summary = ' - '.join([p for p in inventory_parts if p])
+
+            report_enabled = sum(1 for value in [
+                rec.report_car_diagram_image,
+                rec.report_work_order_terms_image,
+                rec.report_warranty_terms_image,
+                rec.report_invoice_terms_image,
+                rec.enable_warranty_qr,
+                rec.report_footer_note,
+            ] if value)
+            rec.report_summary = '%s عناصر جاهزة' % report_enabled
+
+            hidden_count = sum(1 for value in [
+                rec.hide_plate_number, rec.hide_chassis_number, rec.hide_manufacture_year,
+                rec.hide_car_color, rec.hide_odometer, rec.hide_agency,
+                rec.hide_salesperson, rec.hide_delivery_time, rec.hide_sticker_removal,
+            ] if value)
+            rec.ui_summary = '%s حقول مخفية' % hidden_count
 
     @api.constrains('create_invoice_after_full_payment', 'auto_create_invoice_on_confirm')
     def _check_invoice_policy(self):
         for rec in self:
             if rec.create_invoice_after_full_payment and rec.auto_create_invoice_on_confirm:
-                raise ValidationError(_('You cannot enable both invoice policies at the same time. Choose either after full payment or on confirmation.'))
+                raise ValidationError(_('لا يمكن تفعيل سياستي إنشاء الفاتورة معاً. اختر بعد اكتمال الدفع أو عند التأكيد فقط.'))
 
     @api.model
     def get_company_settings(self, company=None):
@@ -132,7 +200,7 @@ class WofSystemSettings(models.Model):
         settings = self.get_company_settings()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Car Film Settings'),
+            'name': _('إعدادات أفلام السيارات'),
             'res_model': 'wof.system.settings',
             'view_mode': 'form',
             'res_id': settings.id,
