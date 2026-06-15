@@ -164,8 +164,8 @@ class WofSetupWizard(models.TransientModel):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
 
-        # تأكد أن البيانات الافتراضية محملة قبل بناء أسطر المعالج.
-        self.env['wof.default.data.loader'].sudo().load_default_master_data()
+        # لا نحمل البيانات الافتراضية تلقائياً هنا.
+        # المعالج يعرض القوالب المقترحة فقط إذا كانت السجلات الافتراضية محذوفة بعد إعادة التهيئة.
 
         if 'car_size_line_ids' in fields_list:
             size_lines = []
@@ -235,20 +235,33 @@ class WofSetupWizard(models.TransientModel):
             if 'is_default_setup' in ServiceType._fields:
                 domain.append(('is_default_setup', '=', True))
             services = ServiceType.search(domain, order='sequence, name' if 'sequence' in ServiceType._fields else 'name')
-            if not services and 'is_default_setup' in ServiceType._fields:
-                services = ServiceType.search([('company_id', '=', company.id), ('active', '=', True)], order='sequence, name' if 'sequence' in ServiceType._fields else 'name')
 
             sequence = 1
-            for service in services:
-                service_lines.append((0, 0, {
-                    'sequence': sequence,
-                    'service_type_id': service.id,
-                    'selected': bool(getattr(service, 'setup_enabled', False)),
-                    'completed': bool(getattr(service, 'setup_enabled', False)),
-                    'service_options': 'tint' if ('service_options' in service._fields and service.service_options == 'tint') else False,
-                    'custom_name': service.display_name,
-                }))
-                sequence += 1
+            if services:
+                for service in services:
+                    service_lines.append((0, 0, {
+                        'sequence': sequence,
+                        'service_type_id': service.id,
+                        'default_code': service.code if 'code' in service._fields else False,
+                        'selected': bool(getattr(service, 'setup_enabled', False)),
+                        'completed': bool(getattr(service, 'setup_enabled', False)),
+                        'service_options': 'tint' if ('service_options' in service._fields and service.service_options == 'tint') else False,
+                        'custom_name': service.display_name,
+                    }))
+                    sequence += 1
+            else:
+                # بعد إعادة التهيئة لا توجد سجلات افتراضية في الجداول.
+                # نعرض قوالب مقترحة داخل المعالج فقط، ولا ننشئ السجلات الأصلية إلا عند اختيارها وتفعيلها.
+                for item in self.env['wof.default.data.loader']._service_defaults():
+                    service_lines.append((0, 0, {
+                        'sequence': item.get('sequence') or sequence,
+                        'default_code': item.get('code'),
+                        'selected': bool(item.get('setup_enabled')),
+                        'completed': False,
+                        'service_options': item.get('service_options') or False,
+                        'custom_name': item.get('name'),
+                    }))
+                    sequence += 1
             res['service_line_ids'] = service_lines
 
         setup_field_map = self._get_setup_settings_field_map()
@@ -370,6 +383,8 @@ class WofSetupWizard(models.TransientModel):
 
             if 'code' in CarSize._fields:
                 vals['code'] = line.code
+            if 'is_default_setup' in CarSize._fields:
+                vals['is_default_setup'] = True
 
             if existing:
                 existing.write(vals)
@@ -408,6 +423,8 @@ class WofSetupWizard(models.TransientModel):
                 'company_id': company.id,
                 'active': True,
             }
+            if 'is_default_setup' in TintDegree._fields:
+                vals['is_default_setup'] = True
 
             if existing:
                 existing.write(vals)
@@ -431,18 +448,88 @@ class WofSetupWizard(models.TransientModel):
 
     def _ensure_service_type_from_line(self, service_line):
         self.ensure_one()
-        if not service_line.service_type_id:
-            raise ValidationError(_("نوع الخدمة غير محدد في سطر التهيئة."))
+        company = self.env.company.parent_id or self.env.company
+        ServiceType = self.env['wof.service.type'].sudo()
+
+        service = service_line.service_type_id.sudo() if service_line.service_type_id else ServiceType.browse()
+        if not service:
+            code = service_line.default_code or self._get_service_code(service_line.service_options)
+            domain = [('company_id', '=', company.id)]
+            if 'code' in ServiceType._fields and code:
+                domain.append(('code', '=', code))
+                service = ServiceType.search(domain, limit=1)
+            if not service and service_line.custom_name:
+                service = ServiceType.search([
+                    ('company_id', '=', company.id),
+                    ('name', '=', service_line.custom_name),
+                ], limit=1)
+
+            if not service:
+                vals = {
+                    'name': service_line.custom_name or _('خدمة جديدة'),
+                    'company_id': company.id,
+                }
+                if 'sequence' in ServiceType._fields:
+                    vals['sequence'] = service_line.sequence
+                if 'code' in ServiceType._fields:
+                    vals['code'] = code
+                if 'service_options' in ServiceType._fields:
+                    vals['service_options'] = service_line.service_options or False
+                if 'setup_enabled' in ServiceType._fields:
+                    vals['setup_enabled'] = True
+                if 'is_default_setup' in ServiceType._fields:
+                    vals['is_default_setup'] = True
+                service = ServiceType.create(vals)
+            service_line.service_type_id = service.id
 
         vals = {}
-        if 'service_options' in service_line.service_type_id._fields:
+        if 'name' in ServiceType._fields and service_line.custom_name:
+            vals['name'] = service_line.custom_name
+        if 'code' in ServiceType._fields and service_line.default_code:
+            vals['code'] = service_line.default_code
+        if 'service_options' in ServiceType._fields:
             vals['service_options'] = service_line.service_options or False
-        if 'setup_enabled' in service_line.service_type_id._fields:
+        if 'setup_enabled' in ServiceType._fields:
             vals['setup_enabled'] = True
+        if 'is_default_setup' in ServiceType._fields:
+            vals['is_default_setup'] = True
         if vals:
-            service_line.service_type_id.sudo().write(vals)
+            service.write(vals)
 
-        return service_line.service_type_id.sudo()
+        self._ensure_default_parts_for_service(service)
+        return service
+
+    def _ensure_default_parts_for_service(self, service):
+        self.ensure_one()
+        company = self.env.company.parent_id or self.env.company
+        Parts = self.env['wof.car.parts'].sudo()
+
+        for item in self.env['wof.default.data.loader']._car_part_defaults():
+            domain = [
+                ('company_id', '=', company.id),
+                ('service_type_id', '=', service.id),
+                ('name', '=', item['name']),
+            ]
+            part = Parts.search(domain, limit=1)
+            vals = {
+                'name': item['name'],
+                'company_id': company.id,
+                'service_type_id': service.id,
+                'active': True,
+            }
+            if 'priority_part' in Parts._fields:
+                vals['priority_part'] = item.get('priority_part')
+            if 'code' in Parts._fields:
+                vals['code'] = item.get('code')
+            if 'part_type' in Parts._fields:
+                vals['part_type'] = item.get('part_type')
+            if 'is_default_setup' in Parts._fields:
+                vals['is_default_setup'] = True
+            if part:
+                part.write(vals)
+            else:
+                Parts.create(vals)
+        return True
 
     def _get_size_key(self, line):
         return line.car_size_line_id.id if line.car_size_line_id else False
@@ -849,9 +936,10 @@ class WofSetupWizardServiceLine(models.TransientModel):
     service_type_id = fields.Many2one(
         'wof.service.type',
         string="نوع الخدمة",
-        required=True,
         ondelete='cascade'
     )
+
+    default_code = fields.Char(string="كود القالب")
 
     selected = fields.Boolean(string="اختيار")
     completed = fields.Boolean(string="مكتمل")
@@ -881,11 +969,14 @@ class WofSetupWizardServiceLine(models.TransientModel):
         if not self.selected:
             raise ValidationError(_("يرجى تفعيل نوع الخدمة أولاً."))
 
-        if not self.service_type_id:
-            raise ValidationError(_("نوع الخدمة غير محدد."))
+        if not self.custom_name:
+            self.custom_name = self.service_type_id.display_name if self.service_type_id else self.custom_name
+
+        # بعد إعادة التهيئة قد تكون السجلات الأصلية محذوفة؛ ننشئ نوع الخدمة المختار وأجزاءه عند بدء تهيئته.
+        service = self.wizard_id._ensure_service_type_from_line(self)
 
         if not self.custom_name:
-            self.custom_name = self.service_type_id.display_name
+            self.custom_name = service.display_name
 
         # المرحلة الأولى: تجهيز قالب أجزاء الخدمة فقط.
         # لا نطلب اسم الفيلم ولا الضمان هنا؛ المستخدم يختار الأجزاء المعتمدة أولاً.

@@ -137,15 +137,24 @@ class WofDefaultDataLoader(models.AbstractModel):
 
     @api.model
     def reset_default_master_data(self, company=None):
+        """Reset default setup safely.
+
+        Important UX/business rule:
+        - Reset from settings must NOT reload defaults automatically.
+        - It deletes only records created by the default setup engine.
+        - The system becomes unconfigured, then the user re-selects what to enable
+          from the setup wizard, which reads Python templates as suggestions.
+        """
         company = self._parent_company(company)
-        # حذف آمن للبيانات الافتراضية فقط؛ بيانات العميل التي أضافها يدوياً لا تُلمس.
-        # إذا كان سجل افتراضي مستخدماً في أفلام/أسعار فعلية فلن نكسر العلاقات؛ نتركه وسيتم تحديثه أثناء التحميل.
+
         def safe_unlink(records):
             for rec in records:
                 try:
                     with self.env.cr.savepoint():
                         rec.unlink()
                 except Exception:
+                    # If a record is already used by real business data, keep it.
+                    # This prevents breaking existing films/prices/orders.
                     continue
 
         safe_unlink(self.env['wof.car.parts'].sudo().search([
@@ -159,4 +168,6 @@ class WofDefaultDataLoader(models.AbstractModel):
         ]))
         if 'is_default_setup' in self.env['wof.car.size']._fields:
             safe_unlink(self.env['wof.car.size'].sudo().search([('is_default_setup', '=', True)]))
-        return self.load_default_master_data(company)
+
+        self.env['ir.config_parameter'].sudo().set_param('yousentech_wo_v4.setup_completed', False)
+        return True
