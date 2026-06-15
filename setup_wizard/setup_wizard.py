@@ -164,42 +164,79 @@ class WofSetupWizard(models.TransientModel):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
 
+        # تأكد أن البيانات الافتراضية محملة قبل بناء أسطر المعالج.
+        self.env['wof.default.data.loader'].sudo().load_default_master_data()
+
         if 'car_size_line_ids' in fields_list:
             size_lines = []
-            sequence = 1
-            for code, name in CAR_SIZE_OPTIONS:
-                size_lines.append((0, 0, {
-                    'sequence': sequence,
-                    'selected': code in ['S', 'M', 'L', 'SUV'],
-                    'code': code,
-                    'name': name,
-                }))
-                sequence += 1
+            Size = self.env['wof.car.size'].sudo()
+            domain = [('active', '=', True)]
+            if 'is_default_setup' in Size._fields:
+                domain.append(('is_default_setup', '=', True))
+            sizes = Size.search(domain, order='sequence, name' if 'sequence' in Size._fields else 'name')
+
+            # Fallback آمن لو كانت نسخة قديمة بدون بيانات افتراضية.
+            if not sizes:
+                for seq, item in enumerate(self.env['wof.default.data.loader']._car_size_defaults(), start=1):
+                    size_lines.append((0, 0, {
+                        'sequence': item.get('sequence') or seq,
+                        'selected': item.get('selected', True),
+                        'code': item.get('code'),
+                        'name': item.get('name'),
+                    }))
+            else:
+                for seq, size in enumerate(sizes, start=1):
+                    size_lines.append((0, 0, {
+                        'sequence': getattr(size, 'sequence', seq) or seq,
+                        'selected': True,
+                        'code': getattr(size, 'code', False),
+                        'name': size.name,
+                    }))
             res['car_size_line_ids'] = size_lines
 
         if 'tint_degree_line_ids' in fields_list:
-            method = res.get('tint_degree_method') or 'percent'
-            values = TINT_DEGREE_PRESETS.get(method, [])
+            company = self.env.company.parent_id or self.env.company
+            Tint = self.env['wof.tint.degree'].sudo()
+            domain = [('active', '=', True), ('company_id', '=', company.id)]
+            if 'is_default_setup' in Tint._fields:
+                domain.append(('is_default_setup', '=', True))
+            degrees = Tint.search(domain, order='sequence, value')
             degree_lines = []
 
-            for index, item in enumerate(values, start=1):
-                label, value = item
-                degree_lines.append((0, 0, {
-                    'sequence': index,
-                    'selected': True,
-                    'name': label,
-                    'value': value,
-                }))
+            if degrees:
+                for index, degree in enumerate(degrees, start=1):
+                    degree_lines.append((0, 0, {
+                        'sequence': degree.sequence or index,
+                        'selected': True,
+                        'name': degree.name,
+                        'value': degree.value,
+                    }))
+            else:
+                method = res.get('tint_degree_method') or 'series'
+                values = TINT_DEGREE_PRESETS.get(method, [])
+                for index, item in enumerate(values, start=1):
+                    label, value = item
+                    degree_lines.append((0, 0, {
+                        'sequence': index,
+                        'selected': True,
+                        'name': label,
+                        'value': value,
+                    }))
 
             res['tint_degree_line_ids'] = degree_lines
 
         if 'service_line_ids' in fields_list:
             service_lines = []
             ServiceType = self.env['wof.service.type'].sudo()
-            domain = []
+            company = self.env.company.parent_id or self.env.company
+            domain = [('company_id', '=', company.id)]
             if 'active' in ServiceType._fields:
                 domain.append(('active', '=', True))
+            if 'is_default_setup' in ServiceType._fields:
+                domain.append(('is_default_setup', '=', True))
             services = ServiceType.search(domain, order='sequence, name' if 'sequence' in ServiceType._fields else 'name')
+            if not services and 'is_default_setup' in ServiceType._fields:
+                services = ServiceType.search([('company_id', '=', company.id), ('active', '=', True)], order='sequence, name' if 'sequence' in ServiceType._fields else 'name')
 
             sequence = 1
             for service in services:

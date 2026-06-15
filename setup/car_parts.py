@@ -46,6 +46,13 @@ class CarParts(models.Model):
     
     # ================= FLAGS =================
     active = fields.Boolean(default=True)
+    is_default_setup = fields.Boolean(
+        string="بيانات افتراضية",
+        default=False,
+        copy=False,
+        index=True,
+        help="تم إنشاؤها من التهيئة الافتراضية ويمكن إعادة تحميلها بأمان."
+    )
     part_type = fields.Selection([('car_part', 'جزء سيارة'),
                                 ('service_area', 'منطقة خدمة')],
                                  string="نوع الجزء",  required=True,  default='car_part')

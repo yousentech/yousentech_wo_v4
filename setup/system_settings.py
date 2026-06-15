@@ -226,3 +226,18 @@ class WofSystemSettings(models.Model):
             },
             'flags': {'mode': 'edit'},
         }
+
+    def action_reset_default_master_data(self):
+        self.ensure_one()
+        self.env['wof.default.data.loader'].sudo().reset_default_master_data(self.company_id)
+        self.env['ir.config_parameter'].sudo().set_param('yousentech_wo_v4.setup_completed', False)
+        wizard = self.env['wof.setup.wizard'].sudo().create({})
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('معالج تهيئة نظام أفلام السيارات'),
+            'res_model': 'wof.setup.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {'create': False, 'delete': False},
+        }

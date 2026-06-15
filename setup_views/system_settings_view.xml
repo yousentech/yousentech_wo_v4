@@ -4,7 +4,7 @@
         <field name="name">wof.system.settings.tree</field>
         <field name="model">wof.system.settings</field>
         <field name="arch" type="xml">
-            <tree string="إعدادات أفلام السيارات" create="1" delete="0">
+            <tree string="إعدادات أفلام السيارات" create="0" delete="0">
                 <field name="name"/>
                 <field name="company_id"/>
                 <field name="work_order_completion"/>
@@ -19,7 +19,7 @@
         <field name="name">wof.system.settings.form.premium</field>
         <field name="model">wof.system.settings</field>
         <field name="arch" type="xml">
-            <form string="إعدادات نظام أفلام السيارات" create="1" delete="0" class="o_wof_settings_form o_wof_premium_settings">
+            <form string="إعدادات نظام أفلام السيارات" create="0" delete="0" class="o_wof_settings_form o_wof_premium_settings">
                 <sheet>
                     <div class="o_wof_settings_hero">
                         <div class="o_wof_hero_content">
@@ -34,6 +34,14 @@
                             <field name="company_id" options="{'no_create': True}"/>
                             <field name="active" invisible="1"/>
                         </div>
+                    </div>
+
+                    <div class="o_wof_settings_tools" style="margin: 14px 0 8px 0; display:flex; gap:10px; align-items:center; justify-content:flex-end;">
+                        <button name="action_reset_default_master_data"
+                                type="object"
+                                string="إعادة تهيئة البيانات الافتراضية"
+                                class="btn btn-secondary"
+                                confirm="سيتم حذف البيانات الافتراضية فقط وإعادة تحميلها من جديد، ثم فتح معالج التهيئة. بيانات العميل اليدوية لن تُحذف. هل تريد المتابعة؟"/>
                     </div>
 
                     <div class="o_wof_dashboard_cards">

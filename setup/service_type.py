@@ -53,6 +53,14 @@ class ServiceType(models.Model):
         string="تفعيل",
         default=True
     )
+
+    is_default_setup = fields.Boolean(
+        string="بيانات افتراضية",
+        default=False,
+        copy=False,
+        index=True,
+        help="تم إنشاؤها من التهيئة الافتراضية ويمكن إعادة تحميلها بأمان."
+    )
  
     parts_count = fields.Integer(
     string="عدد الأجزاء", compute="_compute_counts"  )

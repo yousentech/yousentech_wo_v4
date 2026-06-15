@@ -33,6 +33,14 @@ class TintDegree(models.Model):
         default=True
     )
 
+    is_default_setup = fields.Boolean(
+        string="بيانات افتراضية",
+        default=False,
+        copy=False,
+        index=True,
+        help="تم إنشاؤها من التهيئة الافتراضية ويمكن إعادة تحميلها بأمان."
+    )
+
     def _default_company_parent(self):
         company = self.env.company
         return company.parent_id or company

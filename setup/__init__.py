@@ -11,3 +11,4 @@ from . import car_manufactory_year
 from . import car_agency
 
 from . import system_settings
+from . import default_data

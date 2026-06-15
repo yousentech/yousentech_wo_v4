@@ -20,6 +20,14 @@ class CarSize(models.Model):
         default=True
     )
 
+    is_default_setup = fields.Boolean(
+        string="بيانات افتراضية",
+        default=False,
+        copy=False,
+        index=True,
+        help="تم إنشاؤها من التهيئة الافتراضية ويمكن إعادة تحميلها بأمان."
+    )
+
     _sql_constraints = [
         (
             "car_size_unique",
