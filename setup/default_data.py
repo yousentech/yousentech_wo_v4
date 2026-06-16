@@ -12,7 +12,7 @@ class WofDefaultDataLoader(models.AbstractModel):
 
     def _service_defaults(self):
         return [
-            {'sequence': 10, 'code': 'TINT', 'name': 'عزل حراري', 'service_options': 'tint', 'setup_enabled': True},
+            {'sequence': 10, 'code': 'TINT', 'name': 'عزل حراري', 'service_options': 'tint', 'setup_enabled': False},
             {'sequence': 20, 'code': 'PPF', 'name': 'حماية PPF', 'service_options': False, 'setup_enabled': False},
             {'sequence': 30, 'code': 'NANO', 'name': 'نانو سيراميك', 'service_options': False, 'setup_enabled': False},
             {'sequence': 40, 'code': 'STRIP', 'name': 'إزالة الرواصق', 'service_options': False, 'setup_enabled': False},
@@ -20,10 +20,10 @@ class WofDefaultDataLoader(models.AbstractModel):
 
     def _car_size_defaults(self):
         return [
-            {'sequence': 10, 'code': 'S', 'name': 'صغير', 'selected': True},
-            {'sequence': 20, 'code': 'M', 'name': 'متوسط', 'selected': True},
-            {'sequence': 30, 'code': 'L', 'name': 'كبير', 'selected': True},
-            {'sequence': 40, 'code': 'XL', 'name': 'كبير جداً', 'selected': True},
+            {'sequence': 10, 'code': 'S', 'name': 'صغير', 'selected': False},
+            {'sequence': 20, 'code': 'M', 'name': 'متوسط', 'selected': False},
+            {'sequence': 30, 'code': 'L', 'name': 'كبير', 'selected': False},
+            {'sequence': 40, 'code': 'XL', 'name': 'كبير جداً', 'selected': False},
         ]
 
     def _tint_degree_defaults(self):

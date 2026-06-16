@@ -180,7 +180,7 @@ class WofSetupWizard(models.TransientModel):
                 for seq, item in enumerate(self.env['wof.default.data.loader']._car_size_defaults(), start=1):
                     size_lines.append((0, 0, {
                         'sequence': item.get('sequence') or seq,
-                        'selected': item.get('selected', True),
+                        'selected': False,
                         'code': item.get('code'),
                         'name': item.get('name'),
                     }))
@@ -188,7 +188,7 @@ class WofSetupWizard(models.TransientModel):
                 for seq, size in enumerate(sizes, start=1):
                     size_lines.append((0, 0, {
                         'sequence': getattr(size, 'sequence', seq) or seq,
-                        'selected': True,
+                        'selected': False,
                         'code': getattr(size, 'code', False),
                         'name': size.name,
                     }))
@@ -207,7 +207,7 @@ class WofSetupWizard(models.TransientModel):
                 for index, degree in enumerate(degrees, start=1):
                     degree_lines.append((0, 0, {
                         'sequence': degree.sequence or index,
-                        'selected': True,
+                        'selected': False,
                         'name': degree.name,
                         'value': degree.value,
                     }))
@@ -218,7 +218,7 @@ class WofSetupWizard(models.TransientModel):
                     label, value = item
                     degree_lines.append((0, 0, {
                         'sequence': index,
-                        'selected': True,
+                        'selected': False,
                         'name': label,
                         'value': value,
                     }))
@@ -243,8 +243,8 @@ class WofSetupWizard(models.TransientModel):
                         'sequence': sequence,
                         'service_type_id': service.id,
                         'default_code': service.code if 'code' in service._fields else False,
-                        'selected': bool(getattr(service, 'setup_enabled', False)),
-                        'completed': bool(getattr(service, 'setup_enabled', False)),
+                        'selected': False,
+                        'completed': False,
                         'service_options': 'tint' if ('service_options' in service._fields and service.service_options == 'tint') else False,
                         'custom_name': service.display_name,
                     }))
@@ -256,7 +256,7 @@ class WofSetupWizard(models.TransientModel):
                     service_lines.append((0, 0, {
                         'sequence': item.get('sequence') or sequence,
                         'default_code': item.get('code'),
-                        'selected': bool(item.get('setup_enabled')),
+                        'selected': False,
                         'completed': False,
                         'service_options': item.get('service_options') or False,
                         'custom_name': item.get('name'),
@@ -329,7 +329,7 @@ class WofSetupWizard(models.TransientModel):
                 label, value = item
                 commands.append((0, 0, {
                     'sequence': index,
-                    'selected': True,
+                    'selected': False,
                     'name': label,
                     'value': value,
                 }))
@@ -862,7 +862,7 @@ class WofSetupWizardCarSizeLine(models.TransientModel):
     )
 
     sequence = fields.Integer(string="الترتيب", default=10)
-    selected = fields.Boolean(string="اختيار", default=True)
+    selected = fields.Boolean(string="اختيار", default=False)
     code = fields.Char(string="الكود")
     name = fields.Char(string="اسم الحجم")
 
@@ -892,7 +892,7 @@ class WofSetupWizardTintDegreeLine(models.TransientModel):
     )
 
     sequence = fields.Integer(string="الترتيب", default=10)
-    selected = fields.Boolean(string="اختيار", default=True)
+    selected = fields.Boolean(string="اختيار", default=False)
     name = fields.Char(string="المسمى")
     value = fields.Char(string="القيمة")
 
@@ -1413,7 +1413,7 @@ class WofSetupFilmWizard(models.TransientModel):
         for part in parts:
             if part not in existing_parts:
                 commands.append((0, 0, {
-                    'selected': True,
+                    'selected': False,
                     'car_part_id': part.id,
                     'line_role': part_type,
                 }))
