@@ -230,8 +230,10 @@ class WofSystemSettings(models.Model):
     def action_reset_default_master_data(self):
         self.ensure_one()
         self.env['wof.default.data.loader'].sudo().reset_default_master_data(self.company_id)
-        self.env['ir.config_parameter'].sudo().set_param('yousentech_wo_v4.setup_completed', False)
-        wizard = self.env['wof.setup.wizard'].sudo().create({})
+
+        # Open a fresh wizard after the reset. default_get will read the rebuilt
+        # defaults and all selection checkboxes remain False.
+        wizard = self.env['wof.setup.wizard'].sudo().create({'step': 'welcome'})
         return {
             'type': 'ir.actions.act_window',
             'name': _('معالج تهيئة نظام أفلام السيارات'),

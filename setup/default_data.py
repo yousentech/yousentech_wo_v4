@@ -137,13 +137,14 @@ class WofDefaultDataLoader(models.AbstractModel):
 
     @api.model
     def reset_default_master_data(self, company=None):
-        """Reset default setup safely.
+        """Reset and rebuild default setup data safely.
 
-        Important UX/business rule:
-        - Reset from settings must NOT reload defaults automatically.
-        - It deletes only records created by the default setup engine.
-        - The system becomes unconfigured, then the user re-selects what to enable
-          from the setup wizard, which reads Python templates as suggestions.
+        Business rule used by the settings button:
+        - Remove module default records when they are not protected by real data.
+        - Clear old setup wizard/transient data so the user starts again cleanly.
+        - Recreate the default templates immediately.
+        - The recreated templates are not selected in the wizard; the user chooses
+          what to activate again from scratch.
         """
         company = self._parent_company(company)
 
@@ -153,21 +154,48 @@ class WofDefaultDataLoader(models.AbstractModel):
                     with self.env.cr.savepoint():
                         rec.unlink()
                 except Exception:
-                    # If a record is already used by real business data, keep it.
-                    # This prevents breaking existing films/prices/orders.
+                    # If a default record is already referenced by real business data,
+                    # keep it and let the loader update it instead of breaking links.
                     continue
 
-        safe_unlink(self.env['wof.car.parts'].sudo().search([
-            ('company_id', '=', company.id), ('is_default_setup', '=', True),
-        ]))
-        safe_unlink(self.env['wof.tint.degree'].sudo().search([
-            ('company_id', '=', company.id), ('is_default_setup', '=', True),
-        ]))
-        safe_unlink(self.env['wof.service.type'].sudo().search([
-            ('company_id', '=', company.id), ('is_default_setup', '=', True),
-        ]))
-        if 'is_default_setup' in self.env['wof.car.size']._fields:
-            safe_unlink(self.env['wof.car.size'].sudo().search([('is_default_setup', '=', True)]))
+        # Clean wizard/transient setup data first to avoid reopening old selections.
+        wizard_models = [
+            'wof.setup.temp.film.tint.degree.line',
+            'wof.setup.temp.film.part.commission.line',
+            'wof.setup.temp.film.part.price.line',
+            'wof.setup.temp.film.part',
+            'wof.setup.temp.film',
+            'wof.setup.temp.film.board',
+            'wof.setup.film.tint.degree.line',
+            'wof.setup.film.part.commission.line',
+            'wof.setup.film.part.price.line',
+            'wof.setup.film.part.line',
+            'wof.setup.film.wizard',
+            'wof.setup.wizard.service.line',
+            'wof.setup.wizard.tint.degree.line',
+            'wof.setup.wizard.car.size.line',
+            'wof.setup.wizard',
+        ]
+        for model_name in wizard_models:
+            if model_name in self.env:
+                safe_unlink(self.env[model_name].sudo().search([]))
+
+        Part = self.env['wof.car.parts'].sudo()
+        Tint = self.env['wof.tint.degree'].sudo()
+        Service = self.env['wof.service.type'].sudo()
+        Size = self.env['wof.car.size'].sudo()
+
+        if 'is_default_setup' in Part._fields:
+            safe_unlink(Part.search([('company_id', '=', company.id), ('is_default_setup', '=', True)]))
+        if 'is_default_setup' in Tint._fields:
+            safe_unlink(Tint.search([('company_id', '=', company.id), ('is_default_setup', '=', True)]))
+        if 'is_default_setup' in Service._fields:
+            safe_unlink(Service.search([('company_id', '=', company.id), ('is_default_setup', '=', True)]))
+        if 'is_default_setup' in Size._fields:
+            safe_unlink(Size.search([('is_default_setup', '=', True)]))
+
+        # Recreate/update the default records so the wizard shows the base values again.
+        self.load_default_master_data(company)
 
         self.env['ir.config_parameter'].sudo().set_param('yousentech_wo_v4.setup_completed', False)
         return True
