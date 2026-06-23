@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_wof_main_setup_service_tree" model="ir.ui.view">
+        <field name="name">wof.service.type.main.setup.tree</field>
+        <field name="model">wof.service.type</field>
+        <field name="arch" type="xml">
+            <tree string="تهيئة أنواع الخدمات" editable="bottom" create="1" delete="0" decoration-muted="not setup_enabled">
+                <header>
+                    <button name="%(action_wof_main_setup_parts)d" type="action" string="التالي: أجزاء الخدمة" class="btn-primary"/>
+                </header>
+                <field name="sequence" widget="handle" optional="show"/>
+                <field name="setup_enabled" string="تفعيل" widget="boolean_toggle"/>
+                <field name="name" string="نوع الخدمة"/>
+                <field name="code" string="الكود"/>
+                <field name="service_options" string="محرك الخدمة"/>
+                <field name="is_default_setup" string="افتراضي" widget="boolean_toggle" readonly="1"/>
+                <field name="company_id" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_wof_main_setup_service_search" model="ir.ui.view">
+        <field name="name">wof.service.type.main.setup.search</field>
+        <field name="model">wof.service.type</field>
+        <field name="arch" type="xml">
+            <search string="تهيئة أنواع الخدمات">
+                <field name="name"/>
+                <field name="code"/>
+                <filter name="default_setup" string="بيانات التهيئة" domain="[('is_default_setup','=',True)]"/>
+                <filter name="enabled" string="مفعلة" domain="[('setup_enabled','=',True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wof_main_setup_services" model="ir.actions.act_window">
+        <field name="name">1/5 تهيئة أنواع الخدمات</field>
+        <field name="res_model">wof.service.type</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_wof_main_setup_service_tree"/>
+        <field name="search_view_id" ref="view_wof_main_setup_service_search"/>
+        <field name="context">{'create': True, 'delete': False, 'active_test': False, 'search_default_default_setup': 1}</field>
+        <field name="domain">[('is_default_setup','=',True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">فعّل أنواع الخدمات التي تريد استخدامها، ثم اضغط التالي.</p>
+        </field>
+    </record>
+
+    <record id="view_wof_main_setup_parts_tree" model="ir.ui.view">
+        <field name="name">wof.car.parts.main.setup.tree</field>
+        <field name="model">wof.car.parts</field>
+        <field name="arch" type="xml">
+            <tree string="تهيئة أجزاء الخدمة" editable="bottom" create="1" delete="0" decoration-muted="not active">
+                <header>
+                    <button name="%(action_wof_main_setup_services)d" type="action" string="السابق: الخدمات"/>
+                    <button name="%(action_wof_main_setup_tints)d" type="action" string="التالي: درجات اللون" class="btn-primary"/>
+                </header>
+                <field name="priority_part" string="الترتيب" widget="handle"/>
+                <field name="active" string="تفعيل" widget="boolean_toggle"/>
+                <field name="name" string="الجزء"/>
+                <field name="code" string="الكود"/>
+                <field name="service_type_id" string="نوع الخدمة"/>
+                <field name="part_type" string="نوع الجزء"/>
+                <field name="commission" string="العمولة" optional="show"/>
+                <field name="is_default_setup" string="افتراضي" widget="boolean_toggle" readonly="1"/>
+                <field name="company_id" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_wof_main_setup_parts_search" model="ir.ui.view">
+        <field name="name">wof.car.parts.main.setup.search</field>
+        <field name="model">wof.car.parts</field>
+        <field name="arch" type="xml">
+            <search string="تهيئة أجزاء الخدمة">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="service_type_id"/>
+                <filter name="default_setup" string="بيانات التهيئة" domain="[('is_default_setup','=',True)]"/>
+                <filter name="active_parts" string="مفعلة" domain="[('active','=',True)]"/>
+                <group expand="0" string="تجميع">
+                    <filter string="نوع الخدمة" context="{'group_by':'service_type_id'}"/>
+                    <filter string="نوع الجزء" context="{'group_by':'part_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wof_main_setup_parts" model="ir.actions.act_window">
+        <field name="name">2/5 تهيئة أجزاء الخدمة</field>
+        <field name="res_model">wof.car.parts</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_wof_main_setup_parts_tree"/>
+        <field name="search_view_id" ref="view_wof_main_setup_parts_search"/>
+        <field name="context">{'create': True, 'delete': False, 'active_test': False, 'search_default_default_setup': 1}</field>
+        <field name="domain">[('is_default_setup','=',True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">فعّل أجزاء السيارة ومناطق الخدمة ورتبها كما تريد.</p>
+        </field>
+    </record>
+
+    <record id="view_wof_main_setup_tint_tree" model="ir.ui.view">
+        <field name="name">wof.tint.degree.main.setup.tree</field>
+        <field name="model">wof.tint.degree</field>
+        <field name="arch" type="xml">
+            <tree string="تهيئة درجات اللون" editable="bottom" create="1" delete="0" decoration-muted="not active">
+                <header>
+                    <button name="%(action_wof_main_setup_parts)d" type="action" string="السابق: الأجزاء"/>
+                    <button name="%(action_wof_main_setup_sizes)d" type="action" string="التالي: أحجام السيارات" class="btn-primary"/>
+                </header>
+                <field name="sequence" widget="handle"/>
+                <field name="active" string="تفعيل" widget="boolean_toggle"/>
+                <field name="name" string="المسمى"/>
+                <field name="value" string="القيمة"/>
+                <field name="is_default_setup" string="افتراضي" widget="boolean_toggle" readonly="1"/>
+                <field name="company_id" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_wof_main_setup_tint_search" model="ir.ui.view">
+        <field name="name">wof.tint.degree.main.setup.search</field>
+        <field name="model">wof.tint.degree</field>
+        <field name="arch" type="xml">
+            <search string="تهيئة درجات اللون">
+                <field name="name"/>
+                <field name="value"/>
+                <filter name="default_setup" string="بيانات التهيئة" domain="[('is_default_setup','=',True)]"/>
+                <filter name="active_tints" string="مفعلة" domain="[('active','=',True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wof_main_setup_tints" model="ir.actions.act_window">
+        <field name="name">3/5 تهيئة درجات اللون</field>
+        <field name="res_model">wof.tint.degree</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_wof_main_setup_tint_tree"/>
+        <field name="search_view_id" ref="view_wof_main_setup_tint_search"/>
+        <field name="context">{'create': True, 'delete': False, 'active_test': False, 'search_default_default_setup': 1}</field>
+        <field name="domain">[('is_default_setup','=',True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">فعّل درجات اللون المطلوبة وعدّل التسلسل والقيم.</p>
+        </field>
+    </record>
+
+    <record id="view_wof_main_setup_size_tree" model="ir.ui.view">
+        <field name="name">wof.car.size.main.setup.tree</field>
+        <field name="model">wof.car.size</field>
+        <field name="arch" type="xml">
+            <tree string="تهيئة أحجام السيارات" editable="bottom" create="1" delete="0" decoration-muted="not active">
+                <header>
+                    <button name="%(action_wof_main_setup_tints)d" type="action" string="السابق: درجات اللون"/>
+                    <button name="%(action_wof_system_settings_open)d" type="action" string="التالي: الإعدادات العامة" class="btn-primary"/>
+                </header>
+                <field name="active" string="تفعيل" widget="boolean_toggle"/>
+                <field name="name" string="الحجم"/>
+                <field name="is_default_setup" string="افتراضي" widget="boolean_toggle" readonly="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_wof_main_setup_size_search" model="ir.ui.view">
+        <field name="name">wof.car.size.main.setup.search</field>
+        <field name="model">wof.car.size</field>
+        <field name="arch" type="xml">
+            <search string="تهيئة أحجام السيارات">
+                <field name="name"/>
+                <filter name="default_setup" string="بيانات التهيئة" domain="[('is_default_setup','=',True)]"/>
+                <filter name="active_sizes" string="مفعلة" domain="[('active','=',True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wof_main_setup_sizes" model="ir.actions.act_window">
+        <field name="name">4/5 تهيئة أحجام السيارات</field>
+        <field name="res_model">wof.car.size</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_wof_main_setup_size_tree"/>
+        <field name="search_view_id" ref="view_wof_main_setup_size_search"/>
+        <field name="context">{'create': True, 'delete': False, 'active_test': False, 'search_default_default_setup': 1}</field>
+        <field name="domain">[('is_default_setup','=',True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">فعّل أحجام السيارات المطلوبة، ثم انتقل للإعدادات العامة.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_wof_main_setup_flow"
+              name="تهيئة النظام"
+              parent="menu_wo_v4_configuration"
+              action="action_wof_main_setup_services"
+              sequence="0"/>
+
+</odoo>

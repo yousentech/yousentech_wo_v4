@@ -93,12 +93,14 @@ class WofDefaultDataLoader(models.AbstractModel):
             if not rec:
                 rec = Service.search([('company_id', '=', company.id), ('name', '=', vals['name'])], limit=1)
             if rec:
-                rec.write(vals)
+                update_vals = vals.copy()
+                update_vals.pop('setup_enabled', None)
+                rec.write(update_vals)
             else:
                 Service.create(vals)
 
         for item in self._car_size_defaults():
-            vals = {'name': item['name'], 'active': True}
+            vals = {'name': item['name'], 'active': False}
             if 'sequence' in Size._fields:
                 vals['sequence'] = item['sequence']
             if 'code' in Size._fields:
@@ -107,30 +109,36 @@ class WofDefaultDataLoader(models.AbstractModel):
                 vals['is_default_setup'] = True
             rec = Size.search([('name', '=', item['name'])], limit=1)
             if rec:
-                rec.write(vals)
+                update_vals = vals.copy()
+                update_vals.pop('active', None)
+                rec.write(update_vals)
             else:
                 Size.create(vals)
 
         for item in self._tint_degree_defaults():
             vals = item.copy()
-            vals.update({'company_id': company.id, 'active': True})
+            vals.update({'company_id': company.id, 'active': False})
             if 'is_default_setup' in Tint._fields:
                 vals['is_default_setup'] = True
             rec = Tint.search([('company_id', '=', company.id), ('value', '=', item['value'])], limit=1)
             if rec:
-                rec.write(vals)
+                update_vals = vals.copy()
+                update_vals.pop('active', None)
+                rec.write(update_vals)
             else:
                 Tint.create(vals)
 
         tint_service = self._default_service(company)
         for item in self._car_part_defaults():
             vals = item.copy()
-            vals.update({'company_id': company.id, 'service_type_id': tint_service.id, 'active': True})
+            vals.update({'company_id': company.id, 'service_type_id': tint_service.id, 'active': False})
             if 'is_default_setup' in Part._fields:
                 vals['is_default_setup'] = True
             rec = Part.search([('name', '=', item['name'])], limit=1)
             if rec:
-                rec.write(vals)
+                update_vals = vals.copy()
+                update_vals.pop('active', None)
+                rec.write(update_vals)
             else:
                 Part.create(vals)
         return True
@@ -194,8 +202,15 @@ class WofDefaultDataLoader(models.AbstractModel):
         if 'is_default_setup' in Size._fields:
             safe_unlink(Size.search([('is_default_setup', '=', True)]))
 
-        # Recreate/update the default records so the wizard shows the base values again.
+        # Recreate/update the default records so the setup flow shows the base values again.
         self.load_default_master_data(company)
+
+        # Reset means: bring templates back, but leave them unselected until the user chooses again.
+        if 'setup_enabled' in Service._fields:
+            Service.search([('company_id', '=', company.id), ('is_default_setup', '=', True)]).write({'setup_enabled': False})
+        Size.search([('is_default_setup', '=', True)]).with_context(active_test=False).write({'active': False})
+        Tint.search([('company_id', '=', company.id), ('is_default_setup', '=', True)]).with_context(active_test=False).write({'active': False})
+        Part.search([('company_id', '=', company.id), ('is_default_setup', '=', True)]).with_context(active_test=False).write({'active': False})
 
         self.env['ir.config_parameter'].sudo().set_param('yousentech_wo_v4.setup_completed', False)
         return True

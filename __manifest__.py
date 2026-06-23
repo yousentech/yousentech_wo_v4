@@ -18,6 +18,7 @@
         'setup_wizard/setup_wizard_view.xml',
         'setup_wizard/res_config_settings_view.xml',
         'setup_views/system_settings_view.xml',
+        'setup_views/main_tables_setup_flow_views.xml',
 
         # Setup views that depend on menu_wo_v4_configuration
         'setup_views/service_type_view.xml',
