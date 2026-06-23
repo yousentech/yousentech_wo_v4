@@ -42,9 +42,71 @@ TINT_DEGREE_PRESETS = {
 }
 
 
-class WofSetupWizard(models.TransientModel):
+class WofSetupWizard(models.Model):
     _name = 'wof.setup.wizard'
-    _description = 'WOF Setup Wizard'
+    _description = 'تهيئة نظام أفلام السيارات'
+    _rec_name = 'display_name'
+    _order = 'company_id, id'
+
+    company_id = fields.Many2one(
+        'res.company',
+        string='الشركة الأم',
+        required=True,
+        default=lambda self: self._default_parent_company(),
+        index=True,
+        readonly=True,
+    )
+    display_name = fields.Char(string='الاسم', compute='_compute_display_name', store=True)
+
+    _sql_constraints = [
+        ('wof_setup_wizard_company_unique', 'unique(company_id)', 'يوجد سجل تهيئة واحد فقط لكل شركة أم.'),
+    ]
+
+    @api.model
+    def _default_parent_company(self):
+        company = self.env.company
+        return company.parent_id.id or company.id
+
+    @api.depends('company_id')
+    def _compute_display_name(self):
+        for rec in self:
+            rec.display_name = _('تهيئة نظام أفلام السيارات - %s') % (rec.company_id.display_name or '')
+
+    @api.model
+    def get_company_setup(self):
+        company = self.env.company
+        parent = company.parent_id or company
+        setup = self.sudo().search([('company_id', '=', parent.id)], limit=1)
+        if not setup:
+            setup = self.sudo().create({'company_id': parent.id, 'step': 'welcome'})
+        if not setup.car_size_line_ids or not setup.tint_degree_line_ids or not setup.service_line_ids:
+            setup._rebuild_lines_from_master_defaults()
+        return setup
+
+    @api.model
+    def action_open_company_setup(self):
+        setup = self.get_company_setup()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تهيئة نظام أفلام السيارات'),
+            'res_model': 'wof.setup.wizard',
+            'res_id': setup.id,
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {'create': False, 'delete': False},
+            'flags': {'mode': 'edit'},
+        }
+
+    def _rebuild_lines_from_master_defaults(self):
+        self.ensure_one()
+        defaults = self.default_get(['car_size_line_ids', 'tint_degree_line_ids', 'service_line_ids'])
+        vals = {}
+        for fname in ['car_size_line_ids', 'tint_degree_line_ids', 'service_line_ids']:
+            if defaults.get(fname):
+                vals[fname] = [(5, 0, 0)] + defaults[fname]
+        if vals:
+            self.sudo().write(vals)
+        return True
 
     step = fields.Selection([
         ('welcome', 'الترحيب'),
@@ -850,7 +912,7 @@ class WofSetupWizard(models.TransientModel):
         self.step = 'car_sizes'
 
         return self._reload_wizard()
-class WofSetupWizardCarSizeLine(models.TransientModel):
+class WofSetupWizardCarSizeLine(models.Model):
     _name = 'wof.setup.wizard.car.size.line'
     _description = 'WOF Setup Wizard Car Size Line'
     _order = 'sequence, id'
@@ -880,7 +942,7 @@ class WofSetupWizardCarSizeLine(models.TransientModel):
         }
 
 
-class WofSetupWizardTintDegreeLine(models.TransientModel):
+class WofSetupWizardTintDegreeLine(models.Model):
     _name = 'wof.setup.wizard.tint.degree.line'
     _description = 'WOF Setup Wizard Tint Degree Line'
     _order = 'sequence, id'
@@ -920,7 +982,7 @@ class WofSetupWizardTintDegreeLine(models.TransientModel):
         }
 
 
-class WofSetupWizardServiceLine(models.TransientModel):
+class WofSetupWizardServiceLine(models.Model):
     _name = 'wof.setup.wizard.service.line'
     _description = 'WOF Setup Wizard Service Line'
     _order = 'sequence, id'
@@ -1032,7 +1094,7 @@ class WofSetupWizardServiceLine(models.TransientModel):
         }
 
 
-class WofSetupFilmWizard(models.TransientModel):
+class WofSetupFilmWizard(models.Model):
     _name = 'wof.setup.film.wizard'
     _description = 'WOF Setup Film Wizard'
 
@@ -1636,7 +1698,7 @@ class WofSetupFilmWizard(models.TransientModel):
 
         return self.action_finish_current_film()
 
-class WofSetupFilmTintDegreeLine(models.TransientModel):
+class WofSetupFilmTintDegreeLine(models.Model):
     _name = 'wof.setup.film.tint.degree.line'
     _description = 'WOF Setup Film Tint Degree Line'
     _order = 'sequence, id'
@@ -1660,7 +1722,7 @@ class WofSetupFilmTintDegreeLine(models.TransientModel):
     value = fields.Char(string="القيمة")
 
 
-class WofSetupFilmPartLine(models.TransientModel):
+class WofSetupFilmPartLine(models.Model):
     _name = 'wof.setup.film.part.line'
     _description = 'WOF Setup Film Part Line'
     _order = 'sequence, id'
@@ -1862,7 +1924,7 @@ class WofSetupFilmPartLine(models.TransientModel):
         }
 
 
-class WofSetupFilmPartPriceLine(models.TransientModel):
+class WofSetupFilmPartPriceLine(models.Model):
     _name = 'wof.setup.film.part.price.line'
     _description = 'WOF Setup Film Part Price Line'
     _order = 'id'
@@ -1920,7 +1982,7 @@ class WofSetupFilmPartPriceLine(models.TransientModel):
                 raise ValidationError(_("لا يمكن تكرار نفس حجم السيارة في تسعير الجزء."))
 
 
-class WofSetupFilmPartCommissionLine(models.TransientModel):
+class WofSetupFilmPartCommissionLine(models.Model):
     _name = 'wof.setup.film.part.commission.line'
     _description = 'WOF Setup Film Part Commission Line'
     _order = 'id'
@@ -1960,7 +2022,7 @@ class WofSetupFilmPartCommissionLine(models.TransientModel):
                 raise ValidationError(_("لا يمكن تكرار نفس حجم السيارة في تسعير العمولة."))
 
 
-class WofSetupTempFilm(models.TransientModel):
+class WofSetupTempFilm(models.Model):
     _name = 'wof.setup.temp.film'
     _description = 'WOF Setup Temp Film'
     _order = 'id'
@@ -2206,7 +2268,7 @@ class WofSetupTempFilm(models.TransientModel):
         }
 
 
-class WofSetupTempFilmBoard(models.TransientModel):
+class WofSetupTempFilmBoard(models.Model):
     _name = 'wof.setup.temp.film.board'
     _description = 'Temporary Film Setup Board'
 
@@ -2325,7 +2387,7 @@ class WofSetupTempFilmBoard(models.TransientModel):
         return setup._reload_film_wizard()
 
 
-class WofSetupTempFilmTintDegreeLine(models.TransientModel):
+class WofSetupTempFilmTintDegreeLine(models.Model):
     _name = 'wof.setup.temp.film.tint.degree.line'
     _description = 'WOF Setup Temp Film Tint Degree Line'
     _order = 'sequence, id'
@@ -2349,7 +2411,7 @@ class WofSetupTempFilmTintDegreeLine(models.TransientModel):
     value = fields.Char(string="القيمة")
 
 
-class WofSetupTempFilmPart(models.TransientModel):
+class WofSetupTempFilmPart(models.Model):
     _name = 'wof.setup.temp.film.part'
     _description = 'WOF Setup Temp Film Part'
     _order = 'id'
@@ -2381,7 +2443,7 @@ class WofSetupTempFilmPart(models.TransientModel):
         ('service_area', 'منطقة خدمة'),
     ], string="نوع السطر", default='car_part')
 
-class WofSetupTempFilmPartPriceLine(models.TransientModel):
+class WofSetupTempFilmPartPriceLine(models.Model):
     _name = 'wof.setup.temp.film.part.price.line'
     _description = 'WOF Setup Temp Film Part Price Line'
     _order = 'id'
@@ -2410,7 +2472,7 @@ class WofSetupTempFilmPartPriceLine(models.TransientModel):
     free_part = fields.Boolean(string="مجاني")
 
 
-class WofSetupTempFilmPartCommissionLine(models.TransientModel):
+class WofSetupTempFilmPartCommissionLine(models.Model):
     _name = 'wof.setup.temp.film.part.commission.line'
     _description = 'WOF Setup Temp Film Part Commission Line'
     _order = 'id'
