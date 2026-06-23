@@ -287,7 +287,23 @@ class WofSystemSettings(models.Model):
     def action_reset_default_master_data(self):
         self.ensure_one()
         self.env['wof.default.data.loader'].sudo().reset_default_master_data(self.company_id)
-        return self.action_open_current_company_settings()
+
+        # إعادة التهيئة أصبحت من شاشة التهيئة الرئيسية الدائمة، وليست من Wizard مؤقت.
+        # نحذف سجل التهيئة الرئيسي للشركة الأم ونبنيه من الجداول الرئيسية الافتراضية.
+        Setup = self.env['wof.setup.wizard'].sudo()
+        Setup.search([('company_id', '=', self.company_id.id)]).reset_setup_temp_data()
+        setup = Setup.create({'company_id': self.company_id.id, 'step': 'welcome'})
+        setup._rebuild_lines_from_master_defaults()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تهيئة نظام أفلام السيارات'),
+            'res_model': 'wof.setup.wizard',
+            'res_id': setup.id,
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {'create': False, 'delete': False},
+            'flags': {'mode': 'edit'},
+        }
 
 
 class WofSystemFieldSetting(models.Model):

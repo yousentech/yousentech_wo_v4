@@ -12,5 +12,3 @@ from . import car_agency
 
 from . import system_settings
 from . import default_data
-
-from . import setup_main_flow

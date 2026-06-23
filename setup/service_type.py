@@ -23,8 +23,6 @@ class ServiceType(models.Model):
         copy=False
     )
     
-    sequence = fields.Integer(string="الترتيب", default=10, index=True)
-
     service_options = fields.Selection(
         [('tint', 'عزل حراري')],
         string="نوع محرك الخدمة",
