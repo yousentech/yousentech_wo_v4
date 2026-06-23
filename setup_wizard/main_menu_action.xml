@@ -14,10 +14,10 @@
 
 setup = env['ir.config_parameter'].sudo().get_param('yousentech_wo_v4.setup_completed')
 
-if not setup:
-    action = env['wof.system.settings'].action_open_main_setup_flow()
-else:
+if setup in ('True', 'true', '1', True):
     action = env.ref('yousentech_wo_v4.action_service_types_wo_v4').read()[0]
+else:
+    action = env['wof.system.settings'].action_open_main_setup_flow()
 
 </field>
 

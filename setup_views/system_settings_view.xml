@@ -35,11 +35,6 @@
                     </div>
 
                     <div class="o_wof_settings_tools" style="margin: 14px 0 8px 0; display:flex; gap:10px; align-items:center; justify-content:flex-end;">
-                        <button name="action_reset_default_master_data"
-                                type="object"
-                                string="إعادة تهيئة البيانات الافتراضية"
-                                class="btn btn-secondary"
-                                confirm="سيتم حذف البيانات الافتراضية فقط وإعادة تحميلها من جديد داخل الجداول الرئيسية. بيانات العميل اليدوية لن تُحذف. هل تريد المتابعة؟"/>
                     </div>
 
                     <div class="o_wof_dashboard_cards">

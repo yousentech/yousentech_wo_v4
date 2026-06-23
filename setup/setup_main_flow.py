@@ -24,13 +24,12 @@ class WofSystemSettingsMainSetup(models.Model):
         master tables directly, while keeping the same step-by-step UX through
         dashboard buttons and setup list views.
         """
-        self.env['wof.default.data.loader'].sudo().load_default_master_data()
         return self.action_open_current_company_settings()
 
     def action_reset_default_master_data(self):
         self.ensure_one()
         self.env['wof.default.data.loader'].sudo().reset_default_master_data(self.company_id)
-        return self.action_open_main_setup_flow()
+        return self.action_open_current_company_settings()
 
     def action_setup_services(self):
         return self.env['wof.service.type'].action_open_main_setup_services()
@@ -55,7 +54,6 @@ class WofServiceTypeSetupFlow(models.Model):
 
     @api.model
     def action_open_main_setup_services(self):
-        self.env['wof.default.data.loader'].sudo().load_default_master_data()
         company = self.env.company.parent_id or self.env.company
         action = self.env.ref('yousentech_wo_v4.action_wof_main_setup_services').sudo().read()[0]
         action['domain'] = [('company_id', '=', company.id), ('is_default_setup', '=', True)]
@@ -75,7 +73,6 @@ class WofCarPartsSetupFlow(models.Model):
 
     @api.model
     def action_open_main_setup_parts(self):
-        self.env['wof.default.data.loader'].sudo().load_default_master_data()
         company = self.env.company.parent_id or self.env.company
         action = self.env.ref('yousentech_wo_v4.action_wof_main_setup_parts').sudo().read()[0]
         action['domain'] = [('company_id', '=', company.id), ('is_default_setup', '=', True)]
@@ -95,7 +92,6 @@ class WofTintDegreeSetupFlow(models.Model):
 
     @api.model
     def action_open_main_setup_tints(self):
-        self.env['wof.default.data.loader'].sudo().load_default_master_data()
         company = self.env.company.parent_id or self.env.company
         action = self.env.ref('yousentech_wo_v4.action_wof_main_setup_tints').sudo().read()[0]
         action['domain'] = [('company_id', '=', company.id), ('is_default_setup', '=', True)]
@@ -115,7 +111,6 @@ class WofCarSizeSetupFlow(models.Model):
 
     @api.model
     def action_open_main_setup_sizes(self):
-        self.env['wof.default.data.loader'].sudo().load_default_master_data()
         action = self.env.ref('yousentech_wo_v4.action_wof_main_setup_sizes').sudo().read()[0]
         action['domain'] = [('is_default_setup', '=', True)]
         action['context'] = {

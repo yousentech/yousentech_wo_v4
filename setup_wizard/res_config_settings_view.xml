@@ -22,14 +22,7 @@
                                  help="يحدد هل تمت التهيئة الأولية للنظام">
 
                             <div class="d-flex align-items-center gap-3">
-
-                                <field name="wo_setup_completed"/>
-
-                                <button string="إعادة التهيئة"
-                                        type="object"
-                                        name="action_re_setup_wo_v4"
-                                        class="btn btn-primary"/>
-
+                                <field name="wo_setup_completed" readonly="1"/>
                             </div>
                         </setting>
                     </block>
@@ -37,27 +30,5 @@
             </xpath>
         </field>
     </record>
-          <!-- =========================
-                  SETTINGS ACTION
-            ========================== -->
 
-    <record id="action_wo_v4_settings"  model="ir.actions.act_window">
-        <field name="name">إعدادات العناية بالسيارات</field>
-        <field name="res_model">res.config.settings</field>
-        <field name="view_mode">form</field>
-        <field name="target">inline</field>
-        <field name="context">
-            {
-                'module' : 'yousentech_wo_v4'
-            }
-        </field>
-
-    </record>
-
-        
-    <menuitem id="menu_wo_v4_setting"
-            name="الاعدادات"
-            action="action_wo_v4_settings"
-            parent="menu_wo_v4_configuration"
-            sequence="4"  />
 </odoo>

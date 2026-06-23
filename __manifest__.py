@@ -14,8 +14,7 @@
         'setup_wizard/main_menu_action.xml',
         'setup_views/menu.xml',
 
-        # Wizard / Settings
-        'setup_wizard/setup_wizard_view.xml',
+        # Main settings / permanent setup flow
         'setup_wizard/res_config_settings_view.xml',
         'setup_views/system_settings_view.xml',
         'setup_views/main_tables_setup_flow_views.xml',

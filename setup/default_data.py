@@ -51,7 +51,7 @@ class WofDefaultDataLoader(models.AbstractModel):
         ]
 
     def _default_service(self, company):
-        Service = self.env['wof.service.type'].sudo()
+        Service = self.env['wof.service.type'].sudo().with_context(active_test=False)
         service = Service.search([('code', '=', 'TINT'), ('company_id', '=', company.id)], limit=1)
         if not service:
             service = Service.search([('name', '=', 'عزل حراري'), ('company_id', '=', company.id)], limit=1)
@@ -72,10 +72,10 @@ class WofDefaultDataLoader(models.AbstractModel):
     @api.model
     def load_default_master_data(self, company=None):
         company = self._parent_company(company)
-        Service = self.env['wof.service.type'].sudo()
-        Size = self.env['wof.car.size'].sudo()
-        Tint = self.env['wof.tint.degree'].sudo()
-        Part = self.env['wof.car.parts'].sudo()
+        Service = self.env['wof.service.type'].sudo().with_context(active_test=False)
+        Size = self.env['wof.car.size'].sudo().with_context(active_test=False)
+        Tint = self.env['wof.tint.degree'].sudo().with_context(active_test=False)
+        Part = self.env['wof.car.parts'].sudo().with_context(active_test=False)
 
         for item in self._service_defaults():
             vals = item.copy()
@@ -134,7 +134,9 @@ class WofDefaultDataLoader(models.AbstractModel):
             vals.update({'company_id': company.id, 'service_type_id': tint_service.id, 'active': False})
             if 'is_default_setup' in Part._fields:
                 vals['is_default_setup'] = True
-            rec = Part.search([('name', '=', item['name'])], limit=1)
+            rec = Part.search([('company_id', '=', company.id), ('code', '=', item['code'])], limit=1)
+            if not rec:
+                rec = Part.search([('name', '=', item['name'])], limit=1)
             if rec:
                 update_vals = vals.copy()
                 update_vals.pop('active', None)
@@ -207,10 +209,10 @@ class WofDefaultDataLoader(models.AbstractModel):
 
         # Reset means: bring templates back, but leave them unselected until the user chooses again.
         if 'setup_enabled' in Service._fields:
-            Service.search([('company_id', '=', company.id), ('is_default_setup', '=', True)]).write({'setup_enabled': False})
-        Size.search([('is_default_setup', '=', True)]).with_context(active_test=False).write({'active': False})
-        Tint.search([('company_id', '=', company.id), ('is_default_setup', '=', True)]).with_context(active_test=False).write({'active': False})
-        Part.search([('company_id', '=', company.id), ('is_default_setup', '=', True)]).with_context(active_test=False).write({'active': False})
+            Service.with_context(active_test=False).search([('company_id', '=', company.id), ('is_default_setup', '=', True)]).write({'setup_enabled': False})
+        Size.with_context(active_test=False).search([('is_default_setup', '=', True)]).write({'active': False})
+        Tint.with_context(active_test=False).search([('company_id', '=', company.id), ('is_default_setup', '=', True)]).write({'active': False})
+        Part.with_context(active_test=False).search([('company_id', '=', company.id), ('is_default_setup', '=', True)]).write({'active': False})
 
         self.env['ir.config_parameter'].sudo().set_param('yousentech_wo_v4.setup_completed', False)
         return True
