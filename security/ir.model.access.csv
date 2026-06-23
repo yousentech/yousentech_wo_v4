@@ -42,3 +42,5 @@ access_wof_car_part_options,wof.car.part.options,model_wof_car_part_options,yous
 access_wof_parts_transparency_level,wof.parts.transparency.level,model_wof_parts_transparency_level,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_system_settings_manager,wof.system.settings.manager,model_wof_system_settings,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_system_settings_user,wof.system.settings.user,model_wof_system_settings,yousentech_wo_v4.group_wo_user,1,0,0,0
+access_wof_system_field_setting_manager,wof.system.field.setting.manager,model_wof_system_field_setting,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_system_field_setting_user,wof.system.field.setting.user,model_wof_system_field_setting,yousentech_wo_v4.group_wo_user,1,0,0,0

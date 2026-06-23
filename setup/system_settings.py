@@ -96,6 +96,18 @@ class WofSystemSettings(models.Model):
     hide_salesperson = fields.Boolean(string='إخفاء المندوب')
     hide_delivery_time = fields.Boolean(string='إخفاء وقت التسليم')
     hide_sticker_removal = fields.Boolean(string='إخفاء إزالة الرواصق')
+    hide_customer_mobile = fields.Boolean(string='إخفاء رقم جوال العميل')
+    hide_technician = fields.Boolean(string='إخفاء الفني')
+    odometer_required = fields.Boolean(string='رقم العداد إجباري')
+    salesperson_required = fields.Boolean(string='المندوب إجباري')
+    sticker_removal_required = fields.Boolean(string='إزالة الرواصق إجبارية')
+
+    field_setting_line_ids = fields.One2many(
+        'wof.system.field.setting',
+        'settings_id',
+        string='إعدادات الحقول الرئيسية',
+        copy=False,
+    )
 
     active = fields.Boolean(string='نشط', default=True)
 
@@ -123,45 +135,33 @@ class WofSystemSettings(models.Model):
             rec.name = _('إعدادات أفلام السيارات - %s') % (rec.company_id.display_name or '')
 
     @api.depends(
-        'enable_work_order', 'plate_number_required', 'chassis_number_required',
-        'customer_mobile_required', 'manufacture_year_required', 'car_color_required',
-        'car_agency_required', 'delivery_datetime_required', 'allow_multiple_technicians',
-        'technician_required', 'technician_commission_trigger', 'enable_discounts',
-        'discount_level', 'allow_package_discount', 'propagate_discount_to_invoice',
-        'enable_film_area_m2', 'enable_roll_consumption_tracking', 'roll_consumption_method',
-        'removal_as_extra_service', 'create_invoice_after_full_payment',
-        'auto_create_invoice_on_confirm', 'block_delivery_until_full_payment',
+        'enable_work_order', 'allow_multiple_technicians', 'technician_commission_trigger',
+        'enable_film_area_m2', 'removal_as_extra_service', 'auto_create_invoice_on_confirm',
         'report_car_diagram_image', 'report_work_order_terms_image',
-        'report_warranty_terms_image', 'report_invoice_terms_image',
-        'enable_warranty_qr', 'report_footer_note', 'hide_plate_number',
-        'hide_chassis_number', 'hide_manufacture_year', 'hide_car_color',
-        'hide_odometer', 'hide_agency', 'hide_salesperson', 'hide_delivery_time',
-        'hide_sticker_removal'
+        'report_warranty_terms_image', 'report_invoice_terms_image', 'report_footer_note',
+        'field_setting_line_ids.required', 'field_setting_line_ids.hidden'
     )
     def _compute_ux_summary(self):
         for rec in self:
-            work_fields = [
-                rec.enable_work_order, rec.plate_number_required, rec.chassis_number_required,
-                rec.customer_mobile_required, rec.manufacture_year_required, rec.car_color_required,
-                rec.car_agency_required, rec.delivery_datetime_required, rec.allow_multiple_technicians,
-                rec.technician_required,
-            ]
-            rec.work_order_total_count = len(work_fields)
-            rec.work_order_enabled_count = sum(1 for value in work_fields if value)
-            rec.work_order_completion = '%s/%s مفعلة' % (rec.work_order_enabled_count, rec.work_order_total_count)
+            enabled_count = sum(1 for value in [
+                rec.enable_work_order,
+                rec.allow_multiple_technicians,
+                bool(rec.technician_commission_trigger),
+            ] if value)
+            rec.work_order_total_count = 3
+            rec.work_order_enabled_count = enabled_count
+            rec.work_order_completion = '%s/%s مفعلة' % (enabled_count, rec.work_order_total_count)
 
-            if rec.enable_discounts:
-                rec.discount_summary = dict(rec._fields['discount_level'].selection).get(rec.discount_level, '')
-            else:
-                rec.discount_summary = 'الخصومات غير مفعلة'
+            # تبويب الخصومات أُلغي من الواجهة. نبقي الملخص متوافقاً مع الأكواد القديمة فقط.
+            rec.discount_summary = 'ملغي من الإعدادات'
 
             inventory_parts = []
-            if rec.enable_roll_consumption_tracking:
-                inventory_parts.append(dict(rec._fields['roll_consumption_method'].selection).get(rec.roll_consumption_method, ''))
-            else:
-                inventory_parts.append('تتبع الرول غير مفعل')
             if rec.enable_film_area_m2:
                 inventory_parts.append('المتر المربع مفعل')
+            else:
+                inventory_parts.append('المتر المربع غير مفعل')
+            if rec.removal_as_extra_service:
+                inventory_parts.append('إزالة الرواصق كخدمة')
             rec.inventory_summary = ' - '.join([p for p in inventory_parts if p])
 
             report_enabled = sum(1 for value in [
@@ -169,23 +169,71 @@ class WofSystemSettings(models.Model):
                 rec.report_work_order_terms_image,
                 rec.report_warranty_terms_image,
                 rec.report_invoice_terms_image,
-                rec.enable_warranty_qr,
                 rec.report_footer_note,
             ] if value)
             rec.report_summary = '%s عناصر جاهزة' % report_enabled
 
-            hidden_count = sum(1 for value in [
-                rec.hide_plate_number, rec.hide_chassis_number, rec.hide_manufacture_year,
-                rec.hide_car_color, rec.hide_odometer, rec.hide_agency,
-                rec.hide_salesperson, rec.hide_delivery_time, rec.hide_sticker_removal,
-            ] if value)
-            rec.ui_summary = '%s حقول مخفية' % hidden_count
+            hidden_count = sum(1 for line in rec.field_setting_line_ids if line.hidden)
+            required_count = sum(1 for line in rec.field_setting_line_ids if line.required and not line.hidden)
+            rec.ui_summary = '%s مخفية / %s إجبارية' % (hidden_count, required_count)
 
     @api.constrains('create_invoice_after_full_payment', 'auto_create_invoice_on_confirm')
     def _check_invoice_policy(self):
         for rec in self:
             if rec.create_invoice_after_full_payment and rec.auto_create_invoice_on_confirm:
                 raise ValidationError(_('لا يمكن تفعيل سياستي إنشاء الفاتورة معاً. اختر بعد اكتمال الدفع أو عند التأكيد فقط.'))
+
+    _FIELD_SETTING_CONFIG = [
+        ('plate_number', 'رقم اللوحة', 'plate_number_required', 'hide_plate_number', 10),
+        ('chassis_number', 'رقم الشاصي', 'chassis_number_required', 'hide_chassis_number', 20),
+        ('customer_mobile', 'رقم جوال العميل', 'customer_mobile_required', 'hide_customer_mobile', 30),
+        ('manufacture_year', 'سنة الصنع', 'manufacture_year_required', 'hide_manufacture_year', 40),
+        ('car_color', 'لون السيارة', 'car_color_required', 'hide_car_color', 50),
+        ('car_agency', 'الوكالة', 'car_agency_required', 'hide_agency', 60),
+        ('delivery_datetime', 'تاريخ ووقت التسليم', 'delivery_datetime_required', 'hide_delivery_time', 70),
+        ('odometer', 'رقم العداد', 'odometer_required', 'hide_odometer', 80),
+        ('salesperson', 'المندوب', 'salesperson_required', 'hide_salesperson', 90),
+        ('technician', 'الفني', 'technician_required', 'hide_technician', 100),
+        ('sticker_removal', 'إزالة الرواصق', 'sticker_removal_required', 'hide_sticker_removal', 110),
+    ]
+
+    def _ensure_field_setting_lines(self):
+        FieldLine = self.env['wof.system.field.setting'].sudo()
+        for rec in self:
+            existing_by_key = {line.field_key: line for line in rec.field_setting_line_ids}
+            for key, label, required_field, hidden_field, sequence in rec._FIELD_SETTING_CONFIG:
+                required_value = bool(getattr(rec, required_field, False))
+                hidden_value = bool(getattr(rec, hidden_field, False))
+                if hidden_value:
+                    required_value = False
+                    if getattr(rec, required_field, False):
+                        rec.with_context(skip_field_line_sync=True).sudo().write({required_field: False})
+                line = existing_by_key.get(key)
+                vals = {
+                    'settings_id': rec.id,
+                    'sequence': sequence,
+                    'field_key': key,
+                    'name': label,
+                    'required_field_name': required_field,
+                    'hidden_field_name': hidden_field,
+                    'required': required_value,
+                    'hidden': hidden_value,
+                }
+                if line:
+                    line.with_context(skip_parent_sync=True).write(vals)
+                else:
+                    FieldLine.with_context(skip_parent_sync=True).create(vals)
+        return True
+
+    def _sync_lines_from_boolean_fields(self, vals=None):
+        for rec in self:
+            rec._ensure_field_setting_lines()
+            for line in rec.field_setting_line_ids:
+                req = bool(getattr(rec, line.required_field_name, False)) if line.required_field_name else False
+                hidden = bool(getattr(rec, line.hidden_field_name, False)) if line.hidden_field_name else False
+                if hidden:
+                    req = False
+                line.with_context(skip_parent_sync=True).write({'required': req, 'hidden': hidden})
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -198,7 +246,15 @@ class WofSystemSettings(models.Model):
             company = self.env['res.company'].browse(company_id)
             parent_company = company.parent_id or company
             vals['company_id'] = parent_company.id
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._ensure_field_setting_lines()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if not self.env.context.get('skip_field_line_sync'):
+            self._sync_lines_from_boolean_fields(vals)
+        return result
 
     @api.model
     def get_company_settings(self, company=None):
@@ -207,6 +263,7 @@ class WofSystemSettings(models.Model):
         settings = self.search([('company_id', '=', company.id)], limit=1)
         if not settings:
             settings = self.with_context(allow_wof_settings_create=True).create({'company_id': company.id})
+        settings._ensure_field_setting_lines()
         return settings
 
     @api.model
@@ -243,3 +300,64 @@ class WofSystemSettings(models.Model):
             'target': 'current',
             'context': {'create': False, 'delete': False},
         }
+
+
+class WofSystemFieldSetting(models.Model):
+    _name = 'wof.system.field.setting'
+    _description = 'إعدادات حقول نظام أفلام السيارات'
+    _order = 'sequence, id'
+
+    settings_id = fields.Many2one(
+        'wof.system.settings',
+        string='إعدادات النظام',
+        required=True,
+        ondelete='cascade',
+        index=True,
+    )
+    sequence = fields.Integer(string='الترتيب', default=10)
+    field_key = fields.Char(string='الكود', required=True, readonly=True)
+    name = fields.Char(string='الخاصية', required=True, readonly=True)
+    required = fields.Boolean(string='إجباري')
+    hidden = fields.Boolean(string='إخفاء')
+    required_field_name = fields.Char(string='حقل الإجبار', readonly=True)
+    hidden_field_name = fields.Char(string='حقل الإخفاء', readonly=True)
+
+    _sql_constraints = [
+        ('wof_system_field_setting_unique', 'unique(settings_id, field_key)', 'كل خاصية تظهر مرة واحدة فقط في إعدادات الشركة.'),
+    ]
+
+    @api.onchange('hidden')
+    def _onchange_hidden(self):
+        for line in self:
+            if line.hidden:
+                line.required = False
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('hidden'):
+                vals['required'] = False
+        records = super().create(vals_list)
+        if not self.env.context.get('skip_parent_sync'):
+            records._sync_to_parent_settings()
+        return records
+
+    def write(self, vals):
+        if vals.get('hidden'):
+            vals = dict(vals)
+            vals['required'] = False
+        result = super().write(vals)
+        if not self.env.context.get('skip_parent_sync'):
+            self._sync_to_parent_settings()
+        return result
+
+    def _sync_to_parent_settings(self):
+        for line in self:
+            updates = {}
+            if line.required_field_name:
+                updates[line.required_field_name] = bool(line.required and not line.hidden)
+            if line.hidden_field_name:
+                updates[line.hidden_field_name] = bool(line.hidden)
+            if updates:
+                line.settings_id.with_context(skip_field_line_sync=True).sudo().write(updates)
+        return True

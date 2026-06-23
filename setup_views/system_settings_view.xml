@@ -8,15 +8,15 @@
                 <field name="name"/>
                 <field name="company_id"/>
                 <field name="work_order_completion"/>
-                <field name="discount_summary"/>
                 <field name="inventory_summary"/>
                 <field name="report_summary"/>
+                <field name="ui_summary"/>
             </tree>
         </field>
     </record>
 
     <record id="view_wof_system_settings_form" model="ir.ui.view">
-        <field name="name">wof.system.settings.form.premium</field>
+        <field name="name">wof.system.settings.form.premium.clean</field>
         <field name="model">wof.system.settings</field>
         <field name="arch" type="xml">
             <form string="إعدادات نظام أفلام السيارات" create="0" delete="0" class="o_wof_settings_form o_wof_premium_settings">
@@ -24,10 +24,8 @@
                     <div class="o_wof_settings_hero">
                         <div class="o_wof_hero_content">
                             <span class="o_wof_hero_badge">Premium Settings</span>
-                            <h1>
-                                <field name="name" readonly="1" nolabel="1"/>
-                            </h1>
-                            <p>لوحة إعدادات ذكية لتشغيل نظام أفلام السيارات حسب الشركة، مع ملخصات سريعة لكل قسم.</p>
+                            <h1><field name="name" readonly="1" nolabel="1"/></h1>
+                            <p>لوحة إعدادات ذكية لتشغيل نظام أفلام السيارات حسب الشركة الأم، مع ملخصات سريعة لكل قسم.</p>
                         </div>
                         <div class="o_wof_hero_company">
                             <span>الشركة</span>
@@ -49,32 +47,32 @@
                             <div class="o_wof_card_icon">🛠️</div>
                             <div class="o_wof_card_body">
                                 <strong>أوامر التركيب</strong>
-                                <span>المتطلبات والفنيين</span>
+                                <span>التشغيل والفنيين</span>
                                 <div class="o_wof_card_value"><field name="work_order_completion" readonly="1" nolabel="1"/></div>
-                            </div>
-                        </div>
-                        <div class="o_wof_dashboard_card o_wof_card_gold">
-                            <div class="o_wof_card_icon">%</div>
-                            <div class="o_wof_card_body">
-                                <strong>الخصومات</strong>
-                                <span>سياسة الخصم والترحيل</span>
-                                <div class="o_wof_card_value"><field name="discount_summary" readonly="1" nolabel="1"/></div>
                             </div>
                         </div>
                         <div class="o_wof_dashboard_card o_wof_card_green">
                             <div class="o_wof_card_icon">📦</div>
                             <div class="o_wof_card_body">
                                 <strong>المخزون والأفلام</strong>
-                                <span>الرول والمتر المربع</span>
+                                <span>المتر المربع والخدمات</span>
                                 <div class="o_wof_card_value"><field name="inventory_summary" readonly="1" nolabel="1"/></div>
                             </div>
                         </div>
                         <div class="o_wof_dashboard_card o_wof_card_purple">
-                            <div class="o_wof_card_icon">QR</div>
+                            <div class="o_wof_card_icon">📄</div>
                             <div class="o_wof_card_body">
                                 <strong>التقارير والضمان</strong>
-                                <span>الصور والشروط والضمان</span>
+                                <span>الصور والشروط والملاحظات</span>
                                 <div class="o_wof_card_value"><field name="report_summary" readonly="1" nolabel="1"/></div>
+                            </div>
+                        </div>
+                        <div class="o_wof_dashboard_card">
+                            <div class="o_wof_card_icon">☑</div>
+                            <div class="o_wof_card_body">
+                                <strong>الحقول الرئيسية</strong>
+                                <span>الإجبار والإخفاء</span>
+                                <div class="o_wof_card_value"><field name="ui_summary" readonly="1" nolabel="1"/></div>
                             </div>
                         </div>
                     </div>
@@ -83,21 +81,14 @@
                         <page string="أوامر التركيب" name="work_order">
                             <div class="o_wof_page_intro">
                                 <h3>إعدادات أوامر التركيب</h3>
-                                <p>حدد البيانات الإجبارية وسلوك الفنيين والعمولات في أوامر التركيب.</p>
+                                <p>حدد تشغيل أوامر التركيب وسلوك الفنيين والعمولات فقط. إجبار وإخفاء الحقول أصبح في تبويب الحقول الرئيسية.</p>
                             </div>
                             <div class="o_wof_settings_grid">
                                 <div class="o_wof_section_card">
-                                    <h4>التفعيل والمتطلبات</h4>
-                                    <p>الحقول الأساسية التي يجب على المستخدم تعبئتها قبل متابعة العملية.</p>
+                                    <h4>التشغيل</h4>
+                                    <p>تفعيل أوامر التركيب داخل النظام.</p>
                                     <group>
                                         <field name="enable_work_order" widget="boolean_toggle"/>
-                                        <field name="plate_number_required" widget="boolean_toggle"/>
-                                        <field name="chassis_number_required" widget="boolean_toggle"/>
-                                        <field name="customer_mobile_required" widget="boolean_toggle"/>
-                                        <field name="manufacture_year_required" widget="boolean_toggle"/>
-                                        <field name="car_color_required" widget="boolean_toggle"/>
-                                        <field name="car_agency_required" widget="boolean_toggle"/>
-                                        <field name="delivery_datetime_required" widget="boolean_toggle"/>
                                     </group>
                                 </div>
                                 <div class="o_wof_section_card">
@@ -105,34 +96,35 @@
                                     <p>تنظيم الفنيين وطريقة اعتماد استحقاق العمولة.</p>
                                     <group>
                                         <field name="allow_multiple_technicians" widget="boolean_toggle"/>
-                                        <field name="technician_required" widget="boolean_toggle"/>
                                         <field name="technician_commission_trigger" widget="radio"/>
                                     </group>
                                 </div>
                             </div>
                         </page>
 
-                        <page string="الخصومات" name="discounts">
+                        <page string="الحقول الرئيسية" name="main_fields">
                             <div class="o_wof_page_intro">
-                                <h3>إعدادات الخصومات</h3>
-                                <p>اختر مستوى الخصم المناسب وهل يتم ترحيله إلى الفاتورة والباقات.</p>
+                                <h3>إعدادات الحقول الرئيسية</h3>
+                                <p>تحكم من مكان واحد: هل الخاصية إجبارية؟ وهل تظهر في واجهة النظام؟ إذا كان الحقل مخفياً فلن يتم تطبيق الإجبار عليه.</p>
                             </div>
                             <div class="o_wof_settings_grid">
-                                <div class="o_wof_section_card">
-                                    <h4>سياسة الخصم</h4>
-                                    <p>تحديد مكان تطبيق الخصم داخل أمر التركيب.</p>
-                                    <group>
-                                        <field name="enable_discounts" widget="boolean_toggle"/>
-                                        <field name="discount_level" widget="radio" invisible="not enable_discounts"/>
-                                    </group>
-                                </div>
-                                <div class="o_wof_section_card">
-                                    <h4>الباقات والفواتير</h4>
-                                    <p>خيارات التحكم في خصومات الباقات وترحيل الخصم للفواتير.</p>
-                                    <group>
-                                        <field name="allow_package_discount" widget="boolean_toggle" invisible="not enable_discounts"/>
-                                        <field name="propagate_discount_to_invoice" widget="boolean_toggle" invisible="not enable_discounts"/>
-                                    </group>
+                                <div class="o_wof_section_card" style="grid-column: 1 / -1;">
+                                    <h4>جدول الخصائص</h4>
+                                    <p>استخدم مربعات الاختيار لتحديد الحقول المطلوبة أو إخفائها من الشاشة الرئيسية.</p>
+                                    <field name="field_setting_line_ids" nolabel="1">
+                                        <tree editable="bottom" create="0" delete="0" decoration-muted="hidden">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="name" string="الخاصية" readonly="1"/>
+                                            <field name="required" string="إجباري" widget="boolean_toggle" readonly="hidden"/>
+                                            <field name="hidden" string="إخفاء" widget="boolean_toggle"/>
+                                            <field name="field_key" invisible="1"/>
+                                            <field name="required_field_name" invisible="1"/>
+                                            <field name="hidden_field_name" invisible="1"/>
+                                        </tree>
+                                    </field>
+                                    <div class="alert alert-info mt16" role="alert">
+                                        عند تفعيل الإخفاء يتم إلغاء الإجبار تلقائياً لأن الحقل لن يظهر للمستخدم.
+                                    </div>
                                 </div>
                             </div>
                         </page>
@@ -140,16 +132,14 @@
                         <page string="المخزون والأفلام" name="inventory">
                             <div class="o_wof_page_intro">
                                 <h3>إعدادات المخزون والأفلام</h3>
-                                <p>تجهيز أساس تتبع استهلاك الرولات والمقاسات وخدمات إزالة الرواصق.</p>
+                                <p>إعدادات مختصرة للمقاسات وخدمات الأفلام بدون تكرار.</p>
                             </div>
                             <div class="o_wof_settings_grid">
                                 <div class="o_wof_section_card">
-                                    <h4>المقاسات والاستهلاك</h4>
-                                    <p>حدد هل يتم احتساب الفلم بالمتر المربع وكيف يتم تتبع الرول.</p>
+                                    <h4>المقاسات</h4>
+                                    <p>احتساب مقاسات الأفلام بالمتر المربع.</p>
                                     <group>
                                         <field name="enable_film_area_m2" widget="boolean_toggle"/>
-                                        <field name="enable_roll_consumption_tracking" widget="boolean_toggle"/>
-                                        <field name="roll_consumption_method" widget="radio" invisible="not enable_roll_consumption_tracking"/>
                                     </group>
                                 </div>
                                 <div class="o_wof_section_card">
@@ -165,25 +155,14 @@
                         <page string="الفواتير والدفع" name="invoice_payment">
                             <div class="o_wof_page_intro">
                                 <h3>إعدادات الفواتير والدفع</h3>
-                                <p>تحكم في توقيت إنشاء الفاتورة وسياسة التسليم بعد السداد.</p>
+                                <p>إبقاء سياسة إنشاء الفاتورة عند تأكيد أمر التركيب فقط.</p>
                             </div>
                             <div class="o_wof_settings_grid">
                                 <div class="o_wof_section_card">
                                     <h4>إنشاء الفواتير</h4>
-                                    <p>اختر سياسة واحدة فقط حتى لا تتكرر الفواتير.</p>
+                                    <p>إنشاء فاتورة تلقائياً عند تأكيد أمر التركيب.</p>
                                     <group>
                                         <field name="auto_create_invoice_on_confirm" widget="boolean_toggle"/>
-                                        <field name="create_invoice_after_full_payment" widget="boolean_toggle"/>
-                                    </group>
-                                    <div class="alert alert-info mt16" role="alert">
-                                        لا يمكن تفعيل إنشاء الفاتورة عند التأكيد وبعد اكتمال الدفع معاً.
-                                    </div>
-                                </div>
-                                <div class="o_wof_section_card">
-                                    <h4>التسليم</h4>
-                                    <p>منع تسليم السيارة قبل اكتمال السداد حسب سياسة الشركة.</p>
-                                    <group>
-                                        <field name="block_delivery_until_full_payment" widget="boolean_toggle"/>
                                     </group>
                                 </div>
                             </div>
@@ -210,50 +189,10 @@
                                     </group>
                                 </div>
                                 <div class="o_wof_section_card">
-                                    <h4>ملاحظات و QR</h4>
-                                    <p>تفعيل QR الضمان وإضافة ملاحظة تظهر أسفل تقرير أمر التركيب.</p>
+                                    <h4>ملاحظة التقرير</h4>
+                                    <p>إضافة ملاحظة تظهر أسفل تقرير أمر التركيب.</p>
                                     <group>
-                                        <field name="enable_warranty_qr" widget="boolean_toggle"/>
                                         <field name="report_footer_note" placeholder="ملاحظة تظهر أسفل تقرير أمر التركيب..."/>
-                                    </group>
-                                </div>
-                            </div>
-                        </page>
-
-                        <page string="واجهة النظام" name="main_screen_ui">
-                            <div class="o_wof_page_intro">
-                                <h3>إعدادات واجهة النظام</h3>
-                                <p>تبسيط شاشة أمر التركيب بإخفاء الحقول غير المستخدمة حسب احتياج الشركة.</p>
-                            </div>
-                            <div class="o_wof_dashboard_cards o_wof_small_summary">
-                                <div class="o_wof_dashboard_card">
-                                    <div class="o_wof_card_icon">👁️</div>
-                                    <div class="o_wof_card_body">
-                                        <strong>ملخص الواجهة</strong>
-                                        <span><field name="ui_summary" readonly="1" nolabel="1"/></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="o_wof_settings_grid">
-                                <div class="o_wof_section_card">
-                                    <h4>إخفاء بيانات السيارة</h4>
-                                    <p>هذه الخيارات لا تحذف البيانات، فقط تخفيها من الشاشة الرئيسية لاحقاً.</p>
-                                    <group>
-                                        <field name="hide_plate_number" widget="boolean_toggle"/>
-                                        <field name="hide_chassis_number" widget="boolean_toggle"/>
-                                        <field name="hide_manufacture_year" widget="boolean_toggle"/>
-                                        <field name="hide_car_color" widget="boolean_toggle"/>
-                                        <field name="hide_odometer" widget="boolean_toggle"/>
-                                    </group>
-                                </div>
-                                <div class="o_wof_section_card">
-                                    <h4>إخفاء بيانات تشغيلية</h4>
-                                    <p>إعدادات عرض بيانات الوكالة والمندوب والتسليم وإزالة الرواصق.</p>
-                                    <group>
-                                        <field name="hide_agency" widget="boolean_toggle"/>
-                                        <field name="hide_salesperson" widget="boolean_toggle"/>
-                                        <field name="hide_delivery_time" widget="boolean_toggle"/>
-                                        <field name="hide_sticker_removal" widget="boolean_toggle"/>
                                     </group>
                                 </div>
                             </div>
