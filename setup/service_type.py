@@ -160,6 +160,42 @@ class ServiceType(models.Model):
         return super().write(vals)
     
   
+
+    def action_start_configuration(self):
+        """Start configuring this service from the real master tables.
+
+        This keeps the setup flow on the main records instead of transient wizard
+        tables. Activating the service here is intentional because the user is
+        starting its setup.
+        """
+        self.ensure_one()
+        if not self.setup_enabled:
+            self.setup_enabled = True
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تهيئة %s') % (self.display_name or self.name),
+            'res_model': 'wof.film.category',
+            'view_mode': 'kanban,tree,form',
+            'domain': [('service_type_id', '=', self.id)],
+            'context': {
+                'default_service_type_id': self.id,
+                'search_default_service_type_id': self.id,
+            },
+            'target': 'current',
+        }
+
+    def action_open_details(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تفاصيل الخدمة'),
+            'res_model': 'wof.service.type',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
     # ================= SMART BUTTON =================
     def action_open_films(self):
         self.ensure_one()

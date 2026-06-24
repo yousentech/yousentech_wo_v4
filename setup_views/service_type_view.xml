@@ -16,6 +16,7 @@
                 <field name="code"/>
                 <field name="name"/>
                 <field name="service_options" />
+                <field name="setup_enabled" string="مفعلة" widget="boolean_toggle"/>
 
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="active" column_invisible="1"/>
@@ -31,10 +32,12 @@
         <field name="name">wof.service.type.wo_v4.kanban</field>
         <field name="model">wof.service.type</field>
         <field name="arch" type="xml">
-             <kanban class="o_kanban_large">
+            <kanban class="o_kanban_large o_wof_service_setup_kanban" create="1" delete="0">
 
                 <field name="name"/>
                 <field name="code"/>
+                <field name="service_options"/>
+                <field name="setup_enabled"/>
                 <field name="parts_count"/>
                 <field name="film_count"/>
                 <field name="active"/>
@@ -42,80 +45,96 @@
 
                 <templates>
                     <t t-name="kanban-box">
-
-                        <!-- 🎨 ألوان حسب النشاط -->
-                          <div t-attf-class="
-                                oe_kanban_card oe_kanban_global_click p-3
-                                    #{(record.parts_count.raw_value &gt; 0 and record.film_count.raw_value &gt; 0) ? 'border-start border-success border-4' : ''}
-                                    #{((record.parts_count.raw_value &gt; 0 and record.film_count.raw_value == 0) or (record.parts_count.raw_value == 0 and record.film_count.raw_value &gt; 0)) ? 'border-start border-warning border-4' : ''}
-                                    #{(record.parts_count.raw_value == 0 and record.film_count.raw_value == 0) ? 'border-start border-danger border-4' : ''}
-                                    #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
-                                ">
+                        <div t-attf-class="oe_kanban_card p-3 rounded shadow-sm #{record.setup_enabled.raw_value ? 'border border-primary bg-primary-subtle' : 'border bg-white'} #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}" style="min-height:245px;">
 
                             <!-- HEADER -->
-                            <div class="mb-2">
-                                <h4 class="mb-0">
-                                    <t t-if="record.code.raw_value">
-                                        [<field name="code"/>]
-                                    </t>
-                                    <field name="name"/>
-                                </h4>
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size:17px;">
+                                        <i t-attf-class="fa me-1 #{record.setup_enabled.raw_value ? 'fa-check-circle text-success' : 'fa-circle-o text-muted'}" title="حالة التفعيل"/>
+                                        <t t-if="record.code.raw_value">
+                                            [<field name="code"/>]
+                                        </t>
+                                        <field name="name"/>
+                                    </div>
+                                    <div class="text-muted small mt-1">
+                                        <t t-if="record.service_options.raw_value">
+                                            <i class="fa fa-cogs me-1" title="محرك الخدمة"/>
+                                            <field name="service_options"/>
+                                        </t>
+                                        <t t-if="!record.service_options.raw_value">
+                                            <i class="fa fa-layer-group me-1" title="خدمة عامة"/>
+                                            خدمة عامة
+                                        </t>
+                                    </div>
+                                </div>
+
+                                <div class="text-end">
+                                    <div class="text-muted small mb-1">تفعيل الخدمة</div>
+                                    <field name="setup_enabled" widget="boolean_toggle"/>
+                                </div>
                             </div>
 
-                            <hr/>
+                            <!-- STATUS -->
+                            <div class="mt-3">
+                                <span t-if="record.setup_enabled.raw_value and record.film_count.raw_value &gt; 0" class="badge bg-success px-3 py-2">
+                                    <i class="fa fa-check-circle me-1" title="مهيأة"/>
+                                    مهيأة
+                                </span>
+                                <span t-if="record.setup_enabled.raw_value and record.film_count.raw_value == 0" class="badge bg-primary px-3 py-2">
+                                    جاهزة للتهيئة
+                                </span>
+                                <span t-if="!record.setup_enabled.raw_value" class="badge bg-secondary px-3 py-2">
+                                    غير مفعلة
+                                </span>
+                            </div>
 
-                            <!-- ================= QUICK LINKS ================= -->
-                                    <div class="mt-3">
-
-                                        <!-- ================= FILMS ================= -->
-                                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-
-                                            <!-- LEFT -->
-                                            <a type="object"
-                                            name="action_open_films"
-                                            class="text-decoration-none d-flex align-items-center">
-
-                                                <!-- ICON -->
-                                                <i class="fa fa-film text-primary fa-lg me-2"></i>
-
-                                                <!-- TEXT -->
-                                                <div>
-
-                                                    <div class="fw-bold text-dark">
-                                                        الأفلام
-                                                    </div>
-
-                                                    <small class="text-muted">
-                                                        <field name="film_count"/> فيلم مرتبط
-                                                    </small>
-
-                                                </div>
-
-                                            </a>
-
-                                            <!-- ADD -->
-                                            <a type="object"
-                                            name="action_create_film"
-                                            class="text-success text-decoration-none fw-bold">
-
-                                                <i class="fa fa-plus-circle fa-lg"></i>
-
-                                            </a>
-
+                            <!-- SUMMARY -->
+                            <div class="row text-center mt-3 g-2">
+                                <div class="col-6">
+                                    <div class="border rounded p-2 bg-white">
+                                        <div class="fw-bold text-primary" style="font-size:18px;">
+                                            <field name="film_count"/>
                                         </div>
- 
+                                        <div class="text-muted small">الأفلام</div>
                                     </div>
-                            <hr/>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded p-2 bg-white">
+                                        <div class="fw-bold text-success" style="font-size:18px;">
+                                            <field name="parts_count"/>
+                                        </div>
+                                        <div class="text-muted small">الأجزاء</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ACTIONS -->
+                            <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                                <a type="object"
+                                   name="action_start_configuration"
+                                   class="btn btn-sm btn-primary"
+                                   role="button">
+                                    <i class="fa fa-play me-1" title="بدء"/>
+                                    بدء التهيئة
+                                </a>
+
+                                <a type="object"
+                                   name="action_open_details"
+                                   class="btn btn-sm btn-outline-secondary"
+                                   role="button">
+                                    <i class="fa fa-info-circle me-1" title="تفاصيل"/>
+                                    تفاصيل الخدمة
+                                </a>
+                            </div>
 
                             <!-- FOOTER -->
-                            <div class="text-muted">
-                                <small>
-                                    <field name="company_id"/>
-                                </small>
+                            <div class="text-muted small mt-3">
+                                <i class="fa fa-building-o me-1" title="الشركة"/>
+                                <field name="company_id"/>
                             </div>
 
                         </div>
-
                     </t>
                 </templates>
 
@@ -179,6 +198,7 @@
                         <group>
 
                             <field name="service_options" widget="radio"   options="{'horizontal': true}"/>
+                            <field name="setup_enabled" widget="boolean_toggle" string="مفعلة في التهيئة"/>
 
                             <field name="company_id" groups="base.group_multi_company" readonly="1" force_save="1"/>
                             <field name="active" invisible="1"/>
@@ -212,12 +232,16 @@
                 <field name="name"/>
                 <field name="code"/>
                 <field name="service_options" />
+                <field name="setup_enabled"/>
 
 
                
                 <filter string="مؤرشف"
                         name="inactive"
                         domain="[('active','=',False)]"/>
+                <filter string="مفعلة في التهيئة"
+                        name="setup_enabled"
+                        domain="[('setup_enabled','=',True)]"/>
  
                 
 
@@ -246,6 +270,7 @@
         <field name="res_model">wof.service.type</field>
         <field name="view_mode">kanban,tree,form</field>
         <field name="view_id" ref="view_wof_service_type_wo_v4_kanban"/>
+        <field name="context">{}</field>
   
     </record>
 
