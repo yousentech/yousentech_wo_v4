@@ -305,3 +305,120 @@
         margin-bottom: 14px;
     }
 }
+
+/* Lightweight service type setup cards */
+.o_wof_service_setup_kanban .o_kanban_record {
+    width: 310px !important;
+    margin: 8px 10px !important;
+}
+.o_wof_service_setup_kanban .o_wof_service_card {
+    direction: rtl;
+    min-height: 158px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 2px 7px rgba(15, 23, 42, .06);
+    padding: 12px 14px;
+    transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+.o_wof_service_setup_kanban .o_wof_service_card:hover {
+    border-color: #9aa77a;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, .10);
+    transform: translateY(-1px);
+}
+.o_wof_service_setup_kanban .o_wof_service_card_enabled {
+    border-color: #8fa06f;
+    box-shadow: 0 3px 10px rgba(80, 101, 52, .13);
+}
+.o_wof_service_setup_kanban .o_wof_service_card_top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 24px;
+}
+.o_wof_service_setup_kanban .o_wof_toggle_wrap {
+    display: flex;
+    align-items: center;
+}
+.o_wof_service_setup_kanban .o_wof_status_dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #64748b;
+    background: #ffffff;
+    display: inline-block;
+}
+.o_wof_service_setup_kanban .o_wof_status_on {
+    border-color: #16a34a;
+    background: #16a34a;
+}
+.o_wof_service_setup_kanban .o_wof_service_card_body {
+    padding-top: 8px;
+}
+.o_wof_service_setup_kanban .o_wof_service_title {
+    font-size: 18px;
+    line-height: 1.25;
+    font-weight: 800;
+    color: #172033;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.o_wof_service_setup_kanban .o_wof_service_subtitle {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.o_wof_service_setup_kanban .o_wof_service_indicators {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.o_wof_service_setup_kanban .o_wof_indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 999px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+.o_wof_service_setup_kanban .o_wof_service_card_footer {
+    margin-top: 13px;
+    padding-top: 10px;
+    border-top: 1px solid #edf2f7;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+.o_wof_service_setup_kanban .o_wof_btn_start {
+    background: #7f8f61;
+    border-color: #7f8f61;
+    color: #ffffff !important;
+    font-weight: 700;
+    border-radius: 7px;
+    padding: 4px 10px;
+}
+.o_wof_service_setup_kanban .o_wof_btn_start:hover {
+    background: #6d7d52;
+    border-color: #6d7d52;
+}
+.o_wof_service_setup_kanban .o_wof_btn_details {
+    color: #6b4e7a !important;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    font-weight: 700;
+    border-radius: 7px;
+    padding: 4px 10px;
+}
+.o_wof_service_setup_kanban .o_wof_btn_details:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}

@@ -32,7 +32,7 @@
         <field name="name">wof.service.type.wo_v4.kanban</field>
         <field name="model">wof.service.type</field>
         <field name="arch" type="xml">
-            <kanban class="o_kanban_large o_wof_service_setup_kanban" create="1" delete="0">
+            <kanban class="o_wof_service_setup_kanban" create="1" delete="0">
 
                 <field name="name"/>
                 <field name="code"/>
@@ -45,93 +45,58 @@
 
                 <templates>
                     <t t-name="kanban-box">
-                        <div t-attf-class="oe_kanban_card p-3 rounded shadow-sm #{record.setup_enabled.raw_value ? 'border border-primary bg-primary-subtle' : 'border bg-white'} #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}" style="min-height:245px;">
+                        <div t-attf-class="oe_kanban_card o_wof_service_card #{record.setup_enabled.raw_value ? 'o_wof_service_card_enabled' : ''} #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}">
 
-                            <!-- HEADER -->
-                            <div class="d-flex justify-content-between align-items-start gap-2">
-                                <div>
-                                    <div class="fw-bold text-dark" style="font-size:17px;">
-                                        <i t-attf-class="fa me-1 #{record.setup_enabled.raw_value ? 'fa-check-circle text-success' : 'fa-circle-o text-muted'}" title="حالة التفعيل"/>
-                                        <t t-if="record.code.raw_value">
-                                            [<field name="code"/>]
-                                        </t>
-                                        <field name="name"/>
-                                    </div>
-                                    <div class="text-muted small mt-1">
-                                        <t t-if="record.service_options.raw_value">
-                                            <i class="fa fa-cogs me-1" title="محرك الخدمة"/>
-                                            <field name="service_options"/>
-                                        </t>
-                                        <t t-if="!record.service_options.raw_value">
-                                            <i class="fa fa-layer-group me-1" title="خدمة عامة"/>
-                                            خدمة عامة
-                                        </t>
-                                    </div>
-                                </div>
-
-                                <div class="text-end">
-                                    <div class="text-muted small mb-1">تفعيل الخدمة</div>
+                            <div class="o_wof_service_card_top">
+                                <div class="o_wof_toggle_wrap" title="تفعيل الخدمة">
                                     <field name="setup_enabled" widget="boolean_toggle"/>
                                 </div>
+                                <span t-if="record.setup_enabled.raw_value" class="o_wof_status_dot o_wof_status_on" title="مفعلة"/>
+                                <span t-if="!record.setup_enabled.raw_value" class="o_wof_status_dot" title="غير مفعلة"/>
                             </div>
 
-                            <!-- STATUS -->
-                            <div class="mt-3">
-                                <span t-if="record.setup_enabled.raw_value and record.film_count.raw_value &gt; 0" class="badge bg-success px-3 py-2">
-                                    <i class="fa fa-check-circle me-1" title="مهيأة"/>
-                                    مهيأة
-                                </span>
-                                <span t-if="record.setup_enabled.raw_value and record.film_count.raw_value == 0" class="badge bg-primary px-3 py-2">
-                                    جاهزة للتهيئة
-                                </span>
-                                <span t-if="!record.setup_enabled.raw_value" class="badge bg-secondary px-3 py-2">
-                                    غير مفعلة
-                                </span>
-                            </div>
-
-                            <!-- SUMMARY -->
-                            <div class="row text-center mt-3 g-2">
-                                <div class="col-6">
-                                    <div class="border rounded p-2 bg-white">
-                                        <div class="fw-bold text-primary" style="font-size:18px;">
-                                            <field name="film_count"/>
-                                        </div>
-                                        <div class="text-muted small">الأفلام</div>
-                                    </div>
+                            <div class="o_wof_service_card_body">
+                                <div class="o_wof_service_title">
+                                    <field name="name"/>
                                 </div>
-                                <div class="col-6">
-                                    <div class="border rounded p-2 bg-white">
-                                        <div class="fw-bold text-success" style="font-size:18px;">
-                                            <field name="parts_count"/>
-                                        </div>
-                                        <div class="text-muted small">الأجزاء</div>
-                                    </div>
+                                <div class="o_wof_service_subtitle">
+                                    <t t-if="record.service_options.raw_value">
+                                        <i class="fa fa-cogs" title="محرك الخدمة"/>
+                                        <field name="service_options"/>
+                                    </t>
+                                    <t t-if="!record.service_options.raw_value">
+                                        <i class="fa fa-layer-group" title="خدمة عامة"/>
+                                        خدمة عامة
+                                    </t>
+                                </div>
+
+                                <div class="o_wof_service_indicators">
+                                    <span class="o_wof_indicator">
+                                        <i class="fa fa-film" title="الأفلام"/>
+                                        <field name="film_count"/> أفلام
+                                    </span>
+                                    <span class="o_wof_indicator">
+                                        <i class="fa fa-car" title="الأجزاء"/>
+                                        <field name="parts_count"/> أجزاء
+                                    </span>
                                 </div>
                             </div>
 
-                            <!-- ACTIONS -->
-                            <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                            <div class="o_wof_service_card_footer">
                                 <a type="object"
                                    name="action_start_configuration"
-                                   class="btn btn-sm btn-primary"
+                                   class="btn btn-sm o_wof_btn_start"
                                    role="button">
-                                    <i class="fa fa-play me-1" title="بدء"/>
+                                    <i class="fa fa-play" title="بدء التهيئة"/>
                                     بدء التهيئة
                                 </a>
-
                                 <a type="object"
                                    name="action_open_details"
-                                   class="btn btn-sm btn-outline-secondary"
+                                   class="btn btn-sm o_wof_btn_details"
                                    role="button">
-                                    <i class="fa fa-info-circle me-1" title="تفاصيل"/>
-                                    تفاصيل الخدمة
+                                    <i class="fa fa-pencil" title="تفاصيل الخدمة"/>
+                                    التفاصيل
                                 </a>
-                            </div>
-
-                            <!-- FOOTER -->
-                            <div class="text-muted small mt-3">
-                                <i class="fa fa-building-o me-1" title="الشركة"/>
-                                <field name="company_id"/>
                             </div>
 
                         </div>
