@@ -655,3 +655,52 @@
     margin-right: 6px !important;
     margin-left: 0 !important;
 }
+
+/* ==========================================================
+   Service Types screen RTL fix
+   السبب: الكارد RTL لكن شريط التحكم والـ kanban renderer بقيت باتجاه LTR من Odoo.
+   الحل هنا محصور على شاشة أنواع الخدمات فقط باستخدام :has حتى لا يلمس باقي الشاشات.
+   ========================================================== */
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_control_panel,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_top,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_bottom,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_control_panel_main,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_control_panel_actions {
+    direction: rtl !important;
+    text-align: right !important;
+}
+
+/* زر جديد يرجع في جهة اليمين، وأزرار العرض/التنقل تبقى في الجهة المقابلة */
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_control_panel_main,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_top,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_bottom {
+    flex-direction: row-reverse !important;
+}
+
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_control_panel_navigation,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_pager,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_switch_buttons,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_searchview,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_searchview_input_container {
+    direction: rtl !important;
+}
+
+/* ترتيب الكروت يبدأ من اليمين بدل اليسار */
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_renderer {
+    direction: rtl !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    flex-direction: row-reverse !important;
+    justify-content: flex-start !important;
+    align-content: flex-start !important;
+}
+
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_record {
+    direction: rtl !important;
+}
+
+/* ضمان أن العنوان والقيمة داخل الكارد من اليمين بدون تغيير خط أودو */
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_card,
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_card *:not(.fa) {
+    font-family: inherit !important;
+}
