@@ -307,128 +307,351 @@
 }
 
 /* Lightweight service type setup cards */
-.o_wof_service_setup_kanban {
-    direction: rtl;
-}
 .o_wof_service_setup_kanban .o_kanban_record {
-    width: 315px !important;
-    margin: 8px 9px !important;
+    width: 310px !important;
+    margin: 8px 10px !important;
 }
 .o_wof_service_setup_kanban .o_wof_service_card {
     direction: rtl;
-    text-align: right;
-    min-height: 165px;
+    min-height: 158px;
     border: 1px solid #e2e8f0;
-    border-radius: 6px;
+    border-radius: 12px;
     background: #ffffff;
     box-shadow: 0 2px 7px rgba(15, 23, 42, .06);
     padding: 12px 14px;
     transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
-    font-family: inherit;
 }
 .o_wof_service_setup_kanban .o_wof_service_card:hover {
-    border-color: #d6dce5;
+    border-color: #9aa77a;
     box-shadow: 0 8px 18px rgba(15, 23, 42, .10);
     transform: translateY(-1px);
 }
 .o_wof_service_setup_kanban .o_wof_service_card_enabled {
-    border-color: #d6dce5;
+    border-color: #8fa06f;
+    box-shadow: 0 3px 10px rgba(80, 101, 52, .13);
 }
 .o_wof_service_setup_kanban .o_wof_service_card_top {
-    direction: ltr;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 28px;
-    gap: 10px;
+    min-height: 24px;
 }
 .o_wof_service_setup_kanban .o_wof_toggle_wrap {
-    direction: ltr;
     display: flex;
     align-items: center;
-    flex: 0 0 auto;
 }
-.o_wof_service_setup_kanban .o_wof_service_title {
-    direction: rtl;
-    text-align: right;
-    flex: 1 1 auto;
-    min-width: 0;
-    font-size: 18px;
-    line-height: 1.25;
-    font-weight: 700;
-    color: #172033;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.o_wof_service_setup_kanban .o_wof_status_dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #64748b;
+    background: #ffffff;
+    display: inline-block;
+}
+.o_wof_service_setup_kanban .o_wof_status_on {
+    border-color: #16a34a;
+    background: #16a34a;
 }
 .o_wof_service_setup_kanban .o_wof_service_card_body {
-    position: relative;
-    direction: rtl;
-    text-align: right;
-    padding-top: 16px;
-    min-height: 72px;
+    padding-top: 8px;
 }
-.o_wof_service_setup_kanban .o_wof_service_label {
-    direction: rtl;
-    text-align: right;
-    font-size: 13px;
-    color: #64748b;
-    margin-bottom: 6px;
-}
-.o_wof_service_setup_kanban .o_wof_service_value {
-    direction: rtl;
-    text-align: right;
-    font-size: 15px;
+.o_wof_service_setup_kanban .o_wof_service_title {
+    font-size: 18px;
+    line-height: 1.25;
+    font-weight: 800;
     color: #172033;
-    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-left: 28px;
 }
-.o_wof_service_setup_kanban .o_wof_card_edit {
-    position: absolute;
-    left: 4px;
-    bottom: 2px;
-    color: #875A7B !important;
-    font-size: 14px;
-    text-decoration: none !important;
+.o_wof_service_setup_kanban .o_wof_service_subtitle {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
-.o_wof_service_setup_kanban .o_wof_card_edit:hover {
-    color: #68465f !important;
+.o_wof_service_setup_kanban .o_wof_service_indicators {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.o_wof_service_setup_kanban .o_wof_indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 999px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
 }
 .o_wof_service_setup_kanban .o_wof_service_card_footer {
-    margin-top: 12px;
+    margin-top: 13px;
+    padding-top: 10px;
+    border-top: 1px solid #edf2f7;
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    direction: rtl;
 }
 .o_wof_service_setup_kanban .o_wof_btn_start {
-    background: #00979d;
-    border-color: #00979d;
+    background: #7f8f61;
+    border-color: #7f8f61;
     color: #ffffff !important;
     font-weight: 700;
-    border-radius: 4px;
-    padding: 6px 14px;
-    min-width: 112px;
-    text-align: center;
+    border-radius: 7px;
+    padding: 4px 10px;
 }
 .o_wof_service_setup_kanban .o_wof_btn_start:hover {
-    background: #00868b;
-    border-color: #00868b;
+    background: #6d7d52;
+    border-color: #6d7d52;
 }
 .o_wof_service_setup_kanban .o_wof_btn_details {
-    color: #172033 !important;
+    color: #6b4e7a !important;
     background: #ffffff;
-    border: 1px solid #cfd6df;
+    border: 1px solid #e2e8f0;
     font-weight: 700;
-    border-radius: 4px;
-    padding: 6px 12px;
-    min-width: 112px;
-    text-align: center;
+    border-radius: 7px;
+    padding: 4px 10px;
 }
 .o_wof_service_setup_kanban .o_wof_btn_details:hover {
     background: #f8fafc;
-    border-color: #b9c2cf;
+    border-color: #cbd5e1;
+}
+
+/* ==========================================================
+   Service Types Clean Setup Kanban - Odoo default typography
+   ========================================================== */
+.o_wof_service_setup_kanban.o_wof_service_cards_clean {
+    direction: rtl;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_renderer {
+    position: relative;
+    padding-top: 156px !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_renderer:before {
+    content: "⚙️  تهيئة أنواع الخدمات";
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    height: 56px;
+    border-radius: 4px 4px 0 0;
+    background: #d8f2f7;
+    color: #1f2937;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 10px;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_renderer:after {
+    content: "فعل الخدمات التي تريد التعامل معها، ثم اضغط بدء التهيئة للدخول مباشرة إلى الأجزاء والأسعار والعمولات.\A•";
+    white-space: pre-line;
+    position: absolute;
+    top: 72px;
+    left: 16px;
+    right: 16px;
+    height: 64px;
+    border-radius: 0 0 4px 4px;
+    background: #d8f2f7;
+    color: #5f6f7f;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: center;
+    padding-top: 0;
+    line-height: 1.9;
+    font-size: 14px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_record {
+    width: 280px !important;
+    min-width: 280px !important;
+    margin: 0 8px 14px 8px !important;
+}
+.o_wof_service_clean_card {
+    position: relative;
+    min-height: 182px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    padding: 18px 18px 16px;
+    direction: rtl;
+    text-align: right;
+    font-family: inherit;
+    overflow: hidden;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+}
+.o_wof_service_clean_card:hover {
+    transform: translateY(-1px);
+    border-color: #cfd6df;
+    box-shadow: 0 6px 15px rgba(0,0,0,.09);
+}
+.o_wof_service_clean_card.o_wof_service_clean_card_enabled {
+    border-color: #b7c8a2;
+}
+.o_wof_service_clean_toggle {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    z-index: 2;
+}
+.o_wof_service_clean_toggle .o_field_boolean_toggle {
+    margin: 0;
+}
+.o_wof_service_clean_edit {
+    position: absolute;
+    top: 92px;
+    left: 20px;
+    z-index: 2;
+}
+.o_wof_service_clean_edit a {
+    color: #875A7B !important;
+    font-size: 13px;
+    text-decoration: none !important;
+}
+.o_wof_service_clean_body {
+    padding-left: 54px;
+    min-height: 104px;
+}
+.o_wof_service_clean_title {
+    color: #1f2937;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 4px 0 24px;
+    min-height: 26px;
+}
+.o_wof_service_clean_label {
+    color: #6b7280;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+.o_wof_service_clean_value {
+    color: #111827;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.35;
+}
+.o_wof_service_clean_footer {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 14px;
+}
+.o_wof_btn_clean_start,
+.o_wof_btn_clean_start:focus {
+    min-width: 112px;
+    border-radius: 4px !important;
+    border: 1px solid #008f93 !important;
+    background: #00979d !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 7px 11px !important;
+    box-shadow: none !important;
+}
+.o_wof_btn_clean_start:hover {
+    background: #00858a !important;
+    border-color: #00858a !important;
+    color: #fff !important;
+}
+.o_wof_btn_clean_start .fa {
+    margin-right: 7px;
+}
+.o_wof_btn_clean_details,
+.o_wof_btn_clean_details:focus {
+    min-width: 118px;
+    border-radius: 4px !important;
+    border: 1px solid #d0d7de !important;
+    background: #fff !important;
+    color: #374151 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 7px 10px !important;
+    box-shadow: none !important;
+}
+.o_wof_btn_clean_details:hover {
+    background: #f8fafc !important;
+    color: #111827 !important;
+}
+.o_wof_btn_clean_details .fa {
+    margin-right: 6px;
+}
+@media (max-width: 768px) {
+    .o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_record {
+        width: calc(100% - 16px) !important;
+        min-width: calc(100% - 16px) !important;
+    }
+    .o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_renderer:before,
+    .o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_renderer:after {
+        left: 8px;
+        right: 8px;
+    }
+}
+
+
+/* ==========================================================
+   Service Types Kanban final RTL cleanup
+   - Keep Odoo default font
+   - Toggle fixed top-left
+   - Arabic text aligned from right
+   - No extra indicators
+   ========================================================== */
+.o_wof_service_setup_kanban.o_wof_service_cards_clean {
+    direction: rtl !important;
+    font-family: inherit !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_renderer {
+    direction: rtl !important;
+}
+.o_wof_service_clean_card {
+    direction: rtl !important;
+    text-align: right !important;
+    font-family: inherit !important;
+}
+.o_wof_service_clean_toggle {
+    left: 18px !important;
+    right: auto !important;
+    top: 18px !important;
+}
+.o_wof_service_clean_body,
+.o_wof_service_clean_title,
+.o_wof_service_clean_label,
+.o_wof_service_clean_value {
+    direction: rtl !important;
+    text-align: right !important;
+    font-family: inherit !important;
+}
+.o_wof_service_clean_body {
+    padding-left: 54px !important;
+    padding-right: 0 !important;
+}
+.o_wof_service_clean_title {
+    padding-right: 0 !important;
+}
+.o_wof_service_clean_edit {
+    left: 20px !important;
+    right: auto !important;
+}
+.o_wof_service_clean_footer {
+    direction: rtl !important;
+    flex-direction: row !important;
+}
+.o_wof_btn_clean_start .fa,
+.o_wof_btn_clean_details .fa {
+    margin-right: 6px !important;
+    margin-left: 0 !important;
 }

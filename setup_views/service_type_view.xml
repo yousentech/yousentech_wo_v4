@@ -32,58 +32,54 @@
         <field name="name">wof.service.type.wo_v4.kanban</field>
         <field name="model">wof.service.type</field>
         <field name="arch" type="xml">
-            <kanban class="o_wof_service_setup_kanban" create="1" delete="0">
+            <kanban class="o_wof_service_setup_kanban o_wof_service_cards_clean" create="1" delete="0" sample="0">
 
                 <field name="name"/>
                 <field name="code"/>
                 <field name="service_options"/>
                 <field name="setup_enabled"/>
-                <field name="parts_count"/>
-                <field name="film_count"/>
                 <field name="active"/>
                 <field name="company_id"/>
 
                 <templates>
                     <t t-name="kanban-box">
-                        <div t-attf-class="oe_kanban_card o_wof_service_card #{record.setup_enabled.raw_value ? 'o_wof_service_card_enabled' : ''} #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}">
+                        <div t-attf-class="oe_kanban_card o_wof_service_clean_card #{record.setup_enabled.raw_value ? 'o_wof_service_clean_card_enabled' : ''} #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}" dir="rtl">
 
-                            <div class="o_wof_service_card_top">
-                                <div class="o_wof_service_title">
-                                    <field name="name"/>
-                                </div>
-                                <div class="o_wof_toggle_wrap" title="تفعيل الخدمة">
-                                    <field name="setup_enabled" widget="boolean_toggle"/>
-                                </div>
+                            <div class="o_wof_service_clean_toggle" title="تفعيل الخدمة">
+                                <field name="setup_enabled" widget="boolean_toggle"/>
                             </div>
 
-                            <div class="o_wof_service_card_body">
-                                <div class="o_wof_service_label">اسم الخدمة</div>
-                                <div class="o_wof_service_value">
-                                    <field name="name"/>
-                                </div>
-                                <a type="object"
-                                   name="action_open_details"
-                                   class="o_wof_card_edit"
-                                   title="تعديل تفاصيل الخدمة"
-                                   role="button">
+                            <div class="o_wof_service_clean_edit">
+                                <a type="object" name="action_open_details" title="تعديل الخدمة" role="button">
                                     <i class="fa fa-pencil"/>
                                 </a>
                             </div>
 
-                            <div class="o_wof_service_card_footer">
+                            <div class="o_wof_service_clean_body">
+                                <div class="o_wof_service_clean_title">
+                                    <field name="name"/>
+                                </div>
+
+                                <div class="o_wof_service_clean_label">اسم الخدمة</div>
+                                <div class="o_wof_service_clean_value">
+                                    <field name="name"/>
+                                </div>
+                            </div>
+
+                            <div class="o_wof_service_clean_footer">
                                 <a type="object"
                                    name="action_start_configuration"
-                                   class="btn btn-sm o_wof_btn_start"
+                                   class="btn btn-sm o_wof_btn_clean_start"
                                    role="button">
-                                    <i class="fa fa-play" title="بدء التهيئة"/>
                                     بدء التهيئة
+                                    <i class="fa fa-play"/>
                                 </a>
                                 <a type="object"
                                    name="action_open_details"
-                                   class="btn btn-sm o_wof_btn_details"
+                                   class="btn btn-sm o_wof_btn_clean_details"
                                    role="button">
-                                    <i class="fa fa-pencil" title="تفاصيل الخدمة"/>
-                                    التفاصيل
+                                    تفاصيل الخدمة
+                                    <i class="fa fa-file-text-o"/>
                                 </a>
                             </div>
 
@@ -215,7 +211,7 @@
     ========================== -->
 
     <record id="action_service_types_wo_v4" model="ir.actions.act_window">
-        <field name="name">أنواع الخدمات</field>
+        <field name="name">تهيئة أنواع الخدمات</field>
         <field name="res_model">wof.service.type</field>
         <field name="view_mode">kanban,tree,form</field>
         <field name="view_id" ref="view_wof_service_type_wo_v4_kanban"/>
