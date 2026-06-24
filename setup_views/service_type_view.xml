@@ -49,21 +49,24 @@
                                 <field name="setup_enabled" widget="boolean_toggle"/>
                             </div>
 
-                            <div class="o_wof_service_clean_edit">
-                                <a type="object" name="action_open_details" title="تعديل الخدمة" role="button">
-                                    <i class="fa fa-pencil"/>
-                                </a>
-                            </div>
-
-                            <div class="o_wof_service_clean_body">
+                            <div class="o_wof_service_clean_head">
+                                <span t-attf-class="o_wof_service_clean_state_dot #{record.setup_enabled.raw_value ? 'o_wof_service_clean_state_on' : ''}"/>
                                 <div class="o_wof_service_clean_title">
                                     <field name="name"/>
                                 </div>
+                            </div>
 
+                            <div class="o_wof_service_clean_body">
                                 <div class="o_wof_service_clean_label">اسم الخدمة</div>
                                 <div class="o_wof_service_clean_value">
                                     <field name="name"/>
                                 </div>
+                            </div>
+
+                            <div class="o_wof_service_clean_edit">
+                                <a type="object" name="action_open_details" title="تعديل الخدمة" role="button">
+                                    <i class="fa fa-pencil"/>
+                                </a>
                             </div>
 
                             <div class="o_wof_service_clean_footer">
@@ -72,7 +75,6 @@
                                    class="btn btn-sm o_wof_btn_clean_start"
                                    role="button">
                                     بدء التهيئة
-                                    <i class="fa fa-play"/>
                                 </a>
                                 <a type="object"
                                    name="action_open_details"

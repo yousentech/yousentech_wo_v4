@@ -704,3 +704,158 @@
 .o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_card *:not(.fa) {
     font-family: inherit !important;
 }
+
+/* ==========================================================
+   FINAL FIX 2026-06-24
+   اجعل شاشة أنواع الخدمات بنفس منطق واجهة التهيئة:
+   - بداية الكروت من اليمين.
+   - زر جديد والعنوان في اليمين.
+   - التبديل أعلى اليسار.
+   - الكارد خفيف وأفقي بصرياً مثل شاشة المعالج.
+   ========================================================== */
+.o_wof_service_setup_kanban.o_wof_service_cards_clean,
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_renderer {
+    direction: rtl !important;
+    text-align: right !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_renderer {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    flex-direction: row !important; /* لا تستخدم row-reverse لأن direction:rtl يبدأ من اليمين */
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    gap: 0 !important;
+    padding-top: 156px !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_record {
+    width: 300px !important;
+    min-width: 300px !important;
+    margin: 0 8px 14px 8px !important;
+    direction: rtl !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_card {
+    min-height: 170px !important;
+    padding: 18px 18px 14px !important;
+    border-radius: 4px !important;
+    border: 1px solid #dee2e6 !important;
+    background: #fff !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08) !important;
+    direction: rtl !important;
+    text-align: right !important;
+    font-family: inherit !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_card_enabled {
+    border-color: #9aa77a !important;
+    box-shadow: 0 2px 6px rgba(80,101,52,.12) !important;
+}
+.o_wof_service_clean_head {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 5px !important;
+    padding-left: 50px !important;
+    min-height: 30px !important;
+}
+.o_wof_service_clean_state_dot {
+    width: 13px !important;
+    height: 13px !important;
+    border-radius: 50% !important;
+    border: 2px solid #6b7280 !important;
+    background: #fff !important;
+    flex: 0 0 auto !important;
+}
+.o_wof_service_clean_state_dot.o_wof_service_clean_state_on {
+    border-color: #875A7B !important;
+    background: #875A7B !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_title {
+    margin: 0 !important;
+    min-height: 0 !important;
+    font-size: 18px !important;
+    font-weight: 500 !important;
+    color: #1f2937 !important;
+    line-height: 1.35 !important;
+    text-align: right !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_toggle {
+    top: 20px !important;
+    left: 18px !important;
+    right: auto !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_body {
+    padding: 22px 0 0 54px !important;
+    min-height: 68px !important;
+    text-align: right !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_label {
+    font-size: 13px !important;
+    color: #6b7280 !important;
+    margin-bottom: 5px !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_value {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: #111827 !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_edit {
+    top: 96px !important;
+    left: 20px !important;
+    right: auto !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_service_clean_footer {
+    direction: rtl !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_btn_clean_start {
+    min-width: 96px !important;
+    padding: 6px 10px !important;
+    background: #7f8f61 !important;
+    border-color: #7f8f61 !important;
+    color: #fff !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+.o_wof_service_setup_kanban.o_wof_service_cards_clean .o_wof_btn_clean_details {
+    min-width: 112px !important;
+    padding: 6px 10px !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+/* إصلاح الشريط العلوي لهذه الشاشة فقط */
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_control_panel,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_top,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_bottom,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_control_panel_main {
+    direction: rtl !important;
+    text-align: right !important;
+    flex-direction: row !important;
+}
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_control_panel_actions,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_buttons {
+    order: 1 !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+}
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_control_panel_navigation,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_pager,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_cp_switch_buttons {
+    order: 3 !important;
+}
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_searchview,
+.o_action_manager:has(.o_wof_service_setup_kanban.o_wof_service_cards_clean) .o_searchview_input_container {
+    direction: rtl !important;
+    text-align: right !important;
+}
+@media (max-width: 768px) {
+    .o_wof_service_setup_kanban.o_wof_service_cards_clean .o_kanban_record {
+        width: calc(100% - 16px) !important;
+        min-width: calc(100% - 16px) !important;
+    }
+}
