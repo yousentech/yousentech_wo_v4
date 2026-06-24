@@ -1977,12 +1977,25 @@
         </field>
     </record>
 
-    <record id="action_wof_setup_wizard" model="ir.actions.act_window">
+    <record id="action_wof_setup_wizard" model="ir.actions.server">
         <field name="name">تهيئة النظام</field>
-        <field name="res_model">wof.setup.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">current</field>
-        <field name="context">{'create': False, 'delete': False}</field>
+        <field name="model_id" ref="model_wof_setup_wizard"/>
+        <field name="state">code</field>
+        <field name="code">action = env['wof.setup.wizard'].action_open_company_setup()</field>
     </record>
+
+    <record id="action_wof_setup_service_types_wizard" model="ir.actions.server">
+        <field name="name">تهيئة أنواع الخدمات</field>
+        <field name="model_id" ref="model_wof_setup_wizard"/>
+        <field name="state">code</field>
+        <field name="code">action = env['wof.setup.wizard'].action_open_company_service_setup()</field>
+    </record>
+
+    <menuitem id="menu_wof_setup_service_types_wizard"
+              name="تهيئة أنواع الخدمات"
+              parent="menu_wo_v4_configuration"
+              action="action_wof_setup_service_types_wizard"
+              sequence="0"
+              groups="yousentech_wo_v4.group_wo_manager"/>
 
 </odoo>

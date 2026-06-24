@@ -20,10 +20,9 @@ if not setup:
     action = env['wof.setup.wizard'].action_open_company_setup()
 
 else:
-    
-    action = env.ref(
-        'yousentech_wo_v4.action_service_types_wo_v4'
-    ).read()[0]
+    # بعد اكتمال التهيئة افتح نفس شاشة الويزارد الخاصة بأنواع الخدمات،
+    # وليس شاشة Kanban CRUD العادية، حتى يبقى التصميم والخطوات كما هي.
+    action = env['wof.setup.wizard'].action_open_company_service_setup()
 
 </field>
 

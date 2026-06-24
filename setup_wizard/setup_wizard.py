@@ -84,11 +84,10 @@ class WofSetupWizard(models.Model):
         return setup
 
     @api.model
-    def action_open_company_setup(self):
-        setup = self.get_company_setup()
+    def _open_company_setup_action(self, setup, name=None):
         return {
             'type': 'ir.actions.act_window',
-            'name': _('تهيئة نظام أفلام السيارات'),
+            'name': name or _('تهيئة نظام أفلام السيارات'),
             'res_model': 'wof.setup.wizard',
             'res_id': setup.id,
             'view_mode': 'form',
@@ -96,6 +95,24 @@ class WofSetupWizard(models.Model):
             'context': {'create': False, 'delete': False},
             'flags': {'mode': 'edit'},
         }
+
+    @api.model
+    def action_open_company_setup(self):
+        setup = self.get_company_setup()
+        return self._open_company_setup_action(setup)
+
+    @api.model
+    def action_open_company_service_setup(self):
+        """Open the singleton setup wizard directly on the services step.
+
+        This is used after the initial setup is completed so managers can come
+        back to the same wizard screen that contains the service cards instead
+        of being sent to the normal CRUD kanban for service types.
+        """
+        setup = self.get_company_setup()
+        if setup.step != 'service_types':
+            setup.sudo().write({'step': 'service_types'})
+        return self._open_company_setup_action(setup, _('تهيئة أنواع الخدمات'))
 
     def _rebuild_lines_from_master_defaults(self):
         self.ensure_one()
