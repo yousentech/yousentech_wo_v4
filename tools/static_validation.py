@@ -50,6 +50,59 @@ def literal_assignment(tree, name):
     return None
 
 
+def accepts_odoo_default_call(function):
+    """Return whether Odoo can call a local default with a model recordset."""
+    arguments = function.args
+    positional = len(arguments.posonlyargs) + len(arguments.args)
+    required_positional = positional - len(arguments.defaults)
+    required_keyword_only = sum(
+        default is None for default in arguments.kw_defaults
+    )
+    accepts_one_positional = (
+        required_positional <= 1
+        and (positional >= 1 or arguments.vararg is not None)
+    )
+    return accepts_one_positional and required_keyword_only == 0
+
+
+def validate_field_default(
+    validation, path, model_name, field_name, expression,
+    module_functions, class_functions,
+):
+    """Validate local field default callables against Odoo's call convention."""
+    function = None
+    callable_name = None
+
+    if isinstance(expression, ast.Lambda):
+        function = expression
+        callable_name = "lambda"
+    elif isinstance(expression, ast.Name):
+        callable_name = expression.id
+        function = class_functions.get(callable_name) or module_functions.get(
+            callable_name
+        )
+        if function is None:
+            validation.counts["external_callable_defaults"] += 1
+            return
+    elif isinstance(expression, ast.Attribute):
+        # Framework defaults such as fields.Datetime.now are maintained by
+        # Odoo itself. Count them, while limiting signature checks to code
+        # owned by this addon.
+        validation.counts["external_callable_defaults"] += 1
+        return
+    else:
+        return
+
+    validation.counts["local_callable_defaults"] += 1
+    validation.require(
+        not isinstance(function, ast.AsyncFunctionDef)
+        and accepts_odoo_default_call(function),
+        f"Invalid callable default signature "
+        f"{path.relative_to(ROOT)}:{model_name}.{field_name} "
+        f"default={callable_name}; Odoo passes one model recordset argument",
+    )
+
+
 def parse_python(validation):
     models = {}
     inherited_models = set()
@@ -69,10 +122,20 @@ def parse_python(validation):
             validation.errors.append(f"Python syntax: {path.relative_to(ROOT)}: {exc}")
             continue
         validation.counts["python_files"] += 1
+        module_functions = {
+            node.name: node
+            for node in tree.body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
 
         for node in tree.body:
             if not isinstance(node, ast.ClassDef):
                 continue
+            class_functions = {
+                item.name: item
+                for item in node.body
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            }
             model_name = literal_assignment(node, "_name")
             inherited = literal_assignment(node, "_inherit")
             if isinstance(inherited, str):
@@ -109,6 +172,16 @@ def parse_python(validation):
                 info = {"type": kind, "keywords": {}}
                 for keyword in call.keywords:
                     if keyword.arg:
+                        if keyword.arg == "default":
+                            validate_field_default(
+                                validation,
+                                path,
+                                model_name,
+                                target.id,
+                                keyword.value,
+                                module_functions,
+                                class_functions,
+                            )
                         try:
                             info["keywords"][keyword.arg] = ast.literal_eval(keyword.value)
                         except (ValueError, TypeError):
@@ -206,6 +279,37 @@ def parse_manifest(validation):
             relative = asset[len(prefix):] if asset.startswith(prefix) else asset
             validation.require((ROOT / relative).is_file(), f"Missing asset: {asset}")
     return manifest, paths
+
+
+def check_python_import_wiring(validation):
+    """Ensure every addon Python module is loaded by its package."""
+    for init_path in sorted(ROOT.rglob("__init__.py")):
+        if "__pycache__" in init_path.parts:
+            continue
+        package_dir = init_path.parent
+        tree = ast.parse(
+            init_path.read_text(encoding="utf-8"), filename=str(init_path)
+        )
+        imported = set()
+        for node in tree.body:
+            if not isinstance(node, ast.ImportFrom) or node.level != 1:
+                continue
+            if node.module:
+                imported.add(node.module.split(".", 1)[0])
+            else:
+                imported.update(alias.name for alias in node.names)
+        expected = {
+            path.stem
+            for path in package_dir.glob("*.py")
+            if path.name not in {"__init__.py", "__manifest__.py"}
+        }
+        missing = expected - imported
+        validation.require(
+            not missing,
+            f"Python modules are not imported by "
+            f"{init_path.relative_to(ROOT)}: {', '.join(sorted(missing))}",
+        )
+        validation.counts["python_modules_wired"] += len(expected)
 
 
 def parse_xml(validation, paths, methods, fields):
@@ -685,6 +789,7 @@ def check_policy(validation):
 def main():
     validation = Validation()
     manifest, xml_paths = parse_manifest(validation)
+    check_python_import_wiring(validation)
     models, methods, fields = parse_python(validation)
     declared = parse_xml(validation, xml_paths, methods, fields)
     check_xml_load_order(validation, xml_paths)

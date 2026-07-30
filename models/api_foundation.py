@@ -19,7 +19,8 @@ TECHNICAL_CODE_RE = re.compile(r'^[A-Z0-9][A-Z0-9._-]*$')
 OPERATION_SOURCE_TOKEN = object()
 
 
-def _new_public_uuid():
+def _new_public_uuid(_recordset=None):
+    """Return a UUID4 for both direct calls and Odoo field defaults."""
     return str(uuid.uuid4())
 
 
