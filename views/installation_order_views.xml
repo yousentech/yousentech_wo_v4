@@ -132,6 +132,7 @@
             <tree string="تقدم تنفيذ الخدمات" editable="bottom"
                   create="0" delete="0"
                   decoration-success="execution_progress == 100">
+                <field name="company_id" column_invisible="True"/>
                 <field name="service_type_id" readonly="1"/>
                 <field name="film_category_id" readonly="1"/>
                 <field name="car_part_id" readonly="1"/>
@@ -205,6 +206,7 @@
                 <field name="currency_id" column_invisible="True"/>
                 <field name="amount_total" sum="الإجمالي"/>
                 <field name="state" widget="badge"/>
+                <field name="company_id" column_invisible="True"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </tree>
         </field>
@@ -215,6 +217,7 @@
         <field name="model">wof.installation.order</field>
         <field name="arch" type="xml">
             <kanban default_group_by="state" class="o_kanban_small_column wof_order_kanban">
+                <field name="company_id"/>
                 <field name="name"/>
                 <field name="state"/>
                 <field name="partner_id"/>
@@ -260,6 +263,7 @@
         <field name="model">wof.installation.order</field>
         <field name="arch" type="xml">
             <search string="البحث في أوامر التركيب">
+                <field name="company_id" invisible="1"/>
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="vehicle_plate"/>

@@ -26,6 +26,19 @@ EXTERNAL_PREFIXES = {
     "sale",
     "stock",
 }
+XML_MOJIBAKE_MARKERS = (
+    "\ufffd",
+    "ط§",
+    "ط£",
+    "ط¥",
+    "ط©",
+    "ط±",
+    "ط¹",
+    "ط³",
+    "ط´",
+    "ظ„",
+    "ظ…",
+)
 
 
 class Validation:
@@ -281,6 +294,33 @@ def parse_manifest(validation):
     return manifest, paths
 
 
+def check_xml_encoding(validation):
+    """Reject non-UTF-8 XML and common double-decoded Arabic text."""
+    for path in sorted(ROOT.rglob("*.xml")):
+        try:
+            source = path.read_bytes().decode("utf-8")
+        except UnicodeDecodeError as exc:
+            validation.errors.append(
+                f"XML is not valid UTF-8: {path.relative_to(ROOT)}: {exc}"
+            )
+            continue
+        declaration = re.match(r"<\?xml[^>]*encoding=['\"]([^'\"]+)", source)
+        if declaration:
+            validation.require(
+                declaration.group(1).lower().replace("_", "-") == "utf-8",
+                f"XML declaration is not UTF-8: {path.relative_to(ROOT)}",
+            )
+        found_markers = [
+            marker for marker in XML_MOJIBAKE_MARKERS if marker in source
+        ]
+        validation.require(
+            not found_markers,
+            f"Possible Arabic mojibake in {path.relative_to(ROOT)}: "
+            + ", ".join(repr(marker) for marker in found_markers),
+        )
+        validation.counts["xml_utf8_files"] += 1
+
+
 def check_python_import_wiring(validation):
     """Ensure every addon Python module is loaded by its package."""
     for init_path in sorted(ROOT.rglob("__init__.py")):
@@ -418,6 +458,60 @@ def parse_xml(validation, paths, methods, fields):
                             validate_arch(child, child_model)
 
                     validate_arch(arch, view_model)
+
+                    def validate_check_company_scope(scope, active_model):
+                        company_field_available = False
+                        check_company_fields = []
+
+                        def walk(node, restricted_by_groups=False):
+                            nonlocal company_field_available
+                            for child in node:
+                                restricted = (
+                                    restricted_by_groups
+                                    or bool(child.get("groups"))
+                                )
+                                if child.tag != "field":
+                                    walk(child, restricted)
+                                    continue
+                                name = child.get("name")
+                                info = fields.get(active_model, {}).get(name, {})
+                                if name == "company_id" and not restricted:
+                                    company_field_available = True
+                                if info.get("keywords", {}).get("check_company") is True:
+                                    check_company_fields.append(name)
+
+                                relation = info.get("relation")
+                                nested_views = [
+                                    nested
+                                    for nested in child
+                                    if nested.tag in {
+                                        "form", "list", "tree", "kanban"
+                                    }
+                                ]
+                                for nested in nested_views:
+                                    if relation in fields:
+                                        validate_check_company_scope(
+                                            nested, relation
+                                        )
+                                for nested in child:
+                                    if nested not in nested_views:
+                                        walk(nested, restricted)
+
+                        walk(scope)
+                        if check_company_fields:
+                            validation.counts[
+                                "check_company_view_scopes"
+                            ] += 1
+                            validation.require(
+                                company_field_available,
+                                f"View {record_id} exposes check_company field(s) "
+                                f"{', '.join(sorted(set(check_company_fields)))} "
+                                f"for {active_model} without an unrestricted "
+                                f"technical company_id",
+                            )
+
+                    for view_root in arch:
+                        validate_check_company_scope(view_root, view_model)
                     for button in arch.findall(".//button[@type='object']"):
                         action_buttons.append((path, record_id, view_model, button.get("name")))
         ordered_ids.update(
@@ -789,6 +883,7 @@ def check_policy(validation):
 def main():
     validation = Validation()
     manifest, xml_paths = parse_manifest(validation)
+    check_xml_encoding(validation)
     check_python_import_wiring(validation)
     models, methods, fields = parse_python(validation)
     declared = parse_xml(validation, xml_paths, methods, fields)

@@ -11,6 +11,7 @@
                 <field name="service_type_id"/>
                 <field name="warranty_years"/>
                 <field name="is_effected_in_inventory"/>
+                <field name="company_id" column_invisible="1"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="active" column_invisible="1"/>
             </tree>
@@ -23,6 +24,7 @@
         <field name="arch" type="xml">
             <form string="فئة فيلم">
                 <sheet>
+                    <field name="company_id" invisible="1"/>
                     <widget name="web_ribbon" title="مؤرشف" bg_color="bg-danger"
                             invisible="active"/>
                     <div class="oe_button_box" name="button_box">
@@ -55,6 +57,7 @@
                         <page string="الأجزاء والأسعار">
                             <field name="film_part_line_ids">
                                 <tree editable="bottom">
+                                    <field name="company_id" column_invisible="1"/>
                                     <field name="sequence" widget="handle"/>
                                     <field name="part_selected"/>
                                     <field name="car_part_id"/>
@@ -71,6 +74,7 @@
                         <page string="درجات الفيلم والمنتجات">
                             <field name="film_category_line_ids">
                                 <tree editable="bottom">
+                                    <field name="company_id" column_invisible="1"/>
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
                                     <field name="code"/>
@@ -90,6 +94,7 @@
         <field name="model">wof.film.category</field>
         <field name="arch" type="xml">
             <search>
+                <field name="company_id" invisible="1"/>
                 <field name="name"/>
                 <field name="code"/>
                 <field name="service_type_id"/>
@@ -116,6 +121,7 @@
         <field name="model">wof.film.parts.price.lines</field>
         <field name="arch" type="xml">
             <tree editable="bottom">
+                <field name="company_id" column_invisible="1"/>
                 <field name="part_line_id"
                        domain="context.get('wof_default_film_id') and [('header_id', '=', context.get('wof_default_film_id'))] or []"/>
                 <field name="header_id" readonly="1"/>
@@ -137,6 +143,7 @@
         <field name="arch" type="xml">
             <form string="تسعير جزء">
                 <sheet>
+                    <field name="company_id" invisible="1"/>
                     <group col="2">
                         <group>
                             <field name="part_line_id"
@@ -171,6 +178,7 @@
         <field name="model">wof.film.parts.commission.lines</field>
         <field name="arch" type="xml">
             <tree editable="bottom">
+                <field name="company_id" column_invisible="1"/>
                 <field name="part_line_id"
                        domain="context.get('wof_default_film_id') and [('header_id', '=', context.get('wof_default_film_id'))] or []"/>
                 <field name="header_id" readonly="1"/>
@@ -188,6 +196,7 @@
         <field name="arch" type="xml">
             <form string="عمولة جزء">
                 <sheet>
+                    <field name="company_id" invisible="1"/>
                     <group>
                         <field name="part_line_id"
                                domain="context.get('wof_default_film_id') and [('header_id', '=', context.get('wof_default_film_id'))] or []"/>

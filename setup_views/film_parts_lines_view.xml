@@ -8,6 +8,7 @@
                 <field name="header_id"/>
                 <field name="service_type_id"/>
                 <field name="car_part_id"/>
+                <field name="company_id" column_invisible="1"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="part_selected"/>
                 <field name="price_count"/>
@@ -22,6 +23,7 @@
         <field name="arch" type="xml">
             <form string="جزء مرتبط بفيلم">
                 <sheet>
+                    <field name="company_id" invisible="1"/>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_open_price_lines" type="object"
                                 class="oe_stat_button" icon="fa-money">
