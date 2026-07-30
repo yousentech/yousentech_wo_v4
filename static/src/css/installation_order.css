@@ -1,0 +1,156 @@
+.o_form_view.wof_order_form {
+    --wof-order-accent: #815275;
+    --wof-order-accent-dark: #5f3856;
+    --wof-order-soft: #f7f1f6;
+    --wof-order-border: #e5dce3;
+    direction: rtl;
+}
+
+.o_form_view.wof_order_form .wof_order_sheet {
+    max-width: 1500px;
+}
+
+.o_form_view.wof_order_form .wof_order_hero {
+    display: grid;
+    grid-template-columns: minmax(280px, 1.7fr) minmax(180px, 0.8fr) minmax(190px, 0.7fr);
+    gap: 1rem;
+    align-items: stretch;
+    padding: 1.35rem;
+    margin-block-end: 1rem;
+    color: #fff;
+    border-radius: 1.25rem;
+    background:
+        radial-gradient(circle at 12% 20%, rgba(255, 255, 255, 0.16), transparent 30%),
+        linear-gradient(135deg, var(--wof-order-accent), var(--wof-order-accent-dark));
+    box-shadow: 0 0.75rem 2rem rgba(73, 41, 66, 0.16);
+}
+
+.o_form_view.wof_order_form .wof_order_hero h1 {
+    margin: 0.15rem 0 0.65rem;
+    color: inherit;
+    font-size: clamp(1.55rem, 2.6vw, 2.25rem);
+}
+
+.o_form_view.wof_order_form .wof_order_eyebrow {
+    display: inline-flex;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.o_form_view.wof_order_form .wof_order_hero_meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 1.15rem;
+    opacity: 0.94;
+}
+
+.o_form_view.wof_order_form .wof_order_hero_state,
+.o_form_view.wof_order_form .wof_order_hero_total {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.09);
+    backdrop-filter: blur(4px);
+}
+
+.o_form_view.wof_order_form .wof_order_hero_state small,
+.o_form_view.wof_order_form .wof_order_hero_total small {
+    opacity: 0.78;
+}
+
+.o_form_view.wof_order_form .wof_order_hero_state strong,
+.o_form_view.wof_order_form .wof_order_hero_total strong {
+    font-size: 1.15rem;
+}
+
+.o_form_view.wof_order_form .wof_order_cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-block: 1rem;
+}
+
+.o_form_view.wof_order_form .wof_order_card {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--wof-order-border);
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 0.25rem 1rem rgba(52, 33, 49, 0.05);
+}
+
+.o_form_view.wof_order_form .wof_order_section_intro {
+    padding: 0.85rem 1rem;
+    margin-block-end: 1rem;
+    border-inline-start: 4px solid var(--wof-order-accent);
+    border-radius: 0.5rem;
+    background: var(--wof-order-soft);
+}
+
+.o_form_view.wof_order_form .wof_order_totals {
+    max-width: 430px;
+    margin-inline-start: auto;
+    margin-block-start: 1rem;
+    padding: 1rem;
+    border-radius: 0.8rem;
+    background: var(--wof-order-soft);
+}
+
+.o_kanban_view.wof_order_kanban .wof_order_kanban_card {
+    min-height: 190px;
+    padding: 1rem;
+    border-top: 4px solid #815275;
+}
+
+.o_kanban_view.wof_order_kanban .wof_order_kanban_footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding-block: 0.8rem;
+    margin-block-start: 0.75rem;
+    border-top: 1px solid #ece6eb;
+    font-weight: 700;
+}
+
+@media (max-width: 992px) {
+    .o_form_view.wof_order_form .wof_order_hero {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .o_form_view.wof_order_form .wof_order_hero_main {
+        grid-column: 1 / -1;
+    }
+
+    .o_form_view.wof_order_form .wof_order_cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .o_form_view.wof_order_form .wof_order_hero {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+        border-radius: 0.9rem;
+    }
+
+    .o_form_view.wof_order_form .wof_order_hero_main {
+        grid-column: auto;
+    }
+
+    .o_form_view.wof_order_form .wof_order_hero_meta {
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .o_form_view.wof_order_form .wof_order_card {
+        padding: 0.75rem;
+    }
+}

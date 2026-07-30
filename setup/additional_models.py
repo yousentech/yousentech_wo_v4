@@ -1,52 +1,43 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+
+from odoo import fields, models
 
 
-class xx_parts_additional_options(models.Model):
+class CarPartOption(models.Model):
     _name = 'wof.car.part.options'
-    _description = 'Car agency'
+    _inherit = ['wof.api.mixin']
+    _description = 'خيار إضافي لجزء السيارة'
     _order = 'name'
-    _rec_name = 'name'
-   
-    name = fields.Char(
-        string="الاسم",
-        required=True,
-        index=True,
-        translate=True,   # 👈 مهم لو عندك لغات
-        tracking=True     # 👈 لو تستخدم chatter
-    )  
-    active = fields.Boolean(
-        string="تفعيل",
-        default=True
-    )
-    _sql_constraints = [
-        (
-            "part_options_unique",
-            "UNIQUE(name)",  # 👈 مهم جداً multi-company
-            "الاسم مضاف مسبقاً"
-        )]
 
-class xx_parts_transparency_level(models.Model):
-    _name = 'wof.parts.transparency.level'
-    _description = 'parts transparency level'
-    _order = 'name'
-    _rec_name = 'name'
-   
+    code = fields.Char(string="الكود", required=True, index=True, copy=False)
     name = fields.Char(
-        string="الاسم",
-        required=True,
-        index=True,
-        translate=True,   # 👈 مهم لو عندك لغات
-        tracking=True     # 👈 لو تستخدم chatter
-    )  
-    active = fields.Boolean(
-        string="تفعيل",
-        default=True
+        string="الاسم", required=True, index=True, translate=True,
     )
+    active = fields.Boolean(string="تفعيل", default=True)
+
     _sql_constraints = [
-        (
-            "part_options_unique",
-            "UNIQUE(name)",  # 👈 مهم جداً multi-company
-            "الاسم مضاف مسبقاً"
-        )]
+        ('car_part_option_code_unique', 'unique(code)',
+         'كود الخيار الإضافي مستخدم مسبقًا.'),
+        ('car_part_option_name_unique', 'unique(name)',
+         'اسم الخيار الإضافي مستخدم مسبقًا.'),
+    ]
+
+
+class PartsTransparencyLevel(models.Model):
+    _name = 'wof.parts.transparency.level'
+    _inherit = ['wof.api.mixin']
+    _description = 'درجة شفافية الفيلم'
+    _order = 'name'
+
+    code = fields.Char(string="الكود", required=True, index=True, copy=False)
+    name = fields.Char(
+        string="الاسم", required=True, index=True, translate=True,
+    )
+    active = fields.Boolean(string="تفعيل", default=True)
+
+    _sql_constraints = [
+        ('transparency_level_code_unique', 'unique(code)',
+         'كود درجة الشفافية مستخدم مسبقًا.'),
+        ('transparency_level_name_unique', 'unique(name)',
+         'اسم درجة الشفافية مستخدم مسبقًا.'),
+    ]

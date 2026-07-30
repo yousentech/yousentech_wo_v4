@@ -1,0 +1,126 @@
+.wof_setup_form,
+.wof_setup_sheet {
+    direction: rtl;
+}
+
+.wof_setup_hero {
+    align-items: center;
+    background: var(--o-brand-odoo);
+    border-radius: 1.25rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+}
+
+.wof_setup_hero h1 {
+    color: inherit;
+    margin: .5rem 0;
+}
+
+.wof_setup_hero p {
+    margin: 0;
+    opacity: .85;
+}
+
+.wof_setup_badge {
+    background: rgba(255, 255, 255, .16);
+    border-radius: 999px;
+    display: inline-block;
+    padding: .25rem .75rem;
+}
+
+.wof_setup_progress {
+    min-width: 12rem;
+    text-align: center;
+}
+
+.wof_setup_progress small {
+    display: block;
+    margin-top: .5rem;
+}
+
+.wof_setup_steps {
+    display: grid;
+    gap: .5rem;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin-bottom: 1.5rem;
+}
+
+.wof_setup_step {
+    border-bottom: 2px solid var(--border-color, #d8dadd);
+    padding: .75rem .5rem;
+    text-align: center;
+}
+
+.wof_setup_step.active {
+    border-color: var(--o-brand-primary);
+    color: var(--o-brand-primary);
+    font-weight: 600;
+}
+
+.wof_setup_section_title {
+    margin-bottom: 1rem;
+}
+
+.wof_setup_section_title h2 {
+    margin-bottom: .25rem;
+}
+
+.wof_setup_section_title p {
+    color: var(--o-gray-600);
+}
+
+.wof_setup_cards > .o_group {
+    gap: 1rem;
+}
+
+.wof_setup_cards .o_inner_group {
+    border: 1px solid var(--border-color, #d8dadd);
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+.wof_setup_advanced {
+    border: 1px solid var(--border-color, #d8dadd);
+    border-radius: .75rem;
+    margin-top: 1rem;
+    padding: .75rem 1rem;
+}
+
+.wof_setup_advanced summary {
+    color: var(--o-brand-primary);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.wof_setup_advanced[open] summary {
+    margin-bottom: .75rem;
+}
+
+@media (max-width: 767px) {
+    .wof_setup_hero {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .wof_setup_progress {
+        min-width: 0;
+        text-align: right;
+    }
+
+    .wof_setup_steps {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: .25rem;
+        scroll-snap-type: x proximity;
+    }
+
+    .wof_setup_step {
+        flex: 0 0 8.5rem;
+        scroll-snap-align: start;
+        text-align: right;
+    }
+}

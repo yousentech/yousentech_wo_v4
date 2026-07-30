@@ -1,29 +1,28 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api, _
+
+from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 
 class CarManufactoryYear(models.Model):
     _name = 'wof.car.manufactory.year'
-    _description = 'Car manufactory year'
-    _order = 'name'
+    _inherit = ['wof.api.mixin']
+    _description = 'سنة صنع السيارة'
+    _order = 'name desc'
 
-    name = fields.Char(
-        string="الاسم",
-        required=True,
-      
-    )
-    active = fields.Boolean(
-        string="تفعيل",
-        default=True
-    )
+    code = fields.Char(string="الكود", required=True, index=True, copy=False)
+    name = fields.Char(string="السنة", required=True, index=True)
+    active = fields.Boolean(string="تفعيل", default=True)
 
     _sql_constraints = [
-        (
-            "car_size_unique",
-            "UNIQUE(name)",  # 👈 مهم جداً multi-company
-            "ٍسنة الصنع للسيارة مضاف مسبقاً "
-        ),
-         
+        ('car_manufactory_year_code_unique', 'unique(code)',
+         'كود سنة الصنع مستخدم مسبقًا.'),
+        ('car_manufactory_year_name_unique', 'unique(name)',
+         'سنة صنع السيارة مضافة مسبقًا.'),
     ]
- 
+
+    @api.constrains('name')
+    def _check_year_format(self):
+        for record in self:
+            if len(record.name or '') != 4 or not record.name.isdigit():
+                raise ValidationError('سنة الصنع يجب أن تتكون من أربعة أرقام.')

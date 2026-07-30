@@ -1,0 +1,914 @@
+openapi: 3.0.3
+info:
+  title: Yousentech Car Care API
+  version: 0.2.0-planned
+  description: >
+    عقد أولي للتكامل مع Flutter. جميع المسارات أدناه مخططة وغير منشورة
+    حتى اكتمال مراجعة المصادقة والأمان. نماذج Foundation وSetup وأمر
+    التركيب موجودة داخل Odoo، لكن لا توجد REST controllers.
+servers:
+  - url: /api/v1
+    description: Planned Odoo API base path
+tags:
+  - name: Foundation
+  - name: Setup
+  - name: InstallationOrders
+paths:
+  /health:
+    get:
+      tags: [Foundation]
+      summary: فحص توفر الخدمة
+      operationId: getHealth
+      x-implementation-status: planned
+      responses:
+        '200':
+          description: الخدمة متوفرة
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /profile:
+    get:
+      tags: [Foundation]
+      summary: ملف المستخدم والشركات المسموحة
+      operationId: getProfile
+      x-implementation-status: planned
+      security:
+        - oauth2: [profile.read]
+      responses:
+        '200':
+          description: ملف المستخدم
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /setup/profile:
+    get:
+      tags: [Setup]
+      summary: ملف تهيئة الشركة
+      operationId: getSetupProfile
+      x-implementation-status: planned
+      security:
+        - oauth2: [setup.read]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+      responses:
+        '200':
+          description: ملف التهيئة
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetupProfileResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /setup/readiness:
+    get:
+      tags: [Setup]
+      summary: جاهزية تفعيل النظام
+      operationId: getSetupReadiness
+      x-implementation-status: planned
+      security:
+        - oauth2: [setup.read]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+      responses:
+        '200':
+          description: نتيجة الجاهزية
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+  /setup/steps/{stepCode}:
+    put:
+      tags: [Setup]
+      summary: حفظ خطوة تهيئة
+      operationId: saveSetupStep
+      x-implementation-status: planned
+      security:
+        - oauth2: [setup.write]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - name: stepCode
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [activity, sizes, services, operations, review]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: حُفظت الخطوة
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetupProfileResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /setup/activate:
+    post:
+      tags: [Setup]
+      summary: تطبيق القوالب وتفعيل النظام
+      operationId: activateSetup
+      x-implementation-status: planned
+      security:
+        - oauth2: [setup.write]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: تم التفعيل
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetupProfileResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /installation-orders:
+    get:
+      tags: [InstallationOrders]
+      summary: قائمة أوامر التركيب المسموحة للمستخدم
+      operationId: listInstallationOrders
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.read]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            $ref: '#/components/schemas/InstallationOrderState'
+      responses:
+        '200':
+          description: قائمة الأوامر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallationOrderListResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [InstallationOrders]
+      summary: إنشاء أمر تركيب دون تكرار
+      operationId: createInstallationOrder
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.write]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstallationOrderCreateRequest'
+      responses:
+        '201':
+          description: تم إنشاء الأمر أو إعادة نتيجة المحاولة المطابقة
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallationOrderResponse'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /installation-orders/{orderUuid}:
+    get:
+      tags: [InstallationOrders]
+      summary: قراءة أمر تركيب
+      operationId: getInstallationOrder
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.read]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/OrderUuid'
+      responses:
+        '200':
+          description: أمر التركيب
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallationOrderResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /installation-orders/{orderUuid}/actions/confirm-arrival:
+    post:
+      tags: [InstallationOrders]
+      summary: تأكيد الموعد أو الوصول
+      operationId: confirmInstallationOrderArrival
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.write]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/OrderUuid'
+      responses:
+        '200':
+          $ref: '#/components/responses/InstallationOrderUpdated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /installation-orders/{orderUuid}/actions/complete-intake:
+    post:
+      tags: [InstallationOrders]
+      summary: إكمال استلام وفحص السيارة
+      operationId: completeInstallationOrderIntake
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.write]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/OrderUuid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntakeRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/InstallationOrderUpdated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /installation-orders/{orderUuid}/actions/start-execution:
+    post:
+      tags: [InstallationOrders]
+      summary: بدء تنفيذ أمر التركيب
+      operationId: startInstallationOrderExecution
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.execute]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/OrderUuid'
+      responses:
+        '200':
+          $ref: '#/components/responses/InstallationOrderUpdated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /installation-orders/{orderUuid}/actions/submit-quality:
+    post:
+      tags: [InstallationOrders]
+      summary: إرسال الأمر إلى فحص الجودة
+      operationId: submitInstallationOrderQuality
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.execute]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/OrderUuid'
+      responses:
+        '200':
+          $ref: '#/components/responses/InstallationOrderUpdated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /installation-orders/{orderUuid}/actions/return-to-execution:
+    post:
+      tags: [InstallationOrders]
+      summary: إعادة الأمر من الجودة إلى التنفيذ
+      operationId: returnInstallationOrderToExecution
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.quality]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/OrderUuid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/InstallationOrderUpdated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /installation-orders/{orderUuid}/actions/pass-quality:
+    post:
+      tags: [InstallationOrders]
+      summary: اعتماد فحص الجودة
+      operationId: passInstallationOrderQuality
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.quality]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/OrderUuid'
+      responses:
+        '200':
+          $ref: '#/components/responses/InstallationOrderUpdated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /installation-orders/{orderUuid}/actions/deliver:
+    post:
+      tags: [InstallationOrders]
+      summary: تسليم السيارة وإغلاق الأمر
+      operationId: deliverInstallationOrder
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.deliver]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/OrderUuid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/InstallationOrderUpdated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /installation-orders/{orderUuid}/actions/cancel:
+    post:
+      tags: [InstallationOrders]
+      summary: إلغاء أمر تركيب بسبب إلزامي
+      operationId: cancelInstallationOrder
+      x-implementation-status: planned
+      security:
+        - oauth2: [orders.quality]
+      parameters:
+        - $ref: '#/components/parameters/CompanyUuid'
+        - $ref: '#/components/parameters/OrderUuid'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/InstallationOrderUpdated'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: Planned OAuth2/OIDC integration; provider is not selected yet.
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth/authorize
+          tokenUrl: /oauth/token
+          scopes:
+            profile.read: قراءة الملف
+            setup.read: قراءة التهيئة
+            setup.write: تعديل التهيئة
+            orders.read: قراءة أوامر التركيب
+            orders.write: إنشاء وتعديل بيانات الاستقبال
+            orders.execute: تنفيذ الأوامر المسندة
+            orders.quality: فحص الجودة والإلغاء
+            orders.deliver: تسليم السيارة
+  parameters:
+    CompanyUuid:
+      name: X-Company-UUID
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 128
+    OrderUuid:
+      name: orderUuid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    Unauthorized:
+      description: غير مصادق
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: غير مصرح أو الشركة غير مسموحة
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: فشل التحقق
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: تعارض حالة أو مفتاح منع تكرار
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: السجل غير موجود أو غير مسموح للمستخدم
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InstallationOrderUpdated:
+      description: تم الانتقال وأعيدت صورة الأمر الحالية
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InstallationOrderResponse'
+  schemas:
+    ResponseMeta:
+      type: object
+      required: [request_id]
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        next_cursor:
+          type: string
+          nullable: true
+    Money:
+      type: object
+      required: [amount, currency, precision]
+      properties:
+        amount:
+          type: string
+          pattern: '^-?[0-9]+(\.[0-9]+)?$'
+        currency:
+          type: string
+          example: SAR
+        precision:
+          type: integer
+          example: 2
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: SETUP_NOT_READY
+        message:
+          type: string
+        validation:
+          type: array
+          items:
+            type: object
+            required: [field, code]
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+    ValidationIssue:
+      type: object
+      required: [code, field, message]
+      properties:
+        code:
+          type: string
+          example: SETUP_SIZE_REQUIRED
+        field:
+          type: string
+          example: size_line_ids
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      required: [success, error, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          $ref: '#/components/schemas/ApiError'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    HealthResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [status, api_version]
+          properties:
+            status:
+              type: string
+              enum: [ok]
+            api_version:
+              type: string
+              example: v1
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    ProfileResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [user_uuid, companies]
+          properties:
+            user_uuid:
+              type: string
+              format: uuid
+            companies:
+              type: array
+              items:
+                type: object
+                required: [public_uuid, name]
+                properties:
+                  public_uuid:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    SetupProfile:
+      type: object
+      required: [public_uuid, company_uuid, state, current_step, progress, updated_at]
+      properties:
+        public_uuid:
+          type: string
+          format: uuid
+        company_uuid:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum: [draft, in_progress, ready]
+        current_step:
+          type: string
+          enum: [activity, sizes, services, operations, review]
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        updated_at:
+          type: string
+          format: date-time
+          description: UTC ISO-8601
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: UTC ISO-8601; last successful activation
+        setup_version:
+          type: string
+    SetupProfileResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: '#/components/schemas/SetupProfile'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    ReadinessResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [ready, issues]
+          properties:
+            ready:
+              type: boolean
+            issues:
+              type: array
+              items:
+                $ref: '#/components/schemas/ValidationIssue'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    InstallationOrderState:
+      type: string
+      enum:
+        - draft
+        - scheduled
+        - intake
+        - in_progress
+        - quality
+        - ready
+        - delivered
+        - cancelled
+    Vehicle:
+      type: object
+      required: [plate, size_code]
+      properties:
+        plate:
+          type: string
+        vin:
+          type: string
+          nullable: true
+        manufacturer_code:
+          type: string
+          nullable: true
+        model_code:
+          type: string
+          nullable: true
+        year_code:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        size_code:
+          type: string
+        odometer:
+          type: integer
+          minimum: 0
+    InstallationOrderLine:
+      type: object
+      required:
+        - public_uuid
+        - service_code
+        - film_code
+        - part_code
+        - quantity
+        - unit_price
+        - price_source
+        - amount_total
+        - execution_progress
+      properties:
+        public_uuid:
+          type: string
+          format: uuid
+        service_code:
+          type: string
+        film_code:
+          type: string
+        grade_code:
+          type: string
+          nullable: true
+        part_code:
+          type: string
+        quantity:
+          type: number
+          format: double
+          exclusiveMinimum: 0
+        unit_price:
+          $ref: '#/components/schemas/Money'
+        configured_unit_price:
+          $ref: '#/components/schemas/Money'
+        price_source:
+          type: string
+          enum: [size, default, manual]
+        price_explanation:
+          type: string
+        discount:
+          $ref: '#/components/schemas/Money'
+        tax:
+          $ref: '#/components/schemas/Money'
+        amount_total:
+          $ref: '#/components/schemas/Money'
+        technician_uuid:
+          type: string
+          format: uuid
+          nullable: true
+        execution_progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+    InstallationOrder:
+      type: object
+      required:
+        - public_uuid
+        - number
+        - company_uuid
+        - state
+        - customer_uuid
+        - vehicle
+        - lines
+        - amount_total
+        - discount_scope
+        - created_at
+        - updated_at
+      properties:
+        public_uuid:
+          type: string
+          format: uuid
+        number:
+          type: string
+        company_uuid:
+          type: string
+          format: uuid
+        state:
+          $ref: '#/components/schemas/InstallationOrderState'
+        customer_uuid:
+          type: string
+          format: uuid
+        vehicle:
+          $ref: '#/components/schemas/Vehicle'
+        appointment_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: UTC ISO-8601؛ قد يكون null عندما تعطل تهيئة الفرع المواعيد
+        expected_delivery_at:
+          type: string
+          format: date-time
+          nullable: true
+        advisor_uuid:
+          type: string
+          format: uuid
+        supervisor_uuid:
+          type: string
+          format: uuid
+          nullable: true
+        technician_uuids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstallationOrderLine'
+        amount_untaxed:
+          $ref: '#/components/schemas/Money'
+        amount_discount:
+          $ref: '#/components/schemas/Money'
+        amount_tax:
+          $ref: '#/components/schemas/Money'
+        amount_total:
+          $ref: '#/components/schemas/Money'
+        discount_scope:
+          type: string
+          enum: [order, service]
+        order_discount_percent:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+        execution_progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        operation_source:
+          type: string
+          enum: [odoo_web, flutter, api, import]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    InstallationOrderCreateRequest:
+      type: object
+      required: [customer_uuid, vehicle, lines]
+      properties:
+        customer_uuid:
+          type: string
+          format: uuid
+        vehicle:
+          $ref: '#/components/schemas/Vehicle'
+        appointment_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: إلزامي عندما تكون المواعيد مفعلة في تهيئة الفرع
+        expected_delivery_at:
+          type: string
+          format: date-time
+          nullable: true
+        advisor_uuid:
+          type: string
+          format: uuid
+        supervisor_uuid:
+          type: string
+          format: uuid
+          nullable: true
+        technician_uuids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        order_discount_percent:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: يقبل فقط عندما تكون سياسة الفرع discount_scope=order
+        lines:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [service_code, film_code, part_code, quantity]
+            properties:
+              service_code:
+                type: string
+              film_code:
+                type: string
+              grade_code:
+                type: string
+                nullable: true
+              part_code:
+                type: string
+              quantity:
+                type: number
+                format: double
+                exclusiveMinimum: 0
+              discount_type:
+                type: string
+                enum: [percent, amount]
+              discount_value:
+                type: number
+                format: double
+                minimum: 0
+    IntakeRequest:
+      type: object
+      required: [condition]
+      properties:
+        odometer:
+          type: integer
+          minimum: 0
+        condition:
+          type: string
+          enum: [good, existing_damage, needs_review]
+        note:
+          type: string
+          nullable: true
+        attachment_tokens:
+          type: array
+          description: مراجع مؤقتة يعيدها endpoint الرفع الآمن المخطط
+          items:
+            type: string
+    DeliveryRequest:
+      type: object
+      required: [customer_approved]
+      properties:
+        customer_approved:
+          type: boolean
+          enum: [true]
+        approval_reference:
+          type: string
+          nullable: true
+        note:
+          type: string
+          nullable: true
+    NoteRequest:
+      type: object
+      required: [note]
+      properties:
+        note:
+          type: string
+          minLength: 1
+    InstallationOrderResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          $ref: '#/components/schemas/InstallationOrder'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    InstallationOrderListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstallationOrder'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'

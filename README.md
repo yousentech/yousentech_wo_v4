@@ -1,19 +1,43 @@
-# oil_workshop (Odoo 17)
+# Yousentech Car Care — Odoo 17
 
-Module created for Muhammad Ali.
+نظام تشغيل مراكز العناية بالسيارات. المرحلة الحالية تغطي الأساس، التهيئة
+ذاتية الخدمة، وInstallation Order MVP من الاستقبال حتى التسليم.
 
-Features:
-- Shift management (open/close)
-- Link oil.work.order to shifts automatically
-- Expenses tied to shifts
-- Thermal (80mm) and formal A4 reports
-- Security groups: User / Manager / Admin
+## ما هو متوفر
 
-Installation:
-1. Copy this module to your Odoo addons folder.
-2. Update apps list and install.
-3. Assign users to groups: Oil Workshop / User, Manager, Admin.
+- ملف تهيئة دائم ومستقل لكل شركة.
+- تهيئة أولى من خمس خطوات مع حفظ واستكمال لاحق.
+- قوالب آمنة للخدمات والأفلام والأجزاء والأسعار والعمولات.
+- مركز إعدادات منفصل بعد تشغيل النظام.
+- صلاحيات وظيفية لا تمنح مدير المركز صلاحيات Odoo التقنية.
+- مراجع UUID عامة وسجل تدقيق كأساس لتطبيق Flutter وواجهة API مستقبلية.
+- لوحة أوامر تركيب ونموذج عربي RTL مع Hero وإجراء رئيسي حسب الحالة.
+- تسعير تلقائي حسب حجم السيارة، وخيار سعر استثنائي محمي ومسجل.
+- استلام وفحص وتنفيذ وجودة وتسليم وإلغاء بسبب إلزامي وسجل زمني.
+- تسجيل المواد التشغيلية وروابط مالية/ضمان دون ادعاء صرف أو فوترة آلية.
+- توثيق عربي وخارطة طريق وعقد OpenAPI مخطط.
 
-Notes:
-- Adapt view inheritance for oil.work.order if your original module has different view ids.
-- Thermal printing: configure IoT/Printer to print the PDF to your 80mm thermal printer.
+## التوثيق
+
+- `docs/ROADMAP_AR.md`
+- `docs/SCREEN_INDEX_AR.md`
+- `docs/FOUNDATION_AUDIT_AR.md`
+- `docs/INSTALLATION_ORDER_AUDIT_AR.md`
+- `docs/API_ARCHITECTURE_AR.md`
+- `docs/api/openapi.yaml`
+
+## ملاحظة API
+
+لا توجد REST controllers في هذه المرحلة. ملف OpenAPI عقد مخطط يخضع لمراجعة
+المصادقة والأمان قبل التنفيذ.
+
+## التحقق الساكن
+
+من جذر الموديول:
+
+```text
+python tools/static_validation.py
+python -m compileall -q .
+```
+
+هذه الفحوص لا تستبدل تثبيت الموديول وترقيته على Odoo 17 مع PostgreSQL.

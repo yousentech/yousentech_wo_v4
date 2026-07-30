@@ -1,239 +1,117 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+
+from odoo import api, fields, models, _
 
 
 class ServiceType(models.Model):
     _name = 'wof.service.type'
-    _description = 'Service Types'
+    _inherit = ['wof.api.mixin', 'mail.thread', 'mail.activity.mixin']
+    _description = 'نوع خدمة العناية'
     _order = 'code, name'
-    _company_auto = True   # 👈 هنا المكان الصحيح
-
-    name = fields.Char(
-        string="الاسم",
-        required=True,
-        index=True,
-        translate=True,   # 👈 مهم لو عندك لغات
-        tracking=True     # 👈 لو تستخدم chatter
-    )
+    _check_company_auto = True
 
     code = fields.Char(
-        string="الكود",
-        index=True,
-        copy=False
+        string="الكود", required=True, index=True, copy=False,
     )
-    
+    name = fields.Char(
+        string="الاسم", required=True, index=True,
+        translate=True, tracking=True,
+    )
     service_options = fields.Selection(
-        [('tint', 'عزل حراري')],
-        string="نوع محرك الخدمة",
-        default=False,
-        required=False,
-        help="اختر عزل حراري فقط للخدمات التي تحتاج درجات لون ومناطق خدمة، واتركه فارغاً لبقية الخدمات."
+        [
+            ('tint', 'عزل حراري'),
+            ('ppf', 'حماية PPF'),
+            ('nano', 'نانو سيراميك'),
+            ('upholstery', 'تنجيد'),
+            ('floor_mats', 'أرضيات'),
+            ('others', 'أخرى'),
+        ],
+        string="النوع", default='tint', required=True,
     )
-
-    setup_enabled = fields.Boolean(
-        string="مفعلة في التهيئة",
-        default=False,
-        help="يتم تفعيلها عند إكمال تهيئة نوع الخدمة من معالج التهيئة."
-    )
-
-    def _default_company_parent(self):
-        company = self.env.company
-        return company.parent_id or company
-
     company_id = fields.Many2one(
-        'res.company',
-        string="الشركة",
-        default=_default_company_parent,
-        required=True,
-        index=True
+        'res.company', string="الشركة", default=lambda self: self.env.company,
+        required=True, index=True, ondelete='cascade',
     )
-
-    active = fields.Boolean(
-        string="تفعيل",
-        default=True
-    )
-
-    is_default_setup = fields.Boolean(
-        string="بيانات افتراضية",
-        default=False,
-        copy=False,
-        index=True,
-        help="تم إنشاؤها من التهيئة الافتراضية ويمكن إعادة تحميلها بأمان."
-    )
- 
-    parts_count = fields.Integer(
-    string="عدد الأجزاء", compute="_compute_counts"  )
-
-    film_count = fields.Integer(
-        string="عدد الأفلام",  compute="_compute_counts" )
-
-
+    active = fields.Boolean(string="تفعيل", default=True)
+    parts_count = fields.Integer(string="عدد الأجزاء", compute='_compute_counts')
+    film_count = fields.Integer(string="عدد الأفلام", compute='_compute_counts')
 
     _sql_constraints = [
-        (
-            "service_kind_unique",
-            "UNIQUE(name, company_id)",  # 👈 مهم جداً multi-company
-            "نوع الخدمة مضاف مسبقاً لنفس الشركة"
-        ),
-        (
-            "service_code_unique",
-            "UNIQUE(code, company_id)",
-            "الكود مستخدم مسبقاً"
-        ),
+        ('service_name_company_unique', 'unique(name, company_id)',
+         'نوع الخدمة مضاف مسبقًا لنفس الشركة.'),
+        ('service_code_company_unique', 'unique(code, company_id)',
+         'كود الخدمة مستخدم مسبقًا لنفس الشركة.'),
     ]
- 
+
     def _compute_counts(self):
-
-        # ================= FILMS COUNT =================
-        films_data = self.env['wof.film.category'].read_group(
+        film_groups = self.env['wof.film.category'].read_group(
             [('service_type_id', 'in', self.ids)],
             ['service_type_id'],
-            ['service_type_id']
+            ['service_type_id'],
         )
-
         film_map = {
-            item['service_type_id'][0]: item['service_type_id_count']
-            for item in films_data
+            row['service_type_id'][0]: row['service_type_id_count']
+            for row in film_groups
+            if row.get('service_type_id')
         }
-
-        # ================= PARTS COUNT =================
-        parts_data = self.env['wof.film.parts.lines'].read_group(
+        part_groups = self.env['wof.film.parts.lines'].read_group(
             [('service_type_id', 'in', self.ids)],
             ['service_type_id'],
-            ['service_type_id']
+            ['service_type_id'],
         )
-
         part_map = {
-            item['service_type_id'][0]: item['service_type_id_count']
-            for item in parts_data
+            row['service_type_id'][0]: row['service_type_id_count']
+            for row in part_groups
+            if row.get('service_type_id')
         }
-
-        # ================= ASSIGN =================
-        for rec in self:
-            rec.film_count = film_map.get(rec.id, 0)
-            rec.parts_count = part_map.get(rec.id, 0)
-            
+        for record in self:
+            record.film_count = film_map.get(record.id, 0)
+            record.parts_count = part_map.get(record.id, 0)
 
     @api.model
     def name_get(self):
-        result = []
-        for rec in self:
-            code = rec.code or ''
-            name = rec.name or ''
+        return [
+            (record.id, f'[{record.code}] {record.name}')
+            for record in self
+        ]
 
-            display_name = f"[{code}] {name}" if code else name
-            result.append((rec.id, display_name))
-
-        return result
-     
     @api.model
     def name_search(self, name='', args=None, operator='ilike', limit=100):
-        args = args or []
-        domain = []
+        domain = list(args or [])
         if name:
             domain = [
-                '|',
-                ('name', operator, name),
-                ('code', operator, name),
-            ]
-            domain += args
-        else:
-            domain = args
-        
-        services = self.search(domain, limit=limit)
-        if services:
-            return services.name_get()
-        return super().name_search(name, args=args, operator=operator, limit=limit)
+                '|', ('name', operator, name), ('code', operator, name),
+            ] + domain
+        return self.search(domain, limit=limit).name_get()
 
-    @api.model
-    def create(self, vals):
-        company = self.env.company
-        vals['company_id'] = company.parent_id.id if company.parent_id else company.id
-        return super().create(vals)
-
-
-    def write(self, vals):
-        if 'company_id' in vals:
-            company = self.env.company
-            vals['company_id'] = company.parent_id.id if company.parent_id else company.id
-        return super().write(vals)
-    
-  
-
-    def action_start_configuration(self):
-        """Start configuring this service from the real master tables.
-
-        This keeps the setup flow on the main records instead of transient wizard
-        tables. Activating the service here is intentional because the user is
-        starting its setup.
-        """
-        self.ensure_one()
-        if not self.setup_enabled:
-            self.setup_enabled = True
-
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('تهيئة %s') % (self.display_name or self.name),
-            'res_model': 'wof.film.category',
-            'view_mode': 'kanban,tree,form',
-            'domain': [('service_type_id', '=', self.id)],
-            'context': {
-                'default_service_type_id': self.id,
-                'search_default_service_type_id': self.id,
-            },
-            'target': 'current',
-        }
-
-    def action_open_details(self):
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('تفاصيل الخدمة'),
-            'res_model': 'wof.service.type',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
-
-    # ================= SMART BUTTON =================
     def action_open_films(self):
         self.ensure_one()
-
         return {
             'type': 'ir.actions.act_window',
             'name': _('الأفلام'),
             'res_model': 'wof.film.category',
-            'view_mode': 'kanban,tree,form',
+            'view_mode': 'tree,form',
             'domain': [('service_type_id', '=', self.id)],
-            'context': {
-                'default_service_type_id': self.id,
-            }
+            'context': {'default_service_type_id': self.id},
         }
+
     def action_create_film(self):
         self.ensure_one()
-
         return {
             'type': 'ir.actions.act_window',
             'name': _('إضافة فيلم'),
             'res_model': 'wof.film.category',
             'view_mode': 'form',
             'target': 'current',
-            'context': {
-                'default_service_type_id': self.id,
-            }
-        } 
-        
-    def action_create_car_part(self):
-        self.ensure_one()
+            'context': {'default_service_type_id': self.id},
+        }
 
+    def action_open_parts(self):
+        self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('إضافة جزء الفيلم'),
+            'name': _('الأجزاء المرتبطة'),
             'res_model': 'wof.film.parts.lines',
-            'view_mode': 'form',
-            'target': 'current',
-            'context': {
-                'default_service_type_id': self.id,
-            }
+            'view_mode': 'tree,form',
+            'domain': [('service_type_id', '=', self.id)],
         }

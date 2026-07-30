@@ -5,18 +5,13 @@
             <field name="model">product.template</field>
             <field name="inherit_id" ref="product.product_template_only_form_view" />
             <field name="arch" type="xml">
-                <notebook>
-                        <page string="نظام تركيب الافلام">
-                            <group>
-                                <group>
-                                     <field name="measure_product"/>
-                                 </group>
-                                    
-                            </group>
-                        
-                             
-                        </page>
-                </notebook>
+                <xpath expr="//sheet/notebook" position="inside">
+                    <page string="نظام العناية بالسيارات">
+                        <group>
+                            <field name="measure_product"/>
+                        </group>
+                    </page>
+                </xpath>
             </field>
 	    </record>
       
@@ -28,7 +23,7 @@
             <field name="view_id" ref="product.product_template_kanban_view"/>
             <field name="target">current</field>
             <field name="help" type="html">
-                <p class="oe_view_nocontent_create">Click to create new product
+                <p class="oe_view_nocontent_create">أنشئ منتجًا أو مادة لاستخدامها في خدمات العناية.
                 </p>
             </field>
         </record>

@@ -9,9 +9,9 @@
         <field name="name">wof.car.type.tree</field>
         <field name="model">wof.car.type</field>
         <field name="arch" type="xml">
-            <tree string="حجم السيارة" decoration-muted="not active">
+            <tree string="طرازات السيارات" decoration-muted="not active">
 
-             
+                <field name="code"/>
                 <field name="name"/>
                 <field name="manufactory_id"/>
                
@@ -31,7 +31,7 @@
         <field name="model">wof.car.type</field>
         <field name="arch" type="xml">
 
-            <form string="حجم السيارة">
+            <form string="طراز السيارة">
 
                 <sheet> 
                     <widget name="web_ribbon"
@@ -58,13 +58,15 @@
                   
                     <group>
                         <group>
-                       
+                            <field name="code" placeholder="CAMRY"/>
                             <field name="name" placeholder="كامري - Camry"/>
 
                         </group>
 
                         <group>
-                             <field name="manufactory_id" placeholder="تويوتا - Toyota"/>
+                             <field name="manufactory_id"
+                                    options="{'no_create': True, 'no_open': False}"
+                                    placeholder="تويوتا - Toyota"/>
                             <field name="active" invisible="1"/>
                         </group>
                     </group>
@@ -93,6 +95,7 @@
             <search string="بحث نوع السيارة">
 
                 <!-- Search Fields -->
+                <field name="code"/>
                 <field name="name"/>
                 <field name="manufactory_id"/>
               
@@ -134,7 +137,7 @@
     ========================== -->
 
     <menuitem id="menu_car_type_wo_v4"
-              name="انواع السيارة"
+              name="طرازات السيارات"
               parent="menu_wo_v4_configuration"
               action="action_car_type_wo_v4"
               sequence="50"/>

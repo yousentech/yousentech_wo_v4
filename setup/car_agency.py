@@ -1,31 +1,23 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+
+from odoo import fields, models
 
 
-class CarِِِِAgency(models.Model):
+class CarAgency(models.Model):
     _name = 'wof.car.agency'
-    _description = 'Car agency'
+    _inherit = ['wof.api.mixin']
+    _description = 'وكالة السيارة'
     _order = 'name'
 
+    code = fields.Char(string="الكود", required=True, index=True, copy=False)
     name = fields.Char(
-        string="الاسم",
-        required=True,
-        index=True,
-        translate=True,   # 👈 مهم لو عندك لغات
-        tracking=True     # 👈 لو تستخدم chatter
+        string="الاسم", required=True, index=True, translate=True,
     )
-    active = fields.Boolean(
-        string="تفعيل",
-        default=True
-    )
+    active = fields.Boolean(string="تفعيل", default=True)
 
     _sql_constraints = [
-        (
-            "car_size_unique",
-            "UNIQUE(name)",  # 👈 مهم جداً multi-company
-            "وكالة السيارة مضاف مسبقاً"
-        ),
-         
+        ('car_agency_code_unique', 'unique(code)',
+         'كود وكالة السيارة مستخدم مسبقًا.'),
+        ('car_agency_name_unique', 'unique(name)',
+         'وكالة السيارة مضافة مسبقًا.'),
     ]
- 

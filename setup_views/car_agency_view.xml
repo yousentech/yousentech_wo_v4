@@ -11,7 +11,7 @@
         <field name="arch" type="xml">
             <tree string="وكالة السيارة" decoration-muted="not active">
 
-             
+                <field name="code"/>
                 <field name="name"/>
                
                 <field name="active" column_invisible="1"/>
@@ -57,7 +57,7 @@
                   
                     <group>
                         <group>
-                       
+                            <field name="code" placeholder="AGENCY-RUH"/>
                             <field name="name" placeholder="مثال: شركة التموين للسيارة"/>
                         </group>
 
@@ -91,6 +91,7 @@
             <search string="بحث عن وكالة السيارة">
 
                 <!-- Search Fields -->
+                <field name="code"/>
                 <field name="name"/>
               
                 <filter string="مؤرشف"

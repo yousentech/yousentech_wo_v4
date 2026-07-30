@@ -12,7 +12,9 @@
             <tree string="حجم السيارة" decoration-muted="not active">
 
              
+                <field name="code"/>
                 <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
                
                 <field name="active" column_invisible="1"/>
 
@@ -58,11 +60,13 @@
                     <group>
                         <group>
                        
-                            <field name="name" placeholder="مثال: عزل حراري"/>
+                            <field name="code" placeholder="مثال: MEDIUM"/>
+                            <field name="name" placeholder="مثال: متوسطة"/>
                         </group>
 
                         <group>
                          
+                            <field name="company_id" groups="base.group_multi_company"/>
                             <field name="active" invisible="1"/>
                         </group>
                     </group>
@@ -92,6 +96,7 @@
 
                 <!-- Search Fields -->
                 <field name="name"/>
+                <field name="code"/>
               
                 <filter string="مؤرشف"
                         name="inactive"
@@ -132,5 +137,6 @@
               name="احجام السيارة"
               parent="menu_wo_v4_configuration"
               action="action_car_size_wo_v4"
-              sequence="30"/>
+              sequence="30"
+              groups="yousentech_wo_v4.group_wo_manager"/>
 </odoo>
