@@ -85,7 +85,7 @@
                     </group>
                     <group string="تجاوز السعر — خيار متقدم"
                            groups="yousentech_wo_v4.group_wo_price_override">
-                        <div class="alert alert-warning" colspan="2">
+                        <div class="alert alert-warning" role="status" colspan="2">
                             يستخدم التجاوز عند وجود استثناء معتمد فقط، ويُسجل السبب والسعر والمستخدم في السجل الزمني والتدقيق.
                         </div>
                         <group>
@@ -152,6 +152,7 @@
         <field name="arch" type="xml">
             <tree string="المواد المستخدمة" editable="bottom">
                 <field name="company_id" column_invisible="True"/>
+                <field name="order_id" column_invisible="True"/>
                 <field name="order_line_id"
                        options="{'no_create': True, 'no_open': True}"/>
                 <field name="product_id"
@@ -235,15 +236,18 @@
                                 <field name="state" widget="badge"/>
                             </div>
                             <div class="mt-2">
-                                <i class="fa fa-user me-1" aria-label="العميل"/>
+                                <i class="fa fa-user me-1" title="العميل"
+                                   aria-label="العميل"/>
                                 <field name="partner_id"/>
                             </div>
                             <div class="text-muted mt-1">
-                                <i class="fa fa-car me-1" aria-label="السيارة"/>
+                                <i class="fa fa-car me-1" title="السيارة"
+                                   aria-label="السيارة"/>
                                 <field name="vehicle_plate"/>
                             </div>
                             <div class="text-muted mt-1">
-                                <i class="fa fa-calendar me-1" aria-label="الموعد"/>
+                                <i class="fa fa-calendar me-1" title="الموعد"
+                                   aria-label="الموعد"/>
                                 <field name="appointment_at"/>
                             </div>
                             <div class="wof_order_kanban_footer">
@@ -351,9 +355,9 @@
                             <span class="wof_order_eyebrow">أمر تركيب</span>
                             <h1><field name="name" readonly="1"/></h1>
                             <div class="wof_order_hero_meta">
-                                <span><i class="fa fa-user me-1"/><field name="partner_id" readonly="1"/></span>
-                                <span><i class="fa fa-car me-1"/><field name="vehicle_plate" readonly="1"/></span>
-                                <span><i class="fa fa-calendar me-1"/><field name="appointment_at" readonly="1"/></span>
+                                <span><i class="fa fa-user me-1" title="العميل"/><field name="partner_id" readonly="1"/></span>
+                                <span><i class="fa fa-car me-1" title="السيارة"/><field name="vehicle_plate" readonly="1"/></span>
+                                <span><i class="fa fa-calendar me-1" title="الموعد"/><field name="appointment_at" readonly="1"/></span>
                             </div>
                         </div>
                         <div class="wof_order_hero_state">
@@ -439,7 +443,7 @@
 
                     <notebook>
                         <page string="الخدمات والتسعير" name="services">
-                            <div class="alert alert-info">
+                            <div class="alert alert-info" role="status">
                                 أضف الخدمة والفيلم والجزء مباشرة. يطبق النظام سعر حجم السيارة تلقائيًا، ويعرض سبب اختيار السعر دون نوافذ تهيئة متداخلة.
                             </div>
                             <field name="line_ids" mode="tree,form"
@@ -493,7 +497,7 @@
                                    readonly="state != 'in_progress'"
                                    context="{'tree_view_ref': 'yousentech_wo_v4.view_wof_installation_order_line_execution_tree'}"/>
                             <separator string="المواد المستخدمة"/>
-                            <div class="alert alert-warning">
+                            <div class="alert alert-warning" role="status">
                                 يسجل هذا القسم الاستهلاك التشغيلي الآن. إنشاء حركات المخزون الفعلية مؤجل لمرحلة تكامل المخزون.
                             </div>
                             <field name="material_line_ids" mode="tree"

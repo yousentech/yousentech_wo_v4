@@ -39,6 +39,30 @@ XML_MOJIBAKE_MARKERS = (
     "ظ„",
     "ظ…",
 )
+VIEW_EXPRESSION_ATTRIBUTES = {
+    "domain",
+    "context",
+    "invisible",
+    "readonly",
+    "required",
+    "column_invisible",
+}
+VIEW_SAFE_IDENTIFIERS = {
+    "active_id",
+    "active_ids",
+    "active_model",
+    "context",
+    "current_date",
+    "dateutil",
+    "datetime",
+    "id",
+    "parent",
+    "relativedelta",
+    "time",
+    "today",
+    "uid",
+    "user",
+}
 
 
 class Validation:
@@ -321,6 +345,19 @@ def check_xml_encoding(validation):
         validation.counts["xml_utf8_files"] += 1
 
 
+def view_expression_identifiers(expression):
+    """Extract field-like names used by a domain or view modifier."""
+    try:
+        tree = ast.parse(expression, mode="eval")
+    except SyntaxError:
+        return set()
+    return {
+        node.id
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and node.id not in VIEW_SAFE_IDENTIFIERS
+    }
+
+
 def check_python_import_wiring(validation):
     """Ensure every addon Python module is loaded by its package."""
     for init_path in sorted(ROOT.rglob("__init__.py")):
@@ -376,6 +413,23 @@ def parse_xml(validation, paths, methods, fields):
         )
 
         for element in root.iter():
+            classes = set((element.get("class") or "").split())
+            if any(name.startswith("alert-") for name in classes):
+                validation.counts["alert_elements"] += 1
+                validation.require(
+                    element.get("role") in {"alert", "alertdialog", "status"}
+                    or "alert-link" in classes,
+                    f"Alert lacks an accessible role in "
+                    f"{path.relative_to(ROOT)}",
+                )
+            if element.tag == "i" and "fa" in classes:
+                validation.counts["fa_icons"] += 1
+                validation.require(
+                    bool((element.get("title") or "").strip())
+                    or bool((element.text or "").strip()),
+                    f"Font Awesome icon lacks title/text in "
+                    f"{path.relative_to(ROOT)}",
+                )
             for attribute in (
                 "invisible", "readonly", "required", "column_invisible",
                 "domain", "context",
@@ -459,26 +513,74 @@ def parse_xml(validation, paths, methods, fields):
 
                     validate_arch(arch, view_model)
 
-                    def validate_check_company_scope(scope, active_model):
-                        company_field_available = False
+                    def validate_view_scope(scope, active_model):
+                        available_fields = set()
+                        unrestricted_fields = set()
+                        requirements = []
                         check_company_fields = []
 
+                        def add_requirements(
+                            expression, label, restricted_by_groups
+                        ):
+                            if not isinstance(expression, str):
+                                return
+                            for identifier in view_expression_identifiers(
+                                expression
+                            ):
+                                requirements.append(
+                                    (
+                                        identifier,
+                                        label,
+                                        restricted_by_groups,
+                                    )
+                                )
+
+                        def inspect_expressions(node, restricted_by_groups):
+                            for attribute, expression in node.attrib.items():
+                                if (
+                                    attribute in VIEW_EXPRESSION_ATTRIBUTES
+                                    or attribute.startswith("decoration-")
+                                ):
+                                    add_requirements(
+                                        expression,
+                                        f"{attribute} expression",
+                                        restricted_by_groups,
+                                    )
+
                         def walk(node, restricted_by_groups=False):
-                            nonlocal company_field_available
                             for child in node:
                                 restricted = (
                                     restricted_by_groups
                                     or bool(child.get("groups"))
                                 )
+                                inspect_expressions(child, restricted)
                                 if child.tag != "field":
                                     walk(child, restricted)
                                     continue
                                 name = child.get("name")
                                 info = fields.get(active_model, {}).get(name, {})
-                                if name == "company_id" and not restricted:
-                                    company_field_available = True
+                                if name:
+                                    available_fields.add(name)
+                                    if not restricted:
+                                        unrestricted_fields.add(name)
+
+                                python_domain = info.get(
+                                    "keywords", {}
+                                ).get("domain")
+                                add_requirements(
+                                    python_domain,
+                                    f"python domain of {name}",
+                                    restricted,
+                                )
                                 if info.get("keywords", {}).get("check_company") is True:
                                     check_company_fields.append(name)
+                                    requirements.append(
+                                        (
+                                            "company_id",
+                                            f"check_company domain of {name}",
+                                            restricted,
+                                        )
+                                    )
 
                                 relation = info.get("relation")
                                 nested_views = [
@@ -490,20 +592,37 @@ def parse_xml(validation, paths, methods, fields):
                                 ]
                                 for nested in nested_views:
                                     if relation in fields:
-                                        validate_check_company_scope(
+                                        validate_view_scope(
                                             nested, relation
                                         )
                                 for nested in child:
                                     if nested not in nested_views:
                                         walk(nested, restricted)
 
-                        walk(scope)
+                        root_restricted = bool(scope.get("groups"))
+                        inspect_expressions(scope, root_restricted)
+                        walk(scope, root_restricted)
+                        for identifier, label, restricted in requirements:
+                            available = (
+                                available_fields
+                                if restricted
+                                else unrestricted_fields
+                            )
+                            validation.counts[
+                                "view_expression_dependencies"
+                            ] += 1
+                            validation.require(
+                                identifier in available,
+                                f"View {record_id} {label} references "
+                                f"{active_model}.{identifier}, but it is not "
+                                f"available in the same view scope",
+                            )
                         if check_company_fields:
                             validation.counts[
                                 "check_company_view_scopes"
                             ] += 1
                             validation.require(
-                                company_field_available,
+                                "company_id" in unrestricted_fields,
                                 f"View {record_id} exposes check_company field(s) "
                                 f"{', '.join(sorted(set(check_company_fields)))} "
                                 f"for {active_model} without an unrestricted "
@@ -511,7 +630,7 @@ def parse_xml(validation, paths, methods, fields):
                             )
 
                     for view_root in arch:
-                        validate_check_company_scope(view_root, view_model)
+                        validate_view_scope(view_root, view_model)
                     for button in arch.findall(".//button[@type='object']"):
                         action_buttons.append((path, record_id, view_model, button.get("name")))
         ordered_ids.update(

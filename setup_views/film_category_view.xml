@@ -58,6 +58,7 @@
                             <field name="film_part_line_ids">
                                 <tree editable="bottom">
                                     <field name="company_id" column_invisible="1"/>
+                                    <field name="header_id" column_invisible="1"/>
                                     <field name="sequence" widget="handle"/>
                                     <field name="part_selected"/>
                                     <field name="car_part_id"/>

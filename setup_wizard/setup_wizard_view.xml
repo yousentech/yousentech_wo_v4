@@ -147,11 +147,13 @@
                             <h2>مراجعة الجاهزية</h2>
                             <p>لن يفعّل النظام إلا بعد اكتمال الحد الأدنى المطلوب للتشغيل.</p>
                         </div>
-                        <div class="alert alert-success" invisible="not readiness_ok">
+                        <div class="alert alert-success" role="status"
+                             invisible="not readiness_ok">
                             <strong>جاهز للتشغيل.</strong>
                             ستُنشأ الخدمات والأفلام والأجزاء والأسعار بصورة آمنة دون تكرار.
                         </div>
-                        <div class="alert alert-warning" invisible="readiness_ok">
+                        <div class="alert alert-warning" role="status"
+                             invisible="readiness_ok">
                             <strong>توجد بيانات ناقصة:</strong>
                             <field name="readiness_note" nolabel="1"/>
                         </div>
@@ -234,7 +236,7 @@
                                 <field name="advanced_pricing"/>
                                 <field name="advanced_commission"/>
                             </group>
-                            <div class="alert alert-info">
+                            <div class="alert alert-info" role="status">
                                 تغيير هذه الخيارات لا يحذف البيانات السابقة. افتح التسعيرات أو العمولات لتعديل التفاصيل.
                             </div>
                         </page>

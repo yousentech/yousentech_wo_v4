@@ -106,7 +106,8 @@
                                             class="text-decoration-none d-flex align-items-center">
 
                                                 <!-- ICON -->
-                                                <i class="fa fa-film text-primary fa-lg me-2"></i>
+                                                <i class="fa fa-film text-primary fa-lg me-2"
+                                                   title="الأفلام"></i>
 
                                                 <!-- TEXT -->
                                                 <div>
@@ -128,7 +129,8 @@
                                             name="action_create_film"
                                             class="text-success text-decoration-none fw-bold">
 
-                                                <i class="fa fa-plus-circle fa-lg"></i>
+                                                <i class="fa fa-plus-circle fa-lg"
+                                                   title="إضافة فيلم"></i>
 
                                             </a>
 
@@ -143,7 +145,8 @@
                                             class="text-decoration-none d-flex align-items-center">
 
                                                 <!-- ICON -->
-                                                <i class="fa fa-cogs text-success fa-lg me-2"></i>
+                                                <i class="fa fa-cogs text-success fa-lg me-2"
+                                                   title="الأجزاء"></i>
 
                                                 <!-- TEXT -->
                                                 <div>
@@ -165,7 +168,8 @@
                                             name="action_open_parts"
                                             class="text-success text-decoration-none fw-bold">
 
-                                                <i class="fa fa-plus-circle fa-lg"></i>
+                                                <i class="fa fa-plus-circle fa-lg"
+                                                   title="إضافة جزء"></i>
 
                                             </a>
 
