@@ -1144,3 +1144,206 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+/* -------------------------------------------------------------------------
+ * Setup Wizard V2 — Stage 4: Operations
+ * Same approved visual language as Stages 1–3. No legacy settings dashboard.
+ * ------------------------------------------------------------------------- */
+.wof_stage4_content {
+    padding-bottom: 10px;
+}
+
+.wof_stage4_title_row {
+    margin-bottom: 10px;
+}
+
+.wof_stage4_main_fields_card,
+.wof_stage4_card {
+    background: #fff;
+    border: 1px solid #d6dfe1;
+    border-radius: 9px;
+    box-shadow: 0 4px 14px rgba(31, 41, 51, .06);
+}
+
+.wof_stage4_main_fields_card {
+    padding: 10px 12px 8px;
+}
+
+.wof_stage4_card {
+    padding: 10px 12px;
+}
+
+.wof_stage4_card_head {
+    align-items: flex-start;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    margin-bottom: 7px;
+}
+
+.wof_stage4_card_head.compact {
+    margin-bottom: 8px;
+}
+
+.wof_stage4_card_head h3 {
+    color: #26343b;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 2px;
+}
+
+.wof_stage4_card_head p {
+    color: var(--wof-muted);
+    font-family: inherit;
+    font-size: 11.5px;
+    margin: 0;
+}
+
+.wof_stage4_card_icon {
+    align-items: center;
+    background: #e7f4f1;
+    border-radius: 7px;
+    color: var(--wof-teal-dark);
+    display: inline-flex;
+    flex: 0 0 28px;
+    height: 28px;
+    justify-content: center;
+    width: 28px;
+}
+
+.wof_stage4_fields_table .o_list_renderer,
+.wof_stage4_fields_table .o_list_table,
+.wof_stage4_fields_table .o_list_view {
+    background: #fff !important;
+}
+
+.wof_stage4_fields_table .o_list_table {
+    border: 1px solid #e0e6e7;
+    border-radius: 7px;
+    margin-bottom: 0 !important;
+    overflow: hidden;
+}
+
+.wof_stage4_fields_table .o_list_table thead th {
+    background: #f4f8f8 !important;
+    color: #34434a;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding-bottom: 4px !important;
+    padding-top: 4px !important;
+    text-align: center !important;
+}
+
+.wof_stage4_fields_table .o_list_table tbody td {
+    border-top-color: #edf1f2 !important;
+    font-size: 11.5px;
+    min-height: 25px !important;
+    padding-bottom: 2px !important;
+    padding-top: 2px !important;
+    vertical-align: middle;
+}
+
+.wof_stage4_fields_table .o_list_table tbody td:first-of-type {
+    color: #2c3940;
+    font-weight: 600;
+}
+
+.wof_stage4_fields_table .o_boolean_toggle {
+    transform: scale(.82);
+    transform-origin: center;
+}
+
+.wof_stage4_fields_hint {
+    color: #6a767c;
+    font-size: 10.5px;
+    margin-top: 5px;
+    text-align: start;
+}
+
+.wof_stage4_fields_hint i {
+    color: var(--wof-teal-dark);
+    margin-inline-end: 4px;
+}
+
+.wof_stage4_bottom_grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    margin-top: 10px;
+}
+
+.wof_stage4_side_stack {
+    display: grid;
+    gap: 10px;
+    grid-template-rows: auto 1fr;
+}
+
+.wof_stage4_setting_row {
+    align-items: center;
+    border-top: 1px solid #eef2f3;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    min-height: 32px;
+    padding: 5px 0;
+}
+
+.wof_stage4_setting_row:first-of-type {
+    border-top: 0;
+}
+
+.wof_stage4_setting_row label,
+.wof_stage4_setting_block label,
+.wof_stage4_radio_block > label {
+    color: #344149;
+    font-size: 11.5px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.wof_stage4_setting_block {
+    border-top: 1px solid #eef2f3;
+    display: grid;
+    gap: 4px;
+    padding: 6px 0;
+}
+
+.wof_stage4_setting_block .o_field_many2one {
+    width: 100%;
+}
+
+.wof_stage4_radio_block {
+    border-top: 1px solid #eef2f3;
+    display: grid;
+    gap: 3px;
+    padding: 6px 0 3px;
+}
+
+.wof_stage4_radio_block .o_field_radio {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+}
+
+.wof_stage4_radio_block .o_radio_item {
+    align-items: center;
+    display: inline-flex;
+    font-size: 11.5px;
+    gap: 4px;
+    margin: 0 !important;
+}
+
+.wof_stage4_radio_block.commission {
+    padding-bottom: 0;
+}
+
+.wof_stage4_footer .wof_stage1_next {
+    min-width: 210px;
+}
+
+@media (max-width: 900px) {
+    .wof_stage4_bottom_grid {
+        grid-template-columns: 1fr;
+    }
+}

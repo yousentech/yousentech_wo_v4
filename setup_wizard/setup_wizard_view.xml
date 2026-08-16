@@ -470,30 +470,120 @@
                         </div>
                     </div>
 
-                    <div invisible="current_step != 'operations'">
-                        <div class="wof_setup_section_title">
-                            <h2>كيف يعمل المركز؟</h2>
-                            <p>إعدادات بلغة العمل اليومية بدل خيارات تقنية متعارضة.</p>
+                    <div invisible="current_step != 'operations'" class="wof_stage1_shell wof_stage4_shell" dir="rtl">
+                        <div class="wof_stage1_intro_panel">
+                            <div class="wof_stage1_header">
+                                <h1>مركز تهيئة النظام</h1>
+                                <p>سنقوم بتهيئة النظام معك خطوة بخطوة ويمكن تعديل الإعدادات لاحقًا</p>
+                            </div>
+                            <div class="wof_stage1_stepper" aria-label="خطوات التهيئة">
+                                <div class="wof_stage1_step is-complete"><span class="wof_stage1_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>الأنشطة</strong></div>
+                                <div class="wof_stage1_connector is-current"></div>
+                                <div class="wof_stage1_step is-complete"><span class="wof_stage1_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>أحجام السيارات</strong></div>
+                                <div class="wof_stage1_connector is-current"></div>
+                                <div class="wof_stage1_step is-complete"><span class="wof_stage1_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>درجات اللون</strong></div>
+                                <div class="wof_stage1_connector is-current"></div>
+                                <div class="wof_stage1_step is-current"><span class="wof_stage1_step_no">4</span><strong>التشغيل</strong><small>الخطوة 4 من 5</small></div>
+                                <div class="wof_stage1_connector"></div>
+                                <div class="wof_stage1_step"><span class="wof_stage1_step_no">5</span><strong>المراجعة والتفعيل</strong></div>
+                            </div>
                         </div>
-                        <group col="2">
-                            <group string="الدفع والفوترة">
-                                <field name="payment_policy" widget="radio"/>
-                                <field name="discount_scope" widget="radio"/>
-                            </group>
-                            <group string="التشغيل">
-                                <field name="commission_event" widget="radio"/>
-                                <field name="required_vehicle_data" widget="radio"/>
-                                <field name="use_inventory"/>
-                                <field name="use_appointments"/>
-                            </group>
-                        </group>
-                        <details class="wof_setup_advanced">
-                            <summary>خيارات متقدمة — يمكن تعديلها لاحقًا</summary>
-                            <group>
-                                <field name="advanced_pricing"/>
-                                <field name="advanced_commission"/>
-                            </group>
-                        </details>
+
+                        <div class="wof_stage1_body_panel">
+                            <div class="wof_stage1_content wof_stage4_content">
+                                <div class="wof_stage1_title_row wof_stage4_title_row">
+                                    <div class="wof_stage1_title">
+                                        <h2>إعدادات التشغيل</h2>
+                                        <p>حدد طريقة عمل أوامر التركيب والحقول المطلوبة وسياسة التسعير والضريبة.</p>
+                                    </div>
+                                </div>
+
+                                <div class="wof_stage4_main_fields_card">
+                                    <div class="wof_stage4_card_head">
+                                        <div>
+                                            <h3>الحقول الرئيسية</h3>
+                                            <p>حدد الحقول التي تريد إظهارها في أمر التركيب وما إذا كانت إلزامية.</p>
+                                        </div>
+                                        <span class="wof_stage4_card_icon"><i class="fa fa-list-alt" title="الحقول الرئيسية"/></span>
+                                    </div>
+                                    <field name="operation_field_line_ids" nolabel="1" class="wof_stage4_fields_table">
+                                        <tree create="0" delete="0" editable="bottom">
+                                            <field name="sequence" column_invisible="1"/>
+                                            <field name="field_key" column_invisible="1"/>
+                                            <field name="label" string="الخاصية" readonly="1"/>
+                                            <field name="required" string="إجباري" widget="boolean_toggle" readonly="hidden"/>
+                                            <field name="hidden" string="إخفاء" widget="boolean_toggle"/>
+                                        </tree>
+                                    </field>
+                                    <div class="wof_stage4_fields_hint"><i class="fa fa-info-circle" title="معلومة"/> عند إخفاء أي حقل يتم إلغاء اعتباره إجباريًا تلقائيًا.</div>
+                                </div>
+
+                                <div class="wof_stage4_bottom_grid">
+                                    <div class="wof_stage4_card wof_stage4_tax_card">
+                                        <div class="wof_stage4_card_head compact">
+                                            <div><h3>الضريبة والتسعير</h3><p>سياسة موحدة تُستخدم تلقائيًا عند إعداد الأسعار.</p></div>
+                                            <span class="wof_stage4_card_icon"><i class="fa fa-percent" title="الضريبة والتسعير"/></span>
+                                        </div>
+                                        <div class="wof_stage4_setting_row">
+                                            <label>تطبيق الضريبة</label>
+                                            <field name="operation_tax_enabled" widget="boolean_toggle" nolabel="1"/>
+                                        </div>
+                                        <div class="wof_stage4_setting_block" invisible="not operation_tax_enabled">
+                                            <label>الضريبة الافتراضية</label>
+                                            <field name="operation_tax_id" nolabel="1" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        </div>
+                                        <div class="wof_stage4_radio_block" invisible="not operation_tax_enabled">
+                                            <label>طريقة إدخال السعر</label>
+                                            <field name="operation_price_input_mode" widget="radio" nolabel="1"/>
+                                        </div>
+                                        <div class="wof_stage4_radio_block">
+                                            <label>سياسة التسعير الافتراضية</label>
+                                            <field name="operation_pricing_policy" widget="radio" nolabel="1"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="wof_stage4_side_stack">
+                                        <div class="wof_stage4_card">
+                                            <div class="wof_stage4_card_head compact">
+                                                <div><h3>الفوترة</h3><p>خيار واحد واضح لإنشاء الفاتورة تلقائيًا.</p></div>
+                                                <span class="wof_stage4_card_icon"><i class="fa fa-file-text-o" title="الفوترة"/></span>
+                                            </div>
+                                            <div class="wof_stage4_setting_row">
+                                                <label>إنشاء فاتورة تلقائيًا عند تأكيد أمر التركيب</label>
+                                                <field name="operation_auto_invoice" widget="boolean_toggle" nolabel="1"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="wof_stage4_card">
+                                            <div class="wof_stage4_card_head compact">
+                                                <div><h3>الفنيون والعمولات</h3><p>حدد طريقة إسناد الفني ووقت اعتماد استحقاق العمولة.</p></div>
+                                                <span class="wof_stage4_card_icon"><i class="fa fa-users" title="الفنيون والعمولات"/></span>
+                                            </div>
+                                            <div class="wof_stage4_setting_row">
+                                                <label>السماح بتعدد الفنيين</label>
+                                                <field name="operation_allow_multiple_technicians" widget="boolean_toggle" nolabel="1"/>
+                                            </div>
+                                            <div class="wof_stage4_setting_row">
+                                                <label>الفني إجباري</label>
+                                                <field name="operation_technician_required" widget="boolean_toggle" nolabel="1"/>
+                                            </div>
+                                            <div class="wof_stage4_radio_block commission">
+                                                <label>اعتماد استحقاق العمولة</label>
+                                                <field name="commission_event" widget="radio" nolabel="1"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="wof_stage1_footer wof_stage2_footer wof_stage4_footer">
+                                <div class="wof_stage2_prev_wrap">
+                                    <button name="action_previous" type="object" class="btn btn-secondary wof_stage2_prev"><i class="fa fa-arrow-right" title="السابق"/> السابق: درجات اللون</button>
+                                    <p>يمكن تعديل إعدادات التشغيل لاحقًا من مركز الإعدادات.</p>
+                                </div>
+                                <button name="action_next" type="object" class="btn btn-primary wof_stage1_next">التالي: المراجعة والتفعيل <i class="fa fa-arrow-left" title="التالي"/></button>
+                            </div>
+                        </div>
                     </div>
 
                     <div invisible="current_step != 'review'">

@@ -52,6 +52,21 @@ TINT_SHADE_DEFAULTS = {
     'percentage': [('00', 10), ('30', 20), ('50', 30), ('75', 40), ('100', 50)],
 }
 
+OPERATION_FIELD_DEFAULTS = [
+    ('plate', 'اللوحة', True, False, 10),
+    ('vin', 'الشاصي', False, False, 20),
+    ('mobile', 'الجوال', True, False, 30),
+    ('manufacture_year', 'سنة الصنع', False, False, 40),
+    ('color', 'اللون', False, False, 50),
+    ('agency', 'الوكالة', False, False, 60),
+    ('delivery_time', 'وقت التسليم', False, False, 70),
+    ('odometer', 'العداد', False, True, 80),
+    ('salesperson', 'المندوب', False, True, 90),
+    ('technician', 'الفني', True, False, 100),
+]
+
+OPERATION_FIELD_KEYS = [(key, label) for key, label, _required, _hidden, _sequence in OPERATION_FIELD_DEFAULTS]
+
 
 def _utc_iso(value):
     if not value:
@@ -168,6 +183,30 @@ class WofCompanyProfile(models.Model):
     has_tint_activity = fields.Boolean(
         compute='_compute_has_tint_activity', string="يوجد نشاط عزل حراري",
     )
+    operation_field_line_ids = fields.One2many(
+        'wof.setup.operation.field.line', 'profile_id',
+        string='الحقول الرئيسية', copy=True,
+    )
+    operation_tax_enabled = fields.Boolean(string='تطبيق الضريبة', default=True)
+    operation_tax_id = fields.Many2one(
+        'account.tax', string='الضريبة الافتراضية', check_company=True,
+        domain="[('type_tax_use', '=', 'sale'), ('company_id', '=', company_id)]",
+    )
+    operation_price_input_mode = fields.Selection(
+        [('excluded', 'السعر قبل الضريبة'), ('included', 'السعر شامل الضريبة')],
+        string='طريقة إدخال السعر', default='excluded', required=True,
+    )
+    operation_pricing_policy = fields.Selection(
+        [('fixed', 'سعر موحد'), ('by_size', 'حسب حجم السيارة')],
+        string='سياسة التسعير الافتراضية', default='fixed', required=True,
+    )
+    operation_auto_invoice = fields.Boolean(
+        string='إنشاء فاتورة تلقائيًا عند تأكيد أمر التركيب', default=False,
+    )
+    operation_allow_multiple_technicians = fields.Boolean(
+        string='السماح بتعدد الفنيين', default=True,
+    )
+    operation_technician_required = fields.Boolean(string='الفني إجباري', default=True)
     service_line_ids = fields.One2many(
         'wof.setup.service.line', 'profile_id', string="الخدمات والأسعار", copy=True,
     )
@@ -182,7 +221,7 @@ class WofCompanyProfile(models.Model):
         default='order', required=True,
     )
     commission_event = fields.Selection(
-        [('delivery', 'بعد تسليم السيارة'), ('invoice', 'بعد ترحيل الفاتورة')],
+        [('delivery', 'بعد إنجاز أمر التركيب'), ('invoice', 'بعد ترحيل الفاتورة')],
         default='delivery', required=True,
     )
     required_vehicle_data = fields.Selection(
@@ -237,13 +276,19 @@ class WofCompanyProfile(models.Model):
             record._ensure_default_activities()
             record._ensure_default_sizes()
             record._ensure_default_tint_shades()
+            record._ensure_default_operation_fields()
+            record._ensure_default_operation_tax()
         return records
 
     def write(self, vals):
         tracked = {
             *ACTIVITY_FIELDS.values(),
             'activity_line_ids', 'size_line_ids', 'tint_numbering_method',
-            'tint_shade_line_ids', 'service_line_ids',
+            'tint_shade_line_ids', 'operation_field_line_ids', 'service_line_ids',
+            'operation_tax_enabled', 'operation_tax_id',
+            'operation_price_input_mode', 'operation_pricing_policy',
+            'operation_auto_invoice', 'operation_allow_multiple_technicians',
+            'operation_technician_required',
             'payment_policy', 'discount_scope', 'commission_event',
             'required_vehicle_data', 'use_inventory', 'use_appointments',
             'advanced_pricing', 'advanced_commission',
@@ -392,6 +437,12 @@ class WofCompanyProfile(models.Model):
                     'field': 'tint_shade_line_ids',
                     'message': 'فعّل درجة لون واحدة على الأقل',
                 })
+        if self.operation_tax_enabled and not self.operation_tax_id:
+            issues.append({
+                'code': 'SETUP_OPERATION_TAX_REQUIRED',
+                'field': 'operation_tax_id',
+                'message': 'اختر الضريبة الافتراضية أو أوقف تطبيق الضريبة',
+            })
         return issues
 
     def _setup_state_payload(self):
@@ -569,6 +620,72 @@ class WofCompanyProfile(models.Model):
         })
         return dialog._dialog_action()
 
+    def _ensure_default_operation_fields(self):
+        self.ensure_one()
+        existing = {line.field_key: line for line in self.operation_field_line_ids}
+        for key, label, required, hidden, sequence in OPERATION_FIELD_DEFAULTS:
+            line = existing.get(key)
+            vals = {
+                'label': label,
+                'sequence': sequence,
+            }
+            if not line:
+                vals.update({
+                    'profile_id': self.id,
+                    'field_key': key,
+                    'required': required and not hidden,
+                    'hidden': hidden,
+                })
+                self.env['wof.setup.operation.field.line'].create(vals)
+            elif not line.label:
+                line.with_context(wof_operation_setup_sync=True).write(vals)
+        return True
+
+    def _ensure_default_operation_tax(self):
+        self.ensure_one()
+        if self.operation_tax_id:
+            return True
+        tax = self.env['account.tax'].search([
+            ('type_tax_use', '=', 'sale'),
+            ('company_id', '=', self.company_id.id),
+            ('amount_type', '=', 'percent'),
+            ('amount', '=', 15),
+            ('active', '=', True),
+        ], limit=1)
+        if not tax:
+            tax = self.env['account.tax'].search([
+                ('type_tax_use', '=', 'sale'),
+                ('company_id', '=', self.company_id.id),
+                ('active', '=', True),
+            ], limit=1)
+        if tax:
+            super(WofCompanyProfile, self).write({'operation_tax_id': tax.id})
+        return True
+
+    def _sync_operation_compatibility(self):
+        """Keep legacy setup fields aligned while Stage 4 is migrated."""
+        self.ensure_one()
+        policies = {line.field_key: line for line in self.operation_field_line_ids}
+        plate = policies.get('plate')
+        vin = policies.get('vin')
+        mobile = policies.get('mobile')
+        vals = {
+            'required_vehicle_data': (
+                'plate_vin_mobile'
+                if vin and vin.required and not vin.hidden
+                else 'plate_mobile'
+            ),
+            'advanced_pricing': self.operation_pricing_policy == 'by_size',
+        }
+        # Legacy validation historically requires plate/mobile. Preserve it unless
+        # a later runtime screen explicitly migrates to per-field policies.
+        if plate and plate.hidden:
+            plate.with_context(wof_operation_setup_sync=True).write({'required': False})
+        if mobile and mobile.hidden:
+            mobile.with_context(wof_operation_setup_sync=True).write({'required': False})
+        super(WofCompanyProfile, self).write(vals)
+        return True
+
     def _ensure_default_tint_shades(self):
         self.ensure_one()
         method = self.tint_numbering_method or 'sequential'
@@ -695,6 +812,9 @@ class WofCompanyProfile(models.Model):
         self._ensure_default_activities()
         self._ensure_default_sizes()
         self._ensure_default_tint_shades()
+        self._ensure_default_operation_fields()
+        if self.current_step in ('operations', 'review'):
+            self._ensure_default_operation_tax()
         return {
             'type': 'ir.actions.act_window', 'name': _('مركز تهيئة النظام'),
             'res_model': 'wof.company.profile', 'res_id': self.id,
@@ -746,8 +866,14 @@ class WofCompanyProfile(models.Model):
         elif self.current_step == 'services':
             if self.has_tint_activity and not self.tint_shade_line_ids.filtered('selected'):
                 raise ValidationError(_('فعّل درجة لون واحدة على الأقل قبل المتابعة.'))
+            self._ensure_default_operation_fields()
+            self._ensure_default_operation_tax()
             next_step = 'operations'
         elif self.current_step == 'operations':
+            self._ensure_default_operation_fields()
+            if self.operation_tax_enabled and not self.operation_tax_id:
+                raise ValidationError(_('اختر الضريبة الافتراضية أو أوقف تطبيق الضريبة قبل المتابعة.'))
+            self._sync_operation_compatibility()
             next_step = 'review'
         transition_vals = {'current_step': next_step}
         if self.state == 'draft':
@@ -1273,6 +1399,59 @@ class WofSetupTintShadeLine(models.Model):
     def unlink(self):
         self.mapped('profile_id')._ensure_can_configure()
         return super().unlink()
+
+
+class WofSetupOperationFieldLine(models.Model):
+    _name = 'wof.setup.operation.field.line'
+    _description = 'سياسة حقل أمر التركيب في التهيئة'
+    _order = 'sequence, id'
+
+    sequence = fields.Integer(default=10)
+    profile_id = fields.Many2one(
+        'wof.company.profile', required=True, ondelete='cascade', index=True,
+    )
+    company_id = fields.Many2one(
+        related='profile_id.company_id', store=True, index=True, readonly=True,
+    )
+    field_key = fields.Selection(OPERATION_FIELD_KEYS, string='الحقل', required=True, readonly=True)
+    label = fields.Char(string='الخاصية', required=True, readonly=True)
+    required = fields.Boolean(string='إجباري')
+    hidden = fields.Boolean(string='إخفاء')
+
+    _sql_constraints = [
+        ('setup_operation_field_profile_unique', 'unique(profile_id, field_key)',
+         'الحقل موجود مسبقًا في إعدادات التشغيل.'),
+    ]
+
+    @api.onchange('hidden')
+    def _onchange_hidden(self):
+        for record in self:
+            if record.hidden:
+                record.required = False
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('hidden'):
+                vals['required'] = False
+        return super().create(vals_list)
+
+    def write(self, vals):
+        self.mapped('profile_id')._ensure_can_configure()
+        immutable = {'profile_id', 'field_key', 'label'}
+        if immutable.intersection(vals) and not self.env.context.get('wof_operation_setup_sync'):
+            raise ValidationError(_('تعريف الحقول الرئيسية ثابت، ويمكن تعديل الإجباري والإخفاء فقط.'))
+        if vals.get('hidden'):
+            vals['required'] = False
+        result = super().write(vals)
+        return result
+
+    @api.constrains('required', 'hidden')
+    def _check_hidden_not_required(self):
+        for record in self:
+            if record.hidden and record.required:
+                raise ValidationError(_('الحقل المخفي لا يمكن أن يكون إجباريًا.'))
+
 
 
 class WofSetupServiceLine(models.Model):
