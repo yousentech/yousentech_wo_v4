@@ -137,7 +137,9 @@
     --wof-line: #d7dee0;
     --wof-text: #1f2933;
     --wof-muted: #68737d;
-    direction: rtl;
+    /* Direction comes from dir="rtl" on the Stage 1 root.
+       Do not hard-code rtl here because Odoo rtlcss would mirror it to ltr. */
+    direction: inherit;
     background: #fff;
     border: 1px solid var(--wof-line);
     border-radius: 10px;
@@ -177,6 +179,7 @@
 }
 
 .wof_stage1_stepper {
+    direction: inherit;
     align-items: start;
     background: linear-gradient(90deg, #f1f8f8 0%, #e8f5f5 100%);
     border-bottom: 1px solid #dbe8e9;
@@ -258,6 +261,7 @@
 }
 
 .wof_stage1_title_row {
+    direction: inherit;
     align-items: center;
     background: linear-gradient(90deg, #f8fbfb 0%, #f2f8f8 100%);
     border: 1px solid #dce8e9;
@@ -306,6 +310,7 @@
 }
 
 .wof_stage1_activity_field .o_kanban_renderer {
+    direction: inherit !important;
     align-items: stretch;
     display: grid !important;
     gap: 10px !important;
@@ -324,6 +329,7 @@
 }
 
 .wof_stage1_activity_card {
+    direction: inherit;
     background: #fff;
     border: 1px solid #d5dcde;
     border-radius: 8px;
@@ -351,6 +357,7 @@
 }
 
 .wof_stage1_activity_top {
+    direction: inherit;
     align-items: flex-start;
     display: flex;
     justify-content: space-between;
@@ -358,6 +365,7 @@
 }
 
 .wof_stage1_activity_identity {
+    direction: inherit;
     align-items: center;
     display: flex;
     flex: 1 1 auto;
@@ -408,11 +416,13 @@
 
 .wof_stage1_toggle {
     flex: 0 0 auto;
-    direction: ltr;
+    direction: inherit;
     padding-top: 1px;
 }
 
 .wof_stage1_activity_desc {
+    direction: inherit;
+    text-align: start;
     color: #3e4a52;
     font-family: inherit;
     font-size: 13px;
@@ -423,6 +433,7 @@
 }
 
 .wof_stage1_activity_meta {
+    direction: inherit;
     align-items: center;
     display: flex;
     gap: 8px;
@@ -480,6 +491,7 @@
 }
 
 .wof_stage1_footer {
+    direction: inherit;
     align-items: center;
     border-top: 1px solid #e0e5e6;
     display: flex;
