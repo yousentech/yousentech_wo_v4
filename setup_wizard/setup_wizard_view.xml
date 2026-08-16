@@ -49,8 +49,8 @@
 
                     <div invisible="current_step != 'activity'">
                         <div class="wof_setup_section_title">
-                            <h2>ما الخدمات التي يقدمها المركز؟</h2>
-                            <p>اختر الموجود الآن فقط؛ سينشئ النظام خدمات وأجزاء جاهزة قابلة للتعديل.</p>
+                            <h2>ما أنشطة المركز؟</h2>
+                            <p>جهزنا الأنشطة الشائعة. عطّل ما لا يقدمه المركز، ويمكنك إضافة نشاط مخصص لاحقًا.</p>
                         </div>
                         <group col="3" class="wof_setup_cards">
                             <group string="العزل الحراري">
@@ -97,8 +97,8 @@
 
                     <div invisible="current_step != 'services'">
                         <div class="wof_setup_section_title">
-                            <h2>الخدمات والأسعار الأساسية</h2>
-                            <p>أدخل سعرًا واحدًا كبداية. التفاصيل حسب الحجم والعمولة اختيارية ويمكن تعديلها لاحقًا.</p>
+                            <h2>الخدمة الافتراضية لكل نشاط</h2>
+                            <p>سمّ الخدمة أو الفيلم وأدخل سعرًا أساسيًا. المكوّنات والتفصيل حسب الحجم قابلة للضبط لاحقًا.</p>
                         </div>
                         <field name="service_line_ids" nolabel="1">
                             <tree editable="bottom" create="0" delete="0">
@@ -150,7 +150,7 @@
                         <div class="alert alert-success" role="status"
                              invisible="not readiness_ok">
                             <strong>جاهز للتشغيل.</strong>
-                            ستُنشأ الخدمات والأفلام والأجزاء والأسعار بصورة آمنة دون تكرار.
+                            ستُنشأ الأنشطة والخدمات/الأفلام ومكوّناتها وأسعارها بصورة آمنة دون تكرار.
                         </div>
                         <div class="alert alert-warning" role="status"
                              invisible="readiness_ok">
@@ -200,10 +200,10 @@
 
                     <div class="oe_button_box" name="button_box">
                         <button name="action_open_services" type="object" class="oe_stat_button" icon="fa-wrench">
-                            <field name="service_count" widget="statinfo" string="الخدمات"/>
+                            <field name="service_count" widget="statinfo" string="أنشطة المركز"/>
                         </button>
                         <button name="action_open_films" type="object" class="oe_stat_button" icon="fa-film">
-                            <field name="film_count" widget="statinfo" string="الأفلام"/>
+                            <field name="film_count" widget="statinfo" string="الخدمات / الأفلام"/>
                         </button>
                         <button name="action_open_sizes" type="object" class="oe_stat_button" icon="fa-car">
                             <field name="size_count" widget="statinfo" string="أحجام السيارات"/>

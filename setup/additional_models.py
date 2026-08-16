@@ -26,7 +26,7 @@ class CarPartOption(models.Model):
 class PartsTransparencyLevel(models.Model):
     _name = 'wof.parts.transparency.level'
     _inherit = ['wof.api.mixin']
-    _description = 'درجة شفافية الفيلم'
+    _description = 'درجة شفافية قديمة للتوافق فقط'
     _order = 'name'
 
     code = fields.Char(string="الكود", required=True, index=True, copy=False)

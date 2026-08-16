@@ -304,6 +304,14 @@ def parse_manifest(validation):
         {"product", "account"}.issubset(set(manifest.get("depends", []))),
         "Manifest misses a direct required dependency",
     )
+    version = str(manifest.get("version", ""))
+    migration = ROOT / "migrations" / version / "pre-migration.py"
+    validation.require(
+        migration.is_file(),
+        f"Current version lacks migration wiring: migrations/{version}/pre-migration.py",
+    )
+    if migration.is_file():
+        validation.counts["migration_scripts"] += 1
     paths = []
     for relative in manifest.get("data", []):
         path = ROOT / relative
@@ -765,6 +773,20 @@ def parse_acl(validation, declared, models):
             row["perm_create"] == row["perm_write"] == row["perm_unlink"] == "0",
             "Installation order timeline must remain append-only",
         )
+    legacy_grade_rows = [
+        row for row in rows
+        if row["model_id:id"].split(".")[-1]
+        == "model_wof_parts_transparency_level"
+    ]
+    validation.require(
+        bool(legacy_grade_rows),
+        "Legacy global transparency model lacks compatibility read ACL",
+    )
+    for row in legacy_grade_rows:
+        validation.require(
+            row["perm_create"] == row["perm_write"] == row["perm_unlink"] == "0",
+            "Legacy global transparency levels must stay read-only",
+        )
     validation.require(
         by_id.get("access_company_profile_employee", {}).get("perm_read") == "1",
         "Operational employees cannot read company readiness",
@@ -903,7 +925,8 @@ def check_installation_order(validation, models, methods, fields):
         "wof.installation.order.line": {
             "public_uuid", "company_id", "service_type_id",
             "film_category_id", "car_part_id", "price_source",
-            "unit_price", "execution_progress",
+            "unit_price", "execution_progress", "available_car_part_ids",
+            "available_grade_ids", "supports_color_grades",
         },
         "wof.installation.order.event": {
             "public_uuid", "operation_source", "company_id",
@@ -961,6 +984,56 @@ def check_installation_order(validation, models, methods, fields):
     )
 
 
+def check_service_architecture(validation, models, methods, fields):
+    required_fields = {
+        "wof.service.type": {
+            "code", "public_uuid", "company_id", "service_options",
+            "supports_color_grades", "service_ids",
+        },
+        "wof.film.category": {
+            "code", "public_uuid", "company_id", "service_type_id",
+            "supports_color_grades", "film_part_line_ids",
+            "film_category_line_ids", "pricing_summary",
+        },
+        "wof.film.category.lines": {
+            "code", "header_id", "transmission_percent", "company_id",
+        },
+        "wof.film.parts.lines": {
+            "header_id", "car_part_id", "film_category_line_id",
+            "price_line_ids", "commission_line_ids", "price_mode",
+            "commission_mode",
+        },
+    }
+    for model, expected in required_fields.items():
+        missing = expected - set(fields.get(model, {}))
+        validation.require(
+            not missing,
+            f"Service architecture fields missing on {model}: "
+            + ", ".join(sorted(missing)),
+        )
+    validation.require(
+        "resolve_default_grade_id"
+        in methods.get("wof.installation.order.line", set()),
+        "Installation order lacks reusable default-grade resolver",
+    )
+    service_views = "\n".join(
+        (ROOT / relative).read_text(encoding="utf-8")
+        for relative in (
+            "setup_views/service_type_view.xml",
+            "setup_views/film_category_view.xml",
+            "setup_views/film_parts_lines_view.xml",
+        )
+    )
+    validation.require(
+        "wof_service_architecture" in service_views,
+        "Approved service architecture UX scope is missing",
+    )
+    validation.require(
+        "الأجزاء المتاحة في أمر التركيب" not in service_views,
+        "Rejected independent installation-order parts terminology remains",
+    )
+
+
 def check_policy(validation):
     implementation = "\n".join(
         path.read_text(encoding="utf-8")
@@ -1010,6 +1083,7 @@ def main():
     parse_acl(validation, declared, models)
     parse_docs_and_contract(validation)
     check_installation_order(validation, models, methods, fields)
+    check_service_architecture(validation, models, methods, fields)
     check_policy(validation)
 
     if validation.errors:

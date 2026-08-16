@@ -7,20 +7,24 @@ from odoo.exceptions import ValidationError
 class FilmCategory(models.Model):
     _name = 'wof.film.category'
     _inherit = ['wof.api.mixin']
-    _description = 'فئة فيلم'
+    _description = 'خدمة أو فيلم عناية'
     _order = 'service_type_id, sequence, name'
     _check_company_auto = True
 
     sequence = fields.Integer(default=10)
-    name = fields.Char(string="اسم الفيلم", required=True, index=True, translate=True)
+    name = fields.Char(string="اسم الخدمة / الفيلم", required=True, index=True, translate=True)
     code = fields.Char(string="الكود", required=True, index=True, copy=False)
     service_type_id = fields.Many2one(
-        'wof.service.type', string="نوع الخدمة", required=True,
+        'wof.service.type', string="نشاط المركز", required=True,
         ondelete='restrict', check_company=True, index=True,
     )
     service_options = fields.Selection(
         related='service_type_id.service_options', string="النشاط", store=True,
     )
+    supports_color_grades = fields.Boolean(
+        related='service_type_id.supports_color_grades', readonly=True,
+    )
+    description = fields.Text(string="وصف الموظف", translate=True)
     warranty_years = fields.Integer(string="سنوات الضمان", default=5)
     is_effected_in_inventory = fields.Boolean(string="يصرف مواد من المخزون")
     car_film_product_required = fields.Boolean(string="اختيار المنتج المخزني إلزامي")
@@ -39,6 +43,9 @@ class FilmCategory(models.Model):
     parts_count = fields.Integer(compute='_compute_counts')
     price_count = fields.Integer(compute='_compute_counts')
     commission_count = fields.Integer(compute='_compute_counts')
+    grade_count = fields.Integer(compute='_compute_counts')
+    pricing_summary = fields.Char(compute='_compute_configuration_summary')
+    commission_summary = fields.Char(compute='_compute_configuration_summary')
 
     _sql_constraints = [
         ('film_name_service_company_unique', 'unique(name, service_type_id, company_id)',
@@ -49,7 +56,11 @@ class FilmCategory(models.Model):
          'سنوات الضمان لا يمكن أن تكون سالبة.'),
     ]
 
-    @api.depends('film_part_line_ids.price_line_ids', 'film_part_line_ids.commission_line_ids')
+    @api.depends(
+        'film_part_line_ids.price_line_ids',
+        'film_part_line_ids.commission_line_ids',
+        'film_category_line_ids',
+    )
     def _compute_counts(self):
         for record in self:
             record.parts_count = len(record.film_part_line_ids)
@@ -57,6 +68,58 @@ class FilmCategory(models.Model):
             record.commission_count = sum(
                 len(line.commission_line_ids) for line in record.film_part_line_ids
             )
+            record.grade_count = len(record.film_category_line_ids)
+
+    @api.depends(
+        'film_part_line_ids.price_line_ids.car_size_id',
+        'film_part_line_ids.commission_line_ids.car_size_id',
+    )
+    def _compute_configuration_summary(self):
+        for record in self:
+            prices = record.film_part_line_ids.price_line_ids
+            commissions = record.film_part_line_ids.commission_line_ids
+            record.pricing_summary = record._mode_summary(prices)
+            record.commission_summary = record._mode_summary(commissions)
+
+    @api.model
+    def _mode_summary(self, lines):
+        if not lines:
+            return 'غير مكتمل'
+        has_default = any(not line.car_size_id for line in lines)
+        has_sizes = any(line.car_size_id for line in lines)
+        if has_default and has_sizes:
+            return 'سعر أساسي + حسب الحجم'
+        return 'حسب حجم السيارة' if has_sizes else 'عام'
+
+    @api.constrains('service_type_id')
+    def _check_grades_match_activity(self):
+        for record in self:
+            if record.film_category_line_ids and not record.supports_color_grades:
+                raise ValidationError(
+                    'درجات اللون متاحة لخدمات العزل الحراري فقط.'
+                )
+
+    def action_create_component(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'إضافة مكوّن للخدمة',
+            'res_model': 'wof.film.parts.lines',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {'default_header_id': self.id},
+        }
+
+    def action_open_components(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'مكوّنات %s' % self.display_name,
+            'res_model': 'wof.film.parts.lines',
+            'view_mode': 'tree,form',
+            'domain': [('header_id', '=', self.id)],
+            'context': {'default_header_id': self.id},
+        }
 
     def action_open_price_lines(self):
         self.ensure_one()
@@ -91,6 +154,7 @@ class FilmCategoryLine(models.Model):
     )
     name = fields.Char(string="الدرجة أو اللون", required=True)
     code = fields.Char(string="الكود", required=True, index=True, copy=False)
+    transmission_percent = fields.Integer(string="نسبة نفاذ الضوء %")
     product_id = fields.Many2one(
         'product.product', string="المنتج المخزني",
         ondelete='restrict', check_company=True,
@@ -105,7 +169,18 @@ class FilmCategoryLine(models.Model):
          'هذه الدرجة أو اللون مضافة مسبقًا لنفس الفيلم.'),
         ('film_grade_code_unique', 'unique(header_id, code)',
          'كود الدرجة أو اللون مستخدم مسبقًا لنفس الفيلم.'),
+        ('film_grade_transmission_range',
+         'check(transmission_percent >= 0 AND transmission_percent <= 100)',
+         'نسبة نفاذ الضوء يجب أن تكون بين 0 و 100.'),
     ]
+
+    @api.constrains('header_id')
+    def _check_tint_activity_only(self):
+        for record in self:
+            if record.header_id and not record.header_id.supports_color_grades:
+                raise ValidationError(
+                    'لا يمكن إضافة درجة لون لخدمة خارج نشاط العزل الحراري.'
+                )
 
 
 class FilmPartLine(models.Model):
@@ -123,6 +198,9 @@ class FilmPartLine(models.Model):
     )
     service_type_id = fields.Many2one(
         related='header_id.service_type_id', store=True, readonly=True, index=True,
+    )
+    supports_color_grades = fields.Boolean(
+        related='header_id.supports_color_grades', readonly=True,
     )
     company_id = fields.Many2one(
         related='header_id.company_id', store=True, readonly=True, index=True,
@@ -147,6 +225,16 @@ class FilmPartLine(models.Model):
     )
     price_count = fields.Integer(compute='_compute_counts')
     commission_count = fields.Integer(compute='_compute_counts')
+    price_mode = fields.Selection(
+        [('missing', 'غير مكتمل'), ('default', 'سعر عام'),
+         ('size', 'حسب الحجم'), ('mixed', 'أساسي + حسب الحجم')],
+        compute='_compute_counts', string="سياسة السعر",
+    )
+    commission_mode = fields.Selection(
+        [('missing', 'غير مكتمل'), ('default', 'عمولة عامة'),
+         ('size', 'حسب الحجم'), ('mixed', 'أساسية + حسب الحجم')],
+        compute='_compute_counts', string="سياسة العمولة",
+    )
 
     _sql_constraints = [
         ('film_part_unique', 'unique(car_part_id, header_id)',
@@ -158,6 +246,31 @@ class FilmPartLine(models.Model):
         for record in self:
             record.price_count = len(record.price_line_ids)
             record.commission_count = len(record.commission_line_ids)
+            record.price_mode = record._line_mode(record.price_line_ids)
+            record.commission_mode = record._line_mode(record.commission_line_ids)
+
+    @api.model
+    def _line_mode(self, lines):
+        if not lines:
+            return 'missing'
+        has_default = any(not line.car_size_id for line in lines)
+        has_sizes = any(line.car_size_id for line in lines)
+        if has_default and has_sizes:
+            return 'mixed'
+        return 'size' if has_sizes else 'default'
+
+    @api.constrains('header_id', 'film_category_line_id')
+    def _check_default_grade(self):
+        for record in self:
+            grade = record.film_category_line_id
+            if grade and not record.header_id.supports_color_grades:
+                raise ValidationError(
+                    'الدرجة الافتراضية متاحة لمكوّنات العزل الحراري فقط.'
+                )
+            if grade and grade.header_id != record.header_id:
+                raise ValidationError(
+                    'الدرجة الافتراضية يجب أن تتبع الخدمة / الفيلم نفسه.'
+                )
 
     @api.model
     def name_get(self):
@@ -200,7 +313,7 @@ class FilmPartPriceLine(models.Model):
     _check_company_auto = True
 
     part_line_id = fields.Many2one(
-        'wof.film.parts.lines', string="الجزء", required=True,
+        'wof.film.parts.lines', string="مكوّن الخدمة", required=True,
         ondelete='cascade', check_company=True, index=True,
     )
     header_id = fields.Many2one(related='part_line_id.header_id', store=True, readonly=True)
@@ -277,7 +390,7 @@ class FilmPartCommissionLine(models.Model):
     _check_company_auto = True
 
     part_line_id = fields.Many2one(
-        'wof.film.parts.lines', string="الجزء", required=True,
+        'wof.film.parts.lines', string="مكوّن الخدمة", required=True,
         ondelete='cascade', check_company=True, index=True,
     )
     header_id = fields.Many2one(related='part_line_id.header_id', store=True, readonly=True)

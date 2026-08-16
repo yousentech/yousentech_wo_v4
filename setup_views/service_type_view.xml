@@ -1,334 +1,192 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
-    <!-- =========================
-            MENUS
-        ========================== -->
-    <menuitem id="menu_wo_v4"
-            name="العناية بالسيارات"
-            action="action_menu_wo_v4"
-            groups="yousentech_wo_v4.group_wo_employee"
-            sequence="4"/>
-
-    <menuitem id="menu_wo_v4_operation"
-              name="العمليات"
-              parent="menu_wo_v4"
-              sequence="1"/>
-
-    <menuitem id="menu_wo_v4_products"
-              name="المنتجات"
-              parent="menu_wo_v4"
-              groups="yousentech_wo_v4.group_wo_manager"
+    <menuitem id="menu_wo_v4" name="العناية بالسيارات"
+              action="action_menu_wo_v4"
+              groups="yousentech_wo_v4.group_wo_employee" sequence="4"/>
+    <menuitem id="menu_wo_v4_operation" name="العمليات"
+              parent="menu_wo_v4" sequence="1"/>
+    <menuitem id="menu_wo_v4_products" name="المنتجات"
+              parent="menu_wo_v4" groups="yousentech_wo_v4.group_wo_manager"
               sequence="2"/>
-
-    <menuitem id="menu_wo_v4_reports"
-              name="التقارير"
-              parent="menu_wo_v4"
-              groups="yousentech_wo_v4.group_wo_manager"
+    <menuitem id="menu_wo_v4_reports" name="التقارير"
+              parent="menu_wo_v4" groups="yousentech_wo_v4.group_wo_manager"
               sequence="3"/>
-
-    <menuitem id="menu_wo_v4_configuration"
-              name="تهيئة النظام"
-              parent="menu_wo_v4"
-              groups="yousentech_wo_v4.group_wo_manager"
-              sequence="4"  />
- 
-
-    <!-- =========================
-            TREE VIEW
-    ========================== -->
+    <menuitem id="menu_wo_v4_configuration" name="تهيئة النظام"
+              parent="menu_wo_v4" groups="yousentech_wo_v4.group_wo_manager"
+              sequence="4"/>
 
     <record id="view_service_type_wo_v4_tree" model="ir.ui.view">
         <field name="name">wof.service.type.tree</field>
         <field name="model">wof.service.type</field>
         <field name="arch" type="xml">
-            <tree string="أنواع الخدمات" decoration-muted="not active">
-
+            <tree string="أنشطة المركز" decoration-muted="not active">
                 <field name="code"/>
                 <field name="name"/>
-                <field name="service_options" />
-
+                <field name="service_options"/>
+                <field name="film_count" string="الخدمات"/>
+                <field name="parts_count" string="المكوّنات"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="active" column_invisible="1"/>
-
             </tree>
         </field>
     </record>
 
-<!-- =========================
-         KANBAN VIEW
-    ========================== -->
     <record id="view_wof_service_type_wo_v4_kanban" model="ir.ui.view">
         <field name="name">wof.service.type.wo_v4.kanban</field>
         <field name="model">wof.service.type</field>
         <field name="arch" type="xml">
-             <kanban class="o_kanban_large">
-
+            <kanban class="wof_activity_kanban" create="1">
                 <field name="name"/>
                 <field name="code"/>
+                <field name="service_options"/>
+                <field name="supports_color_grades"/>
                 <field name="parts_count"/>
                 <field name="film_count"/>
+                <field name="company_id"/>
                 <field name="active"/>
-
                 <templates>
                     <t t-name="kanban-box">
-
-                        <!-- 🎨 ألوان حسب النشاط -->
-                          <div t-attf-class="
-                                oe_kanban_card oe_kanban_global_click p-3
-                                    #{(record.parts_count.raw_value &gt; 0 and record.film_count.raw_value &gt; 0) ? 'border-start border-success border-4' : ''}
-                                    #{((record.parts_count.raw_value &gt; 0 and record.film_count.raw_value == 0) or (record.parts_count.raw_value == 0 and record.film_count.raw_value &gt; 0)) ? 'border-start border-warning border-4' : ''}
-                                    #{(record.parts_count.raw_value == 0 and record.film_count.raw_value == 0) ? 'border-start border-danger border-4' : ''}
-                                    #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}
-                                ">
-
-                            <!-- HEADER -->
-                            <div class="mb-2">
-                                <h4 class="mb-0">
-                                    <t t-if="record.code.raw_value">
-                                        [<field name="code"/>]
-                                    </t>
-                                    <field name="name"/>
-                                </h4>
+                        <div t-attf-class="oe_kanban_global_click wof_activity_card #{record.active.raw_value ? '' : 'o_kanban_record_inactive'}">
+                            <div class="wof_activity_card_header">
+                                <span class="wof_service_icon">
+                                    <i class="fa fa-th-large" title="نشاط المركز"/>
+                                </span>
+                                <div class="wof_activity_card_title">
+                                    <strong><field name="name"/></strong>
+                                    <small><field name="code"/></small>
+                                </div>
                             </div>
-
-                            <hr/>
-
-                            <!-- ================= QUICK LINKS ================= -->
-                                    <div class="mt-3">
-
-                                        <!-- ================= FILMS ================= -->
-                                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-
-                                            <!-- LEFT -->
-                                            <a type="object"
-                                            name="action_open_films"
-                                            class="text-decoration-none d-flex align-items-center">
-
-                                                <!-- ICON -->
-                                                <i class="fa fa-film text-primary fa-lg me-2"
-                                                   title="الأفلام"></i>
-
-                                                <!-- TEXT -->
-                                                <div>
-
-                                                    <div class="fw-bold text-dark">
-                                                        الأفلام
-                                                    </div>
-
-                                                    <small class="text-muted">
-                                                        <field name="film_count"/> فيلم مرتبط
-                                                    </small>
-
-                                                </div>
-
-                                            </a>
-
-                                            <!-- ADD -->
-                                            <a type="object"
-                                            name="action_create_film"
-                                            class="text-success text-decoration-none fw-bold">
-
-                                                <i class="fa fa-plus-circle fa-lg"
-                                                   title="إضافة فيلم"></i>
-
-                                            </a>
-
-                                        </div>
-
-                                        <!-- ================= PARTS ================= -->
-                                        <div class="d-flex justify-content-between align-items-center py-2">
-
-                                            <!-- LEFT -->
-                                            <a type="object"
-                                            name="action_open_parts"
-                                            class="text-decoration-none d-flex align-items-center">
-
-                                                <!-- ICON -->
-                                                <i class="fa fa-cogs text-success fa-lg me-2"
-                                                   title="الأجزاء"></i>
-
-                                                <!-- TEXT -->
-                                                <div>
-
-                                                    <div class="fw-bold text-dark">
-                                                        الأجزاء
-                                                    </div>
-
-                                                    <small class="text-muted">
-                                                        <field name="parts_count"/> جزء مرتبط
-                                                    </small>
-
-                                                </div>
-
-                                            </a>
-
-                                            <!-- ADD -->
-                                            <a type="object"
-                                            name="action_open_parts"
-                                            class="text-success text-decoration-none fw-bold">
-
-                                                <i class="fa fa-plus-circle fa-lg"
-                                                   title="إضافة جزء"></i>
-
-                                            </a>
-
-                                        </div>
-
-                                    </div>
-                            <hr/>
-
-                            <!-- FOOTER -->
-                            <div class="text-muted">
-                                <small>
-                                    <field name="company_id"/>
-                                </small>
+                            <div class="wof_activity_metrics">
+                                <span><strong><field name="film_count"/></strong> خدمة / فيلم</span>
+                                <span><strong><field name="parts_count"/></strong> مكوّن</span>
                             </div>
-
+                            <div class="wof_activity_card_footer">
+                                <span class="badge rounded-pill text-bg-light">
+                                    <field name="service_options"/>
+                                </span>
+                                <span t-if="record.supports_color_grades.raw_value"
+                                      class="badge rounded-pill text-bg-info">درجات لون</span>
+                            </div>
                         </div>
-
                     </t>
                 </templates>
-
             </kanban>
         </field>
     </record>
-
-    <!-- =========================
-            FORM VIEW
-    ========================== -->
 
     <record id="view_service_type_wo_v4_form" model="ir.ui.view">
         <field name="name">wof.service.type.form</field>
         <field name="model">wof.service.type</field>
         <field name="arch" type="xml">
-
-            <form string="نوع الخدمة">
-                <button name="action_create_film"  type="object"  string="إضافة فيلم"  class="btn btn-primary"   icon="fa-plus"/>
-
-
-                <sheet> 
-                    <widget name="web_ribbon"
-                            title="مؤرشف"
-                            bg_color="bg-danger"
+            <form string="نشاط المركز" class="wof_service_architecture">
+                <header>
+                    <button name="action_create_service" type="object"
+                            string="إضافة خدمة / فيلم"
+                            class="btn-primary" icon="fa-plus"
+                            groups="yousentech_wo_v4.group_wo_manager"/>
+                </header>
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <field name="supports_color_grades" invisible="1"/>
+                    <widget name="web_ribbon" title="مؤرشف" bg_color="bg-danger"
                             invisible="active"/>
-
-                    <!-- 🔘 Button Box -->
-                    <div class="oe_button_box" name="button_box">
-                    <button name="toggle_active"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-power-off"
-                            invisible="not id"
-                            groups="yousentech_wo_v4.group_wo_manager">
-
-                        <field name="active"
-                            widget="boolean_button"
-                            options="{'terminology': 'archive'}"/>
-                    </button>
-                    <button name="action_open_films"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-film">
-
-                        <field name="film_count"
-                            string="الأفلام المرتبطة"
-                            widget="statinfo"/>
-
-                    </button>
- 
+                    <div class="wof_service_hero">
+                        <div class="wof_service_hero_copy">
+                            <span class="wof_service_eyebrow">نشاط المركز</span>
+                            <h1><field name="name" placeholder="مثال: العزل الحراري"/></h1>
+                            <p>أضف تحت النشاط الخدمات أو الأفلام، ثم اضبط مكوّنات كل خدمة وتسعيرها.</p>
+                        </div>
+                        <div class="wof_service_hero_code">
+                            <small>الكود الثابت</small>
+                            <strong><field name="code" placeholder="TINT"/></strong>
+                        </div>
                     </div>
 
-                  
-                    <group>
-                        <group>
-                            <field name="code" placeholder="مثال: TINT"/>
-                            <field name="name" placeholder="مثال: عزل حراري"/>
-                            
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_services" type="object"
+                                class="oe_stat_button" icon="fa-film">
+                            <field name="film_count" string="الخدمات"
+                                   widget="statinfo"/>
+                        </button>
+                        <button name="toggle_active" type="object"
+                                class="oe_stat_button" icon="fa-archive"
+                                invisible="not id"
+                                groups="yousentech_wo_v4.group_wo_manager">
+                            <field name="active" widget="boolean_button"
+                                   options="{'terminology': 'archive'}"/>
+                        </button>
+                    </div>
+
+                    <div class="wof_service_cards">
+                        <group class="wof_service_card" string="البيانات الأساسية">
+                            <field name="service_options" widget="radio"
+                                   options="{'horizontal': true}"/>
+                            <field name="description"
+                                   placeholder="وصف مختصر يساعد الموظف على اختيار النشاط"/>
+                            <field name="company_id" readonly="1"
+                                   groups="base.group_multi_company"/>
                         </group>
-
-                        <group>
-
-                            <field name="service_options" widget="radio"   options="{'horizontal': true}"/>
-
-                            <field name="company_id" groups="base.group_multi_company" readonly="1" force_save="1"/>
-                            <field name="active" invisible="1"/>
+                        <group class="wof_service_card" string="ملخص الجاهزية">
+                            <field name="film_count" string="عدد الخدمات" readonly="1"/>
+                            <field name="parts_count" string="عدد المكوّنات" readonly="1"/>
+                            <field name="supports_color_grades" readonly="1"/>
                         </group>
-                    </group>
-                   
+                    </div>
+
+                    <separator string="الخدمات والأفلام تحت هذا النشاط"/>
+                    <field name="service_ids" context="{'default_service_type_id': id}">
+                        <tree decoration-muted="not active">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="warranty_years"/>
+                            <field name="parts_count"/>
+                            <field name="pricing_summary"/>
+                            <field name="active" column_invisible="1"/>
+                        </tree>
+                    </field>
                 </sheet>
-               
             </form>
-
         </field>
     </record>
-
-
-    <!-- =========================
-            SEARCH VIEW
-    ========================== -->
-
-     
-
 
     <record id="view_service_type_wo_v4_search" model="ir.ui.view">
         <field name="name">wof.service.type.search</field>
         <field name="model">wof.service.type</field>
         <field name="priority">10</field>
         <field name="arch" type="xml">
-
-            <search string="بحث أنواع الخدمات">
-
-                <!-- Search Fields -->
+            <search string="البحث في أنشطة المركز">
                 <field name="name"/>
                 <field name="code"/>
-                <field name="service_options" />
-
-
-               
-                <filter string="مؤرشف"
-                        name="inactive"
-                        domain="[('active','=',False)]"/>
- 
-                
-
+                <field name="service_options"/>
+                <filter string="مؤرشف" name="inactive"
+                        domain="[('active', '=', False)]"/>
+                <group expand="0" string="تجميع">
                     <filter string="الشركة" name="groupby_company"
-                            context="{'group_by':'company_id'}"/>
-
-                    <filter string="الحالة" name="groupby_state"
-                            context="{'group_by':'active'}"/>
-               <searchpanel>
+                            context="{'group_by': 'company_id'}"/>
+                    <filter string="فئة النشاط" name="groupby_kind"
+                            context="{'group_by': 'service_options'}"/>
+                </group>
+                <searchpanel>
                     <field name="company_id"/>
                 </searchpanel>
-              
-
             </search>
-
         </field>
     </record>
 
-
-    <!-- =========================
-            ACTION
-    ========================== -->
-
     <record id="action_service_types_wo_v4" model="ir.actions.act_window">
-        <field name="name">أنواع الخدمات</field>
+        <field name="name">أنشطة المركز</field>
         <field name="res_model">wof.service.type</field>
         <field name="view_mode">kanban,tree,form</field>
         <field name="view_id" ref="view_wof_service_type_wo_v4_kanban"/>
-  
+        <field name="search_view_id" ref="view_service_type_wo_v4_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">أضف أول نشاط للمركز</p>
+            <p>ابدأ بالعزل أو PPF أو النانو، ثم أضف الخدمات تحته.</p>
+        </field>
     </record>
 
-
-    <!-- =========================
-            MENU ACTION
-    ========================== -->
-
-    <menuitem id="menu_service_types_wo_v4"
-              name="أنواع الخدمات"
+    <menuitem id="menu_service_types_wo_v4" name="أنشطة المركز"
               parent="menu_wo_v4_configuration"
-              action="action_service_types_wo_v4"
-              sequence="10"/>
-
+              action="action_service_types_wo_v4" sequence="10"/>
 </odoo>

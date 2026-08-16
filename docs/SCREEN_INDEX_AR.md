@@ -9,9 +9,9 @@
 |---|---|---|---|
 | التهيئة الأولى | `initial-setup` | MVP منفذ | `screens/initial_setup_AR.md` |
 | مركز الإعدادات والجاهزية | `setup-center` | MVP منفذ | `screens/setup_center_AR.md` |
-| أنواع الخدمات | `service-types` | محسن | `screens/service_types_AR.md` |
-| فئات الأفلام والأجزاء | `film-configuration` | محسن | `screens/film_configuration_AR.md` |
-| التسعير والعمولات المتقدمة | `advanced-pricing` | محسن | `screens/advanced_pricing_AR.md` |
+| أنشطة المركز | `service-types` | UX معتمد منفذ | `screens/service_types_AR.md` |
+| محرر الخدمة/الفيلم ومكوّناته | `film-configuration` | UX معتمد منفذ | `screens/film_configuration_AR.md` |
+| أسعار وعمولات المكوّنات | `advanced-pricing` | UX معتمد منفذ | `screens/advanced_pricing_AR.md` |
 | أحجام السيارات | `car-sizes` | محسن | `screens/car_sizes_AR.md` |
 | أجزاء السيارات | `car-parts` | محسن | `screens/car_parts_AR.md` |
 | خيارات أجزاء السيارات | `car-part-options` | منفذ | `screens/car_part_options_AR.md` |
@@ -22,7 +22,7 @@
 | المنتجات ومواد القياس | `products` | محسن | `screens/products_AR.md` |
 | لوحة أوامر التركيب | `installation-orders-board` | MVP منفذ | `screens/installation_orders_board_AR.md` |
 | أمر التركيب | `installation-order` | MVP منفذ | `screens/installation_order_AR.md` |
-| خدمات وتسعير الأمر | `installation-order-services` | MVP منفذ | `screens/installation_order_services_AR.md` |
+| خدمات وتسعير الأمر | `installation-order-services` | محدث لهيكل الخدمة | `screens/installation_order_services_AR.md` |
 | استلام وفحص السيارة | `installation-order-intake` | MVP منفذ | `screens/installation_order_intake_AR.md` |
 | تنفيذ الأمر والمواد | `installation-order-execution` | MVP منفذ | `screens/installation_order_execution_AR.md` |
 | الجودة والتسليم | `installation-order-quality-delivery` | MVP منفذ | `screens/installation_order_quality_delivery_AR.md` |

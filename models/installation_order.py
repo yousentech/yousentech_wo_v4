@@ -642,7 +642,8 @@ class WofInstallationOrder(models.Model):
                     note=line.price_override_reason,
                     details={
                         'line_uuid': line.public_uuid,
-                        'service_code': line.service_type_id.code,
+                        'activity_code': line.service_type_id.code,
+                        'service_code': line.film_category_id.code,
                         'part_code': line.car_part_id.code,
                         'old_price': line.configured_unit_price,
                         'new_price': line.unit_price,

@@ -124,14 +124,14 @@ class WofCompanyProfile(models.Model):
         SETUP_STEPS, string="الخطوة الحالية", default='activity', required=True,
     )
     progress = fields.Integer(compute='_compute_progress', store=True)
-    setup_version = fields.Char(default='17.0.2', readonly=True)
+    setup_version = fields.Char(default='17.0.4', readonly=True)
     completed_at = fields.Datetime(readonly=True, copy=False)
 
     activity_tint = fields.Boolean(string="العزل الحراري", default=True)
     activity_ppf = fields.Boolean(string="حماية PPF", default=True)
-    activity_nano = fields.Boolean(string="نانو سيراميك")
-    activity_upholstery = fields.Boolean(string="التنجيد")
-    activity_floor_mats = fields.Boolean(string="الأرضيات")
+    activity_nano = fields.Boolean(string="نانو سيراميك", default=True)
+    activity_upholstery = fields.Boolean(string="التنجيد", default=True)
+    activity_floor_mats = fields.Boolean(string="الأرضيات", default=True)
     activity_others = fields.Boolean(string="خدمات أخرى")
 
     size_line_ids = fields.One2many(
@@ -199,7 +199,7 @@ class WofCompanyProfile(models.Model):
                 'state': 'draft',
                 'current_step': 'activity',
                 'completed_at': False,
-                'setup_version': '17.0.2',
+                'setup_version': '17.0.4',
             })
         records = super().create(vals_list)
         for record in records:
@@ -644,6 +644,7 @@ class WofCompanyProfile(models.Model):
             else:
                 film = self.env['wof.film.category'].create(film_vals)
 
+            grade_map = self._ensure_tint_grades(film)
             for part_template in draft.template_id.part_line_ids:
                 part = self._ensure_part(part_template, draft)
                 film_part = self.env['wof.film.parts.lines'].search([
@@ -653,6 +654,14 @@ class WofCompanyProfile(models.Model):
                     film_part = self.env['wof.film.parts.lines'].create({
                         'header_id': film.id, 'car_part_id': part.id,
                     })
+                if not film_part.film_category_line_id and grade_map:
+                    default_grade = grade_map.get(
+                        'CLR' if part_template.code == 'TINT-FRONT' else 'MED'
+                    )
+                    if default_grade:
+                        film_part.write({
+                            'film_category_line_id': default_grade.id,
+                        })
                 target_sizes = list(sizes.values()) if self.advanced_pricing else [False]
                 for size in target_sizes:
                     self._ensure_price(film_part, size, draft, part_template)
@@ -663,6 +672,39 @@ class WofCompanyProfile(models.Model):
             'service_codes': self.service_line_ids.filtered('enabled').mapped('code'),
             'size_codes': self.size_line_ids.filtered('selected').mapped('code'),
         })
+
+    def _ensure_tint_grades(self, service):
+        """Create stable, reusable tint grades without duplicating setup data."""
+        self.ensure_one()
+        if not service.supports_color_grades:
+            return {}
+        grade_map = {}
+        for sequence, code, name, transmission in (
+            (10, 'CLR', 'شفاف', 70),
+            (20, 'LGT', 'خفيف', 50),
+            (30, 'MED', 'متوسط', 35),
+            (40, 'DRK', 'داكن', 20),
+        ):
+            grade = self.env['wof.film.category.lines'].with_context(
+                active_test=False
+            ).search([
+                ('header_id', '=', service.id),
+                ('code', '=', code),
+            ], limit=1)
+            values = {
+                'header_id': service.id,
+                'sequence': sequence,
+                'code': code,
+                'name': name,
+                'transmission_percent': transmission,
+                'active': True,
+            }
+            if grade:
+                grade.write(values)
+            else:
+                grade = self.env['wof.film.category.lines'].create(values)
+            grade_map[code] = grade
+        return grade_map
 
     def _ensure_part(self, template, service_draft):
         self.ensure_one()
@@ -841,7 +883,7 @@ class WofSetupSizeLine(models.Model):
 
 class WofSetupServiceLine(models.Model):
     _name = 'wof.setup.service.line'
-    _description = 'خدمة في مسودة التهيئة'
+    _description = 'نشاط وخدمته الافتراضية في مسودة التهيئة'
     _order = 'sequence, id'
 
     sequence = fields.Integer(default=10)
@@ -855,9 +897,9 @@ class WofSetupServiceLine(models.Model):
     template_id = fields.Many2one('wof.setup.template', ondelete='restrict')
     service_kind = fields.Selection(SERVICE_OPTIONS, required=True)
     enabled = fields.Boolean(string="مفعّلة", default=True)
-    name = fields.Char(string="اسم الخدمة", required=True)
+    name = fields.Char(string="اسم نشاط المركز", required=True)
     code = fields.Char(string="الكود", required=True)
-    film_name = fields.Char(string="اسم الفيلم الافتراضي", required=True)
+    film_name = fields.Char(string="اسم الخدمة / الفيلم الافتراضي", required=True)
     base_price = fields.Monetary(
         string="السعر الأساسي", currency_field='currency_id',
     )

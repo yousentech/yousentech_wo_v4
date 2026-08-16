@@ -36,24 +36,35 @@ class WofInstallationOrderLine(models.Model):
     available_technician_ids = fields.Many2many(
         related='order_id.technician_ids', readonly=True,
     )
+    available_car_part_ids = fields.Many2many(
+        'wof.car.parts', compute='_compute_available_configuration',
+        string="مكوّنات الخدمة المتاحة",
+    )
+    available_grade_ids = fields.Many2many(
+        'wof.film.category.lines', compute='_compute_available_configuration',
+        string="درجات لون الخدمة",
+    )
     service_type_id = fields.Many2one(
-        'wof.service.type', string="الخدمة", required=True,
+        'wof.service.type', string="نشاط المركز", required=True,
         ondelete='restrict', check_company=True, index=True,
     )
     film_category_id = fields.Many2one(
-        'wof.film.category', string="الفيلم", required=True,
+        'wof.film.category', string="الخدمة / الفيلم", required=True,
         ondelete='restrict', check_company=True, index=True,
         domain="[('service_type_id', '=', service_type_id), ('company_id', '=', company_id)]",
     )
+    supports_color_grades = fields.Boolean(
+        related='film_category_id.supports_color_grades', readonly=True,
+    )
     film_category_line_id = fields.Many2one(
-        'wof.film.category.lines', string="الدرجة / اللون",
+        'wof.film.category.lines', string="درجة لون العزل",
         ondelete='restrict', check_company=True,
-        domain="[('header_id', '=', film_category_id)]",
+        domain="[('id', 'in', available_grade_ids)]",
     )
     car_part_id = fields.Many2one(
-        'wof.car.parts', string="الجزء", required=True,
+        'wof.car.parts', string="مكوّن الخدمة", required=True,
         ondelete='restrict', check_company=True, index=True,
-        domain="[('company_id', '=', company_id)]",
+        domain="[('id', 'in', available_car_part_ids)]",
     )
     service_product_id = fields.Many2one(
         related='car_part_id.product_id', store=True, readonly=True,
@@ -121,7 +132,7 @@ class WofInstallationOrderLine(models.Model):
         compute='_compute_line_amounts', store=True,
     )
     amount_tax = fields.Monetary(
-        string="الضريبة", currency_field='currency_id',
+        string="قيمة الضريبة", currency_field='currency_id',
         compute='_compute_line_amounts', store=True,
     )
     amount_total = fields.Monetary(
@@ -164,6 +175,42 @@ class WofInstallationOrderLine(models.Model):
             'السعر الاستثنائي لا يمكن أن يكون سالبًا.',
         ),
     ]
+
+    @api.depends(
+        'film_category_id',
+        'film_category_id.film_part_line_ids.part_selected',
+        'film_category_id.film_part_line_ids.car_part_id',
+        'film_category_id.film_category_line_ids.active',
+    )
+    def _compute_available_configuration(self):
+        for line in self:
+            service = line.film_category_id
+            line.available_car_part_ids = service.film_part_line_ids.filtered(
+                'part_selected'
+            ).car_part_id
+            line.available_grade_ids = (
+                service.film_category_line_ids.filtered('active')
+                if service.supports_color_grades
+                else self.env['wof.film.category.lines']
+            )
+
+    @api.model
+    def resolve_default_grade_id(self, film_category_id, car_part_id, company_id):
+        """Resolve the configured tint grade for Odoo and future API callers."""
+        if not film_category_id or not car_part_id or not company_id:
+            return False
+        part_line = self.env['wof.film.parts.lines'].search([
+            ('header_id', '=', film_category_id),
+            ('car_part_id', '=', car_part_id),
+            ('company_id', '=', company_id),
+            ('part_selected', '=', True),
+        ], limit=1)
+        if not part_line or not part_line.header_id.supports_color_grades:
+            return False
+        if part_line.film_category_line_id.active:
+            return part_line.film_category_line_id.id
+        grades = part_line.header_id.film_category_line_ids.filtered('active')
+        return grades.id if len(grades) == 1 else False
 
     @api.depends(
         'quantity',
@@ -280,14 +327,23 @@ class WofInstallationOrderLine(models.Model):
         self.film_category_line_id = False
         self.car_part_id = False
         if self.film_category_id:
-            grades = self.film_category_id.film_category_line_ids.filtered('active')
-            if len(grades) == 1:
-                self.film_category_line_id = grades
             parts = self.film_category_id.film_part_line_ids.filtered(
                 'part_selected'
             )
             if len(parts) == 1:
                 self.car_part_id = parts.car_part_id
+                self._onchange_car_part_id()
+
+    @api.onchange('car_part_id')
+    def _onchange_car_part_id(self):
+        self.film_category_line_id = False
+        if self.film_category_id and self.car_part_id:
+            grade_id = self.resolve_default_grade_id(
+                self.film_category_id.id,
+                self.car_part_id.id,
+                self.company_id.id,
+            )
+            self.film_category_line_id = grade_id
 
     @api.constrains(
         'service_type_id',
@@ -308,6 +364,20 @@ class WofInstallationOrderLine(models.Model):
             ):
                 raise ValidationError(
                     'درجة الفيلم المختارة لا تتبع الفيلم المحدد.'
+                )
+            if line.film_category_line_id and not line.supports_color_grades:
+                raise ValidationError(
+                    'درجات اللون متاحة لخدمات العزل الحراري فقط.'
+                )
+            configured_part = self.env['wof.film.parts.lines'].search_count([
+                ('header_id', '=', line.film_category_id.id),
+                ('car_part_id', '=', line.car_part_id.id),
+                ('company_id', '=', line.company_id.id),
+                ('part_selected', '=', True),
+            ])
+            if not configured_part:
+                raise ValidationError(
+                    'مكوّن الخدمة المختار غير مرتبط بهذه الخدمة / الفيلم.'
                 )
 
     @api.model_create_multi
@@ -345,6 +415,12 @@ class WofInstallationOrderLine(models.Model):
             ):
                 vals.pop(protected, None)
             vals['execution_progress'] = 0
+            if not vals.get('film_category_line_id'):
+                vals['film_category_line_id'] = self.resolve_default_grade_id(
+                    vals.get('film_category_id'),
+                    vals.get('car_part_id'),
+                    order.company_id.id,
+                )
             vals.update({
                 'discount_type': 'percent',
                 'discount_value': 0.0,
@@ -370,7 +446,8 @@ class WofInstallationOrderLine(models.Model):
                     note=record.price_override_reason,
                     details={
                         'line_uuid': record.public_uuid,
-                        'service_code': record.service_type_id.code,
+                        'activity_code': record.service_type_id.code,
+                        'service_code': record.film_category_id.code,
                         'part_code': record.car_part_id.code,
                         'old_price': record.configured_unit_price,
                         'configured_price': record.configured_unit_price,
@@ -383,6 +460,18 @@ class WofInstallationOrderLine(models.Model):
 
     def write(self, vals):
         vals = dict(vals)
+        relation_change = {'film_category_id', 'car_part_id'}.intersection(vals)
+        if relation_change and 'film_category_line_id' not in vals and len(self) > 1:
+            for line in self:
+                line.write(vals)
+            return True
+        if relation_change and 'film_category_line_id' not in vals and self:
+            line = self.ensure_one()
+            vals['film_category_line_id'] = self.resolve_default_grade_id(
+                vals.get('film_category_id', line.film_category_id.id),
+                vals.get('car_part_id', line.car_part_id.id),
+                line.company_id.id,
+            )
         protected = {
             'order_id',
             'company_id',
@@ -484,7 +573,8 @@ class WofInstallationOrderLine(models.Model):
                         note=line.price_override_reason,
                         details={
                             'line_uuid': line.public_uuid,
-                            'service_code': line.service_type_id.code,
+                            'activity_code': line.service_type_id.code,
+                            'service_code': line.film_category_id.code,
                             'part_code': line.car_part_id.code,
                             'old_price': old_price,
                             'new_price': line.unit_price,

@@ -4,15 +4,15 @@
         <field name="name">wof.film.parts.lines.tree</field>
         <field name="model">wof.film.parts.lines</field>
         <field name="arch" type="xml">
-            <tree>
-                <field name="header_id"/>
-                <field name="service_type_id"/>
-                <field name="car_part_id"/>
+            <tree string="مكوّنات الخدمات" decoration-muted="not part_selected">
                 <field name="company_id" column_invisible="1"/>
+                <field name="header_id" string="الخدمة / الفيلم"/>
+                <field name="service_type_id" string="نشاط المركز"/>
+                <field name="car_part_id" string="المكوّن"/>
+                <field name="price_mode" widget="badge"/>
+                <field name="commission_mode" widget="badge"/>
+                <field name="part_selected" string="مفعّل"/>
                 <field name="company_id" groups="base.group_multi_company"/>
-                <field name="part_selected"/>
-                <field name="price_count"/>
-                <field name="commission_count"/>
             </tree>
         </field>
     </record>
@@ -21,35 +21,93 @@
         <field name="name">wof.film.parts.lines.form</field>
         <field name="model">wof.film.parts.lines</field>
         <field name="arch" type="xml">
-            <form string="جزء مرتبط بفيلم">
+            <form string="مكوّن خدمة" class="wof_service_architecture">
                 <sheet>
                     <field name="company_id" invisible="1"/>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="action_open_price_lines" type="object"
-                                class="oe_stat_button" icon="fa-money">
-                            <field name="price_count" widget="statinfo" string="التسعيرات"/>
-                        </button>
-                        <button name="action_open_commission_lines" type="object"
-                                class="oe_stat_button" icon="fa-users">
-                            <field name="commission_count" widget="statinfo" string="العمولات"/>
-                        </button>
+                    <field name="supports_color_grades" invisible="1"/>
+                    <div class="wof_service_hero wof_service_hero_compact">
+                        <div class="wof_service_hero_copy">
+                            <span class="wof_service_eyebrow">مكوّن الخدمة</span>
+                            <h1><field name="car_part_id" string="المكوّن"/></h1>
+                            <p>السعر والعمولة قد يكونان عامين أو مخصصين حسب حجم السيارة.</p>
+                        </div>
+                        <div class="wof_service_hero_code">
+                            <small>الخدمة</small>
+                            <strong><field name="header_id"/></strong>
+                        </div>
                     </div>
-                    <group>
-                        <field name="header_id"/>
-                        <field name="service_type_id" readonly="1"/>
-                        <field name="company_id" readonly="1"
-                               groups="base.group_multi_company"/>
-                        <field name="car_part_id"/>
-                        <field name="film_category_line_id"/>
-                        <field name="part_selected"/>
-                    </group>
+
+                    <div class="wof_service_summary">
+                        <div class="wof_service_summary_card">
+                            <small>سياسة السعر</small>
+                            <strong><field name="price_mode" widget="badge" readonly="1"/></strong>
+                        </div>
+                        <div class="wof_service_summary_card">
+                            <small>سياسة العمولة</small>
+                            <strong><field name="commission_mode" widget="badge" readonly="1"/></strong>
+                        </div>
+                        <div class="wof_service_summary_card">
+                            <small>الحالة</small>
+                            <strong><field name="part_selected"/></strong>
+                        </div>
+                    </div>
+
+                    <notebook class="wof_service_notebook">
+                        <page string="البيانات الأساسية">
+                            <group col="2">
+                                <group>
+                                    <field name="header_id" string="الخدمة / الفيلم"/>
+                                    <field name="service_type_id" string="نشاط المركز" readonly="1"/>
+                                    <field name="company_id" readonly="1"
+                                           groups="base.group_multi_company"/>
+                                </group>
+                                <group>
+                                    <field name="car_part_id" string="مكوّن الخدمة"/>
+                                    <field name="film_category_line_id"
+                                           invisible="not supports_color_grades"/>
+                                    <field name="part_selected"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="الأسعار">
+                            <div class="wof_section_intro">
+                                السطر بلا حجم هو السعر العام. السطر الذي يحمل حجمًا يستبدله لذلك الحجم.
+                            </div>
+                            <field name="price_line_ids">
+                                <tree editable="bottom">
+                                    <field name="company_id" column_invisible="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="car_size_id"
+                                           placeholder="بلا حجم = سعر عام"/>
+                                    <field name="part_price"/>
+                                    <field name="tax_id"/>
+                                    <field name="discount_exceed_limit" optional="hide"/>
+                                    <field name="free_part"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="العمولات">
+                            <div class="wof_section_intro">
+                                السطر بلا حجم هو العمولة العامة، ويمكن تخصيص عمولة لكل حجم.
+                            </div>
+                            <field name="commission_line_ids">
+                                <tree editable="bottom">
+                                    <field name="company_id" column_invisible="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="car_size_id"
+                                           placeholder="بلا حجم = عمولة عامة"/>
+                                    <field name="commission"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
     </record>
 
     <record id="action_film_parts_wo_v4_lines" model="ir.actions.act_window">
-        <field name="name">أجزاء الأفلام</field>
+        <field name="name">مكوّنات الخدمات</field>
         <field name="res_model">wof.film.parts.lines</field>
         <field name="view_mode">tree,form</field>
     </record>

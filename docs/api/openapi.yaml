@@ -655,8 +655,8 @@ components:
       type: object
       required:
         - public_uuid
+        - activity_code
         - service_code
-        - film_code
         - part_code
         - quantity
         - unit_price
@@ -667,13 +667,16 @@ components:
         public_uuid:
           type: string
           format: uuid
+        activity_code:
+          type: string
+          description: كود نشاط المركز مثل TINT أو PPF
         service_code:
           type: string
-        film_code:
-          type: string
+          description: كود الخدمة أو الفيلم تحت النشاط
         grade_code:
           type: string
           nullable: true
+          description: يُرسل لنشاط العزل الحراري فقط؛ ويكون null لبقية الأنشطة
         part_code:
           type: string
         quantity:
@@ -828,15 +831,16 @@ components:
           minItems: 1
           items:
             type: object
-            required: [service_code, film_code, part_code, quantity]
+            required: [activity_code, service_code, part_code, quantity]
             properties:
-              service_code:
+              activity_code:
                 type: string
-              film_code:
+              service_code:
                 type: string
               grade_code:
                 type: string
                 nullable: true
+                description: اختياري للعزل فقط؛ يطبق الخادم درجة المكوّن الافتراضية عند حذفه
               part_code:
                 type: string
               quantity:

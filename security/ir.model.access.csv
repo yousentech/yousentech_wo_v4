@@ -37,7 +37,7 @@ access_car_agency_manager,car.agency.manager,model_wof_car_agency,yousentech_wo_
 access_car_agency_user,car.agency.user,model_wof_car_agency,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_car_part_options_manager,car.part.options.manager,model_wof_car_part_options,yousentech_wo_v4.group_wo_manager,1,1,1,0
 access_car_part_options_user,car.part.options.user,model_wof_car_part_options,yousentech_wo_v4.group_wo_employee,1,0,0,0
-access_parts_transparency_level_manager,parts.transparency.level.manager,model_wof_parts_transparency_level,yousentech_wo_v4.group_wo_manager,1,1,1,0
+access_parts_transparency_level_manager,parts.transparency.level.manager,model_wof_parts_transparency_level,yousentech_wo_v4.group_wo_manager,1,0,0,0
 access_parts_transparency_level_user,parts.transparency.level.user,model_wof_parts_transparency_level,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_installation_order_employee,installation.order.employee,model_wof_installation_order,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_installation_order_reception,installation.order.reception,model_wof_installation_order,yousentech_wo_v4.group_wo_user,1,1,1,0

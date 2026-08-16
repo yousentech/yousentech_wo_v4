@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 
 class ServiceType(models.Model):
     _name = 'wof.service.type'
     _inherit = ['wof.api.mixin', 'mail.thread', 'mail.activity.mixin']
-    _description = 'نوع خدمة العناية'
+    _description = 'نشاط مركز العناية'
     _order = 'code, name'
     _check_company_auto = True
 
@@ -26,13 +27,21 @@ class ServiceType(models.Model):
             ('floor_mats', 'أرضيات'),
             ('others', 'أخرى'),
         ],
-        string="النوع", default='tint', required=True,
+        string="فئة النشاط", default='tint', required=True,
+    )
+    description = fields.Text(string="وصف النشاط", translate=True)
+    supports_color_grades = fields.Boolean(
+        string="يدعم درجات لون العزل",
+        compute='_compute_supports_color_grades',
     )
     company_id = fields.Many2one(
         'res.company', string="الشركة", default=lambda self: self.env.company,
         required=True, index=True, ondelete='cascade',
     )
     active = fields.Boolean(string="تفعيل", default=True)
+    service_ids = fields.One2many(
+        'wof.film.category', 'service_type_id', string="خدمات النشاط",
+    )
     parts_count = fields.Integer(string="عدد الأجزاء", compute='_compute_counts')
     film_count = fields.Integer(string="عدد الأفلام", compute='_compute_counts')
 
@@ -42,6 +51,24 @@ class ServiceType(models.Model):
         ('service_code_company_unique', 'unique(code, company_id)',
          'كود الخدمة مستخدم مسبقًا لنفس الشركة.'),
     ]
+
+    @api.depends('service_options')
+    def _compute_supports_color_grades(self):
+        for record in self:
+            record.supports_color_grades = record.service_options == 'tint'
+
+    @api.constrains('service_options')
+    def _check_grade_capability_change(self):
+        for record in self.filtered(lambda activity: not activity.supports_color_grades):
+            graded_services = self.env['wof.film.category'].search_count([
+                ('service_type_id', '=', record.id),
+                ('film_category_line_ids', '!=', False),
+            ])
+            if graded_services:
+                raise ValidationError(
+                    'لا يمكن تغيير فئة النشاط مع وجود درجات لون. '
+                    'أرشف الدرجات أو أعد النشاط إلى العزل الحراري.'
+                )
 
     def _compute_counts(self):
         film_groups = self.env['wof.film.category'].read_group(
@@ -88,7 +115,7 @@ class ServiceType(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('الأفلام'),
+            'name': _('خدمات النشاط'),
             'res_model': 'wof.film.category',
             'view_mode': 'tree,form',
             'domain': [('service_type_id', '=', self.id)],
@@ -99,12 +126,18 @@ class ServiceType(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('إضافة فيلم'),
+            'name': _('إضافة خدمة / فيلم'),
             'res_model': 'wof.film.category',
             'view_mode': 'form',
             'target': 'current',
             'context': {'default_service_type_id': self.id},
         }
+
+    def action_open_services(self):
+        return self.action_open_films()
+
+    def action_create_service(self):
+        return self.action_create_film()
 
     def action_open_parts(self):
         self.ensure_one()

@@ -9,14 +9,22 @@
                 <field name="sequence" widget="handle"/>
                 <field name="company_id" column_invisible="True"/>
                 <field name="currency_id" column_invisible="True"/>
+                <field name="available_car_part_ids" column_invisible="True"/>
+                <field name="available_grade_ids" column_invisible="True"/>
+                <field name="supports_color_grades" column_invisible="True"/>
                 <field name="service_type_id"
+                       string="النشاط"
                        options="{'no_create': True, 'no_open': True}"/>
                 <field name="film_category_id"
-                       options="{'no_create': True, 'no_open': True}"/>
-                <field name="film_category_line_id"
-                       optional="hide"
+                       string="الخدمة / الفيلم"
                        options="{'no_create': True, 'no_open': True}"/>
                 <field name="car_part_id"
+                       string="المكوّن"
+                       options="{'no_create': True, 'no_open': True}"/>
+                <field name="film_category_line_id"
+                       string="درجة اللون"
+                       invisible="not supports_color_grades"
+                       optional="show"
                        options="{'no_create': True, 'no_open': True}"/>
                 <field name="quantity"/>
                 <field name="unit_price" readonly="1"/>
@@ -47,22 +55,29 @@
                 <sheet>
                     <field name="order_state" invisible="1"/>
                     <field name="available_technician_ids" invisible="1"/>
+                    <field name="available_car_part_ids" invisible="1"/>
+                    <field name="available_grade_ids" invisible="1"/>
+                    <field name="supports_color_grades" invisible="1"/>
                     <field name="discount_scope" invisible="1"/>
                     <group>
-                        <group string="الخدمة والجزء">
+                        <group string="النشاط والخدمة والمكوّن">
                             <field name="company_id" invisible="1"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="order_id" readonly="1"/>
                             <field name="service_type_id"
+                                   string="نشاط المركز"
                                    readonly="order_state not in ('draft', 'scheduled')"
                                    options="{'no_create': True}"/>
                             <field name="film_category_id"
-                                   readonly="order_state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
-                            <field name="film_category_line_id"
+                                   string="الخدمة / الفيلم"
                                    readonly="order_state not in ('draft', 'scheduled')"
                                    options="{'no_create': True}"/>
                             <field name="car_part_id"
+                                   string="مكوّن الخدمة"
+                                   readonly="order_state not in ('draft', 'scheduled')"
+                                   options="{'no_create': True}"/>
+                            <field name="film_category_line_id"
+                                   invisible="not supports_color_grades"
                                    readonly="order_state not in ('draft', 'scheduled')"
                                    options="{'no_create': True}"/>
                             <field name="film_product_id"
@@ -133,6 +148,7 @@
                   create="0" delete="0"
                   decoration-success="execution_progress == 100">
                 <field name="company_id" column_invisible="True"/>
+                <field name="available_car_part_ids" column_invisible="True"/>
                 <field name="service_type_id" readonly="1"/>
                 <field name="film_category_id" readonly="1"/>
                 <field name="car_part_id" readonly="1"/>
