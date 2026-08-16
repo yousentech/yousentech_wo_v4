@@ -143,19 +143,27 @@
     border-radius: 10px;
     color: var(--wof-text);
     margin: 0 auto;
-    max-width: 1040px;
+    max-width: 1180px;
+    overflow: visible;
+    box-shadow: none;
+}
+
+.wof_stage1_intro_panel {
+    background: #fff;
+    border: 1px solid var(--wof-line);
+    border-radius: 10px;
+    box-shadow: 0 7px 20px rgba(31, 41, 51, .07);
     overflow: hidden;
-    box-shadow: 0 10px 28px rgba(26, 39, 48, .08);
 }
 
 .wof_stage1_header {
-    padding: 18px 28px 14px;
-    text-align: right;
+    padding: 15px 28px 12px;
+    text-align: center;
 }
 
 .wof_stage1_header h1 {
     font-family: inherit;
-    font-size: 25px;
+    font-size: 24px;
     font-weight: 700;
     line-height: 1.25;
     margin: 0 0 4px;
@@ -175,7 +183,7 @@
     border-top: 1px solid #dbe8e9;
     display: grid;
     grid-template-columns: minmax(110px, 1fr) 1fr minmax(110px, 1fr) 1fr minmax(110px, 1fr) 1fr minmax(110px, 1fr) 1fr minmax(125px, 1.15fr);
-    padding: 13px 24px 11px;
+    padding: 10px 24px 9px;
 }
 
 .wof_stage1_step {
@@ -236,18 +244,35 @@
     border-color: var(--wof-teal);
 }
 
+.wof_stage1_body_panel {
+    background: #fff;
+    border: 1px solid var(--wof-line);
+    border-radius: 10px;
+    box-shadow: 0 7px 20px rgba(31, 41, 51, .06);
+    margin-top: 12px;
+    overflow: hidden;
+}
+
 .wof_stage1_content {
-    padding: 22px 28px 18px;
+    padding: 15px 20px 12px;
+}
+
+.wof_stage1_title_row {
+    align-items: center;
+    display: flex;
+    gap: 14px;
+    justify-content: space-between;
+    margin-bottom: 10px;
 }
 
 .wof_stage1_title {
-    margin-bottom: 14px;
+    margin-bottom: 0;
     text-align: right;
 }
 
 .wof_stage1_title h2 {
     font-family: inherit;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     margin: 0 0 4px;
 }
@@ -268,8 +293,8 @@
 .wof_stage1_activity_field .o_kanban_renderer {
     align-items: stretch;
     display: grid !important;
-    gap: 14px !important;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 10px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .wof_stage1_activity_field .o_kanban_record,
@@ -289,8 +314,8 @@
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    min-height: 142px;
-    padding: 13px 14px 12px;
+    min-height: 118px;
+    padding: 10px 12px 9px;
     box-shadow: 0 4px 14px rgba(31, 41, 51, .07);
     transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
 }
@@ -331,7 +356,7 @@
 .wof_stage1_activity_identity .o_field_widget {
     color: #253038;
     font-family: inherit;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     line-height: 1.3;
     overflow: hidden;
@@ -377,7 +402,7 @@
     font-family: inherit;
     font-size: 13px;
     line-height: 1.65;
-    margin: 10px 0 8px;
+    margin: 7px 0 5px;
     max-width: 94%;
     text-align: right;
 }
@@ -417,18 +442,26 @@
     color: #405d60;
 }
 
-.wof_stage1_add_wrap {
-    display: flex;
-    justify-content: center;
-    padding-top: 10px;
+.wof_stage1_add_activity {
+    background: var(--wof-teal) !important;
+    border: 1px solid var(--wof-teal) !important;
+    border-radius: 7px;
+    box-shadow: 0 3px 9px rgba(47, 133, 139, .14);
+    color: #fff !important;
+    flex: 0 0 auto;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 12px !important;
+    text-decoration: none !important;
 }
 
-.wof_stage1_add_activity {
-    color: var(--wof-teal-dark) !important;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none !important;
+.wof_stage1_add_activity:hover,
+.wof_stage1_add_activity:focus {
+    background: var(--wof-teal-dark) !important;
+    border-color: var(--wof-teal-dark) !important;
+    box-shadow: 0 5px 13px rgba(47, 133, 139, .20);
+    color: #fff !important;
 }
 
 .wof_stage1_footer {
@@ -437,7 +470,7 @@
     display: flex;
     justify-content: space-between;
     gap: 16px;
-    padding: 14px 24px;
+    padding: 10px 18px;
 }
 
 .wof_stage1_footer p {
@@ -486,25 +519,67 @@
 }
 
 .wof_activity_dialog_body {
-    padding: 4px 2px 2px;
+    padding: 0;
     text-align: right;
 }
 
-.wof_activity_dialog_body h3 {
+.wof_activity_dialog_heading {
+    background: linear-gradient(90deg, #f1f8f8 0%, #e8f5f5 100%);
+    border: 1px solid #d7e7e8;
+    border-radius: 9px;
+    margin-bottom: 18px;
+    padding: 14px 18px 12px;
+    text-align: center;
+}
+
+.wof_activity_dialog_heading h3 {
+    color: #183f42;
     font-family: inherit;
     font-size: 20px;
     font-weight: 700;
-    margin: 0 0 5px;
+    margin: 0 0 4px;
 }
 
-.wof_activity_dialog_body p {
+.wof_activity_dialog_heading p {
+    color: #65747a;
     font-size: 13px;
-    margin-bottom: 16px;
+    margin: 0;
 }
 
 .wof_activity_dialog_fields {
     display: grid;
-    gap: 6px;
+    gap: 8px;
+    padding: 0 6px 4px;
+}
+
+.wof_activity_name_label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 2px;
+}
+
+.wof_activity_name_label strong {
+    color: #26343b;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.wof_activity_name_label small {
+    color: #758188;
+    font-size: 12px;
+}
+
+.wof_activity_name_input input {
+    border: 1px solid #bfcacc !important;
+    border-radius: 7px !important;
+    min-height: 38px;
+    padding: 7px 10px !important;
+}
+
+.wof_activity_name_input input:focus {
+    border-color: var(--wof-teal, #2f858b) !important;
+    box-shadow: 0 0 0 2px rgba(47, 133, 139, .10);
 }
 
 .wof_activity_dialog_fields label {
@@ -574,5 +649,43 @@
 
     .wof_stage1_next {
         width: 100%;
+    }
+}
+
+
+/* Stage 1 modal sizing: six activity cards fit as 3 x 2 on desktop without an inner scroll. */
+.modal-dialog:has(.wof_stage1_shell) {
+    max-width: min(1240px, calc(100vw - 42px)) !important;
+    width: min(1240px, calc(100vw - 42px)) !important;
+}
+
+.modal-content:has(.wof_stage1_shell) .modal-body {
+    overflow-y: visible !important;
+    max-height: none !important;
+}
+
+.modal-dialog:has(.wof_activity_dialog_form) {
+    max-width: 720px !important;
+    width: min(720px, calc(100vw - 36px)) !important;
+}
+
+@media (max-width: 1050px) {
+    .wof_stage1_activity_field .o_kanban_renderer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .wof_stage1_title_row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .wof_stage1_add_activity {
+        align-self: flex-start;
+    }
+
+    .wof_stage1_activity_field .o_kanban_renderer {
+        grid-template-columns: 1fr;
     }
 }

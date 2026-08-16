@@ -29,19 +29,26 @@
                     <field name="profile_id" invisible="1"/>
                     <field name="activity_line_id" invisible="1"/>
                     <div class="wof_activity_dialog_body" dir="rtl">
-                        <div invisible="mode != 'edit'">
+                        <div class="wof_activity_dialog_heading" invisible="mode != 'edit'">
                             <h3>تعديل النشاط</h3>
-                            <p class="text-muted">عدّل الاسم أو الملاحظات، وسيبقى سلوك النشاط الداخلي كما هو.</p>
+                            <p>عدّل الاسم أو الملاحظات، وسيبقى سلوك النشاط الداخلي كما هو.</p>
                         </div>
-                        <div invisible="mode != 'add'">
+                        <div class="wof_activity_dialog_heading" invisible="mode != 'add'">
                             <h3>إضافة نشاط جديد</h3>
-                            <p class="text-muted">أدخل اسم النشاط، ويمكنك إضافة ملاحظات اختيارية. لن يضيف النظام وصفًا تلقائيًا.</p>
+                            <p>أدخل اسمًا واضحًا للنشاط. الملاحظات اختيارية ولن ينشئ النظام وصفًا تلقائيًا.</p>
                         </div>
                         <div class="wof_activity_dialog_fields">
-                            <label for="name" string="اسم النشاط"/>
-                            <field name="name" placeholder="مثال: حماية PPF" required="1"/>
+                            <div class="wof_activity_name_label" invisible="mode != 'add'">
+                                <strong>اسم النشاط الجديد</strong>
+                                <small>اكتب الاسم الذي تريد أن يظهر للمستخدمين في شاشة الأنشطة.</small>
+                            </div>
+                            <div class="wof_activity_name_label" invisible="mode != 'edit'">
+                                <strong>اسم النشاط</strong>
+                                <small>غيّر الاسم الظاهر للنشاط فقط، دون تغيير نوعه أو سلوكه الداخلي.</small>
+                            </div>
+                            <field name="name" class="wof_activity_name_input" placeholder="اكتب اسم النشاط..." required="1" nolabel="1"/>
                             <label for="description" string="ملاحظات"/>
-                            <field name="description" placeholder="ملاحظات اختيارية..."/>
+                            <field name="description" placeholder="ملاحظات اختيارية..." nolabel="1"/>
                         </div>
                     </div>
                 </sheet>
@@ -104,12 +111,13 @@
                     </div>
 
                     <div invisible="current_step != 'activity'" class="wof_stage1_shell" dir="rtl">
-                        <div class="wof_stage1_header">
-                            <h1>مركز تهيئة النظام</h1>
-                            <p>سنقوم بتهيئة النظام معك خطوة بخطوة ويمكن تعديل الإعدادات لاحقًا</p>
-                        </div>
+                        <div class="wof_stage1_intro_panel">
+                            <div class="wof_stage1_header">
+                                <h1>مركز تهيئة النظام</h1>
+                                <p>سنقوم بتهيئة النظام معك خطوة بخطوة ويمكن تعديل الإعدادات لاحقًا</p>
+                            </div>
 
-                        <div class="wof_stage1_stepper" aria-label="خطوات التهيئة">
+                            <div class="wof_stage1_stepper" aria-label="خطوات التهيئة">
                             <div class="wof_stage1_step is-current">
                                 <span class="wof_stage1_step_no">1</span>
                                 <strong>الأنشطة</strong>
@@ -135,13 +143,20 @@
                                 <span class="wof_stage1_step_no">5</span>
                                 <strong>المراجعة والتفعيل</strong>
                             </div>
+                            </div>
                         </div>
 
-                        <div class="wof_stage1_content">
-                            <div class="wof_stage1_title">
-                                <h2>اختر الأنشطة التي تعمل بها المنشأة</h2>
-                                <p>فعّل الأنشطة التي تريد استخدامها في النظام. يمكنك تفعيل نشاط واحد أو أكثر.</p>
-                            </div>
+                        <div class="wof_stage1_body_panel">
+                            <div class="wof_stage1_content">
+                                <div class="wof_stage1_title_row">
+                                    <div class="wof_stage1_title">
+                                        <h2>اختر الأنشطة التي تعمل بها المنشأة</h2>
+                                        <p>فعّل الأنشطة التي تريد استخدامها في النظام. يمكنك تفعيل نشاط واحد أو أكثر.</p>
+                                    </div>
+                                    <button name="action_add_general_activity" type="object" class="btn wof_stage1_add_activity">
+                                        <i class="fa fa-plus" title="إضافة"/> إضافة نشاط جديد
+                                    </button>
+                                </div>
 
                             <field name="activity_line_ids" nolabel="1" mode="kanban" class="wof_stage1_activity_field">
                                 <kanban create="0" delete="0" class="wof_stage1_activity_kanban">
@@ -179,18 +194,14 @@
                                 </kanban>
                             </field>
 
-                            <div class="wof_stage1_add_wrap">
-                                <button name="action_add_general_activity" type="object" class="btn btn-link wof_stage1_add_activity">
-                                    <i class="fa fa-plus" title="إضافة"/> إضافة نشاط
-                                </button>
                             </div>
-                        </div>
 
-                        <div class="wof_stage1_footer">
+                            <div class="wof_stage1_footer">
                             <p>يمكن تعديل الأنشطة لاحقًا من مركز التهيئة.</p>
                             <button name="action_next" type="object" class="btn btn-primary wof_stage1_next">
-                                التالي: أحجام السيارات <i class="fa fa-arrow-right" title="التالي"/>
+                                التالي: أحجام السيارات <i class="fa fa-arrow-left" title="التالي"/>
                             </button>
+                            </div>
                         </div>
                     </div>
 
