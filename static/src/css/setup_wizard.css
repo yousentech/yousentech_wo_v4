@@ -259,18 +259,26 @@
 
 .wof_stage1_title_row {
     align-items: center;
+    background: linear-gradient(90deg, #f8fbfb 0%, #f2f8f8 100%);
+    border: 1px solid #dce8e9;
+    border-radius: 8px;
     display: flex;
     gap: 14px;
-    justify-content: space-between;
-    margin-bottom: 10px;
+    justify-content: center;
+    margin-bottom: 14px;
+    min-height: 66px;
+    padding: 10px 15px;
+    position: relative;
 }
 
 .wof_stage1_title {
     margin-bottom: 0;
-    text-align: right;
+    max-width: 760px;
+    text-align: center;
 }
 
 .wof_stage1_title h2 {
+    color: #26343b;
     font-family: inherit;
     font-size: 18px;
     font-weight: 700;
@@ -281,6 +289,13 @@
     color: var(--wof-muted);
     font-size: 13px;
     margin: 0;
+}
+
+.wof_stage1_title_row .wof_stage1_add_activity {
+    left: 15px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* Nested Odoo kanban: remove its default dashboard-like chrome. */
@@ -679,10 +694,19 @@
     .wof_stage1_title_row {
         align-items: stretch;
         flex-direction: column;
+        padding: 12px;
     }
 
-    .wof_stage1_add_activity {
-        align-self: flex-start;
+    .wof_stage1_title {
+        max-width: none;
+    }
+
+    .wof_stage1_title_row .wof_stage1_add_activity {
+        align-self: center;
+        left: auto;
+        position: static;
+        top: auto;
+        transform: none;
     }
 
     .wof_stage1_activity_field .o_kanban_renderer {

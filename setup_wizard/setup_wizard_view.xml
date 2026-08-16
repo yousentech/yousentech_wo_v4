@@ -54,7 +54,7 @@
                 </sheet>
                 <footer class="wof_activity_dialog_footer">
                     <button name="action_confirm" type="object" string="حفظ" class="btn-primary"/>
-                    <button string="إلغاء" special="cancel" class="btn-secondary"/>
+                    <button name="action_cancel" type="object" string="إلغاء" class="btn-secondary"/>
                 </footer>
             </form>
         </field>

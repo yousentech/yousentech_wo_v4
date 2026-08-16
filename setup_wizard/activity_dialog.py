@@ -73,3 +73,10 @@ class WofSetupActivityDialog(models.TransientModel):
         # Re-open the same Stage 1 wizard so the card grid is refreshed immediately.
         return self.profile_id._wizard_action()
 
+    def action_cancel(self):
+        """Return explicitly to Stage 1 instead of falling back to the caller screen."""
+        self.ensure_one()
+        if not self.profile_id:
+            return {'type': 'ir.actions.act_window_close'}
+        return self.profile_id._wizard_action()
+
