@@ -20,7 +20,7 @@ SERVICE_OPTIONS = [
 SETUP_STEPS = [
     ('activity', 'نشاط المركز'),
     ('sizes', 'أحجام السيارات'),
-    ('services', 'الخدمات والأسعار'),
+    ('services', 'درجات اللون'),
     ('operations', 'التشغيل والفوترة'),
     ('review', 'المراجعة والجاهزية'),
 ]
@@ -41,6 +41,16 @@ SETUP_ACTIVITY_TYPES = [
     ('tint', 'عزل حراري'),
     ('general', 'نشاط عام'),
 ]
+
+TINT_NUMBERING_METHODS = [
+    ('sequential', 'ترقيم تسلسلي'),
+    ('percentage', 'ترقيم بالنسب'),
+]
+
+TINT_SHADE_DEFAULTS = {
+    'sequential': [('00', 10), ('01', 20), ('02', 30), ('03', 40), ('04', 50)],
+    'percentage': [('00', 10), ('30', 20), ('50', 30), ('75', 40), ('100', 50)],
+}
 
 
 def _utc_iso(value):
@@ -147,6 +157,17 @@ class WofCompanyProfile(models.Model):
     size_line_ids = fields.One2many(
         'wof.setup.size.line', 'profile_id', string="أحجام السيارات", copy=True,
     )
+    tint_numbering_method = fields.Selection(
+        TINT_NUMBERING_METHODS, string="طريقة ترقيم درجات اللون",
+        default='sequential', required=True,
+    )
+    tint_shade_line_ids = fields.One2many(
+        'wof.setup.tint.shade.line', 'profile_id',
+        string="درجات اللون المعتمدة", copy=True,
+    )
+    has_tint_activity = fields.Boolean(
+        compute='_compute_has_tint_activity', string="يوجد نشاط عزل حراري",
+    )
     service_line_ids = fields.One2many(
         'wof.setup.service.line', 'profile_id', string="الخدمات والأسعار", copy=True,
     )
@@ -215,12 +236,14 @@ class WofCompanyProfile(models.Model):
         for record in records:
             record._ensure_default_activities()
             record._ensure_default_sizes()
+            record._ensure_default_tint_shades()
         return records
 
     def write(self, vals):
         tracked = {
             *ACTIVITY_FIELDS.values(),
-            'activity_line_ids', 'size_line_ids', 'service_line_ids',
+            'activity_line_ids', 'size_line_ids', 'tint_numbering_method',
+            'tint_shade_line_ids', 'service_line_ids',
             'payment_policy', 'discount_scope', 'commission_event',
             'required_vehicle_data', 'use_inventory', 'use_appointments',
             'advanced_pricing', 'advanced_commission',
@@ -238,6 +261,14 @@ class WofCompanyProfile(models.Model):
         ):
             raise ValidationError(
                 'غيّر حالة التهيئة من الأزرار المخصصة، وليس بالكتابة المباشرة.'
+            )
+        if 'tint_numbering_method' in vals and any(
+            record.state == 'ready'
+            and record.tint_numbering_method != vals['tint_numbering_method']
+            for record in self
+        ):
+            raise ValidationError(
+                'طريقة ترقيم درجات اللون مثبتة بعد تفعيل النظام ولا يمكن تغييرها.'
             )
         result = super().write(vals)
         changed = sorted(tracked.intersection(vals))
@@ -308,12 +339,20 @@ class WofCompanyProfile(models.Model):
         for record in self:
             record.progress = 100 if record.state == 'ready' else values[record.current_step]
 
+    @api.depends('activity_line_ids.selected', 'activity_line_ids.activity_type')
+    def _compute_has_tint_activity(self):
+        for record in self:
+            record.has_tint_activity = bool(record.activity_line_ids.filtered(
+                lambda line: line.selected and line.activity_type == 'tint'
+            ))
+
     @api.depends(
         'activity_line_ids.selected', 'activity_line_ids.name',
         'activity_tint', 'activity_ppf', 'activity_nano',
         'activity_upholstery', 'activity_floor_mats', 'activity_others',
-        'size_line_ids.selected', 'service_line_ids.enabled',
-        'service_line_ids.base_price',
+        'size_line_ids.selected', 'tint_numbering_method',
+        'tint_shade_line_ids.selected', 'tint_shade_line_ids.value',
+        'service_line_ids.enabled', 'service_line_ids.base_price',
     )
     def _compute_readiness(self):
         for record in self:
@@ -340,30 +379,19 @@ class WofCompanyProfile(models.Model):
                 'field': 'size_line_ids',
                 'message': 'فعّل حجم سيارة واحدًا على الأقل',
             })
-        services = self.service_line_ids.filtered('enabled')
-        if not services:
-            issues.append({
-                'code': 'SETUP_SERVICE_REQUIRED',
-                'field': 'service_line_ids',
-                'message': 'فعّل خدمة واحدة على الأقل',
-            })
-        if services.filtered(
-            lambda line: (
-                not line.template_id
-                or line.template_id.service_kind != line.service_kind
-            )
-        ):
-            issues.append({
-                'code': 'SETUP_TEMPLATE_INVALID',
-                'field': 'service_line_ids',
-                'message': 'راجع قالب الخدمة المرتبط',
-            })
-        if services.filtered(lambda line: line.base_price < 0):
-            issues.append({
-                'code': 'SETUP_PRICE_INVALID',
-                'field': 'service_line_ids.base_price',
-                'message': 'راجع أسعار الخدمات',
-            })
+        if self.has_tint_activity:
+            if not self.tint_numbering_method:
+                issues.append({
+                    'code': 'SETUP_TINT_METHOD_REQUIRED',
+                    'field': 'tint_numbering_method',
+                    'message': 'اختر طريقة ترقيم درجات اللون',
+                })
+            if not self.tint_shade_line_ids.filtered('selected'):
+                issues.append({
+                    'code': 'SETUP_TINT_SHADE_REQUIRED',
+                    'field': 'tint_shade_line_ids',
+                    'message': 'فعّل درجة لون واحدة على الأقل',
+                })
         return issues
 
     def _setup_state_payload(self):
@@ -541,6 +569,89 @@ class WofCompanyProfile(models.Model):
         })
         return dialog._dialog_action()
 
+    def _ensure_default_tint_shades(self):
+        self.ensure_one()
+        method = self.tint_numbering_method or 'sequential'
+        expected = TINT_SHADE_DEFAULTS[method]
+        existing = {line.value: line for line in self.tint_shade_line_ids}
+        if self.tint_shade_line_ids and any(
+            line.numbering_method != method for line in self.tint_shade_line_ids
+        ):
+            self.tint_shade_line_ids.unlink()
+            existing = {}
+        for value, sequence in expected:
+            line = existing.get(value)
+            vals = {
+                'profile_id': self.id,
+                'numbering_method': method,
+                'value': value,
+                'code': ('SEQ-' if method == 'sequential' else 'PCT-') + value,
+                'sequence': sequence,
+                'selected': True,
+            }
+            if line:
+                updates = {k: v for k, v in vals.items() if k != 'profile_id' and line[k] != v}
+                if updates:
+                    line.with_context(wof_tint_setup_sync=True).write(updates)
+            else:
+                self.env['wof.setup.tint.shade.line'].create(vals)
+
+    def _set_tint_numbering_method(self, method):
+        self.ensure_one()
+        self._ensure_can_configure()
+        if self.state == 'ready':
+            raise ValidationError(
+                'طريقة ترقيم درجات اللون مثبتة بعد تفعيل النظام ولا يمكن تغييرها.'
+            )
+        if method not in dict(TINT_NUMBERING_METHODS):
+            raise ValidationError(_('طريقة ترقيم درجات اللون غير صحيحة.'))
+        if self.tint_numbering_method != method:
+            self.tint_shade_line_ids.unlink()
+            self.write({'tint_numbering_method': method})
+        self._ensure_default_tint_shades()
+        return self._wizard_action()
+
+    def action_set_tint_numbering_sequential(self):
+        return self._set_tint_numbering_method('sequential')
+
+    def action_set_tint_numbering_percentage(self):
+        return self._set_tint_numbering_method('percentage')
+
+    def _apply_tint_degrees(self):
+        self.ensure_one()
+        Degree = self.env['wof.tint.degree'].with_context(active_test=False)
+        if not self.has_tint_activity:
+            Degree.search([
+                ('company_id', '=', self.company_id.id),
+                ('is_setup_default', '=', True),
+            ]).write({'active': False})
+            return
+        selected = self.tint_shade_line_ids.filtered('selected')
+        selected_values = set(selected.mapped('value'))
+        Degree.search([
+            ('company_id', '=', self.company_id.id),
+            ('is_setup_default', '=', True),
+            ('value', 'not in', list(selected_values)),
+        ]).write({'active': False})
+        for line in selected:
+            degree = Degree.search([
+                ('company_id', '=', self.company_id.id),
+                ('value', '=', line.value),
+            ], limit=1)
+            vals = {
+                'company_id': self.company_id.id,
+                'sequence': line.sequence,
+                'value': line.value,
+                'code': line.code,
+                'numbering_method': self.tint_numbering_method,
+                'is_setup_default': True,
+                'active': True,
+            }
+            if degree:
+                degree.write(vals)
+            else:
+                Degree.create(vals)
+
     def _sync_service_drafts(self):
         self.ensure_one()
         selected = set(self._selected_activity_keys())
@@ -583,6 +694,7 @@ class WofCompanyProfile(models.Model):
         self.ensure_one()
         self._ensure_default_activities()
         self._ensure_default_sizes()
+        self._ensure_default_tint_shades()
         return {
             'type': 'ir.actions.act_window', 'name': _('مركز تهيئة النظام'),
             'res_model': 'wof.company.profile', 'res_id': self.id,
@@ -629,12 +741,11 @@ class WofCompanyProfile(models.Model):
         elif self.current_step == 'sizes':
             if not self.size_line_ids.filtered('selected'):
                 raise ValidationError(_('فعّل حجم سيارة واحدًا على الأقل قبل المتابعة.'))
-            # Compatibility until Stage 3 is redesigned.
-            self._sync_service_drafts()
+            self._ensure_default_tint_shades()
             next_step = 'services'
         elif self.current_step == 'services':
-            if not self.service_line_ids.filtered('enabled'):
-                raise ValidationError(_('فعّل خدمة واحدة على الأقل قبل المتابعة.'))
+            if self.has_tint_activity and not self.tint_shade_line_ids.filtered('selected'):
+                raise ValidationError(_('فعّل درجة لون واحدة على الأقل قبل المتابعة.'))
             next_step = 'operations'
         elif self.current_step == 'operations':
             next_step = 'review'
@@ -737,6 +848,8 @@ class WofCompanyProfile(models.Model):
             else:
                 record = self.env['wof.car.size'].create(vals)
             sizes[draft.code] = record
+
+        self._apply_tint_degrees()
 
         disabled_service_codes = self.service_line_ids.filtered(
             lambda line: not line.enabled
@@ -1120,6 +1233,46 @@ class WofSetupSizeLine(models.Model):
             'name': self.name,
         })
         return dialog._dialog_action()
+
+
+class WofSetupTintShadeLine(models.Model):
+    _name = 'wof.setup.tint.shade.line'
+    _description = 'درجة لون في مسودة التهيئة'
+    _order = 'sequence, id'
+
+    sequence = fields.Integer(default=10)
+    profile_id = fields.Many2one(
+        'wof.company.profile', required=True, ondelete='cascade', index=True,
+    )
+    company_id = fields.Many2one(
+        related='profile_id.company_id', store=True, index=True, readonly=True,
+    )
+    numbering_method = fields.Selection(
+        TINT_NUMBERING_METHODS, required=True, readonly=True,
+    )
+    value = fields.Char(string='درجة اللون', required=True, readonly=True)
+    code = fields.Char(string='الكود', required=True, readonly=True)
+    selected = fields.Boolean(string='مفعّل', default=True)
+
+    _sql_constraints = [
+        ('setup_tint_shade_profile_value_unique', 'unique(profile_id, value)',
+         'درجة اللون مكررة في ملف التهيئة.'),
+        ('setup_tint_shade_profile_code_unique', 'unique(profile_id, code)',
+         'كود درجة اللون مكرر في ملف التهيئة.'),
+    ]
+
+    def write(self, vals):
+        self.mapped('profile_id')._ensure_can_configure()
+        immutable = {'profile_id', 'numbering_method', 'value', 'code'}
+        if immutable.intersection(vals) and not self.env.context.get('wof_tint_setup_sync'):
+            raise ValidationError(
+                'قيم درجات اللون تُدار من طريقة الترقيم. يمكنك التفعيل أو الإلغاء فقط.'
+            )
+        return super().write(vals)
+
+    def unlink(self):
+        self.mapped('profile_id')._ensure_can_configure()
+        return super().unlink()
 
 
 class WofSetupServiceLine(models.Model):

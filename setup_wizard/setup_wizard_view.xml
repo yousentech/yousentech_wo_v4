@@ -104,7 +104,7 @@
         <field name="model">wof.company.profile</field>
         <field name="arch" type="xml">
             <form string="التهيئة الأولى" create="0" delete="0" class="wof_setup_form">
-                <header invisible="current_step in ['activity', 'sizes']">
+                <header invisible="current_step in ['activity', 'sizes', 'services']">
                     <button name="action_previous" type="object" string="السابق"
                             class="btn-secondary" invisible="current_step == 'activity'"/>
                     <button name="action_save" type="object" string="حفظ والمتابعة لاحقًا"
@@ -121,7 +121,7 @@
                     <field name="current_step" invisible="1"/>
                     <field name="readiness_ok" invisible="1"/>
 
-                    <div invisible="current_step in ['activity', 'sizes']">
+                    <div invisible="current_step in ['activity', 'sizes', 'services']">
                     <div class="wof_setup_hero">
                         <div>
                             <span class="wof_setup_badge">إعداد ذاتي</span>
@@ -139,8 +139,8 @@
                         <span class="wof_setup_step active" invisible="current_step != 'activity'">١. النشاط</span>
                         <span class="wof_setup_step" invisible="current_step == 'sizes'">٢. الأحجام</span>
                         <span class="wof_setup_step active" invisible="current_step != 'sizes'">٢. الأحجام</span>
-                        <span class="wof_setup_step" invisible="current_step == 'services'">٣. الخدمات والأسعار</span>
-                        <span class="wof_setup_step active" invisible="current_step != 'services'">٣. الخدمات والأسعار</span>
+                        <span class="wof_setup_step" invisible="current_step == 'services'">٣. درجات اللون</span>
+                        <span class="wof_setup_step active" invisible="current_step != 'services'">٣. درجات اللون</span>
                         <span class="wof_setup_step" invisible="current_step == 'operations'">٤. التشغيل</span>
                         <span class="wof_setup_step active" invisible="current_step != 'operations'">٤. التشغيل</span>
                         <span class="wof_setup_step" invisible="current_step == 'review'">٥. المراجعة</span>
@@ -345,25 +345,129 @@
                         </div>
                     </div>
 
-                    <div invisible="current_step != 'services'">
-                        <div class="wof_setup_section_title">
-                            <h2>الخدمة الافتراضية لكل نشاط</h2>
-                            <p>سمّ الخدمة أو الفيلم وأدخل سعرًا أساسيًا. المكوّنات والتفصيل حسب الحجم قابلة للضبط لاحقًا.</p>
+                    <div invisible="current_step != 'services'" class="wof_stage1_shell wof_stage3_shell" dir="rtl">
+                        <field name="tint_numbering_method" invisible="1"/>
+                        <field name="has_tint_activity" invisible="1"/>
+                        <div class="wof_stage1_intro_panel">
+                            <div class="wof_stage1_header">
+                                <h1>مركز تهيئة النظام</h1>
+                                <p>سنقوم بتهيئة النظام معك خطوة بخطوة ويمكن تعديل الإعدادات لاحقًا</p>
+                            </div>
+                            <div class="wof_stage1_stepper" aria-label="خطوات التهيئة">
+                                <div class="wof_stage1_step is-complete">
+                                    <span class="wof_stage1_step_no"><i class="fa fa-check" title="مكتمل"/></span>
+                                    <strong>الأنشطة</strong>
+                                </div>
+                                <div class="wof_stage1_connector is-current"></div>
+                                <div class="wof_stage1_step is-complete">
+                                    <span class="wof_stage1_step_no"><i class="fa fa-check" title="مكتمل"/></span>
+                                    <strong>أحجام السيارات</strong>
+                                </div>
+                                <div class="wof_stage1_connector is-current"></div>
+                                <div class="wof_stage1_step is-current">
+                                    <span class="wof_stage1_step_no">3</span>
+                                    <strong>درجات اللون</strong>
+                                    <small>الخطوة 3 من 5</small>
+                                </div>
+                                <div class="wof_stage1_connector"></div>
+                                <div class="wof_stage1_step">
+                                    <span class="wof_stage1_step_no">4</span>
+                                    <strong>التشغيل</strong>
+                                </div>
+                                <div class="wof_stage1_connector"></div>
+                                <div class="wof_stage1_step">
+                                    <span class="wof_stage1_step_no">5</span>
+                                    <strong>المراجعة والتفعيل</strong>
+                                </div>
+                            </div>
                         </div>
-                        <field name="service_line_ids" nolabel="1">
-                            <tree editable="bottom" create="0" delete="0">
-                                <field name="enabled"/>
-                                <field name="service_kind" readonly="1"/>
-                                <field name="name"/>
-                                <field name="film_name"/>
-                                <field name="base_price"/>
-                                <field name="tax_id" options="{'no_create': True}"/>
-                                <field name="company_id" column_invisible="1"/>
-                                <field name="warranty_years"/>
-                                <field name="default_commission" optional="hide"/>
-                                <field name="inventory_enabled" optional="hide"/>
-                            </tree>
-                        </field>
+
+                        <div class="wof_stage1_body_panel">
+                            <div class="wof_stage1_content wof_stage3_content">
+                                <div class="wof_stage1_title_row wof_stage3_title_row">
+                                    <div class="wof_stage1_title">
+                                        <h2>حدد نظام درجات اللون المعتمد</h2>
+                                        <p>اختر طريقة ترقيم درجات اللون المستخدمة في المنشأة، ثم حدد الدرجات التي تريد اعتمادها.</p>
+                                    </div>
+                                </div>
+
+                                <div invisible="not has_tint_activity" class="wof_stage3_active_area">
+                                    <div class="wof_stage3_method_grid">
+                                        <div class="wof_stage3_method_card is-selected" invisible="tint_numbering_method != 'sequential'">
+                                            <div class="wof_stage3_method_head">
+                                                <span class="wof_stage3_method_check"><i class="fa fa-check" title="معتمد"/></span>
+                                                <strong>ترقيم تسلسلي</strong>
+                                            </div>
+                                            <div class="wof_stage3_method_values">00 <span>•</span> 01 <span>•</span> 02 <span>•</span> 03 <span>•</span> 04</div>
+                                        </div>
+                                        <div class="wof_stage3_method_card" invisible="tint_numbering_method == 'sequential'">
+                                            <div class="wof_stage3_method_head"><span class="wof_stage3_method_radio"></span><strong>ترقيم تسلسلي</strong></div>
+                                            <div class="wof_stage3_method_values">00 <span>•</span> 01 <span>•</span> 02 <span>•</span> 03 <span>•</span> 04</div>
+                                            <button name="action_set_tint_numbering_sequential" type="object" string="اختيار" class="btn wof_stage3_choose_btn"/>
+                                        </div>
+
+                                        <div class="wof_stage3_method_card is-selected" invisible="tint_numbering_method != 'percentage'">
+                                            <div class="wof_stage3_method_head">
+                                                <span class="wof_stage3_method_check"><i class="fa fa-check" title="معتمد"/></span>
+                                                <strong>ترقيم بالنسب</strong>
+                                            </div>
+                                            <div class="wof_stage3_method_values">00 <span>•</span> 30 <span>•</span> 50 <span>•</span> 75 <span>•</span> 100</div>
+                                        </div>
+                                        <div class="wof_stage3_method_card" invisible="tint_numbering_method == 'percentage'">
+                                            <div class="wof_stage3_method_head"><span class="wof_stage3_method_radio"></span><strong>ترقيم بالنسب</strong></div>
+                                            <div class="wof_stage3_method_values">00 <span>•</span> 30 <span>•</span> 50 <span>•</span> 75 <span>•</span> 100</div>
+                                            <button name="action_set_tint_numbering_percentage" type="object" string="اختيار" class="btn wof_stage3_choose_btn"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="wof_stage3_lock_note">
+                                        <i class="fa fa-info-circle" title="معلومة"/>
+                                        <span>بعد تفعيل النظام سيتم تثبيت طريقة الترقيم ولا يمكن تغييرها.</span>
+                                    </div>
+
+                                    <div class="wof_stage3_shades_header">
+                                        <h3>درجات اللون المعتمدة</h3>
+                                        <p>فعّل الدرجات التي تستخدمها المنشأة.</p>
+                                    </div>
+
+                                    <field name="tint_shade_line_ids" nolabel="1" mode="kanban" class="wof_stage3_shade_field">
+                                        <kanban create="0" delete="0" class="wof_stage3_shade_kanban">
+                                            <field name="sequence"/>
+                                            <field name="selected"/>
+                                            <field name="value"/>
+                                            <templates>
+                                                <t t-name="kanban-box">
+                                                    <div t-attf-class="wof_stage3_shade_card #{record.selected.raw_value ? 'is-enabled' : 'is-disabled'}">
+                                                        <strong><field name="value"/></strong>
+                                                        <field name="selected" widget="boolean_toggle" nolabel="1"/>
+                                                    </div>
+                                                </t>
+                                            </templates>
+                                        </kanban>
+                                    </field>
+                                </div>
+
+                                <div invisible="has_tint_activity" class="wof_stage3_not_required">
+                                    <span class="wof_stage3_not_required_icon"><i class="fa fa-info-circle" title="معلومة"/></span>
+                                    <div>
+                                        <strong>درجات اللون غير مطلوبة حاليًا</strong>
+                                        <p>لم يتم تفعيل نشاط عزل حراري. يمكنك المتابعة، وستبقى هذه الخطوة متاحة إذا فعّلت نشاط العزل لاحقًا.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="wof_stage1_footer wof_stage2_footer wof_stage3_footer">
+                                <div class="wof_stage2_prev_wrap">
+                                    <button name="action_previous" type="object" class="btn btn-secondary wof_stage2_prev">
+                                        <i class="fa fa-arrow-right" title="السابق"/> السابق: أحجام السيارات
+                                    </button>
+                                    <p>يمكن تعديل الدرجات المفعلة لاحقًا، أما طريقة الترقيم فتُثبت بعد تفعيل النظام.</p>
+                                </div>
+                                <button name="action_next" type="object" class="btn btn-primary wof_stage1_next">
+                                    التالي: التشغيل <i class="fa fa-arrow-left" title="التالي"/>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div invisible="current_step != 'operations'">

@@ -54,3 +54,7 @@ access_installation_material_technician,installation.material.technician,model_w
 access_installation_material_supervisor,installation.material.supervisor,model_wof_installation_material_line,yousentech_wo_v4.group_wo_supervisor,1,1,1,1
 access_installation_event_employee,installation.event.employee,model_wof_installation_order_event,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_wof_setup_size_dialog,wof.setup.size.dialog,model_wof_setup_size_dialog,yousentech_wo_v4.group_wo_settings,1,1,1,1
+access_setup_tint_shade_line_settings,setup.tint.shade.line.settings,model_wof_setup_tint_shade_line,yousentech_wo_v4.group_wo_settings,1,1,1,1
+access_tint_degree_employee,tint.degree.employee,model_wof_tint_degree,yousentech_wo_v4.group_wo_employee,1,0,0,0
+access_tint_degree_manager,tint.degree.manager,model_wof_tint_degree,yousentech_wo_v4.group_wo_manager,1,1,1,0
+access_tint_degree_settings,tint.degree.settings,model_wof_tint_degree,yousentech_wo_v4.group_wo_settings,1,1,1,1

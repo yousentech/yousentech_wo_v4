@@ -892,3 +892,255 @@
         width: 100%;
     }
 }
+
+/* -------------------------------------------------------------------------
+ * Setup Wizard V2 — Stage 3: Center tint shades
+ * Reuses the approved Stage 1/2 shell. The numbering method is fixed after
+ * final activation; only center-approved shades are toggled here.
+ * ------------------------------------------------------------------------- */
+.wof_stage3_content {
+    padding-bottom: 12px;
+}
+
+.wof_stage3_title_row {
+    margin-bottom: 12px;
+}
+
+.wof_stage3_active_area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wof_stage3_method_grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wof_stage3_method_card {
+    background: #fff;
+    border: 1px solid #d4dcde;
+    border-radius: 9px;
+    box-shadow: 0 4px 13px rgba(31, 41, 51, .06);
+    min-height: 92px;
+    padding: 12px 14px 10px;
+    position: relative;
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.wof_stage3_method_card:hover {
+    box-shadow: 0 8px 20px rgba(31, 41, 51, .10);
+    transform: translateY(-2px);
+}
+
+.wof_stage3_method_card.is-selected {
+    background: linear-gradient(180deg, #edf8f8 0%, #f9fcfc 100%);
+    border-color: var(--wof-teal);
+    box-shadow: 0 5px 16px rgba(47, 133, 139, .11);
+}
+
+.wof_stage3_method_head {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.wof_stage3_method_head strong {
+    color: #26343b;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.wof_stage3_method_check,
+.wof_stage3_method_radio {
+    align-items: center;
+    border-radius: 50%;
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 22px;
+    justify-content: center;
+    width: 22px;
+}
+
+.wof_stage3_method_check {
+    background: var(--wof-teal);
+    color: #fff;
+    font-size: 11px;
+}
+
+.wof_stage3_method_radio {
+    border: 1px solid #aebabc;
+    background: #fff;
+}
+
+.wof_stage3_method_values {
+    color: #27343b;
+    direction: ltr;
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    margin-top: 11px;
+    text-align: center;
+}
+
+.wof_stage3_method_values span {
+    color: #899499;
+    font-size: 14px;
+    padding: 0 5px;
+}
+
+.wof_stage3_choose_btn {
+    background: transparent !important;
+    border: 0 !important;
+    color: var(--wof-teal-dark) !important;
+    font-size: 12px;
+    font-weight: 600;
+    inset-inline-end: 9px;
+    padding: 4px 7px !important;
+    position: absolute;
+    top: 7px;
+}
+
+.wof_stage3_choose_btn:hover {
+    background: rgba(47, 133, 139, .08) !important;
+}
+
+.wof_stage3_lock_note {
+    align-items: center;
+    color: #59666d;
+    display: flex;
+    font-size: 12px;
+    gap: 7px;
+    justify-content: center;
+    min-height: 24px;
+}
+
+.wof_stage3_lock_note i {
+    color: #78868c;
+}
+
+.wof_stage3_shades_header {
+    text-align: center;
+}
+
+.wof_stage3_shades_header h3 {
+    color: #26343b;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 3px;
+}
+
+.wof_stage3_shades_header p {
+    color: var(--wof-muted);
+    font-size: 13px;
+    margin: 0;
+}
+
+.wof_stage3_shade_field .o_kanban_renderer,
+.wof_stage3_shade_field .o_kanban_view {
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+.wof_stage3_shade_field .o_kanban_renderer {
+    align-items: stretch;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.wof_stage3_shade_field .o_kanban_record,
+.wof_stage3_shade_field .oe_kanban_global_click {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+}
+
+.wof_stage3_shade_card {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #d5dcde;
+    border-radius: 9px;
+    box-shadow: 0 3px 11px rgba(31, 41, 51, .06);
+    display: flex;
+    justify-content: space-between;
+    min-height: 54px;
+    padding: 8px 12px;
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.wof_stage3_shade_card:hover {
+    box-shadow: 0 7px 17px rgba(31, 41, 51, .10);
+    transform: translateY(-2px);
+}
+
+.wof_stage3_shade_card.is-enabled {
+    background: linear-gradient(180deg, #edf8f8 0%, #f8fcfc 100%);
+    border-color: var(--wof-teal);
+}
+
+.wof_stage3_shade_card strong,
+.wof_stage3_shade_card strong .o_field_widget {
+    color: #26343b;
+    direction: ltr;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.wof_stage3_not_required {
+    align-items: center;
+    background: #f7fafb;
+    border: 1px solid #dce6e8;
+    border-radius: 9px;
+    display: flex;
+    gap: 12px;
+    margin: 8px 0;
+    padding: 18px;
+}
+
+.wof_stage3_not_required_icon {
+    align-items: center;
+    background: #e6f2f3;
+    border-radius: 50%;
+    color: var(--wof-teal-dark);
+    display: inline-flex;
+    flex: 0 0 36px;
+    height: 36px;
+    justify-content: center;
+    width: 36px;
+}
+
+.wof_stage3_not_required strong {
+    color: #26343b;
+    display: block;
+    font-size: 15px;
+    margin-bottom: 3px;
+}
+
+.wof_stage3_not_required p {
+    color: var(--wof-muted);
+    font-size: 12.5px;
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .wof_stage3_method_grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wof_stage3_shade_field .o_kanban_renderer {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .wof_stage3_shade_field .o_kanban_renderer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
