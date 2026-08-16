@@ -725,3 +725,170 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* -------------------------------------------------------------------------
+ * Setup Wizard V2 — Stage 2: Center car sizes
+ * Reuses the approved Stage 1 shell and dialog language; only size-card
+ * presentation is added here.  No later setup stage is touched.
+ * ------------------------------------------------------------------------- */
+.wof_stage1_step.is-complete .wof_stage1_step_no {
+    background: var(--wof-teal);
+    border-color: var(--wof-teal);
+    color: #fff;
+}
+
+.wof_stage1_step.is-complete strong {
+    color: #2f5659;
+}
+
+.wof_stage2_size_field .o_kanban_renderer,
+.wof_stage2_size_field .o_kanban_view {
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+.wof_stage2_size_field .o_kanban_renderer {
+    direction: inherit !important;
+    align-items: stretch;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wof_stage2_size_field .o_kanban_record,
+.wof_stage2_size_field .oe_kanban_global_click {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+}
+
+.wof_stage2_size_card {
+    direction: inherit;
+    background: #fff;
+    border: 1px solid #d5dcde;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(31, 41, 51, .07);
+    display: flex;
+    flex-direction: column;
+    min-height: 126px;
+    padding: 11px 12px 10px;
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.wof_stage2_size_card.is-enabled {
+    background: linear-gradient(180deg, #eff9f9 0%, #f8fcfc 100%);
+    border-color: var(--wof-teal);
+    box-shadow: 0 5px 16px rgba(47, 133, 139, .11), inset 0 0 0 1px rgba(47, 133, 139, .04);
+}
+
+.wof_stage2_size_card:hover {
+    box-shadow: 0 9px 22px rgba(31, 41, 51, .12);
+    transform: translateY(-3px);
+}
+
+.wof_stage2_size_card.is-enabled:hover {
+    box-shadow: 0 10px 24px rgba(47, 133, 139, .16);
+}
+
+.wof_stage2_size_top {
+    direction: inherit;
+    align-items: flex-start;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.wof_stage2_size_identity {
+    direction: inherit;
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    gap: 7px;
+    min-width: 0;
+    text-align: start;
+}
+
+.wof_stage2_size_identity strong,
+.wof_stage2_size_identity .o_field_widget {
+    color: #253038;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wof_stage2_size_icon {
+    align-items: center;
+    background: #e4f4e9;
+    border-radius: 7px;
+    color: #2d7c50;
+    display: inline-flex;
+    flex: 0 0 30px;
+    font-size: 14px;
+    height: 30px;
+    justify-content: center;
+    width: 30px;
+}
+
+.wof_stage2_size_desc {
+    color: #4c5961;
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin: 9px 0 6px;
+    min-height: 20px;
+    text-align: start;
+}
+
+.wof_stage2_footer {
+    gap: 12px;
+}
+
+.wof_stage2_prev_wrap {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    gap: 12px;
+    min-width: 0;
+}
+
+.wof_stage2_prev_wrap p {
+    color: #5d6870;
+    font-size: 12px;
+    margin: 0;
+}
+
+.wof_stage2_prev {
+    flex: 0 0 auto;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+@media (max-width: 991px) {
+    .wof_stage2_size_field .o_kanban_renderer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
+    .wof_stage2_size_field .o_kanban_renderer {
+        grid-template-columns: 1fr;
+    }
+
+    .wof_stage2_prev_wrap {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .wof_stage2_prev,
+    .wof_stage2_footer .wof_stage1_next {
+        width: 100%;
+    }
+}

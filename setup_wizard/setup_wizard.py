@@ -473,6 +473,11 @@ class WofCompanyProfile(models.Model):
         self.ensure_one()
         return self._wizard_action()
 
+    def action_edit_size(self):
+        """Static-view compatibility proxy; size cards call the child model method."""
+        self.ensure_one()
+        return self._wizard_action()
+
     def action_add_general_activity(self):
         """Open a lightweight dialog; do not create placeholder activity data."""
         self.ensure_one()
@@ -487,16 +492,54 @@ class WofCompanyProfile(models.Model):
         return dialog._dialog_action()
 
     def _ensure_default_sizes(self):
+        """Keep the center-size master draft complete without overwriting user choices.
+
+        Stage 2 uses these lines directly as the official setup draft.  Existing
+        installations may still have the old feminine Arabic labels from the
+        legacy tree view; only those untouched legacy labels are normalized.
+        User-renamed sizes are never overwritten.
+        """
         self.ensure_one()
-        existing = set(self.size_line_ids.mapped('code'))
-        for sequence, code, name in [
-            (10, 'SMALL', 'صغيرة'), (20, 'MEDIUM', 'متوسطة'), (30, 'LARGE', 'كبيرة'),
-        ]:
-            if code not in existing:
+        defaults = [
+            (10, 'SMALL', 'صغير', {'صغيرة'}),
+            (20, 'MEDIUM', 'متوسط', {'متوسطة'}),
+            (30, 'LARGE', 'كبير', {'كبيرة'}),
+            (40, 'SUV', 'SUV', set()),
+        ]
+        lines_by_code = {line.code: line for line in self.size_line_ids}
+        for sequence, code, name, legacy_names in defaults:
+            line = lines_by_code.get(code)
+            if not line:
                 self.env['wof.setup.size.line'].create({
-                    'profile_id': self.id, 'sequence': sequence,
-                    'code': code, 'name': name, 'selected': True,
+                    'profile_id': self.id,
+                    'sequence': sequence,
+                    'code': code,
+                    'name': name,
+                    'selected': True,
+                    'is_system_default': True,
                 })
+                continue
+            vals = {}
+            if line.name in legacy_names:
+                vals['name'] = name
+            if not line.sequence:
+                vals['sequence'] = sequence
+            if not line.is_system_default and code in {'SMALL', 'MEDIUM', 'LARGE', 'SUV'}:
+                vals['is_system_default'] = True
+            if vals:
+                line.write(vals)
+
+    def action_add_car_size(self):
+        """Open the Stage 2 size dialog without creating placeholder rows."""
+        self.ensure_one()
+        self._ensure_can_configure()
+        self._ensure_default_sizes()
+        dialog = self.env['wof.setup.size.dialog'].create({
+            'mode': 'add',
+            'profile_id': self.id,
+            'name': False,
+        })
+        return dialog._dialog_action()
 
     def _sync_service_drafts(self):
         self.ensure_one()
@@ -539,6 +582,7 @@ class WofCompanyProfile(models.Model):
     def _wizard_action(self):
         self.ensure_one()
         self._ensure_default_activities()
+        self._ensure_default_sizes()
         return {
             'type': 'ir.actions.act_window', 'name': _('مركز تهيئة النظام'),
             'res_model': 'wof.company.profile', 'res_id': self.id,
@@ -1023,6 +1067,7 @@ class WofSetupSizeLine(models.Model):
     selected = fields.Boolean(string="مفعّل", default=True)
     code = fields.Char(string="الكود", required=True)
     name = fields.Char(string="اسم الحجم", required=True)
+    is_system_default = fields.Boolean(string="حجم افتراضي", default=False, readonly=True)
 
     _sql_constraints = [
         ('setup_size_code_profile_unique', 'unique(profile_id, code)',
@@ -1064,6 +1109,17 @@ class WofSetupSizeLine(models.Model):
                     'كود الحجم يقبل الأحرف الإنجليزية الكبيرة والأرقام '
                     'والشرطة والنقطة والشرطة السفلية فقط.'
                 )
+
+    def action_edit_size(self):
+        self.ensure_one()
+        self.profile_id._ensure_can_configure()
+        dialog = self.env['wof.setup.size.dialog'].create({
+            'mode': 'edit',
+            'profile_id': self.profile_id.id,
+            'size_line_id': self.id,
+            'name': self.name,
+        })
+        return dialog._dialog_action()
 
 
 class WofSetupServiceLine(models.Model):

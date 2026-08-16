@@ -60,12 +60,51 @@
         </field>
     </record>
 
+    <record id="view_wof_setup_size_dialog_form" model="ir.ui.view">
+        <field name="name">wof.setup.size.dialog.form</field>
+        <field name="model">wof.setup.size.dialog</field>
+        <field name="arch" type="xml">
+            <form string="حجم السيارة" create="0" delete="0" class="wof_activity_dialog_form wof_size_dialog_form">
+                <sheet>
+                    <field name="mode" invisible="1"/>
+                    <field name="profile_id" invisible="1"/>
+                    <field name="size_line_id" invisible="1"/>
+                    <div class="wof_activity_dialog_body" dir="rtl">
+                        <div class="wof_activity_dialog_heading" invisible="mode != 'edit'">
+                            <h3>تعديل حجم السيارة</h3>
+                            <p>غيّر الاسم الظاهر للحجم، وسيبقى الكود الداخلي ثابتًا لحماية الأسعار والبيانات المرتبطة.</p>
+                        </div>
+                        <div class="wof_activity_dialog_heading" invisible="mode != 'add'">
+                            <h3>إضافة حجم سيارة جديد</h3>
+                            <p>أدخل اسمًا واضحًا للحجم الذي تتعامل معه المنشأة.</p>
+                        </div>
+                        <div class="wof_activity_dialog_fields">
+                            <div class="wof_activity_name_label" invisible="mode != 'add'">
+                                <strong>اسم حجم السيارة الجديد</strong>
+                                <small>مثال: بيك أب، فاخر، اقتصادي. سيظهر هذا الاسم لاحقًا في التسعير والخدمات.</small>
+                            </div>
+                            <div class="wof_activity_name_label" invisible="mode != 'edit'">
+                                <strong>اسم حجم السيارة</strong>
+                                <small>عدّل الاسم الظاهر فقط بدون تغيير هوية الحجم الداخلية.</small>
+                            </div>
+                            <field name="name" class="wof_activity_name_input" placeholder="اكتب اسم حجم السيارة..." required="1" nolabel="1"/>
+                        </div>
+                    </div>
+                </sheet>
+                <footer class="wof_activity_dialog_footer">
+                    <button name="action_confirm" type="object" string="حفظ" class="btn-primary"/>
+                    <button name="action_cancel" type="object" string="إلغاء" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <record id="view_wof_setup_wizard_form" model="ir.ui.view">
         <field name="name">wof.company.profile.setup.wizard.form</field>
         <field name="model">wof.company.profile</field>
         <field name="arch" type="xml">
             <form string="التهيئة الأولى" create="0" delete="0" class="wof_setup_form">
-                <header invisible="current_step == 'activity'">
+                <header invisible="current_step in ['activity', 'sizes']">
                     <button name="action_previous" type="object" string="السابق"
                             class="btn-secondary" invisible="current_step == 'activity'"/>
                     <button name="action_save" type="object" string="حفظ والمتابعة لاحقًا"
@@ -82,7 +121,7 @@
                     <field name="current_step" invisible="1"/>
                     <field name="readiness_ok" invisible="1"/>
 
-                    <div invisible="current_step == 'activity'">
+                    <div invisible="current_step in ['activity', 'sizes']">
                     <div class="wof_setup_hero">
                         <div>
                             <span class="wof_setup_badge">إعداد ذاتي</span>
@@ -205,19 +244,105 @@
                         </div>
                     </div>
 
-                    <div invisible="current_step != 'sizes'">
-                        <div class="wof_setup_section_title">
-                            <h2>أحجام السيارات</h2>
-                            <p>جهزنا ثلاثة أحجام مناسبة كبداية. غيّر الاسم أو أضف حجمًا عند الحاجة.</p>
+                    <div invisible="current_step != 'sizes'" class="wof_stage1_shell wof_stage2_shell" dir="rtl">
+                        <div class="wof_stage1_intro_panel">
+                            <div class="wof_stage1_header">
+                                <h1>مركز تهيئة النظام</h1>
+                                <p>سنقوم بتهيئة النظام معك خطوة بخطوة ويمكن تعديل الإعدادات لاحقًا</p>
+                            </div>
+                            <div class="wof_stage1_stepper" aria-label="خطوات التهيئة">
+                                <div class="wof_stage1_step is-complete">
+                                    <span class="wof_stage1_step_no"><i class="fa fa-check" title="مكتمل"/></span>
+                                    <strong>الأنشطة</strong>
+                                </div>
+                                <div class="wof_stage1_connector is-current"></div>
+                                <div class="wof_stage1_step is-current">
+                                    <span class="wof_stage1_step_no">2</span>
+                                    <strong>أحجام السيارات</strong>
+                                    <small>الخطوة 2 من 5</small>
+                                </div>
+                                <div class="wof_stage1_connector"></div>
+                                <div class="wof_stage1_step">
+                                    <span class="wof_stage1_step_no">3</span>
+                                    <strong>درجات اللون</strong>
+                                </div>
+                                <div class="wof_stage1_connector"></div>
+                                <div class="wof_stage1_step">
+                                    <span class="wof_stage1_step_no">4</span>
+                                    <strong>التشغيل</strong>
+                                </div>
+                                <div class="wof_stage1_connector"></div>
+                                <div class="wof_stage1_step">
+                                    <span class="wof_stage1_step_no">5</span>
+                                    <strong>المراجعة والتفعيل</strong>
+                                </div>
+                            </div>
                         </div>
-                        <field name="size_line_ids" nolabel="1">
-                            <tree editable="bottom" delete="0">
-                                <field name="sequence" widget="handle"/>
-                                <field name="selected"/>
-                                <field name="name"/>
-                                <field name="code"/>
-                            </tree>
-                        </field>
+
+                        <div class="wof_stage1_body_panel">
+                            <div class="wof_stage1_content">
+                                <div class="wof_stage1_title_row wof_stage2_title_row">
+                                    <div class="wof_stage1_title">
+                                        <h2>حدد أحجام السيارات التي تتعامل معها المنشأة</h2>
+                                        <p>فعّل الأحجام المستخدمة في المركز. ستُستخدم افتراضيًا عند إعداد الأفلام والخدمات ويمكن تخصيصها لاحقًا لكل فيلم أو خدمة.</p>
+                                    </div>
+                                    <button name="action_add_car_size" type="object" class="btn wof_stage1_add_activity">
+                                        <i class="fa fa-plus" title="إضافة"/> إضافة حجم سيارة
+                                    </button>
+                                </div>
+
+                                <field name="size_line_ids" nolabel="1" mode="kanban" class="wof_stage2_size_field">
+                                    <kanban create="0" delete="0" class="wof_stage2_size_kanban">
+                                        <field name="sequence"/>
+                                        <field name="selected"/>
+                                        <field name="name"/>
+                                        <field name="code"/>
+                                        <field name="is_system_default"/>
+                                        <templates>
+                                            <t t-name="kanban-box">
+                                                <div t-attf-class="wof_stage2_size_card #{record.selected.raw_value ? 'is-enabled' : 'is-disabled'}">
+                                                    <div class="wof_stage2_size_top">
+                                                        <div class="wof_stage2_size_identity">
+                                                            <span class="wof_stage2_size_icon"><i class="fa fa-car" title="حجم سيارة"/></span>
+                                                            <strong><field name="name"/></strong>
+                                                            <button name="action_edit_size" type="object" class="wof_stage1_edit_btn" title="تعديل اسم الحجم" aria-label="تعديل اسم الحجم">
+                                                                <i class="fa fa-pencil" title="تعديل"/>
+                                                            </button>
+                                                        </div>
+                                                        <div class="wof_stage1_toggle">
+                                                            <field name="selected" widget="boolean_toggle" nolabel="1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="wof_stage2_size_desc">
+                                                        <span t-if="record.code.raw_value == 'SMALL'">سيارات صغيرة</span>
+                                                        <span t-elif="record.code.raw_value == 'MEDIUM'">سيارات متوسطة</span>
+                                                        <span t-elif="record.code.raw_value == 'LARGE'">سيارات كبيرة</span>
+                                                        <span t-elif="record.code.raw_value == 'SUV'">دفع رباعي وكروس أوفر</span>
+                                                        <span t-else="">حجم مخصص للمنشأة</span>
+                                                    </div>
+                                                    <div class="wof_stage1_activity_meta">
+                                                        <span t-if="record.selected.raw_value" class="wof_stage1_status is-on"><i class="fa fa-check-circle" title="مفعّل"/> مفعّل</span>
+                                                        <span t-else="" class="wof_stage1_status is-off"><i class="fa fa-circle" title="غير مفعّل"/> غير مفعّل</span>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
+                            </div>
+
+                            <div class="wof_stage1_footer wof_stage2_footer">
+                                <div class="wof_stage2_prev_wrap">
+                                    <button name="action_previous" type="object" class="btn btn-secondary wof_stage2_prev">
+                                        <i class="fa fa-arrow-right" title="السابق"/> السابق: الأنشطة
+                                    </button>
+                                    <p>يمكن تعديل أحجام السيارات لاحقًا من مركز التهيئة.</p>
+                                </div>
+                                <button name="action_next" type="object" class="btn btn-primary wof_stage1_next">
+                                    التالي: درجات اللون <i class="fa fa-arrow-left" title="التالي"/>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div invisible="current_step != 'services'">
