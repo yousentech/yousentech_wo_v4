@@ -37,6 +37,11 @@ ACTIVITY_FIELDS = {
 TECHNICAL_CODE_RE = re.compile(r'^[A-Z0-9][A-Z0-9._-]*$')
 SETUP_TRANSITION_TOKEN = object()
 
+SETUP_ACTIVITY_TYPES = [
+    ('tint', 'عزل حراري'),
+    ('general', 'نشاط عام'),
+]
+
 
 def _utc_iso(value):
     if not value:
@@ -127,13 +132,18 @@ class WofCompanyProfile(models.Model):
     setup_version = fields.Char(default='17.0.4', readonly=True)
     completed_at = fields.Datetime(readonly=True, copy=False)
 
+    # Legacy activity flags are intentionally kept for backward compatibility.
+    # The onboarding UI now uses activity_line_ids as the source of truth.
     activity_tint = fields.Boolean(string="العزل الحراري", default=True)
-    activity_ppf = fields.Boolean(string="حماية PPF", default=True)
-    activity_nano = fields.Boolean(string="نانو سيراميك", default=True)
-    activity_upholstery = fields.Boolean(string="التنجيد", default=True)
-    activity_floor_mats = fields.Boolean(string="الأرضيات", default=True)
-    activity_others = fields.Boolean(string="خدمات أخرى")
+    activity_ppf = fields.Boolean(string="حماية PPF", default=False)
+    activity_nano = fields.Boolean(string="نانو سيراميك", default=False)
+    activity_upholstery = fields.Boolean(string="التنجيد", default=False)
+    activity_floor_mats = fields.Boolean(string="الأرضيات", default=False)
+    activity_others = fields.Boolean(string="خدمات أخرى", default=False)
 
+    activity_line_ids = fields.One2many(
+        'wof.setup.activity.line', 'profile_id', string="أنشطة المنشأة", copy=True,
+    )
     size_line_ids = fields.One2many(
         'wof.setup.size.line', 'profile_id', string="أحجام السيارات", copy=True,
     )
@@ -203,13 +213,14 @@ class WofCompanyProfile(models.Model):
             })
         records = super().create(vals_list)
         for record in records:
+            record._ensure_default_activities()
             record._ensure_default_sizes()
         return records
 
     def write(self, vals):
         tracked = {
             *ACTIVITY_FIELDS.values(),
-            'size_line_ids', 'service_line_ids',
+            'activity_line_ids', 'size_line_ids', 'service_line_ids',
             'payment_policy', 'discount_scope', 'commission_event',
             'required_vehicle_data', 'use_inventory', 'use_appointments',
             'advanced_pricing', 'advanced_commission',
@@ -262,6 +273,7 @@ class WofCompanyProfile(models.Model):
                 ], limit=1)
                 if not profile:
                     raise
+        profile._ensure_default_activities()
         return profile
 
     @api.model
@@ -297,6 +309,7 @@ class WofCompanyProfile(models.Model):
             record.progress = 100 if record.state == 'ready' else values[record.current_step]
 
     @api.depends(
+        'activity_line_ids.selected', 'activity_line_ids.name',
         'activity_tint', 'activity_ppf', 'activity_nano',
         'activity_upholstery', 'activity_floor_mats', 'activity_others',
         'size_line_ids.selected', 'service_line_ids.enabled',
@@ -392,8 +405,86 @@ class WofCompanyProfile(models.Model):
             )
 
     def _selected_activity_keys(self):
+        """Compatibility bridge while the remaining setup stages are being redesigned.
+
+        The new activity model has only two internal behaviors: heat insulation
+        and general activity. Legacy setup templates still understand ``tint``
+        and ``others``; this bridge keeps later, not-yet-redesigned stages safe
+        without exposing the old activity taxonomy in Stage 1.
+        """
         self.ensure_one()
-        return [key for key, field_name in ACTIVITY_FIELDS.items() if self[field_name]]
+        self._ensure_default_activities()
+        selected = self.activity_line_ids.filtered('selected')
+        keys = []
+        if selected.filtered(lambda line: line.activity_type == 'tint'):
+            keys.append('tint')
+        if selected.filtered(lambda line: line.activity_type == 'general'):
+            keys.append('others')
+        return keys
+
+    def _ensure_default_activities(self):
+        self.ensure_one()
+        existing_types = set(self.activity_line_ids.filtered('is_system_default').mapped('activity_type'))
+        legacy_general_enabled = any([
+            self.activity_ppf, self.activity_nano, self.activity_upholstery,
+            self.activity_floor_mats, self.activity_others,
+        ])
+        defaults = [
+            {
+                'sequence': 10, 'activity_type': 'tint',
+                'name': 'عزل حراري', 'selected': bool(self.activity_tint),
+                'description': 'نشاط متخصص في أفلام العزل الحراري ودرجات اللون.',
+            },
+            {
+                'sequence': 20, 'activity_type': 'general',
+                'name': 'نشاط عام', 'selected': bool(legacy_general_enabled),
+                'description': 'للـ PPF، النانو سيراميك، التلميع، الحماية والخدمات الأخرى.',
+            },
+        ]
+        for vals in defaults:
+            existing = self.activity_line_ids.filtered(
+                lambda line: line.is_system_default and line.activity_type == vals['activity_type']
+            )[:1]
+            if not existing:
+                self.env['wof.setup.activity.line'].create({
+                    **vals, 'profile_id': self.id, 'is_system_default': True,
+                })
+            elif not existing.description:
+                existing.write({'description': vals['description']})
+
+    def _sync_legacy_activity_flags(self):
+        """Keep the old flags coherent while later setup stages are migrated."""
+        self.ensure_one()
+        selected = self.activity_line_ids.filtered('selected')
+        vals = {
+            'activity_tint': bool(selected.filtered(lambda line: line.activity_type == 'tint')),
+            'activity_others': bool(selected.filtered(lambda line: line.activity_type == 'general')),
+            'activity_ppf': False,
+            'activity_nano': False,
+            'activity_upholstery': False,
+            'activity_floor_mats': False,
+        }
+        changed = {key: value for key, value in vals.items() if self[key] != value}
+        if changed:
+            self.write(changed)
+
+    def action_edit_name(self):
+        """Static-view compatibility proxy; activity cards call the child model method."""
+        self.ensure_one()
+        return self._wizard_action()
+
+    def action_add_general_activity(self):
+        """Open a lightweight dialog; do not create placeholder activity data."""
+        self.ensure_one()
+        self._ensure_can_configure()
+        self._ensure_default_activities()
+        dialog = self.env['wof.setup.activity.dialog'].create({
+            'mode': 'add',
+            'profile_id': self.id,
+            'name': False,
+            'description': False,
+        })
+        return dialog._dialog_action()
 
     def _ensure_default_sizes(self):
         self.ensure_one()
@@ -447,12 +538,13 @@ class WofCompanyProfile(models.Model):
 
     def _wizard_action(self):
         self.ensure_one()
+        self._ensure_default_activities()
         return {
-            'type': 'ir.actions.act_window', 'name': _('التهيئة الأولى'),
+            'type': 'ir.actions.act_window', 'name': _('مركز تهيئة النظام'),
             'res_model': 'wof.company.profile', 'res_id': self.id,
             'view_mode': 'form',
             'view_id': self.env.ref('yousentech_wo_v4.view_wof_setup_wizard_form').id,
-            'target': 'current',
+            'target': 'new',
         }
 
     def action_start(self):
@@ -487,11 +579,14 @@ class WofCompanyProfile(models.Model):
         if self.current_step == 'activity':
             if not self._selected_activity_keys():
                 raise ValidationError(_('اختر نشاطًا واحدًا على الأقل قبل المتابعة.'))
-            self._sync_service_drafts()
+            # Stage 1 only chooses center activities. It must not create films,
+            # services, components, prices or commissions.
             next_step = 'sizes'
         elif self.current_step == 'sizes':
             if not self.size_line_ids.filtered('selected'):
                 raise ValidationError(_('فعّل حجم سيارة واحدًا على الأقل قبل المتابعة.'))
+            # Compatibility until Stage 3 is redesigned.
+            self._sync_service_drafts()
             next_step = 'services'
         elif self.current_step == 'services':
             if not self.service_line_ids.filtered('enabled'):
@@ -823,6 +918,96 @@ class WofCompanyProfile(models.Model):
             'yousentech_wo_v4.action_film_parts_commission_lines',
             [('company_id', '=', self.company_id.id)],
         )
+
+
+class WofSetupActivityLine(models.Model):
+    _name = 'wof.setup.activity.line'
+    _description = 'نشاط المنشأة في مركز التهيئة'
+    _order = 'sequence, id'
+
+    sequence = fields.Integer(default=10)
+    profile_id = fields.Many2one(
+        'wof.company.profile', required=True, ondelete='cascade', index=True,
+    )
+    company_id = fields.Many2one(
+        related='profile_id.company_id', store=True, index=True, readonly=True,
+    )
+    activity_type = fields.Selection(
+        SETUP_ACTIVITY_TYPES, string='نوع النشاط الداخلي',
+        required=True, default='general', readonly=True,
+    )
+    name = fields.Char(string='اسم النشاط', required=True)
+    description = fields.Text(string='ملاحظات')
+    selected = fields.Boolean(string='تفعيل النشاط', default=False)
+    is_system_default = fields.Boolean(default=False, readonly=True, copy=False)
+
+    _sql_constraints = [
+        ('setup_activity_name_profile_unique', 'unique(profile_id, name)',
+         'اسم النشاط مستخدم مسبقًا في مركز التهيئة.'),
+    ]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            profile = self.env['wof.company.profile'].browse(vals.get('profile_id')).exists()
+            if not profile:
+                raise ValidationError(_('يجب ربط النشاط بملف تهيئة صحيح.'))
+            profile._ensure_can_configure()
+            vals['name'] = (vals.get('name') or '').strip()
+            if not vals['name']:
+                raise ValidationError(_('اسم النشاط مطلوب.'))
+        records = super().create(vals_list)
+        for profile in records.mapped('profile_id'):
+            if not self.env.context.get('skip_activity_legacy_sync'):
+                profile.with_context(skip_activity_legacy_sync=True)._sync_legacy_activity_flags()
+        return records
+
+    def write(self, vals):
+        self.mapped('profile_id')._ensure_can_configure()
+        if 'activity_type' in vals and any(
+            record.activity_type != vals['activity_type'] for record in self
+        ):
+            raise ValidationError(_(
+                'نوع النشاط الداخلي ثابت. يمكنك تغيير اسم النشاط فقط.'
+            ))
+        if 'profile_id' in vals and any(
+            record.profile_id.id != vals['profile_id'] for record in self
+        ):
+            raise ValidationError(_('لا يمكن نقل النشاط إلى ملف تهيئة آخر.'))
+        if 'name' in vals:
+            vals['name'] = (vals['name'] or '').strip()
+            if not vals['name']:
+                raise ValidationError(_('اسم النشاط مطلوب.'))
+        result = super().write(vals)
+        if {'selected', 'activity_type'}.intersection(vals) and not self.env.context.get('skip_activity_legacy_sync'):
+            for profile in self.mapped('profile_id'):
+                profile.with_context(skip_activity_legacy_sync=True)._sync_legacy_activity_flags()
+        return result
+
+    def unlink(self):
+        if self.filtered('is_system_default'):
+            raise ValidationError(_(
+                'لا يمكن حذف النشاطات الأساسية. يمكنك إلغاء تفعيلها.'
+            ))
+        profiles = self.mapped('profile_id')
+        profiles._ensure_can_configure()
+        result = super().unlink()
+        if not self.env.context.get('skip_activity_legacy_sync'):
+            for profile in profiles:
+                profile.with_context(skip_activity_legacy_sync=True)._sync_legacy_activity_flags()
+        return result
+
+    def action_edit_name(self):
+        self.ensure_one()
+        self.profile_id._ensure_can_configure()
+        dialog = self.env['wof.setup.activity.dialog'].create({
+            'mode': 'edit',
+            'profile_id': self.profile_id.id,
+            'activity_line_id': self.id,
+            'name': self.name,
+            'description': self.description or False,
+        })
+        return dialog._dialog_action()
 
 
 class WofSetupSizeLine(models.Model):

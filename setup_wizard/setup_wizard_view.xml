@@ -1,11 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <record id="view_wof_setup_activity_name_form" model="ir.ui.view">
+        <field name="name">wof.setup.activity.line.name.form</field>
+        <field name="model">wof.setup.activity.line</field>
+        <field name="arch" type="xml">
+            <form string="تعديل اسم النشاط" create="0" delete="0" class="wof_activity_name_dialog">
+                <sheet>
+                    <div class="wof_activity_name_edit" dir="rtl">
+                        <h3>تعديل اسم النشاط</h3>
+                        <p class="text-muted">يمكن تغيير الاسم الظاهر فقط، بينما يبقى نوع النشاط الداخلي ثابتًا.</p>
+                        <group>
+                            <field name="name" string="اسم النشاط"/>
+                            <field name="activity_type" string="نوع النشاط" readonly="1"/>
+                        </group>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wof_setup_activity_dialog_form" model="ir.ui.view">
+        <field name="name">wof.setup.activity.dialog.form</field>
+        <field name="model">wof.setup.activity.dialog</field>
+        <field name="arch" type="xml">
+            <form string="النشاط" create="0" delete="0" class="wof_activity_dialog_form">
+                <sheet>
+                    <field name="mode" invisible="1"/>
+                    <field name="profile_id" invisible="1"/>
+                    <field name="activity_line_id" invisible="1"/>
+                    <div class="wof_activity_dialog_body" dir="rtl">
+                        <div invisible="mode != 'edit'">
+                            <h3>تعديل النشاط</h3>
+                            <p class="text-muted">عدّل الاسم أو الملاحظات، وسيبقى سلوك النشاط الداخلي كما هو.</p>
+                        </div>
+                        <div invisible="mode != 'add'">
+                            <h3>إضافة نشاط جديد</h3>
+                            <p class="text-muted">أدخل اسم النشاط، ويمكنك إضافة ملاحظات اختيارية. لن يضيف النظام وصفًا تلقائيًا.</p>
+                        </div>
+                        <div class="wof_activity_dialog_fields">
+                            <label for="name" string="اسم النشاط"/>
+                            <field name="name" placeholder="مثال: حماية PPF" required="1"/>
+                            <label for="description" string="ملاحظات"/>
+                            <field name="description" placeholder="ملاحظات اختيارية..."/>
+                        </div>
+                    </div>
+                </sheet>
+                <footer class="wof_activity_dialog_footer">
+                    <button name="action_confirm" type="object" string="حفظ" class="btn-primary"/>
+                    <button string="إلغاء" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <record id="view_wof_setup_wizard_form" model="ir.ui.view">
         <field name="name">wof.company.profile.setup.wizard.form</field>
         <field name="model">wof.company.profile</field>
         <field name="arch" type="xml">
             <form string="التهيئة الأولى" create="0" delete="0" class="wof_setup_form">
-                <header>
+                <header invisible="current_step == 'activity'">
                     <button name="action_previous" type="object" string="السابق"
                             class="btn-secondary" invisible="current_step == 'activity'"/>
                     <button name="action_save" type="object" string="حفظ والمتابعة لاحقًا"
@@ -22,6 +75,7 @@
                     <field name="current_step" invisible="1"/>
                     <field name="readiness_ok" invisible="1"/>
 
+                    <div invisible="current_step == 'activity'">
                     <div class="wof_setup_hero">
                         <div>
                             <span class="wof_setup_badge">إعداد ذاتي</span>
@@ -47,37 +101,97 @@
                         <span class="wof_setup_step active" invisible="current_step != 'review'">٥. المراجعة</span>
                     </div>
 
-                    <div invisible="current_step != 'activity'">
-                        <div class="wof_setup_section_title">
-                            <h2>ما أنشطة المركز؟</h2>
-                            <p>جهزنا الأنشطة الشائعة. عطّل ما لا يقدمه المركز، ويمكنك إضافة نشاط مخصص لاحقًا.</p>
+                    </div>
+
+                    <div invisible="current_step != 'activity'" class="wof_stage1_shell" dir="rtl">
+                        <div class="wof_stage1_header">
+                            <h1>مركز تهيئة النظام</h1>
+                            <p>سنقوم بتهيئة النظام معك خطوة بخطوة ويمكن تعديل الإعدادات لاحقًا</p>
                         </div>
-                        <group col="3" class="wof_setup_cards">
-                            <group string="العزل الحراري">
-                                <field name="activity_tint" widget="boolean_toggle" nolabel="1"/>
-                                <div class="text-muted">الزجاج الأمامي والجانبي والخلفي</div>
-                            </group>
-                            <group string="حماية PPF">
-                                <field name="activity_ppf" widget="boolean_toggle" nolabel="1"/>
-                                <div class="text-muted">الصدام وغطاء المحرك والمرايا</div>
-                            </group>
-                            <group string="نانو سيراميك">
-                                <field name="activity_nano" widget="boolean_toggle" nolabel="1"/>
-                                <div class="text-muted">حماية الهيكل الخارجي</div>
-                            </group>
-                            <group string="التنجيد">
-                                <field name="activity_upholstery" widget="boolean_toggle" nolabel="1"/>
-                                <div class="text-muted">المقاعد والخامات الداخلية</div>
-                            </group>
-                            <group string="الأرضيات">
-                                <field name="activity_floor_mats" widget="boolean_toggle" nolabel="1"/>
-                                <div class="text-muted">أرضيات كاملة ومخصصة</div>
-                            </group>
-                            <group string="خدمات أخرى">
-                                <field name="activity_others" widget="boolean_toggle" nolabel="1"/>
-                                <div class="text-muted">قالب عام قابل لإعادة التسمية</div>
-                            </group>
-                        </group>
+
+                        <div class="wof_stage1_stepper" aria-label="خطوات التهيئة">
+                            <div class="wof_stage1_step is-current">
+                                <span class="wof_stage1_step_no">1</span>
+                                <strong>الأنشطة</strong>
+                                <small>الخطوة 1 من 5</small>
+                            </div>
+                            <div class="wof_stage1_connector is-current"></div>
+                            <div class="wof_stage1_step">
+                                <span class="wof_stage1_step_no">2</span>
+                                <strong>أحجام السيارات</strong>
+                            </div>
+                            <div class="wof_stage1_connector"></div>
+                            <div class="wof_stage1_step">
+                                <span class="wof_stage1_step_no">3</span>
+                                <strong>درجات اللون</strong>
+                            </div>
+                            <div class="wof_stage1_connector"></div>
+                            <div class="wof_stage1_step">
+                                <span class="wof_stage1_step_no">4</span>
+                                <strong>التشغيل</strong>
+                            </div>
+                            <div class="wof_stage1_connector"></div>
+                            <div class="wof_stage1_step">
+                                <span class="wof_stage1_step_no">5</span>
+                                <strong>المراجعة والتفعيل</strong>
+                            </div>
+                        </div>
+
+                        <div class="wof_stage1_content">
+                            <div class="wof_stage1_title">
+                                <h2>اختر الأنشطة التي تعمل بها المنشأة</h2>
+                                <p>فعّل الأنشطة التي تريد استخدامها في النظام. يمكنك تفعيل نشاط واحد أو أكثر.</p>
+                            </div>
+
+                            <field name="activity_line_ids" nolabel="1" mode="kanban" class="wof_stage1_activity_field">
+                                <kanban create="0" delete="0" class="wof_stage1_activity_kanban">
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                    <field name="selected"/>
+                                    <field name="activity_type"/>
+                                    <field name="is_system_default"/>
+                                    <templates>
+                                        <t t-name="kanban-box">
+                                            <div t-attf-class="wof_stage1_activity_card #{record.selected.raw_value ? 'is-enabled' : 'is-disabled'}">
+                                                <div class="wof_stage1_activity_top">
+                                                    <div class="wof_stage1_activity_identity">
+                                                        <span t-if="record.activity_type.raw_value == 'tint'" class="wof_stage1_activity_icon">♨</span>
+                                                        <span t-else="" class="wof_stage1_activity_icon">◇</span>
+                                                        <strong><field name="name"/></strong>
+                                                        <button name="action_edit_name" type="object" class="wof_stage1_edit_btn" title="تعديل اسم النشاط" aria-label="تعديل اسم النشاط">
+                                                            <i class="fa fa-pencil" title="تعديل"/>
+                                                        </button>
+                                                    </div>
+                                                    <div class="wof_stage1_toggle">
+                                                        <field name="selected" widget="boolean_toggle" nolabel="1"/>
+                                                    </div>
+                                                </div>
+                                                <p t-if="record.description.raw_value" class="wof_stage1_activity_desc"><field name="description"/></p>
+                                                <div t-else="" class="wof_stage1_activity_desc is-empty"></div>
+                                                <div class="wof_stage1_activity_meta">
+                                                    <span t-if="record.selected.raw_value" class="wof_stage1_status is-on"><i class="fa fa-check-circle" title="مفعّل"/> مفعّل</span>
+                                                    <span t-else="" class="wof_stage1_status is-off"><i class="fa fa-circle" title="غير مفعّل"/> غير مفعّل</span>
+                                                    <span t-if="record.activity_type.raw_value == 'tint'" class="wof_stage1_hint">يدعم درجات اللون</span>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+
+                            <div class="wof_stage1_add_wrap">
+                                <button name="action_add_general_activity" type="object" class="btn btn-link wof_stage1_add_activity">
+                                    <i class="fa fa-plus" title="إضافة"/> إضافة نشاط
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="wof_stage1_footer">
+                            <p>يمكن تعديل الأنشطة لاحقًا من مركز التهيئة.</p>
+                            <button name="action_next" type="object" class="btn btn-primary wof_stage1_next">
+                                التالي: أحجام السيارات <i class="fa fa-arrow-right" title="التالي"/>
+                            </button>
+                        </div>
                     </div>
 
                     <div invisible="current_step != 'sizes'">
@@ -254,10 +368,10 @@
     </record>
 
     <record id="action_wof_setup_wizard" model="ir.actions.act_window">
-        <field name="name">التهيئة الأولى</field>
+        <field name="name">مركز تهيئة النظام</field>
         <field name="res_model">wof.company.profile</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_wof_setup_wizard_form"/>
-        <field name="target">current</field>
+        <field name="target">new</field>
     </record>
 </odoo>

@@ -3,6 +3,8 @@ access_company_profile_settings,company.profile.settings,model_wof_company_profi
 access_company_profile_manager,company.profile.manager,model_wof_company_profile,yousentech_wo_v4.group_wo_manager,1,0,0,0
 access_company_profile_employee,company.profile.employee,model_wof_company_profile,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_setup_size_line_settings,setup.size.line.settings,model_wof_setup_size_line,yousentech_wo_v4.group_wo_settings,1,1,1,0
+access_setup_activity_line_settings,setup.activity.line.settings,model_wof_setup_activity_line,yousentech_wo_v4.group_wo_settings,1,1,1,1
+access_setup_activity_dialog_settings,setup.activity.dialog.settings,model_wof_setup_activity_dialog,yousentech_wo_v4.group_wo_settings,1,1,1,1
 access_setup_service_line_settings,setup.service.line.settings,model_wof_setup_service_line,yousentech_wo_v4.group_wo_settings,1,1,1,0
 access_setup_template_settings,setup.template.settings,model_wof_setup_template,yousentech_wo_v4.group_wo_settings,1,0,0,0
 access_setup_template_part_settings,setup.template.part.settings,model_wof_setup_template_part,yousentech_wo_v4.group_wo_settings,1,0,0,0
