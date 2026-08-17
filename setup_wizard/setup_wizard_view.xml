@@ -564,24 +564,42 @@
                                     <page string="الضريبة والتسعير" name="tax_pricing">
                                         <div class="wof_stage4_tab_panel wof_stage4_tab_card">
                                             <div class="wof_stage4_card_head compact">
-                                                <div><h3>الضريبة والتسعير</h3><p>سياسة موحدة تُستخدم تلقائيًا عند إعداد أسعار الأفلام والخدمات والمكونات.</p></div>
+                                                <div><h3>الضريبة والتسعير</h3><p>كل سياسة في كارد مستقل حتى تكون الخيارات واضحة وسهلة القراءة.</p></div>
                                                 <span class="wof_stage4_card_icon"><i class="fa fa-percent" title="الضريبة والتسعير"/></span>
                                             </div>
-                                            <div class="wof_stage4_setting_row">
-                                                <span class="o_form_label">تطبيق الضريبة</span>
-                                                <field name="operation_tax_enabled" widget="boolean_toggle" nolabel="1"/>
-                                            </div>
-                                            <div class="wof_stage4_setting_block" invisible="not operation_tax_enabled">
-                                                <span class="o_form_label">الضريبة الافتراضية</span>
-                                                <field name="operation_tax_id" nolabel="1" options="{'no_create': True, 'no_create_edit': True}"/>
-                                            </div>
-                                            <div class="wof_stage4_radio_block" invisible="not operation_tax_enabled">
-                                                <span class="o_form_label">طريقة إدخال السعر</span>
-                                                <field name="operation_price_input_mode" widget="radio" nolabel="1"/>
-                                            </div>
-                                            <div class="wof_stage4_radio_block">
-                                                <span class="o_form_label">سياسة التسعير الافتراضية</span>
-                                                <field name="operation_pricing_policy" widget="radio" nolabel="1"/>
+                                            <div class="wof_stage4_cards_grid three">
+                                                <div class="wof_stage4_feature_card">
+                                                    <div class="wof_stage4_feature_title">
+                                                        <div><h4>سياسة الضريبة</h4><p>فعّل الضريبة وحدد ضريبة المبيعات الافتراضية.</p></div>
+                                                        <span class="wof_stage4_mini_icon"><i class="fa fa-percent" title="سياسة الضريبة"/></span>
+                                                    </div>
+                                                    <div class="wof_stage4_setting_row compact-row">
+                                                        <span class="o_form_label">تطبيق الضريبة</span>
+                                                        <field name="operation_tax_enabled" widget="boolean_toggle" nolabel="1"/>
+                                                    </div>
+                                                    <div class="wof_stage4_setting_block compact-block" invisible="not operation_tax_enabled">
+                                                        <span class="o_form_label">الضريبة الافتراضية</span>
+                                                        <field name="operation_tax_id" nolabel="1" options="{'no_create': True, 'no_create_edit': True}"/>
+                                                    </div>
+                                                </div>
+                                                <div class="wof_stage4_feature_card" invisible="not operation_tax_enabled">
+                                                    <div class="wof_stage4_feature_title">
+                                                        <div><h4>طريقة إدخال السعر</h4><p>حدد هل السعر الذي تدخله شامل الضريبة أو قبلها.</p></div>
+                                                        <span class="wof_stage4_mini_icon"><i class="fa fa-calculator" title="طريقة إدخال السعر"/></span>
+                                                    </div>
+                                                    <div class="wof_stage4_radio_block wof_stage4_radio_cards">
+                                                        <field name="operation_price_input_mode" widget="radio" nolabel="1"/>
+                                                    </div>
+                                                </div>
+                                                <div class="wof_stage4_feature_card">
+                                                    <div class="wof_stage4_feature_title">
+                                                        <div><h4>سياسة التسعير الافتراضية</h4><p>السعر موحد أو يتغير حسب حجم السيارة.</p></div>
+                                                        <span class="wof_stage4_mini_icon"><i class="fa fa-tags" title="سياسة التسعير"/></span>
+                                                    </div>
+                                                    <div class="wof_stage4_radio_block wof_stage4_radio_cards">
+                                                        <field name="operation_pricing_policy" widget="radio" nolabel="1"/>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </page>
@@ -589,20 +607,34 @@
                                     <page string="الفوترة" name="invoicing">
                                         <div class="wof_stage4_tab_panel wof_stage4_tab_card">
                                             <div class="wof_stage4_card_head compact">
-                                                <div><h3>الفوترة</h3><p>حدد سلوك إنشاء الفاتورة عند اعتماد أمر التركيب.</p></div>
+                                                <div><h3>الفوترة</h3><p>اختر سياسة الفوترة المناسبة، والسياسات المتعارضة لا تعمل معًا.</p></div>
                                                 <span class="wof_stage4_card_icon"><i class="fa fa-file-text-o" title="الفوترة"/></span>
                                             </div>
-                                            <div class="wof_stage4_setting_row">
-                                                <span class="o_form_label">إنشاء فاتورة تلقائيًا عند تأكيد أمر التركيب</span>
-                                                <field name="operation_auto_invoice" widget="boolean_toggle" nolabel="1" readonly="operation_invoice_after_full_payment"/>
-                                            </div>
-                                            <div class="wof_stage4_setting_row">
-                                                <span class="o_form_label">لا يمكن إنشاء الفاتورة إلا بعد اكتمال الدفع</span>
-                                                <field name="operation_invoice_after_full_payment" widget="boolean_toggle" nolabel="1"/>
+                                            <div class="wof_stage4_cards_grid two">
+                                                <div class="wof_stage4_feature_card">
+                                                    <div class="wof_stage4_feature_title">
+                                                        <div><h4>الفاتورة التلقائية</h4><p>إنشاء الفاتورة مباشرة عند تأكيد أمر التركيب.</p></div>
+                                                        <span class="wof_stage4_mini_icon"><i class="fa fa-bolt" title="الفاتورة التلقائية"/></span>
+                                                    </div>
+                                                    <div class="wof_stage4_setting_row compact-row">
+                                                        <span class="o_form_label">إنشاء فاتورة تلقائيًا عند تأكيد أمر التركيب</span>
+                                                        <field name="operation_auto_invoice" widget="boolean_toggle" nolabel="1" readonly="operation_invoice_after_full_payment"/>
+                                                    </div>
+                                                </div>
+                                                <div class="wof_stage4_feature_card">
+                                                    <div class="wof_stage4_feature_title">
+                                                        <div><h4>الفاتورة بعد اكتمال الدفع</h4><p>لا تسمح بإنشاء الفاتورة حتى يصبح الدفع مكتملًا.</p></div>
+                                                        <span class="wof_stage4_mini_icon"><i class="fa fa-credit-card" title="الدفع"/></span>
+                                                    </div>
+                                                    <div class="wof_stage4_setting_row compact-row">
+                                                        <span class="o_form_label">لا يمكن إنشاء الفاتورة إلا بعد اكتمال الدفع</span>
+                                                        <field name="operation_invoice_after_full_payment" widget="boolean_toggle" nolabel="1"/>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="wof_stage4_policy_note" invisible="not operation_invoice_after_full_payment">
                                                 <i class="fa fa-info-circle" title="معلومة"/>
-                                                عند تفعيل هذا الخيار يتم إلغاء الإنشاء التلقائي، وتنتظر الفاتورة اكتمال الدفع.
+                                                تم تعطيل الفاتورة التلقائية لأن إنشاء الفاتورة أصبح مرتبطًا باكتمال الدفع.
                                             </div>
                                         </div>
                                     </page>
@@ -610,20 +642,33 @@
                                     <page string="الفنيون والعمولات" name="technicians">
                                         <div class="wof_stage4_tab_panel wof_stage4_tab_card">
                                             <div class="wof_stage4_card_head compact">
-                                                <div><h3>الفنيون والعمولات</h3><p>حدد طريقة إسناد الفني ووقت اعتماد استحقاق العمولة.</p></div>
+                                                <div><h3>الفنيون والعمولات</h3><p>قسّمنا إعدادات الفني عن سياسة استحقاق العمولة لسهولة القراءة.</p></div>
                                                 <span class="wof_stage4_card_icon"><i class="fa fa-users" title="الفنيون والعمولات"/></span>
                                             </div>
-                                            <div class="wof_stage4_setting_row">
-                                                <span class="o_form_label">السماح بتعدد الفنيين</span>
-                                                <field name="operation_allow_multiple_technicians" widget="boolean_toggle" nolabel="1"/>
-                                            </div>
-                                            <div class="wof_stage4_setting_row">
-                                                <span class="o_form_label">الفني إجباري</span>
-                                                <field name="operation_technician_required" widget="boolean_toggle" nolabel="1"/>
-                                            </div>
-                                            <div class="wof_stage4_radio_block commission">
-                                                <span class="o_form_label">اعتماد استحقاق العمولة</span>
-                                                <field name="commission_event" widget="radio" nolabel="1"/>
+                                            <div class="wof_stage4_cards_grid two">
+                                                <div class="wof_stage4_feature_card">
+                                                    <div class="wof_stage4_feature_title">
+                                                        <div><h4>إسناد الفنيين</h4><p>حدد هل يسمح بأكثر من فني وهل اختيار الفني إلزامي.</p></div>
+                                                        <span class="wof_stage4_mini_icon"><i class="fa fa-user" title="الفنيون"/></span>
+                                                    </div>
+                                                    <div class="wof_stage4_setting_row compact-row">
+                                                        <span class="o_form_label">السماح بتعدد الفنيين</span>
+                                                        <field name="operation_allow_multiple_technicians" widget="boolean_toggle" nolabel="1"/>
+                                                    </div>
+                                                    <div class="wof_stage4_setting_row compact-row">
+                                                        <span class="o_form_label">الفني إجباري</span>
+                                                        <field name="operation_technician_required" widget="boolean_toggle" nolabel="1"/>
+                                                    </div>
+                                                </div>
+                                                <div class="wof_stage4_feature_card">
+                                                    <div class="wof_stage4_feature_title">
+                                                        <div><h4>استحقاق العمولة</h4><p>حدد اللحظة التي يعتبر فيها الفني مستحقًا للعمولة.</p></div>
+                                                        <span class="wof_stage4_mini_icon"><i class="fa fa-money" title="العمولة"/></span>
+                                                    </div>
+                                                    <div class="wof_stage4_radio_block wof_stage4_radio_cards commission">
+                                                        <field name="commission_event" widget="radio" nolabel="1"/>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </page>

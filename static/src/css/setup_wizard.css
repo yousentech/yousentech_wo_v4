@@ -2169,3 +2169,179 @@
     direction: inherit !important;
     unicode-bidi: plaintext;
 }
+
+/* Stage 4 V8 — grouped feature cards + always-visible radio options */
+.wof_stage4_cards_grid {
+    display: grid;
+    gap: 12px;
+    align-items: stretch;
+    margin-top: 10px;
+}
+
+.wof_stage4_cards_grid.two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wof_stage4_cards_grid.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wof_stage4_feature_card {
+    background: #fff;
+    border: 1px solid #dbe6e8;
+    border-radius: 10px;
+    box-shadow: 0 4px 13px rgba(31, 41, 51, .055);
+    padding: 12px;
+    min-width: 0;
+}
+
+.wof_stage4_feature_card:hover {
+    border-color: rgba(47, 133, 139, .38);
+    box-shadow: 0 6px 16px rgba(31, 41, 51, .075);
+}
+
+.wof_stage4_feature_title {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 9px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #edf2f3;
+}
+
+.wof_stage4_feature_title h4 {
+    margin: 0 0 3px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #24353c;
+}
+
+.wof_stage4_feature_title p {
+    margin: 0 !important;
+    font-size: 11.5px !important;
+    line-height: 1.55;
+    color: #7b8c93;
+}
+
+.wof_stage4_mini_icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #eaf6f5;
+    color: #2f858b;
+}
+
+.wof_stage4_feature_card .wof_stage4_setting_row,
+.wof_stage4_feature_card .wof_stage4_setting_block,
+.wof_stage4_feature_card .wof_stage4_radio_block {
+    box-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    padding: 7px 0 !important;
+    margin: 0 !important;
+}
+
+.wof_stage4_feature_card .wof_stage4_setting_row + .wof_stage4_setting_row,
+.wof_stage4_feature_card .wof_stage4_setting_row + .wof_stage4_setting_block,
+.wof_stage4_feature_card .wof_stage4_setting_block + .wof_stage4_setting_row {
+    border-top: 1px solid #edf2f3 !important;
+}
+
+.wof_stage4_setting_row.compact-row {
+    min-height: 40px !important;
+}
+
+.wof_stage4_setting_block.compact-block .o_field_many2one {
+    width: 100% !important;
+}
+
+/* Odoo radio widget: keep the real choice label visible and move the radio
+ * control away from the text so it never looks hidden/overlapped. */
+.wof_stage4_radio_cards .o_field_radio,
+.wof_stage4_radio_cards > .o_field_widget {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+.wof_stage4_radio_cards .o_radio_item,
+.wof_stage4_radio_cards .form-check {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    min-height: 42px !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 9px 38px 9px 12px !important;
+    border: 1px solid #d8e3e5 !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    overflow: visible !important;
+}
+
+.wof_stage4_radio_cards .o_radio_item:hover,
+.wof_stage4_radio_cards .form-check:hover {
+    border-color: #5aa2a7 !important;
+    background: #f7fbfb !important;
+}
+
+.wof_stage4_radio_cards input[type="radio"],
+.wof_stage4_radio_cards .o_radio_input,
+.wof_stage4_radio_cards .form-check-input {
+    position: absolute !important;
+    right: 12px !important;
+    left: auto !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    width: 16px !important;
+    height: 16px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 2 !important;
+}
+
+.wof_stage4_radio_cards .o_radio_item label,
+.wof_stage4_radio_cards .o_radio_item span,
+.wof_stage4_radio_cards .form-check-label {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #33454c !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.45 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+.wof_stage4_radio_cards .o_radio_item:has(input[type="radio"]:checked),
+.wof_stage4_radio_cards .form-check:has(input[type="radio"]:checked) {
+    border-color: #2f858b !important;
+    background: #eef8f7 !important;
+    box-shadow: inset 0 0 0 1px rgba(47, 133, 139, .08);
+}
+
+/* Do not let old generic radio styles squeeze these grouped choices. */
+.wof_stage4_feature_card .wof_stage4_radio_cards .o_radio_item {
+    flex: none !important;
+}
+
+@media (max-width: 1100px) {
+    .wof_stage4_cards_grid.three,
+    .wof_stage4_cards_grid.two {
+        grid-template-columns: 1fr;
+    }
+}
