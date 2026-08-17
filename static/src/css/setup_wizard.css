@@ -1779,3 +1779,106 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+
+/* -------------------------------------------------------------------------
+ * Stage 4 V7 — no-scroll desktop operations wizard
+ * Each operations group lives in a notebook tab, so there is no reason for
+ * either an inner list scrollbar or a modal-body scrollbar on desktop.
+ * ------------------------------------------------------------------------- */
+@media (min-width: 901px) {
+    .modal-dialog:has(.wof_stage4_shell) {
+        margin-bottom: 16px !important;
+        margin-top: 16px !important;
+        max-height: calc(100vh - 32px) !important;
+    }
+
+    .modal-content:has(.wof_stage4_shell) {
+        max-height: calc(100vh - 32px) !important;
+        overflow: hidden !important;
+    }
+
+    .modal-content:has(.wof_stage4_shell) .modal-body,
+    .modal-content:has(.wof_stage4_shell) .o_form_sheet_bg,
+    .modal-content:has(.wof_stage4_shell) .o_form_sheet,
+    .modal-content:has(.wof_stage4_shell) .o_form_renderer {
+        max-height: none !important;
+        overflow: hidden !important;
+    }
+
+    .wof_stage4_shell {
+        max-height: calc(100vh - 120px);
+        overflow: hidden;
+    }
+
+    .wof_stage4_shell .wof_stage1_intro_panel {
+        flex: 0 0 auto;
+    }
+
+    .wof_stage4_shell .wof_stage1_header {
+        padding-bottom: 10px;
+        padding-top: 12px;
+    }
+
+    .wof_stage4_shell .wof_stage1_stepper {
+        padding-bottom: 9px;
+        padding-top: 9px;
+    }
+
+    .wof_stage4_shell .wof_stage1_body_panel {
+        overflow: hidden !important;
+    }
+
+    .wof_stage4_content {
+        padding: 10px 12px 4px !important;
+    }
+
+    .wof_stage4_title_row {
+        margin-bottom: 6px !important;
+        padding-bottom: 7px !important;
+        padding-top: 7px !important;
+    }
+
+    .wof_stage4_notebook .nav-tabs .nav-link {
+        padding-bottom: 7px !important;
+        padding-top: 8px !important;
+    }
+
+    .wof_stage4_tab_panel {
+        min-height: 0 !important;
+        padding: 8px 12px 7px !important;
+    }
+
+    .wof_stage4_tab_panel .wof_stage4_card_head {
+        margin-bottom: 6px !important;
+        padding: 6px 9px !important;
+    }
+
+    .wof_stage4_fields_table .o_list_renderer {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .wof_stage4_fields_table .o_list_table thead th {
+        padding-bottom: 3px !important;
+        padding-top: 3px !important;
+    }
+
+    .wof_stage4_fields_table .o_list_table tbody td {
+        height: 24px !important;
+        line-height: 18px !important;
+        min-height: 24px !important;
+        padding-bottom: 1px !important;
+        padding-top: 1px !important;
+    }
+
+    .wof_stage4_fields_hint {
+        margin-top: 3px !important;
+    }
+
+    .wof_stage4_footer {
+        min-height: 48px;
+        padding-bottom: 7px !important;
+        padding-top: 7px !important;
+    }
+}
