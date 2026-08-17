@@ -104,7 +104,7 @@
         <field name="model">wof.company.profile</field>
         <field name="arch" type="xml">
             <form string="التهيئة الأولى" create="0" delete="0" class="wof_setup_form">
-                <header invisible="current_step in ['activity', 'sizes', 'services']">
+                <header invisible="current_step in ['activity', 'sizes', 'services', 'operations']">
                     <button name="action_previous" type="object" string="السابق"
                             class="btn-secondary" invisible="current_step == 'activity'"/>
                     <button name="action_save" type="object" string="حفظ والمتابعة لاحقًا"
@@ -525,19 +525,19 @@
                                             <span class="wof_stage4_card_icon"><i class="fa fa-percent" title="الضريبة والتسعير"/></span>
                                         </div>
                                         <div class="wof_stage4_setting_row">
-                                            <label class="o_form_label">تطبيق الضريبة</label>
+                                            <span class="o_form_label">تطبيق الضريبة</span>
                                             <field name="operation_tax_enabled" widget="boolean_toggle" nolabel="1"/>
                                         </div>
                                         <div class="wof_stage4_setting_block" invisible="not operation_tax_enabled">
-                                            <label class="o_form_label">الضريبة الافتراضية</label>
+                                            <span class="o_form_label">الضريبة الافتراضية</span>
                                             <field name="operation_tax_id" nolabel="1" options="{'no_create': True, 'no_create_edit': True}"/>
                                         </div>
                                         <div class="wof_stage4_radio_block" invisible="not operation_tax_enabled">
-                                            <label class="o_form_label">طريقة إدخال السعر</label>
+                                            <span class="o_form_label">طريقة إدخال السعر</span>
                                             <field name="operation_price_input_mode" widget="radio" nolabel="1"/>
                                         </div>
                                         <div class="wof_stage4_radio_block">
-                                            <label class="o_form_label">سياسة التسعير الافتراضية</label>
+                                            <span class="o_form_label">سياسة التسعير الافتراضية</span>
                                             <field name="operation_pricing_policy" widget="radio" nolabel="1"/>
                                         </div>
                                     </div>
@@ -549,7 +549,7 @@
                                                 <span class="wof_stage4_card_icon"><i class="fa fa-file-text-o" title="الفوترة"/></span>
                                             </div>
                                             <div class="wof_stage4_setting_row">
-                                                <label class="o_form_label">إنشاء فاتورة تلقائيًا عند تأكيد أمر التركيب</label>
+                                                <span class="o_form_label">إنشاء فاتورة تلقائيًا عند تأكيد أمر التركيب</span>
                                                 <field name="operation_auto_invoice" widget="boolean_toggle" nolabel="1"/>
                                             </div>
                                         </div>
@@ -560,15 +560,15 @@
                                                 <span class="wof_stage4_card_icon"><i class="fa fa-users" title="الفنيون والعمولات"/></span>
                                             </div>
                                             <div class="wof_stage4_setting_row">
-                                                <label class="o_form_label">السماح بتعدد الفنيين</label>
+                                                <span class="o_form_label">السماح بتعدد الفنيين</span>
                                                 <field name="operation_allow_multiple_technicians" widget="boolean_toggle" nolabel="1"/>
                                             </div>
                                             <div class="wof_stage4_setting_row">
-                                                <label class="o_form_label">الفني إجباري</label>
+                                                <span class="o_form_label">الفني إجباري</span>
                                                 <field name="operation_technician_required" widget="boolean_toggle" nolabel="1"/>
                                             </div>
                                             <div class="wof_stage4_radio_block commission">
-                                                <label class="o_form_label">اعتماد استحقاق العمولة</label>
+                                                <span class="o_form_label">اعتماد استحقاق العمولة</span>
                                                 <field name="commission_event" widget="radio" nolabel="1"/>
                                             </div>
                                         </div>
