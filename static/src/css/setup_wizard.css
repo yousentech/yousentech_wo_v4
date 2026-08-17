@@ -1959,3 +1959,213 @@
         z-index: 4;
     }
 }
+
+/* -------------------------------------------------------------------------
+ * Stage 3/4 polish — unified wizard size, clearer hierarchy, editable shades
+ * ------------------------------------------------------------------------- */
+@media (min-width: 901px) {
+    /* One consistent desktop size for all five wizard stages. */
+    .modal-dialog:has(.wof_setup_form) {
+        max-width: min(1240px, calc(100vw - 42px)) !important;
+        width: min(1240px, calc(100vw - 42px)) !important;
+        margin-top: 18px !important;
+        margin-bottom: 18px !important;
+    }
+
+    .wof_stage1_shell,
+    .wof_stage5_shell {
+        max-width: 1180px !important;
+        width: 100% !important;
+    }
+
+    /* Keep only the long main-fields table scrollable; footer/navigation stays visible. */
+    .wof_stage4_fields_table .o_list_renderer {
+        max-height: 245px !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    .wof_stage4_tab_panel {
+        overflow: hidden !important;
+    }
+}
+
+/* Content typography is intentionally smaller than each stage header. */
+.wof_stage1_content,
+.wof_stage4_tab_panel,
+.wof_stage5_review {
+    font-size: 12px;
+}
+
+.wof_stage1_title h2,
+.wof_stage4_title_row h2,
+.wof_stage5_title h2 {
+    font-size: 18px !important;
+    line-height: 1.35;
+}
+
+.wof_stage1_title p,
+.wof_stage4_title_row p,
+.wof_stage5_title p {
+    font-size: 12px !important;
+}
+
+.wof_stage4_card_head h3,
+.wof_stage3_shades_header h3,
+.wof_stage5_card h3,
+.wof_stage5_readiness h3 {
+    font-size: 14px !important;
+}
+
+.wof_stage4_card_head p,
+.wof_stage3_shades_header p {
+    font-size: 11px !important;
+}
+
+/* Stage 3 numbering policy cards: compact, readable and secondary to the stage header. */
+.wof_stage3_method_grid {
+    gap: 10px !important;
+    margin: 0 auto !important;
+    max-width: 850px;
+}
+
+.wof_stage3_method_card {
+    min-height: 92px !important;
+    padding: 10px 14px !important;
+}
+
+.wof_stage3_method_head strong {
+    font-size: 14px !important;
+}
+
+.wof_stage3_method_values {
+    font-size: 20px !important;
+    margin-top: 8px !important;
+}
+
+.wof_stage3_lock_note {
+    font-size: 10.5px !important;
+    margin: 7px auto 10px !important;
+    max-width: 850px;
+}
+
+.wof_stage3_shades_header {
+    margin-bottom: 7px !important;
+}
+
+.wof_stage3_shade_card {
+    min-height: 58px !important;
+    padding: 9px 11px !important;
+}
+
+.wof_stage3_shade_identity {
+    align-items: center;
+    display: flex;
+    gap: 5px;
+    min-width: 0;
+}
+
+.wof_stage3_shade_identity strong,
+.wof_stage3_shade_identity strong .o_field_widget {
+    font-size: 16px !important;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wof_stage3_edit_btn {
+    background: transparent !important;
+    border: 0 !important;
+    color: var(--wof-teal-dark) !important;
+    line-height: 1;
+    padding: 4px 5px !important;
+}
+
+.wof_stage3_edit_btn:hover {
+    background: rgba(47, 133, 139, .09) !important;
+    border-radius: 5px;
+}
+
+/* Stage 4: each setting becomes a small card inside its tab. */
+.wof_stage4_tab_panel {
+    background: #f8fbfb;
+    padding: 10px 12px !important;
+}
+
+.wof_stage4_tab_panel > .wof_stage4_card_head {
+    background: #fff !important;
+    box-shadow: 0 3px 10px rgba(31, 41, 51, .04);
+}
+
+.wof_stage4_tab_panel .wof_stage4_setting_row,
+.wof_stage4_tab_panel .wof_stage4_setting_block,
+.wof_stage4_tab_panel .wof_stage4_radio_block {
+    background: #fff;
+    border: 1px solid #dfe7e8 !important;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(31, 41, 51, .045);
+    margin: 0 0 8px !important;
+    padding: 9px 11px !important;
+}
+
+.wof_stage4_tab_panel .wof_stage4_setting_row {
+    min-height: 42px !important;
+}
+
+.wof_stage4_setting_row > .o_form_label,
+.wof_stage4_setting_block > .o_form_label,
+.wof_stage4_radio_block > .o_form_label {
+    color: #2f3d44;
+    font-size: 12px !important;
+    font-weight: 700;
+}
+
+/* Label first, options directly underneath. */
+.wof_stage4_radio_block {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+}
+
+.wof_stage4_radio_block > .o_form_label {
+    display: block !important;
+    margin: 0 0 7px !important;
+    width: 100% !important;
+}
+
+.wof_stage4_radio_block > .o_field_widget,
+.wof_stage4_radio_block > .o_field_radio {
+    clear: both;
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+.wof_stage4_radio_block .o_radio_item {
+    flex: 0 1 230px !important;
+    min-height: 38px !important;
+    padding: 7px 11px !important;
+}
+
+.wof_stage4_policy_note {
+    margin: 0 0 8px !important;
+}
+
+/* Main-fields tab is itself a clean card; only its rows may scroll. */
+.wof_stage4_fields_table {
+    background: #fff;
+    border: 1px solid #dfe7e8;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(31, 41, 51, .04);
+    display: block;
+    overflow: hidden;
+}
+
+.wof_stage3_shade_identity strong,
+.wof_stage3_shade_identity strong .o_field_widget {
+    direction: inherit !important;
+    unicode-bidi: plaintext;
+}

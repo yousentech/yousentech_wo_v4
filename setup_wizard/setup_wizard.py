@@ -660,6 +660,11 @@ class WofCompanyProfile(models.Model):
         self.ensure_one()
         return self._wizard_action()
 
+    def action_edit_tint(self):
+        """Static-view compatibility proxy; tint cards call the child model method."""
+        self.ensure_one()
+        return self._wizard_action()
+
     def action_add_general_activity(self):
         """Open a lightweight dialog; do not create placeholder activity data."""
         self.ensure_one()
@@ -851,17 +856,24 @@ class WofCompanyProfile(models.Model):
             ]).write({'active': False})
             return
         selected = self.tint_shade_line_ids.filtered('selected')
-        selected_values = set(selected.mapped('value'))
-        Degree.search([
+        selected_codes = set(selected.mapped('code'))
+        managed = Degree.search([
             ('company_id', '=', self.company_id.id),
             ('is_setup_default', '=', True),
-            ('value', 'not in', list(selected_values)),
-        ]).write({'active': False})
+        ])
+        managed.filtered(lambda degree: degree.code not in selected_codes).write({'active': False})
         for line in selected:
+            # The technical code is the stable identity. The user may rename the
+            # visible shade label without breaking films/components linked later.
             degree = Degree.search([
                 ('company_id', '=', self.company_id.id),
-                ('value', '=', line.value),
+                ('code', '=', line.code),
             ], limit=1)
+            if not degree:
+                degree = Degree.search([
+                    ('company_id', '=', self.company_id.id),
+                    ('value', '=', line.value),
+                ], limit=1)
             vals = {
                 'company_id': self.company_id.id,
                 'sequence': line.sequence,
@@ -1572,12 +1584,26 @@ class WofSetupTintShadeLine(models.Model):
 
     def write(self, vals):
         self.mapped('profile_id')._ensure_can_configure()
-        immutable = {'profile_id', 'numbering_method', 'value', 'code'}
+        immutable = {'profile_id', 'numbering_method', 'code'}
         if immutable.intersection(vals) and not self.env.context.get('wof_tint_setup_sync'):
             raise ValidationError(
-                'قيم درجات اللون تُدار من طريقة الترقيم. يمكنك التفعيل أو الإلغاء فقط.'
+                'طريقة الترقيم والكود الداخلي لدرجة اللون ثابتان لحماية ترابط البيانات.'
             )
+        if 'value' in vals:
+            vals['value'] = (vals.get('value') or '').strip()
+            if not vals['value']:
+                raise ValidationError('اسم درجة اللون مطلوب.')
         return super().write(vals)
+
+    def action_edit_tint(self):
+        self.ensure_one()
+        self.profile_id._ensure_can_configure()
+        dialog = self.env['wof.setup.tint.dialog'].create({
+            'profile_id': self.profile_id.id,
+            'tint_line_id': self.id,
+            'name': self.value,
+        })
+        return dialog._dialog_action()
 
     def unlink(self):
         self.mapped('profile_id')._ensure_can_configure()
