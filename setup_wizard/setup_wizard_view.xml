@@ -525,19 +525,19 @@
                                             <span class="wof_stage4_card_icon"><i class="fa fa-percent" title="الضريبة والتسعير"/></span>
                                         </div>
                                         <div class="wof_stage4_setting_row">
-                                            <label>تطبيق الضريبة</label>
+                                            <label class="o_form_label">تطبيق الضريبة</label>
                                             <field name="operation_tax_enabled" widget="boolean_toggle" nolabel="1"/>
                                         </div>
                                         <div class="wof_stage4_setting_block" invisible="not operation_tax_enabled">
-                                            <label>الضريبة الافتراضية</label>
+                                            <label class="o_form_label">الضريبة الافتراضية</label>
                                             <field name="operation_tax_id" nolabel="1" options="{'no_create': True, 'no_create_edit': True}"/>
                                         </div>
                                         <div class="wof_stage4_radio_block" invisible="not operation_tax_enabled">
-                                            <label>طريقة إدخال السعر</label>
+                                            <label class="o_form_label">طريقة إدخال السعر</label>
                                             <field name="operation_price_input_mode" widget="radio" nolabel="1"/>
                                         </div>
                                         <div class="wof_stage4_radio_block">
-                                            <label>سياسة التسعير الافتراضية</label>
+                                            <label class="o_form_label">سياسة التسعير الافتراضية</label>
                                             <field name="operation_pricing_policy" widget="radio" nolabel="1"/>
                                         </div>
                                     </div>
@@ -549,7 +549,7 @@
                                                 <span class="wof_stage4_card_icon"><i class="fa fa-file-text-o" title="الفوترة"/></span>
                                             </div>
                                             <div class="wof_stage4_setting_row">
-                                                <label>إنشاء فاتورة تلقائيًا عند تأكيد أمر التركيب</label>
+                                                <label class="o_form_label">إنشاء فاتورة تلقائيًا عند تأكيد أمر التركيب</label>
                                                 <field name="operation_auto_invoice" widget="boolean_toggle" nolabel="1"/>
                                             </div>
                                         </div>
@@ -560,15 +560,15 @@
                                                 <span class="wof_stage4_card_icon"><i class="fa fa-users" title="الفنيون والعمولات"/></span>
                                             </div>
                                             <div class="wof_stage4_setting_row">
-                                                <label>السماح بتعدد الفنيين</label>
+                                                <label class="o_form_label">السماح بتعدد الفنيين</label>
                                                 <field name="operation_allow_multiple_technicians" widget="boolean_toggle" nolabel="1"/>
                                             </div>
                                             <div class="wof_stage4_setting_row">
-                                                <label>الفني إجباري</label>
+                                                <label class="o_form_label">الفني إجباري</label>
                                                 <field name="operation_technician_required" widget="boolean_toggle" nolabel="1"/>
                                             </div>
                                             <div class="wof_stage4_radio_block commission">
-                                                <label>اعتماد استحقاق العمولة</label>
+                                                <label class="o_form_label">اعتماد استحقاق العمولة</label>
                                                 <field name="commission_event" widget="radio" nolabel="1"/>
                                             </div>
                                         </div>
