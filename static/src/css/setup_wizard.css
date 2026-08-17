@@ -1347,3 +1347,136 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* -------------------------------------------------------------------------
+ * Stage 4 V4 — compact tabbed operations layout
+ * Keeps the approved Stage 1–3 shell and prevents the legacy setup hero from
+ * appearing above the Stage 4 wizard.  Only Stage 4 presentation is changed.
+ * ------------------------------------------------------------------------- */
+.wof_stage4_shell .wof_stage1_body_panel {
+    overflow: visible;
+}
+
+.wof_stage4_content {
+    padding-bottom: 4px;
+}
+
+.wof_stage4_title_row {
+    margin-bottom: 8px;
+}
+
+.wof_stage4_notebook {
+    background: #fff;
+    border: 1px solid #d6dfe1;
+    border-radius: 9px;
+    box-shadow: 0 4px 14px rgba(31, 41, 51, .05);
+    overflow: hidden;
+}
+
+.wof_stage4_notebook .o_notebook_headers,
+.wof_stage4_notebook > .nav-tabs,
+.wof_stage4_notebook .nav-tabs {
+    background: #f7fbfb;
+    border-bottom: 1px solid #dce5e6;
+    margin: 0 !important;
+    padding: 0 10px;
+}
+
+.wof_stage4_notebook .nav-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 3px;
+    overflow-x: auto;
+}
+
+.wof_stage4_notebook .nav-tabs .nav-item {
+    margin: 0 !important;
+    white-space: nowrap;
+}
+
+.wof_stage4_notebook .nav-tabs .nav-link {
+    border: 0 !important;
+    border-bottom: 3px solid transparent !important;
+    border-radius: 0 !important;
+    color: #58666c;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 650;
+    padding: 10px 14px 8px;
+}
+
+.wof_stage4_notebook .nav-tabs .nav-link:hover {
+    background: #eef7f6;
+    color: var(--wof-teal-dark);
+}
+
+.wof_stage4_notebook .nav-tabs .nav-link.active {
+    background: #eef8f7 !important;
+    border-bottom-color: var(--wof-teal) !important;
+    color: var(--wof-teal-dark) !important;
+}
+
+.wof_stage4_notebook .tab-content,
+.wof_stage4_notebook .o_notebook_content {
+    padding: 0 !important;
+}
+
+.wof_stage4_tab_panel {
+    min-height: 290px;
+    padding: 12px 14px 10px;
+}
+
+.wof_stage4_tab_card {
+    margin: 0;
+}
+
+.wof_stage4_tab_panel .wof_stage4_card_head {
+    background: #fbfdfd;
+    border: 1px solid #e3eaeb;
+    border-radius: 7px;
+    margin-bottom: 10px;
+    padding: 8px 10px;
+}
+
+.wof_stage4_tab_panel .wof_stage4_setting_row,
+.wof_stage4_tab_panel .wof_stage4_setting_block,
+.wof_stage4_tab_panel .wof_stage4_radio_block {
+    margin-inline: 8px;
+}
+
+.wof_stage4_tab_panel .wof_stage4_setting_row {
+    min-height: 38px;
+}
+
+.wof_stage4_tab_panel .wof_stage4_setting_block,
+.wof_stage4_tab_panel .wof_stage4_radio_block {
+    padding-bottom: 8px;
+    padding-top: 8px;
+}
+
+.wof_stage4_fields_table .o_list_renderer {
+    max-height: 245px;
+    overflow: auto;
+}
+
+.wof_stage4_footer {
+    margin-top: 0;
+}
+
+/* Stage 4 owns its visible controls exactly like the previously approved
+ * stages; keep Odoo's generic modal footer out of the way. */
+.modal-content:has(.wof_stage4_shell) > .modal-footer,
+.modal-content:has(.wof_stage4_shell) .o_form_button_save,
+.modal-content:has(.wof_stage4_shell) .o_form_button_cancel {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    .wof_stage4_notebook .nav-tabs .nav-link {
+        padding-inline: 10px;
+    }
+
+    .wof_stage4_tab_panel {
+        min-height: 0;
+    }
+}
