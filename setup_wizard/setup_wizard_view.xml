@@ -104,7 +104,7 @@
         <field name="model">wof.company.profile</field>
         <field name="arch" type="xml">
             <form string="التهيئة الأولى" create="0" delete="0" class="wof_setup_form">
-                <header invisible="current_step in ['activity', 'sizes', 'services', 'operations']">
+                <header invisible="current_step in ['activity', 'sizes', 'services', 'operations', 'review']">
                     <button name="action_previous" type="object" string="السابق"
                             class="btn-secondary" invisible="current_step == 'activity'"/>
                     <button name="action_save" type="object" string="حفظ والمتابعة لاحقًا"
@@ -119,9 +119,14 @@
                 </header>
                 <sheet class="wof_setup_sheet">
                     <field name="current_step" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
                     <field name="readiness_ok" invisible="1"/>
+                    <field name="review_activity_ready" invisible="1"/>
+                    <field name="review_size_ready" invisible="1"/>
+                    <field name="review_tint_ready" invisible="1"/>
+                    <field name="review_tax_ready" invisible="1"/>
 
-                    <div invisible="current_step in ['activity', 'sizes', 'services', 'operations']">
+                    <div invisible="current_step in ['activity', 'sizes', 'services', 'operations', 'review']">
                     <div class="wof_setup_hero">
                         <div>
                             <span class="wof_setup_badge">إعداد ذاتي</span>
@@ -554,7 +559,15 @@
                                             </div>
                                             <div class="wof_stage4_setting_row">
                                                 <span class="o_form_label">إنشاء فاتورة تلقائيًا عند تأكيد أمر التركيب</span>
-                                                <field name="operation_auto_invoice" widget="boolean_toggle" nolabel="1"/>
+                                                <field name="operation_auto_invoice" widget="boolean_toggle" nolabel="1" readonly="operation_invoice_after_full_payment"/>
+                                            </div>
+                                            <div class="wof_stage4_setting_row">
+                                                <span class="o_form_label">لا يمكن إنشاء الفاتورة إلا بعد اكتمال الدفع</span>
+                                                <field name="operation_invoice_after_full_payment" widget="boolean_toggle" nolabel="1"/>
+                                            </div>
+                                            <div class="wof_stage4_policy_note" invisible="not operation_invoice_after_full_payment">
+                                                <i class="fa fa-info-circle" title="معلومة"/>
+                                                عند تفعيل هذا الخيار يتم إلغاء الإنشاء التلقائي، وتنتظر الفاتورة اكتمال الدفع.
                                             </div>
                                         </div>
                                     </page>
@@ -592,32 +605,76 @@
                         </div>
                     </div>
 
-                    <div invisible="current_step != 'review'">
-                        <div class="wof_setup_section_title">
-                            <h2>مراجعة الجاهزية</h2>
-                            <p>لن يفعّل النظام إلا بعد اكتمال الحد الأدنى المطلوب للتشغيل.</p>
+                    <div invisible="current_step != 'review'" class="wof_stage5_shell" dir="rtl">
+                        <div class="wof_stage1_intro_panel">
+                            <div class="wof_stage1_header">
+                                <h1>مركز تهيئة النظام</h1>
+                                <p>سنقوم بتهيئة النظام معك خطوة بخطوة ويمكن تعديل الإعدادات لاحقًا</p>
+                            </div>
+                            <div class="wof_stage1_stepper" aria-label="خطوات التهيئة">
+                                <div class="wof_stage1_step is-done"><span class="wof_stage1_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>الأنشطة</strong></div>
+                                <div class="wof_stage1_connector is-done"></div>
+                                <div class="wof_stage1_step is-done"><span class="wof_stage1_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>أحجام السيارات</strong></div>
+                                <div class="wof_stage1_connector is-done"></div>
+                                <div class="wof_stage1_step is-done"><span class="wof_stage1_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>درجات اللون</strong></div>
+                                <div class="wof_stage1_connector is-done"></div>
+                                <div class="wof_stage1_step is-done"><span class="wof_stage1_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>التشغيل</strong></div>
+                                <div class="wof_stage1_connector is-current"></div>
+                                <div class="wof_stage1_step is-current"><span class="wof_stage1_step_no">5</span><strong>المراجعة والتفعيل</strong><small>الخطوة 5 من 5</small></div>
+                            </div>
                         </div>
-                        <div class="alert alert-success" role="status"
-                             invisible="not readiness_ok">
-                            <strong>جاهز للتشغيل.</strong>
-                            ستُنشأ الأنشطة والخدمات/الأفلام ومكوّناتها وأسعارها بصورة آمنة دون تكرار.
+
+                        <div class="wof_stage5_review" invisible="state == 'ready'">
+                            <div class="wof_stage5_title">
+                                <h2>راجع إعدادات النظام قبل التفعيل</h2>
+                                <p>تأكد من الإعدادات الأساسية أدناه، ثم فعّل النظام للبدء بالعمل.</p>
+                            </div>
+
+                            <div class="wof_stage5_cards">
+                                <div class="wof_stage5_card">
+                                    <div class="wof_stage5_card_head"><h3>الأنشطة</h3><button name="action_review_edit_activities" type="object" class="btn btn-link">تعديل</button></div>
+                                    <strong><field name="review_activity_summary" nolabel="1" readonly="1"/></strong>
+                                </div>
+                                <div class="wof_stage5_card">
+                                    <div class="wof_stage5_card_head"><h3>أحجام السيارات</h3><button name="action_review_edit_sizes" type="object" class="btn btn-link">تعديل</button></div>
+                                    <strong><field name="review_size_summary" nolabel="1" readonly="1"/></strong>
+                                </div>
+                                <div class="wof_stage5_card">
+                                    <div class="wof_stage5_card_head"><h3>درجات اللون</h3><button name="action_review_edit_tints" type="object" class="btn btn-link">تعديل</button></div>
+                                    <strong><field name="review_tint_summary" nolabel="1" readonly="1"/></strong>
+                                </div>
+                                <div class="wof_stage5_card">
+                                    <div class="wof_stage5_card_head"><h3>التشغيل</h3><button name="action_review_edit_operations" type="object" class="btn btn-link">تعديل</button></div>
+                                    <div class="wof_stage5_operation_text"><field name="review_operation_summary" nolabel="1" readonly="1"/></div>
+                                    <div class="wof_stage5_field_counts">الحقول: <strong><field name="review_required_count" nolabel="1" readonly="1"/></strong> إجبارية • <strong><field name="review_hidden_count" nolabel="1" readonly="1"/></strong> مخفية</div>
+                                </div>
+                            </div>
+
+                            <div class="wof_stage5_readiness">
+                                <h3>جاهزية النظام</h3>
+                                <div class="wof_stage5_check" invisible="not review_activity_ready"><i class="fa fa-check-circle" title="مكتمل"/> تم تحديد نشاط واحد على الأقل</div>
+                                <div class="wof_stage5_check" invisible="not review_size_ready"><i class="fa fa-check-circle" title="مكتمل"/> تم تحديد حجم سيارة واحد على الأقل</div>
+                                <div class="wof_stage5_check" invisible="not review_tint_ready"><i class="fa fa-check-circle" title="مكتمل"/> تم إعداد درجات اللون المطلوبة</div>
+                                <div class="wof_stage5_check"><i class="fa fa-check-circle" title="مكتمل"/> إعدادات التشغيل مكتملة</div>
+                                <div class="wof_stage5_check" invisible="not review_tax_ready"><i class="fa fa-check-circle" title="مكتمل"/> إعدادات الضريبة صحيحة</div>
+                                <div class="wof_stage5_ready_box" invisible="not readiness_ok"><strong>النظام جاهز للتفعيل</strong><span>بعد التفعيل يمكنك البدء بإضافة الأفلام والخدمات للأنشطة المفعلة.</span></div>
+                                <div class="wof_stage5_error_box" invisible="readiness_ok"><strong>يوجد إعدادات تحتاج إلى مراجعة قبل تفعيل النظام.</strong><field name="readiness_note" nolabel="1" readonly="1"/></div>
+                            </div>
+
+                            <div class="wof_stage1_footer wof_stage5_footer">
+                                <button name="action_previous" type="object" class="btn btn-secondary"><i class="fa fa-arrow-right" title="السابق"/> السابق: التشغيل</button>
+                                <button name="action_activate" type="object" class="btn btn-primary wof_stage5_activate" invisible="not readiness_ok"><i class="fa fa-check" title="تفعيل"/> تفعيل النظام</button>
+                                <span class="btn btn-primary wof_stage5_activate disabled" invisible="readiness_ok"><i class="fa fa-lock" title="غير جاهز"/> تفعيل النظام</span>
+                            </div>
                         </div>
-                        <div class="alert alert-warning" role="status"
-                             invisible="readiness_ok">
-                            <strong>توجد بيانات ناقصة:</strong>
-                            <field name="readiness_note" nolabel="1"/>
+
+                        <div class="wof_stage5_success" invisible="state != 'ready'">
+                            <div class="wof_stage5_success_icon"><i class="fa fa-check" title="تم"/></div>
+                            <h2>تم تفعيل النظام بنجاح</h2>
+                            <h3>النظام جاهز للعمل</h3>
+                            <p>يمكنك الآن البدء بإضافة الأفلام والخدمات للأنشطة المفعلة.</p>
+                            <button name="action_go_to_activities" type="object" class="btn btn-primary wof_stage5_go">الانتقال إلى الأنشطة <i class="fa fa-arrow-left" title="الانتقال"/></button>
                         </div>
-                        <group col="2">
-                            <group string="الملف">
-                                <field name="company_id" readonly="1"/>
-                                <field name="setup_version" readonly="1"/>
-                            </group>
-                            <group string="السياسة التشغيلية">
-                                <field name="payment_policy" readonly="1"/>
-                                <field name="discount_scope" readonly="1"/>
-                                <field name="commission_event" readonly="1"/>
-                            </group>
-                        </group>
                     </div>
                 </sheet>
             </form>

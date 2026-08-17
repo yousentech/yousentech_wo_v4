@@ -203,6 +203,12 @@ class WofCompanyProfile(models.Model):
     operation_auto_invoice = fields.Boolean(
         string='إنشاء فاتورة تلقائيًا عند تأكيد أمر التركيب', default=False,
     )
+    operation_invoice_after_full_payment = fields.Boolean(
+        string='لا يمكن إنشاء الفاتورة إلا بعد اكتمال الدفع',
+        compute='_compute_operation_invoice_after_full_payment',
+        inverse='_inverse_operation_invoice_after_full_payment',
+        help='عند تفعيل هذا الخيار يتم إلغاء الإنشاء التلقائي للفاتورة لأن الفاتورة تنتظر اكتمال الدفع.',
+    )
     operation_allow_multiple_technicians = fields.Boolean(
         string='السماح بتعدد الفنيين', default=True,
     )
@@ -236,6 +242,16 @@ class WofCompanyProfile(models.Model):
 
     readiness_ok = fields.Boolean(compute='_compute_readiness')
     readiness_note = fields.Char(compute='_compute_readiness')
+    review_activity_summary = fields.Char(compute='_compute_review_summary')
+    review_size_summary = fields.Char(compute='_compute_review_summary')
+    review_tint_summary = fields.Char(compute='_compute_review_summary')
+    review_operation_summary = fields.Char(compute='_compute_review_summary')
+    review_required_count = fields.Integer(compute='_compute_review_summary')
+    review_hidden_count = fields.Integer(compute='_compute_review_summary')
+    review_activity_ready = fields.Boolean(compute='_compute_review_summary')
+    review_size_ready = fields.Boolean(compute='_compute_review_summary')
+    review_tint_ready = fields.Boolean(compute='_compute_review_summary')
+    review_tax_ready = fields.Boolean(compute='_compute_review_summary')
     service_count = fields.Integer(compute='_compute_dashboard')
     film_count = fields.Integer(compute='_compute_dashboard')
     size_count = fields.Integer(compute='_compute_dashboard')
@@ -315,6 +331,15 @@ class WofCompanyProfile(models.Model):
             raise ValidationError(
                 'طريقة ترقيم درجات اللون مثبتة بعد تفعيل النظام ولا يمكن تغييرها.'
             )
+        # Invoice policies are mutually exclusive by business design.
+        if vals.get('operation_invoice_after_full_payment'):
+            vals['operation_auto_invoice'] = False
+            vals['payment_policy'] = 'full_before_invoice'
+        elif vals.get('operation_auto_invoice'):
+            vals['operation_invoice_after_full_payment'] = False
+            vals['payment_policy'] = 'partial'
+        elif 'operation_invoice_after_full_payment' in vals:
+            vals['payment_policy'] = 'partial'
         result = super().write(vals)
         changed = sorted(tracked.intersection(vals))
         if changed:
@@ -390,6 +415,84 @@ class WofCompanyProfile(models.Model):
             record.has_tint_activity = bool(record.activity_line_ids.filtered(
                 lambda line: line.selected and line.activity_type == 'tint'
             ))
+
+    @api.depends('payment_policy')
+    def _compute_operation_invoice_after_full_payment(self):
+        for record in self:
+            record.operation_invoice_after_full_payment = record.payment_policy == 'full_before_invoice'
+
+    def _inverse_operation_invoice_after_full_payment(self):
+        for record in self:
+            if record.operation_invoice_after_full_payment:
+                record.payment_policy = 'full_before_invoice'
+                record.operation_auto_invoice = False
+            elif record.payment_policy == 'full_before_invoice':
+                record.payment_policy = 'partial'
+
+    @api.onchange('operation_invoice_after_full_payment')
+    def _onchange_operation_invoice_after_full_payment(self):
+        for record in self:
+            if record.operation_invoice_after_full_payment:
+                record.operation_auto_invoice = False
+                record.payment_policy = 'full_before_invoice'
+            else:
+                record.payment_policy = 'partial'
+
+    @api.onchange('operation_auto_invoice')
+    def _onchange_operation_auto_invoice(self):
+        for record in self:
+            if record.operation_auto_invoice:
+                record.operation_invoice_after_full_payment = False
+                record.payment_policy = 'partial'
+
+    @api.depends(
+        'activity_line_ids.selected', 'activity_line_ids.name',
+        'size_line_ids.selected', 'size_line_ids.name',
+        'tint_numbering_method', 'tint_shade_line_ids.selected', 'tint_shade_line_ids.value',
+        'operation_tax_enabled', 'operation_tax_id', 'operation_price_input_mode',
+        'operation_pricing_policy', 'operation_auto_invoice',
+        'operation_invoice_after_full_payment', 'operation_allow_multiple_technicians',
+        'operation_technician_required', 'commission_event',
+        'operation_field_line_ids.required', 'operation_field_line_ids.hidden',
+    )
+    def _compute_review_summary(self):
+        method_names = dict(TINT_NUMBERING_METHODS)
+        price_modes = dict(self._fields['operation_price_input_mode'].selection)
+        pricing_policies = dict(self._fields['operation_pricing_policy'].selection)
+        commission_events = dict(self._fields['commission_event'].selection)
+        for record in self:
+            activities = record.activity_line_ids.filtered('selected')
+            sizes = record.size_line_ids.filtered('selected')
+            shades = record.tint_shade_line_ids.filtered('selected')
+            record.review_activity_summary = ' • '.join(activities.mapped('name')) or 'لا يوجد نشاط مفعّل'
+            record.review_size_summary = ' • '.join(sizes.mapped('name')) or 'لا يوجد حجم مفعّل'
+            if record.has_tint_activity:
+                record.review_tint_summary = '%s — %s' % (
+                    method_names.get(record.tint_numbering_method, 'غير محدد'),
+                    ' • '.join(shades.mapped('value')) or 'لا توجد درجات مفعّلة',
+                )
+            else:
+                record.review_tint_summary = 'غير مستخدمة حاليًا'
+            tax_text = 'بدون ضريبة'
+            if record.operation_tax_enabled:
+                tax_text = record.operation_tax_id.display_name if record.operation_tax_id else 'ضريبة غير محددة'
+            invoice_text = (
+                'بعد اكتمال الدفع' if record.operation_invoice_after_full_payment
+                else ('تلقائية عند تأكيد أمر التركيب' if record.operation_auto_invoice else 'يدوية')
+            )
+            record.review_operation_summary = '%s | %s | %s | الفاتورة: %s | العمولة: %s' % (
+                tax_text,
+                price_modes.get(record.operation_price_input_mode, ''),
+                pricing_policies.get(record.operation_pricing_policy, ''),
+                invoice_text,
+                commission_events.get(record.commission_event, ''),
+            )
+            record.review_required_count = len(record.operation_field_line_ids.filtered(lambda l: l.required and not l.hidden))
+            record.review_hidden_count = len(record.operation_field_line_ids.filtered('hidden'))
+            record.review_activity_ready = bool(activities)
+            record.review_size_ready = bool(sizes)
+            record.review_tint_ready = (not record.has_tint_activity) or bool(shades)
+            record.review_tax_ready = (not record.operation_tax_enabled) or bool(record.operation_tax_id)
 
     @api.depends(
         'activity_line_ids.selected', 'activity_line_ids.name',
@@ -676,6 +779,10 @@ class WofCompanyProfile(models.Model):
                 else 'plate_mobile'
             ),
             'advanced_pricing': self.operation_pricing_policy == 'by_size',
+            'payment_policy': (
+                'full_before_invoice' if self.operation_invoice_after_full_payment
+                else 'partial'
+            ),
         }
         # Legacy validation historically requires plate/mobile. Preserve it unless
         # a later runtime screen explicitly migrates to per-field policies.
@@ -913,7 +1020,7 @@ class WofCompanyProfile(models.Model):
         readiness = self.validate_readiness()
         if not readiness['ready']:
             raise ValidationError(_('لا يمكن تفعيل النظام الآن: %s') % self.readiness_note)
-        self.apply_setup_templates()
+        self._apply_master_setup()
         self._write_setup_transition({
             'state': 'ready', 'current_step': 'review',
             'completed_at': fields.Datetime.now(),
@@ -927,7 +1034,7 @@ class WofCompanyProfile(models.Model):
     def action_activate(self):
         self.ensure_one()
         self.activate_setup()
-        return self.action_open_setup_center()
+        return self._wizard_action()
 
     def action_reopen_wizard(self):
         self.ensure_one()
@@ -942,6 +1049,82 @@ class WofCompanyProfile(models.Model):
         })
         self._audit_event('setup.reopened')
         return self._setup_state_payload()
+
+    def _apply_master_setup(self):
+        """Apply only onboarding master data. Films/services/components are configured later."""
+        self.ensure_one()
+        self._ensure_can_configure()
+        company = self.company_id
+
+        # Activities: official master records, without creating any film/service below them.
+        Activity = self.env['wof.service.type'].with_context(active_test=False)
+        managed_codes = []
+        for line in self.activity_line_ids:
+            code = 'ACT-SETUP-TINT' if line.activity_type == 'tint' else 'ACT-SETUP-GEN-%s' % line.id
+            managed_codes.append(code)
+            activity = Activity.search([
+                ('company_id', '=', company.id), ('code', '=', code),
+            ], limit=1)
+            vals = {
+                'company_id': company.id,
+                'code': code,
+                'name': line.name,
+                'description': line.description or False,
+                'service_options': 'tint' if line.activity_type == 'tint' else 'others',
+                'active': bool(line.selected),
+            }
+            if activity:
+                activity.write(vals)
+            else:
+                # Reuse an existing same-name activity where safe, otherwise create our managed record.
+                same_name = Activity.search([
+                    ('company_id', '=', company.id), ('name', '=', line.name),
+                ], limit=1)
+                if same_name and same_name.code not in managed_codes:
+                    same_name.write({k: v for k, v in vals.items() if k != 'code'})
+                else:
+                    Activity.create(vals)
+
+        # Car-size master data.
+        Size = self.env['wof.car.size'].with_context(active_test=False)
+        for line in self.size_line_ids:
+            size = Size.search([
+                ('company_id', '=', company.id), ('code', '=', line.code),
+            ], limit=1)
+            vals = {
+                'company_id': company.id, 'code': line.code, 'name': line.name,
+                'active': bool(line.selected),
+            }
+            size.write(vals) if size else Size.create(vals)
+
+        self._apply_tint_degrees()
+        self._sync_operation_compatibility()
+        self._audit_event('setup.master_data.applied', {
+            'activity_count': len(self.activity_line_ids.filtered('selected')),
+            'size_count': len(self.size_line_ids.filtered('selected')),
+            'tint_count': len(self.tint_shade_line_ids.filtered('selected')) if self.has_tint_activity else 0,
+        })
+        return True
+
+    def action_review_edit_activities(self):
+        self._write_setup_transition({'current_step': 'activity'})
+        return self._wizard_action()
+
+    def action_review_edit_sizes(self):
+        self._write_setup_transition({'current_step': 'sizes'})
+        return self._wizard_action()
+
+    def action_review_edit_tints(self):
+        self._write_setup_transition({'current_step': 'services'})
+        return self._wizard_action()
+
+    def action_review_edit_operations(self):
+        self._write_setup_transition({'current_step': 'operations'})
+        return self._wizard_action()
+
+    def action_go_to_activities(self):
+        self.ensure_one()
+        return self.action_open_services()
 
     def apply_setup_templates(self):
         self.ensure_one()

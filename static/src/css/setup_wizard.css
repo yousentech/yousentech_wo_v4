@@ -1323,15 +1323,63 @@
 .wof_stage4_radio_block .o_field_radio {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 14px;
+    gap: 8px;
+    width: 100%;
 }
 
+/* Stage 4 choices must look like real selectable options, not faint inline text. */
 .wof_stage4_radio_block .o_radio_item {
     align-items: center;
+    background: #ffffff;
+    border: 1px solid #d7e1e3;
+    border-radius: 8px;
+    cursor: pointer;
     display: inline-flex;
-    font-size: 11.5px;
-    gap: 4px;
+    flex: 1 1 180px;
+    font-size: 12.5px;
+    font-weight: 600;
+    gap: 8px;
+    justify-content: flex-start;
     margin: 0 !important;
+    min-height: 40px;
+    padding: 8px 12px;
+    transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+.wof_stage4_radio_block .o_radio_item:hover {
+    background: #f6fbfb;
+    border-color: #9dc9ca;
+    box-shadow: 0 3px 10px rgba(31, 122, 126, .08);
+    transform: translateY(-1px);
+}
+
+.wof_stage4_radio_block .o_radio_item input[type="radio"],
+.wof_stage4_radio_block .o_radio_item .o_radio_input {
+    accent-color: var(--wof-teal);
+    cursor: pointer;
+    height: 17px !important;
+    min-height: 17px !important;
+    min-width: 17px !important;
+    opacity: 1 !important;
+    position: static !important;
+    visibility: visible !important;
+    width: 17px !important;
+}
+
+.wof_stage4_radio_block .o_radio_item:has(input[type="radio"]:checked),
+.wof_stage4_radio_block .o_radio_item:has(.o_radio_input:checked) {
+    background: #eaf7f6;
+    border-color: var(--wof-teal);
+    box-shadow: 0 0 0 1px rgba(31, 143, 148, .08);
+    color: var(--wof-teal-dark);
+}
+
+.wof_stage4_radio_block .o_radio_item label,
+.wof_stage4_radio_block .o_radio_item span {
+    color: inherit;
+    cursor: pointer;
+    margin: 0 !important;
+    opacity: 1 !important;
 }
 
 .wof_stage4_radio_block.commission {
@@ -1478,5 +1526,256 @@
 
     .wof_stage4_tab_panel {
         min-height: 0;
+    }
+}
+
+/* -------------------------------------------------------------------------
+ * Stage 4 V6 — clearer radio hierarchy + invoicing policy
+ * ------------------------------------------------------------------------- */
+.wof_stage4_radio_block {
+    display: block !important;
+}
+
+.wof_stage4_radio_block > .o_form_label {
+    display: block !important;
+    margin: 0 0 8px !important;
+    width: 100% !important;
+}
+
+.wof_stage4_radio_block > .o_field_widget,
+.wof_stage4_radio_block > .o_field_radio {
+    clear: both;
+    display: flex !important;
+    margin-top: 6px !important;
+    width: 100% !important;
+}
+
+.wof_stage4_policy_note {
+    align-items: center;
+    background: #eef8f7;
+    border: 1px solid #cfe8e6;
+    border-radius: 7px;
+    color: #43666a;
+    display: flex;
+    font-size: 11.5px;
+    gap: 7px;
+    margin: 8px;
+    padding: 8px 10px;
+}
+
+.wof_stage4_policy_note i {
+    color: var(--wof-teal);
+}
+
+/* -------------------------------------------------------------------------
+ * Stage 5 — review, activation and success
+ * ------------------------------------------------------------------------- */
+.wof_stage5_shell {
+    direction: rtl;
+    margin: 0 auto;
+    max-width: 1180px;
+    width: 100%;
+}
+
+.wof_stage5_review {
+    background: #fff;
+    border: 1px solid #dce5e6;
+    border-radius: 0 0 10px 10px;
+    padding: 14px 18px 0;
+}
+
+.wof_stage5_title {
+    margin-bottom: 12px;
+    text-align: right;
+}
+
+.wof_stage5_title h2 {
+    color: #26363b;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.wof_stage5_title p {
+    color: #718087;
+    font-size: 12.5px;
+    margin: 0;
+}
+
+.wof_stage5_cards {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wof_stage5_card {
+    background: #fff;
+    border: 1px solid #dce4e5;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(38, 65, 70, .05);
+    min-height: 142px;
+    padding: 11px 12px;
+}
+
+.wof_stage5_card_head {
+    align-items: center;
+    border-bottom: 1px solid #edf1f2;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 9px;
+    padding-bottom: 7px;
+}
+
+.wof_stage5_card_head h3 {
+    color: #2c3b40;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.wof_stage5_card_head .btn-link {
+    color: var(--wof-teal-dark);
+    font-size: 11.5px;
+    padding: 0;
+}
+
+.wof_stage5_card .o_field_widget {
+    color: #38484e;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: normal;
+}
+
+.wof_stage5_operation_text {
+    color: #46585e;
+    font-size: 11.5px;
+    line-height: 1.65;
+}
+
+.wof_stage5_field_counts {
+    background: #f6f9f9;
+    border-radius: 6px;
+    color: #64757a;
+    font-size: 11px;
+    margin-top: 8px;
+    padding: 5px 7px;
+}
+
+.wof_stage5_readiness {
+    margin-top: 12px;
+}
+
+.wof_stage5_readiness h3 {
+    color: #283b40;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 7px;
+}
+
+.wof_stage5_check {
+    color: #40565b;
+    display: inline-flex;
+    font-size: 11.5px;
+    gap: 5px;
+    margin: 0 0 6px 14px;
+}
+
+.wof_stage5_check i {
+    color: #279268;
+}
+
+.wof_stage5_ready_box,
+.wof_stage5_error_box {
+    border-radius: 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 5px;
+    padding: 8px 11px;
+}
+
+.wof_stage5_ready_box {
+    background: #e9f7ee;
+    border: 1px solid #c9ead4;
+    color: #2d6b45;
+}
+
+.wof_stage5_error_box {
+    background: #fff1f1;
+    border: 1px solid #f1cccc;
+    color: #9b3c3c;
+}
+
+.wof_stage5_ready_box span,
+.wof_stage5_error_box .o_field_widget {
+    font-size: 11px;
+}
+
+.wof_stage5_footer {
+    border-top: 1px solid #e6ebec;
+    margin: 12px -18px 0;
+    padding: 10px 18px;
+}
+
+.wof_stage5_activate,
+.wof_stage5_go {
+    min-width: 150px;
+}
+
+.wof_stage5_success {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #dce5e6;
+    border-radius: 0 0 10px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 430px;
+    padding: 45px 20px;
+    text-align: center;
+}
+
+.wof_stage5_success_icon {
+    align-items: center;
+    background: #eaf7ed;
+    border: 5px solid #79b88a;
+    border-radius: 50%;
+    color: #63aa76;
+    display: flex;
+    font-size: 48px;
+    height: 120px;
+    justify-content: center;
+    margin-bottom: 18px;
+    width: 120px;
+}
+
+.wof_stage5_success h2 {
+    color: #26383d;
+    font-size: 25px;
+    font-weight: 700;
+    margin: 0 0 7px;
+}
+
+.wof_stage5_success h3 {
+    color: #3a4b50;
+    font-size: 17px;
+    margin: 0 0 4px;
+}
+
+.wof_stage5_success p {
+    color: #738187;
+    font-size: 12.5px;
+    margin: 0 0 22px;
+}
+
+.modal-content:has(.wof_stage5_shell) > .modal-footer,
+.modal-content:has(.wof_stage5_shell) .o_form_button_save,
+.modal-content:has(.wof_stage5_shell) .o_form_button_cancel {
+    display: none !important;
+}
+
+@media (max-width: 1000px) {
+    .wof_stage5_cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
