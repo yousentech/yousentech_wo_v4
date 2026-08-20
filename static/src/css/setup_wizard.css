@@ -2811,3 +2811,134 @@
         grid-template-columns: 1fr !important;
     }
 }
+
+
+/* ============================================================
+   Activity Hub RC5 — compact approved desktop layout
+   Keep the approved 3-column visual language while fitting up to
+   six activity cards (two rows) inside the modal without an inner
+   scrollbar on normal desktop viewports.
+   ============================================================ */
+@media (min-width: 1121px) {
+    .modal-dialog:has(.wof_activity_hub_form) {
+        width: min(1380px, 92vw) !important;
+        max-width: min(1380px, 92vw) !important;
+        margin: 1.5vh auto !important;
+    }
+    .modal:has(.wof_activity_hub_form) .modal-content {
+        min-height: 0 !important;
+        height: auto !important;
+        max-height: 94vh !important;
+        border-radius: 15px !important;
+        overflow: hidden !important;
+    }
+    .modal:has(.wof_activity_hub_form) .modal-body {
+        flex: 0 1 auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+    }
+    .modal:has(.wof_activity_hub_form) .o_form_view,
+    .modal:has(.wof_activity_hub_form) .o_form_renderer,
+    .modal:has(.wof_activity_hub_form) .o_form_sheet_bg,
+    .modal:has(.wof_activity_hub_form) .o_form_sheet {
+        min-height: 0 !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    .wof_activity_hub_form .wof_hub_header {
+        padding: 11px 24px 10px !important;
+    }
+    .wof_activity_hub_form .wof_hub_header_icon {
+        width: 36px !important;
+        height: 36px !important;
+        margin-bottom: 4px !important;
+        border-radius: 10px !important;
+        font-size: 16px !important;
+    }
+    .wof_activity_hub_form .wof_hub_header h1 {
+        font-size: 24px !important;
+        line-height: 1.25 !important;
+    }
+    .wof_activity_hub_form .wof_hub_header p {
+        margin-top: 3px !important;
+        font-size: 12px !important;
+    }
+    .wof_activity_hub_form .wof_hub_context {
+        margin-top: 5px !important;
+    }
+    .wof_activity_hub_form .wof_hub_content {
+        padding: 10px 22px 10px !important;
+    }
+    .wof_activity_hub_form .wof_hub_section_heading {
+        margin-bottom: 9px !important;
+    }
+    .wof_activity_hub_form .wof_hub_section_heading h2 {
+        font-size: 18px !important;
+    }
+    .wof_activity_hub_form .wof_hub_section_heading p {
+        font-size: 11.5px !important;
+    }
+    .wof_activity_hub_form .wof_hub_x2many .o_kanban_renderer,
+    .wof_activity_hub_form .wof_hub_activity_kanban,
+    .wof_activity_hub_form .wof_hub_film_kanban {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        column-gap: 16px !important;
+        row-gap: 13px !important;
+    }
+    .wof_activity_hub_form .wof_hub_activity_card {
+        min-height: 184px !important;
+        height: 184px !important;
+        padding: 12px 13px 11px !important;
+        gap: 6px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 14px rgba(40, 72, 76, .08) !important;
+    }
+    .wof_activity_hub_form .wof_hub_activity_card:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(40, 72, 76, .12) !important;
+    }
+    .wof_activity_hub_form .wof_hub_activity_icon {
+        width: 38px !important;
+        height: 38px !important;
+        flex-basis: 38px !important;
+        border-radius: 10px !important;
+        font-size: 16px !important;
+    }
+    .wof_activity_hub_form .wof_hub_activity_identity strong {
+        font-size: 16px !important;
+    }
+    .wof_activity_hub_form .wof_hub_status {
+        font-size: 10px !important;
+        padding: 2px 7px !important;
+    }
+    .wof_activity_hub_form .wof_hub_activity_desc {
+        min-height: 32px !important;
+        max-height: 32px !important;
+        font-size: 11.5px !important;
+        line-height: 1.4 !important;
+        -webkit-line-clamp: 2 !important;
+    }
+    .wof_activity_hub_form .wof_hub_activity_stats {
+        padding: 4px 0 1px !important;
+    }
+    .wof_activity_hub_form .wof_hub_stat strong {
+        font-size: 14px !important;
+    }
+    .wof_activity_hub_form .wof_hub_stat span {
+        margin-top: 2px !important;
+        font-size: 9.5px !important;
+    }
+    .wof_activity_hub_form .wof_hub_primary_btn {
+        min-height: 36px !important;
+        margin-top: 4px !important;
+        padding: 7px 10px !important;
+        border-radius: 8px !important;
+        font-size: 12.5px !important;
+    }
+    .wof_activity_hub_form .wof_hub_footer {
+        padding: 7px 4px 2px !important;
+    }
+}
