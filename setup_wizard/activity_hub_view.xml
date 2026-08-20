@@ -67,9 +67,20 @@
                                                 <t t-if="record.description.raw_value"><field name="description"/></t>
                                                 <t t-else="">أضف الأفلام والخدمات ثم أكمل مكوناتها وتسعيرها.</t>
                                             </p>
-                                            <div class="wof_hub_activity_meta">
-                                                <span><i class="fa fa-film" title="الأفلام والخدمات"/> <b><field name="film_count"/></b> فيلم / خدمة</span>
-                                                <span t-if="record.supports_color_grades.raw_value"><i class="fa fa-tint" title="درجات اللون"/> يدعم درجات اللون</span>
+                                            <div class="wof_hub_activity_stats">
+                                                <div class="wof_hub_stat">
+                                                    <strong><field name="film_count"/></strong>
+                                                    <span>أفلام / خدمات</span>
+                                                </div>
+                                                <div class="wof_hub_stat">
+                                                    <strong><field name="parts_count"/></strong>
+                                                    <span>مكوّن</span>
+                                                </div>
+                                                <div class="wof_hub_stat">
+                                                    <strong t-if="record.supports_color_grades.raw_value"><i class="fa fa-tint" title="درجات اللون"/></strong>
+                                                    <strong t-else="">—</strong>
+                                                    <span>درجات اللون</span>
+                                                </div>
                                             </div>
                                             <button name="action_open_films" type="object"
                                                     class="btn btn-primary wof_hub_primary_btn">

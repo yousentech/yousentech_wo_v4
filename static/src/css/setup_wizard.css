@@ -2622,3 +2622,192 @@
     .wof_activity_hub_form .wof_hub_film_kanban { grid-template-columns: 1fr !important; }
     .wof_activity_hub_form .wof_hub_section_heading { align-items: stretch; flex-direction: column; }
 }
+
+/* ============================================================
+   Activity Hub RC4 — approved large-card desktop layout
+   3 comfortable cards per row, fixed wide modal, no inner scroll.
+   ============================================================ */
+.modal-dialog:has(.wof_activity_hub_form) {
+    width: min(1480px, 96vw) !important;
+    max-width: min(1480px, 96vw) !important;
+    margin: 1.2vh auto !important;
+}
+.modal:has(.wof_activity_hub_form) .modal-content {
+    max-height: 97.5vh !important;
+    min-height: min(790px, 95vh);
+    border-radius: 16px !important;
+}
+.modal:has(.wof_activity_hub_form) .modal-body,
+.modal:has(.wof_activity_hub_form) .o_form_view,
+.modal:has(.wof_activity_hub_form) .o_form_renderer,
+.modal:has(.wof_activity_hub_form) .o_form_sheet_bg,
+.modal:has(.wof_activity_hub_form) .o_form_sheet {
+    overflow: hidden !important;
+    max-height: none !important;
+}
+
+.wof_activity_hub_form .wof_hub_shell {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+.wof_activity_hub_form .wof_hub_header {
+    padding: 18px 28px 16px !important;
+}
+.wof_activity_hub_form .wof_hub_header_icon {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 12px !important;
+    font-size: 18px !important;
+    margin-bottom: 7px !important;
+}
+.wof_activity_hub_form .wof_hub_header h1 {
+    font-size: 27px !important;
+}
+.wof_activity_hub_form .wof_hub_header p {
+    font-size: 13.5px !important;
+    margin-top: 5px !important;
+}
+.wof_activity_hub_form .wof_hub_content {
+    padding: 15px 28px 16px !important;
+    width: 100% !important;
+}
+.wof_activity_hub_form .wof_hub_section_heading {
+    margin-bottom: 13px !important;
+}
+.wof_activity_hub_form .wof_hub_section_heading h2 {
+    font-size: 20px !important;
+}
+.wof_activity_hub_form .wof_hub_section_heading p {
+    font-size: 12.5px !important;
+}
+
+/* Odoo relational widgets are inline-sized in some form contexts. Force the
+   x2many container and every renderer wrapper to occupy the content width. */
+.wof_activity_hub_form .o_field_widget.wof_hub_x2many,
+.wof_activity_hub_form .wof_hub_x2many,
+.wof_activity_hub_form .wof_hub_x2many > div,
+.wof_activity_hub_form .wof_hub_x2many .o_field_x2many_kanban,
+.wof_activity_hub_form .wof_hub_x2many .o_kanban_view,
+.wof_activity_hub_form .wof_hub_x2many .o_kanban_renderer {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+.wof_activity_hub_form .wof_hub_x2many .o_kanban_renderer,
+.wof_activity_hub_form .wof_hub_activity_kanban,
+.wof_activity_hub_form .wof_hub_film_kanban {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(280px, 1fr)) !important;
+    column-gap: 20px !important;
+    row-gap: 18px !important;
+    justify-content: stretch !important;
+    align-content: start !important;
+    width: 100% !important;
+}
+.wof_activity_hub_form .wof_hub_x2many .o_kanban_renderer > .o_kanban_record,
+.wof_activity_hub_form .wof_hub_activity_kanban .o_kanban_record,
+.wof_activity_hub_form .wof_hub_film_kanban .o_kanban_record {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: none !important;
+}
+
+.wof_activity_hub_form .wof_hub_activity_card {
+    min-height: 230px !important;
+    padding: 16px 16px 13px !important;
+    gap: 10px !important;
+    border-radius: 13px !important;
+    box-shadow: 0 5px 16px rgba(40, 72, 76, .09) !important;
+}
+.wof_activity_hub_form .wof_hub_activity_card:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 24px rgba(40, 72, 76, .13) !important;
+}
+.wof_activity_hub_form .wof_hub_activity_icon {
+    width: 44px !important;
+    height: 44px !important;
+    flex-basis: 44px !important;
+    border-radius: 11px !important;
+    font-size: 18px !important;
+}
+.wof_activity_hub_form .wof_hub_activity_identity strong {
+    font-size: 18px !important;
+}
+.wof_activity_hub_form .wof_hub_status {
+    padding: 3px 8px !important;
+    font-size: 11px !important;
+}
+.wof_activity_hub_form .wof_hub_activity_desc {
+    font-size: 12.5px !important;
+    line-height: 1.55 !important;
+    min-height: 39px !important;
+}
+.wof_activity_hub_form .wof_hub_activity_stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    margin-top: auto;
+    padding: 7px 0 3px;
+}
+.wof_activity_hub_form .wof_hub_stat {
+    min-width: 0;
+    text-align: center;
+    padding: 0 8px;
+    border-inline-start: 1px solid #e1e9e9;
+}
+.wof_activity_hub_form .wof_hub_stat:first-child {
+    border-inline-start: 0;
+}
+.wof_activity_hub_form .wof_hub_stat strong {
+    display: block;
+    color: #27484d;
+    font-size: 16px;
+    font-weight: 750;
+    line-height: 1.2;
+}
+.wof_activity_hub_form .wof_hub_stat span {
+    display: block;
+    margin-top: 3px;
+    color: #718086;
+    font-size: 10.5px;
+    white-space: nowrap;
+}
+.wof_activity_hub_form .wof_hub_primary_btn {
+    min-height: 43px !important;
+    margin-top: 7px !important;
+    padding: 9px 12px !important;
+    border-radius: 9px !important;
+    font-size: 13.5px !important;
+}
+
+/* The film catalogue uses the same approved comfortable 3-column footprint. */
+.wof_activity_hub_form .wof_hub_film_card {
+    min-height: 255px !important;
+    border-radius: 13px !important;
+}
+.wof_activity_hub_form .wof_hub_film_head strong { font-size: 17px !important; }
+.wof_activity_hub_form .wof_hub_film_body { font-size: 12.5px !important; }
+
+/* Up to six normal activity cards fit in two rows without an internal
+   scrollbar on a standard desktop viewport. */
+.wof_activity_hub_form .wof_hub_footer {
+    padding: 9px 4px 4px !important;
+}
+
+@media (max-width: 1120px) {
+    .wof_activity_hub_form .wof_hub_x2many .o_kanban_renderer,
+    .wof_activity_hub_form .wof_hub_activity_kanban,
+    .wof_activity_hub_form .wof_hub_film_kanban {
+        grid-template-columns: repeat(2, minmax(280px, 1fr)) !important;
+    }
+}
+@media (max-width: 720px) {
+    .wof_activity_hub_form .wof_hub_x2many .o_kanban_renderer,
+    .wof_activity_hub_form .wof_hub_activity_kanban,
+    .wof_activity_hub_form .wof_hub_film_kanban {
+        grid-template-columns: 1fr !important;
+    }
+}
