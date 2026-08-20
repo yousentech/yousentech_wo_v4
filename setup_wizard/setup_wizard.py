@@ -1135,8 +1135,25 @@ class WofCompanyProfile(models.Model):
         return self._wizard_action()
 
     def action_go_to_activities(self):
+        """Open the enabled-activities hub without leaving the setup experience."""
         self.ensure_one()
-        return self.action_open_services()
+        self._ensure_can_configure()
+        hub = self.env['wof.activity.hub'].create({
+            'profile_id': self.id,
+            'company_id': self.company_id.id,
+            'view_state': 'activities',
+        })
+        hub._refresh_activities()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('الأنشطة المفعلة'),
+            'res_model': 'wof.activity.hub',
+            'res_id': hub.id,
+            'view_mode': 'form',
+            'view_id': self.env.ref('yousentech_wo_v4.view_wof_activity_hub_form').id,
+            'target': 'new',
+            'context': {'dialog_size': 'extra-large'},
+        }
 
     def apply_setup_templates(self):
         self.ensure_one()
