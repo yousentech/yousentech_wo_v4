@@ -117,7 +117,7 @@ class ServiceType(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('خدمات النشاط'),
             'res_model': 'wof.film.category',
-            'view_mode': 'tree,form',
+            'view_mode': 'kanban,tree,form',
             'domain': [('service_type_id', '=', self.id)],
             'context': {'default_service_type_id': self.id},
         }

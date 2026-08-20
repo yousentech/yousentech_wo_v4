@@ -10,6 +10,7 @@
                 <field name="code"/>
                 <field name="name"/>
                 <field name="service_type_id" string="نشاط المركز"/>
+                <field name="item_type"/>
                 <field name="parts_count" string="المكوّنات"/>
                 <field name="pricing_summary"/>
                 <field name="commission_summary" optional="hide"/>
@@ -18,6 +19,52 @@
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="active" column_invisible="1"/>
             </tree>
+        </field>
+    </record>
+
+    <record id="view_film_category_wo_v4_kanban" model="ir.ui.view">
+        <field name="name">wof.film.category.kanban</field>
+        <field name="model">wof.film.category</field>
+        <field name="arch" type="xml">
+            <kanban class="wof_film_kanban" create="1" default_order="sequence,name">
+                <field name="name"/><field name="code"/><field name="item_type"/><field name="company_id"/>
+                <field name="service_type_id"/><field name="active"/>
+                <field name="configuration_ready"/><field name="configuration_state"/>
+                <field name="configuration_note"/><field name="parts_count"/>
+                <field name="grade_count"/><field name="car_size_count"/>
+                <field name="pricing_summary"/><field name="supports_color_grades"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click wof_film_card #{record.active.raw_value ? '' : 'wof_film_card_inactive'}">
+                            <div class="wof_film_card_header">
+                                <div class="wof_film_title">
+                                    <strong><field name="name"/></strong>
+                                    <div class="wof_film_badges">
+                                        <span class="wof_badge wof_badge_kind"><field name="item_type"/></span>
+                                        <span t-if="record.active.raw_value" class="wof_badge wof_badge_active"><i class="fa fa-check-circle" title="مفعّل"/> مفعّل</span>
+                                        <span t-else="" class="wof_badge wof_badge_muted"><i class="fa fa-times-circle" title="غير مفعّل"/> غير مفعّل</span>
+                                    </div>
+                                </div>
+                                <button type="edit" class="wof_film_edit" title="تعديل"><i class="fa fa-pencil" title="تعديل"/></button>
+                            </div>
+                            <div class="wof_film_card_body">
+                                <div t-if="record.configuration_ready.raw_value" class="wof_readiness wof_ready"><i class="fa fa-check-circle" title="جاهز"/> جاهز</div>
+                                <div t-else="" class="wof_readiness wof_needs_setup"><i class="fa fa-exclamation-triangle" title="يحتاج إلى تهيئة"/> يحتاج إلى تهيئة</div>
+                                <small t-if="!record.configuration_ready.raw_value" class="wof_configuration_note"><field name="configuration_note"/></small>
+                                <div class="wof_film_metrics">
+                                    <span><b><field name="parts_count"/></b> مكونات</span>
+                                    <span t-if="record.supports_color_grades.raw_value"><b><field name="grade_count"/></b> درجات لون</span>
+                                    <span t-if="record.car_size_count.raw_value"><b><field name="car_size_count"/></b> أحجام سيارات</span>
+                                </div>
+                                <div class="wof_pricing_line"><span>سياسة التسعير</span><strong><field name="pricing_summary"/></strong></div>
+                            </div>
+                            <div class="wof_film_card_footer">
+                                <button name="action_configure" type="object" class="btn btn-primary wof_configure_btn">تهيئة</button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
@@ -193,8 +240,9 @@
     <record id="action_film_category_wo_v4" model="ir.actions.act_window">
         <field name="name">الخدمات والأفلام</field>
         <field name="res_model">wof.film.category</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">kanban,tree,form</field>
         <field name="search_view_id" ref="view_film_category_wo_v4_search"/>
+        <field name="view_id" ref="view_film_category_wo_v4_kanban"/>
     </record>
 
     <record id="view_film_parts_price_lines_tree" model="ir.ui.view">

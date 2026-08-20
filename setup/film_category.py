@@ -25,6 +25,10 @@ class FilmCategory(models.Model):
         related='service_type_id.supports_color_grades', readonly=True,
     )
     description = fields.Text(string="وصف الموظف", translate=True)
+    item_type = fields.Selection(
+        [('film', 'فيلم'), ('service', 'خدمة')],
+        string="نوع العنصر", default='film', required=True, index=True,
+    )
     warranty_years = fields.Integer(string="سنوات الضمان", default=5)
     is_effected_in_inventory = fields.Boolean(string="يصرف مواد من المخزون")
     car_film_product_required = fields.Boolean(string="اختيار المنتج المخزني إلزامي")
@@ -46,6 +50,13 @@ class FilmCategory(models.Model):
     grade_count = fields.Integer(compute='_compute_counts')
     pricing_summary = fields.Char(compute='_compute_configuration_summary')
     commission_summary = fields.Char(compute='_compute_configuration_summary')
+    car_size_count = fields.Integer(compute='_compute_configuration_summary')
+    configuration_ready = fields.Boolean(compute='_compute_configuration_summary')
+    configuration_state = fields.Selection(
+        [('ready', 'جاهز'), ('needs_setup', 'يحتاج إلى تهيئة')],
+        compute='_compute_configuration_summary', string="حالة التهيئة",
+    )
+    configuration_note = fields.Char(compute='_compute_configuration_summary')
 
     _sql_constraints = [
         ('film_name_service_company_unique', 'unique(name, service_type_id, company_id)',
@@ -80,6 +91,21 @@ class FilmCategory(models.Model):
             commissions = record.film_part_line_ids.commission_line_ids
             record.pricing_summary = record._mode_summary(prices)
             record.commission_summary = record._mode_summary(commissions)
+            size_ids = prices.mapped('car_size_id').filtered(lambda size: size)
+            record.car_size_count = len(size_ids)
+            has_parts = bool(record.film_part_line_ids.filtered('part_selected'))
+            has_prices = bool(prices)
+            grades_ok = (not record.supports_color_grades) or bool(record.film_category_line_ids.filtered('active'))
+            record.configuration_ready = bool(has_parts and has_prices and grades_ok)
+            record.configuration_state = 'ready' if record.configuration_ready else 'needs_setup'
+            missing = []
+            if not has_parts:
+                missing.append('المكونات')
+            if not has_prices:
+                missing.append('الأسعار')
+            if not grades_ok:
+                missing.append('درجات اللون')
+            record.configuration_note = ('الإعداد مكتمل' if not missing else 'غير مكتمل: %s' % '، '.join(missing))
 
     @api.model
     def _mode_summary(self, lines):
@@ -98,6 +124,18 @@ class FilmCategory(models.Model):
                 raise ValidationError(
                     'درجات اللون متاحة لخدمات العزل الحراري فقط.'
                 )
+
+
+    def action_configure(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'تهيئة %s' % self.display_name,
+            'res_model': 'wof.film.category',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
 
     def action_create_component(self):
         self.ensure_one()
