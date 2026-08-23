@@ -3439,3 +3439,107 @@ body:has(.modal.show .wof_activity_hub_form),
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
 }
+
+/* ============================================================
+   RC10 — authoritative Film / Service catalogue layout
+   The earlier RC9 selectors relied on :has() to identify the film
+   renderer.  Odoo's x2many DOM can vary between builds, so this block
+   targets an explicit persistent wrapper rendered by the XML view.
+   This is intentionally the final override for the catalogue.
+   ============================================================ */
+@media (min-width: 1121px) {
+    .wof_activity_hub_form .wof_film_catalog_grid {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        overflow: hidden !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .wof_hub_film_x2many,
+    .wof_activity_hub_form .wof_film_catalog_grid .wof_hub_film_x2many > div,
+    .wof_activity_hub_form .wof_film_catalog_grid .o_field_x2many_kanban,
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_view {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        overflow: visible !important;
+        background: transparent !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        grid-auto-flow: row !important;
+        grid-auto-rows: 184px !important;
+        align-items: stretch !important;
+        align-content: start !important;
+        column-gap: 14px !important;
+        row-gap: 11px !important;
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 1px 3px 2px !important;
+        max-height: calc(97vh - 238px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: #c8cad5 transparent !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer::-webkit-scrollbar {
+        width: 5px !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer::-webkit-scrollbar-thumb {
+        background: #c8cad5 !important;
+        border-radius: 999px !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer > .o_kanban_record {
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: 184px !important;
+        min-height: 184px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .wof_hub_film_card {
+        width: 100% !important;
+        height: 184px !important;
+        min-height: 184px !important;
+        max-height: 184px !important;
+    }
+
+    /* Keep the catalogue header/action visually compact and aligned. */
+    .wof_activity_hub_form .wof_hub_content:has(.wof_film_catalog_grid) {
+        padding: 9px 22px 8px !important;
+        overflow: hidden !important;
+    }
+    .wof_activity_hub_form .wof_hub_content:has(.wof_film_catalog_grid) .wof_hub_films_toolbar {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 14px !important;
+        margin-bottom: 9px !important;
+    }
+}
+
+@media (min-width: 721px) and (max-width: 1120px) {
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 11px !important;
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 720px) {
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+}

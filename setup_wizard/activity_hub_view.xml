@@ -110,7 +110,8 @@
                                 <i class="fa fa-plus" title="إضافة"/> إضافة فيلم / خدمة
                             </button>
                         </div>
-                        <field name="film_line_ids" nolabel="1" class="wof_hub_x2many">
+                        <div class="wof_film_catalog_grid">
+                            <field name="film_line_ids" nolabel="1" class="wof_hub_x2many wof_hub_film_x2many">
                             <kanban create="0" edit="0" delete="0" class="wof_hub_film_kanban">
                                 <field name="name"/><field name="description"/><field name="item_type"/><field name="active"/>
                                 <field name="configuration_ready"/><field name="configuration_note"/>
@@ -173,7 +174,8 @@
                                     </t>
                                 </templates>
                             </kanban>
-                        </field>
+                            </field>
+                        </div>
                         <div class="wof_hub_empty" invisible="film_count != 0">
                             <i class="fa fa-film" title="الأفلام والخدمات"/>
                             <strong>لا توجد أفلام أو خدمات لهذا النشاط بعد.</strong>
