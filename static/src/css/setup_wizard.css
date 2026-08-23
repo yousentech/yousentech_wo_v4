@@ -3543,3 +3543,129 @@ body:has(.modal.show .wof_activity_hub_form),
         width: 100% !important;
     }
 }
+
+/* ============================================================
+   Activity Hub RC11 — stable film catalogue runtime layout
+   Purpose:
+   - keep the approved 3-column Film/Service catalogue;
+   - do not create an internal scrollbar for normal catalogues (1–9 items);
+   - only scroll the card area when a tenth item exists;
+   - keep the modal/header/footer fixed and preserve Odoo 17 behavior.
+   This block is intentionally last and authoritative.
+   ============================================================ */
+@media (min-width: 1121px) {
+    .wof_activity_hub_form .wof_hub_content:has(.wof_film_catalog_grid) {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow: hidden !important;
+    }
+
+    .wof_activity_hub_form .wof_film_catalog_grid {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .wof_activity_hub_form .wof_film_catalog_grid .wof_hub_film_x2many,
+    .wof_activity_hub_form .wof_film_catalog_grid .wof_hub_film_x2many > div,
+    .wof_activity_hub_form .wof_film_catalog_grid .o_field_x2many_kanban,
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_view {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        grid-auto-flow: row !important;
+        grid-auto-rows: 184px !important;
+        gap: 12px 14px !important;
+        align-items: stretch !important;
+        align-content: start !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 1px 3px 2px !important;
+        overflow: visible !important;
+        scrollbar-width: none !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* Only large catalogues need an internal scrolling region. */
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer:has(> .o_kanban_record:nth-child(10)) {
+        max-height: min(590px, calc(97vh - 238px)) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding-inline-end: 5px !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: #c8cad5 transparent !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer:has(> .o_kanban_record:nth-child(10))::-webkit-scrollbar {
+        display: block !important;
+        width: 5px !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer:has(> .o_kanban_record:nth-child(10))::-webkit-scrollbar-thumb {
+        background: #c8cad5 !important;
+        border-radius: 999px !important;
+    }
+
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer > .o_kanban_record {
+        box-sizing: border-box !important;
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: 184px !important;
+        min-height: 184px !important;
+        max-height: 184px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .wof_activity_hub_form .wof_film_catalog_grid .wof_hub_film_card {
+        box-sizing: border-box !important;
+        width: 100% !important;
+        height: 184px !important;
+        min-height: 184px !important;
+        max-height: 184px !important;
+        margin: 0 !important;
+    }
+
+    /* A single/short row stays aligned to the RTL side naturally, while
+       retaining the exact same card width it would have in a full row. */
+    [dir="rtl"] .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer {
+        direction: rtl !important;
+    }
+}
+
+@media (min-width: 721px) and (max-width: 1120px) {
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        max-height: none !important;
+        overflow: visible !important;
+        scrollbar-width: none !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer:has(> .o_kanban_record:nth-child(7)) {
+        max-height: calc(96vh - 230px) !important;
+        overflow-y: auto !important;
+        scrollbar-width: thin !important;
+    }
+}
