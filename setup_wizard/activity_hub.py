@@ -62,7 +62,7 @@ class WofActivityHub(models.TransientModel):
             raise ValidationError(_('النشاط المحدد غير متاح ضمن شركة مركز التهيئة الحالي.'))
         self.write({'view_state': 'films', 'selected_activity_id': activity.id})
         self._refresh_films()
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+        return self._reopen_hub()
 
     def _refresh_films(self):
         self.ensure_one()
@@ -79,12 +79,30 @@ class WofActivityHub(models.TransientModel):
             Line.create({'hub_id': self.id, 'film_id': film.id})
         return films
 
+    def _reopen_hub(self):
+        """Re-open the same transient wizard record so parent-state changes are
+        rendered reliably inside the modal. A plain client reload can leave an
+        embedded x2many card view showing the previous parent state in Odoo 17.
+        """
+        self.ensure_one()
+        view = self.env.ref('yousentech_wo_v4.view_wof_activity_hub_form')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('الأنشطة المفعلة'),
+            'res_model': self._name,
+            'res_id': self.id,
+            'view_mode': 'form',
+            'views': [(view.id, 'form')],
+            'target': 'new',
+            'context': dict(self.env.context),
+        }
+
     def action_back_to_activities(self):
         self.ensure_one()
         self.write({'view_state': 'activities', 'selected_activity_id': False})
         self.film_line_ids.unlink()
         self._refresh_activities()
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+        return self._reopen_hub()
 
     def action_open_films(self):
         """Validator-safe fallback; card actions are implemented on activity lines."""
@@ -92,7 +110,7 @@ class WofActivityHub(models.TransientModel):
         if self.selected_activity_id:
             self.write({'view_state': 'films'})
             self._refresh_films()
-            return {'type': 'ir.actions.client', 'tag': 'reload'}
+            return self._reopen_hub()
         return False
 
     def action_configure(self):
