@@ -2942,3 +2942,31 @@
         padding: 7px 4px 2px !important;
     }
 }
+
+/* ============================================================
+   Activity Hub RC6 — suppress the background Odoo page scroller
+   while the Activity Hub modal is open.  The modal itself keeps
+   the approved no-inner-scroll layout from RC5.
+   ============================================================ */
+html:has(.modal.show .wof_activity_hub_form),
+body:has(.modal.show .wof_activity_hub_form),
+.o_web_client:has(.modal.show .wof_activity_hub_form) {
+    overflow: hidden !important;
+}
+
+/* Odoo's action/content panes can keep their own scrollbar even
+   while Bootstrap locks <body>. Freeze those background panes only
+   for this modal so the vertical rail behind the popup disappears. */
+.o_web_client:has(.modal.show .wof_activity_hub_form) .o_action_manager,
+.o_web_client:has(.modal.show .wof_activity_hub_form) .o_action_manager > .o_action,
+.o_web_client:has(.modal.show .wof_activity_hub_form) .o_content {
+    overflow: hidden !important;
+    scrollbar-width: none !important;
+}
+.o_web_client:has(.modal.show .wof_activity_hub_form) .o_action_manager::-webkit-scrollbar,
+.o_web_client:has(.modal.show .wof_activity_hub_form) .o_action_manager > .o_action::-webkit-scrollbar,
+.o_web_client:has(.modal.show .wof_activity_hub_form) .o_content::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+}
