@@ -126,7 +126,7 @@
                                                         <strong><field name="name"/></strong>
                                                     </div>
                                                     <button name="action_configure" type="object" class="btn btn-link wof_hub_film_edit_btn" title="تعديل / تهيئة">
-                                                        <i class="fa fa-pencil"/>
+                                                        <i class="fa fa-pencil" title="تعديل / تهيئة"/>
                                                     </button>
                                                 </div>
                                                 <div class="wof_hub_film_badges">
@@ -164,7 +164,7 @@
                                                     <strong><field name="pricing_summary"/></strong>
                                                 </div>
                                             </div>
-                                            <button name="action_configure" type="object" class="btn btn-primary wof_hub_primary_btn wof_hub_film_config_btn">
+                                            <button name="action_configure" type="object" t-attf-class="btn wof_hub_primary_btn wof_hub_film_config_btn #{record.configuration_ready.raw_value ? 'is-ready' : 'is-needs-setup'}">
                                                 <t t-if="record.configuration_ready.raw_value">عرض / تعديل التهيئة</t>
                                                 <t t-else="">بدء التهيئة</t>
                                                 <i class="fa fa-arrow-left" title="فتح"/>
