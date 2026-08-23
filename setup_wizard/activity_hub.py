@@ -147,6 +147,7 @@ class WofActivityHubFilm(models.TransientModel):
     hub_id = fields.Many2one('wof.activity.hub', required=True, ondelete='cascade')
     film_id = fields.Many2one('wof.film.category', required=True, ondelete='cascade')
     name = fields.Char(related='film_id.name', readonly=True)
+    description = fields.Text(related='film_id.description', readonly=True)
     item_type = fields.Selection(related='film_id.item_type', readonly=True)
     active = fields.Boolean(related='film_id.active', readonly=True)
     configuration_ready = fields.Boolean(related='film_id.configuration_ready', readonly=True)
@@ -155,6 +156,7 @@ class WofActivityHubFilm(models.TransientModel):
     grade_count = fields.Integer(related='film_id.grade_count', readonly=True)
     car_size_count = fields.Integer(related='film_id.car_size_count', readonly=True)
     pricing_summary = fields.Char(related='film_id.pricing_summary', readonly=True)
+    commission_summary = fields.Char(related='film_id.commission_summary', readonly=True)
     supports_color_grades = fields.Boolean(related='film_id.supports_color_grades', readonly=True)
 
     def action_configure(self):

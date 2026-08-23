@@ -14,7 +14,8 @@
 
                 <div class="wof_hub_shell">
                     <div class="wof_hub_header">
-                        <div class="wof_hub_header_icon"><i class="fa fa-th-large" title="الأنشطة"/></div>
+                        <div class="wof_hub_header_icon" invisible="view_state != 'activities'"><i class="fa fa-th-large" title="الأنشطة"/></div>
+                        <div class="wof_hub_header_icon wof_hub_header_icon_film" invisible="view_state != 'films'"><i class="fa fa-film" title="الأفلام والخدمات"/></div>
                         <h1 invisible="view_state != 'activities'">الأنشطة المفعلة</h1>
                         <h1 invisible="view_state != 'films'">أفلام وخدمات <field name="selected_activity_id" readonly="1"/></h1>
                         <p invisible="view_state != 'activities'">
@@ -111,35 +112,63 @@
                         </div>
                         <field name="film_line_ids" nolabel="1" class="wof_hub_x2many">
                             <kanban create="0" edit="0" delete="0" class="wof_hub_film_kanban">
-                                <field name="name"/><field name="item_type"/><field name="active"/>
+                                <field name="name"/><field name="description"/><field name="item_type"/><field name="active"/>
                                 <field name="configuration_ready"/><field name="configuration_note"/>
                                 <field name="parts_count"/><field name="grade_count"/><field name="car_size_count"/>
-                                <field name="pricing_summary"/><field name="supports_color_grades"/>
+                                <field name="pricing_summary"/><field name="commission_summary"/><field name="supports_color_grades"/>
                                 <templates>
                                     <t t-name="kanban-box">
-                                        <div t-attf-class="wof_hub_film_card #{record.active.raw_value ? '' : 'inactive'}">
+                                        <div t-attf-class="wof_hub_film_card #{record.active.raw_value ? '' : 'inactive'} #{record.configuration_ready.raw_value ? 'ready' : 'needs_setup'}">
                                             <div class="wof_hub_film_head">
-                                                <div>
-                                                    <strong><field name="name"/></strong>
-                                                    <div class="wof_hub_film_badges">
-                                                        <span class="kind"><field name="item_type"/></span>
-                                                        <span t-if="record.active.raw_value" class="active"><i class="fa fa-check-circle" title="مفعّل"/> مفعّل</span>
-                                                        <span t-else="" class="muted"><i class="fa fa-times-circle" title="غير مفعّل"/> غير مفعّل</span>
+                                                <div class="wof_hub_film_title_row">
+                                                    <div class="wof_hub_film_title_group">
+                                                        <span class="wof_hub_film_type_icon"><i t-attf-class="fa #{record.item_type.raw_value === 'film' ? 'fa-film' : 'fa-cube'}" title="نوع العنصر"/></span>
+                                                        <strong><field name="name"/></strong>
                                                     </div>
+                                                    <button name="action_configure" type="object" class="btn btn-link wof_hub_film_edit_btn" title="تعديل / تهيئة">
+                                                        <i class="fa fa-pencil"/>
+                                                    </button>
+                                                </div>
+                                                <div class="wof_hub_film_badges">
+                                                    <span class="kind"><field name="item_type"/></span>
+                                                    <span t-if="record.active.raw_value" class="active"><i class="fa fa-check-circle" title="مفعّل"/> مفعّل</span>
+                                                    <span t-else="" class="muted"><i class="fa fa-times-circle" title="غير مفعّل"/> غير مفعّل</span>
                                                 </div>
                                             </div>
                                             <div class="wof_hub_film_body">
-                                                <div t-if="record.configuration_ready.raw_value" class="wof_hub_ready"><i class="fa fa-check-circle" title="جاهز"/> جاهز</div>
-                                                <div t-else="" class="wof_hub_not_ready"><i class="fa fa-exclamation-triangle" title="يحتاج إلى تهيئة"/> يحتاج إلى تهيئة</div>
-                                                <small t-if="!record.configuration_ready.raw_value"><field name="configuration_note"/></small>
-                                                <div class="wof_hub_film_metrics">
-                                                    <span><b><field name="parts_count"/></b> مكونات</span>
-                                                    <span t-if="record.car_size_count.raw_value"><b><field name="car_size_count"/></b> أحجام سيارات</span>
-                                                    <span t-if="record.supports_color_grades.raw_value"><b><field name="grade_count"/></b> درجات لون</span>
+                                                <p class="wof_hub_film_desc">
+                                                    <t t-if="record.description.raw_value"><field name="description"/></t>
+                                                    <t t-else="">اضبط المكونات والأسعار والسياسات ثم فعّل العنصر للاستخدام.</t>
+                                                </p>
+                                                <div class="wof_hub_film_state">
+                                                    <div t-if="record.configuration_ready.raw_value" class="wof_hub_ready"><i class="fa fa-check-circle" title="جاهز"/> جاهز</div>
+                                                    <div t-else="" class="wof_hub_not_ready"><i class="fa fa-exclamation-triangle" title="يحتاج إلى تهيئة"/> يحتاج إلى تهيئة</div>
+                                                    <small t-if="!record.configuration_ready.raw_value"><field name="configuration_note"/></small>
                                                 </div>
-                                                <div class="wof_hub_pricing"><span>سياسة التسعير</span><strong><field name="pricing_summary"/></strong></div>
+                                                <div class="wof_hub_film_stats">
+                                                    <div class="wof_hub_film_stat">
+                                                        <strong><field name="parts_count"/></strong>
+                                                        <span>مكونات</span>
+                                                    </div>
+                                                    <div class="wof_hub_film_stat">
+                                                        <strong><t t-if="record.car_size_count.raw_value"><field name="car_size_count"/></t><t t-else="">—</t></strong>
+                                                        <span>أحجام سيارات</span>
+                                                    </div>
+                                                    <div class="wof_hub_film_stat">
+                                                        <strong><t t-if="record.supports_color_grades.raw_value"><field name="grade_count"/></t><t t-else="">—</t></strong>
+                                                        <span>درجات لون</span>
+                                                    </div>
+                                                </div>
+                                                <div class="wof_hub_film_policy">
+                                                    <span>سياسة التسعير</span>
+                                                    <strong><field name="pricing_summary"/></strong>
+                                                </div>
                                             </div>
-                                            <button name="action_configure" type="object" class="btn btn-primary wof_hub_primary_btn">تهيئة</button>
+                                            <button name="action_configure" type="object" class="btn btn-primary wof_hub_primary_btn wof_hub_film_config_btn">
+                                                <t t-if="record.configuration_ready.raw_value">عرض / تعديل التهيئة</t>
+                                                <t t-else="">بدء التهيئة</t>
+                                                <i class="fa fa-arrow-left" title="فتح"/>
+                                            </button>
                                         </div>
                                     </t>
                                 </templates>
