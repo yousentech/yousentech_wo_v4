@@ -31,8 +31,6 @@ class WofFilmSetupWizard(models.TransientModel):
     item_type = fields.Selection(
         [('film', 'فيلم'), ('service', 'خدمة')], string='نوع العنصر', default='film', required=True,
     )
-    # The transient wizard must be creatable before the user types a name.
-    # Requiredness is enforced in the view and again in _save_basic().
     name = fields.Char(string='اسم الفيلم / الخدمة')
     code = fields.Char(string='الكود')
     description = fields.Text(string='الوصف المختصر')
@@ -51,6 +49,10 @@ class WofFilmSetupWizard(models.TransientModel):
     system_pricing_policy = fields.Selection(
         [('fixed', 'سعر موحد'), ('by_size', 'حسب حجم السيارة')],
         string='سياسة التسعير من النظام', readonly=True,
+    )
+    commission_calculation_policy = fields.Selection(
+        [('fixed', 'عمولة موحدة'), ('by_size', 'حسب حجم السيارة')],
+        string='طريقة احتساب العمولة', default='fixed', required=True,
     )
 
     use_system_car_sizes = fields.Boolean(string='استخدام أحجام النظام', default=True)
@@ -163,6 +165,7 @@ class WofFilmSetupWizard(models.TransientModel):
                 'car_size_ids': [(6, 0, selected_sizes.ids)],
                 'use_system_commission_policy': film.use_system_commission_policy,
                 'commission_event': film.commission_event or profile.commission_event,
+                'commission_calculation_policy': film.commission_calculation_policy or 'fixed',
             })
         else:
             vals.update({
@@ -175,6 +178,7 @@ class WofFilmSetupWizard(models.TransientModel):
                 'car_size_ids': [(6, 0, active_sizes.ids)],
                 'use_system_commission_policy': True,
                 'commission_event': profile.commission_event,
+                'commission_calculation_policy': 'fixed',
             })
         return self.create(vals)
 
@@ -262,6 +266,7 @@ class WofFilmSetupWizard(models.TransientModel):
             'car_size_ids': [(6, 0, sizes.ids)],
             'use_system_commission_policy': self.use_system_commission_policy,
             'commission_event': commission_event,
+            'commission_calculation_policy': self.commission_calculation_policy,
         }
         if self.film_id:
             self.film_id.write(vals)

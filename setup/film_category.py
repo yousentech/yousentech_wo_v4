@@ -65,6 +65,11 @@ class FilmCategory(models.Model):
          ('invoice', 'بعد ترحيل الفاتورة')],
         string="سياسة استحقاق العمولة", default='delivery', required=True,
     )
+    commission_calculation_policy = fields.Selection(
+        [('fixed', 'عمولة موحدة'), ('by_size', 'حسب حجم السيارة')],
+        string="طريقة احتساب العمولة", default='fixed', required=True,
+        help="يحدد شكل إدخال العمولة في خطوة الأسعار والعمولات: قيمة/نسبة موحدة أو قيمة/نسبة مستقلة لكل حجم سيارة.",
+    )
     film_category_line_ids = fields.One2many(
         'wof.film.category.lines', 'header_id', string="درجات الفيلم والمنتجات",
     )

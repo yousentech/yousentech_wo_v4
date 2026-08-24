@@ -72,7 +72,7 @@
                                 <div class="wof_film_fields_grid">
                                     <div class="wof_film_field is-wide">
                                         <div class="o_form_label">اسم الفيلم / الخدمة <span class="wof_required">*</span></div>
-                                        <field name="name" required="1" nolabel="1" placeholder="أدخل اسم الفيلم أو الخدمة"/>
+                                        <field name="name" nolabel="1" required="1" placeholder="أدخل اسم الفيلم أو الخدمة"/>
                                     </div>
                                     <div class="wof_film_field">
                                         <div class="o_form_label">نوع العنصر <span class="wof_required">*</span></div>
@@ -99,90 +99,75 @@
                                 </div>
                             </section>
 
-                            <section class="wof_film_setup_card wof_film_policy_card">
-                                <div class="wof_film_card_title">
-                                    <span class="wof_film_card_icon"><i class="fa fa-sliders" title="السياسات"/></span>
-                                    <div>
-                                        <h2>السياسات الافتراضية</h2>
-                                        <p>تُورث من مركز تهيئة النظام ويمكن تخصيصها لهذا الفيلم أو الخدمة عند الحاجة.</p>
+                            <section class="wof_film_compact_sections">
+                                <details class="wof_compact_section">
+                                    <summary>
+                                        <span class="wof_compact_icon"><i class="fa fa-car" title="الأحجام والسيارة"/></span>
+                                        <span class="wof_compact_copy"><strong>الأحجام والسيارة</strong><small>الأحجام المتاحة لهذا الفيلم / الخدمة</small></span>
+                                        <span class="wof_compact_state"><i class="fa fa-check-circle" title="جاهز"/> يرث إعدادات النظام</span>
+                                        <i class="fa fa-chevron-down wof_compact_arrow" title="توسيع"/>
+                                    </summary>
+                                    <div class="wof_compact_content">
+                                        <div class="wof_policy_heading"><i class="fa fa-car" title="أحجام السيارات"/><div><strong>أحجام السيارات</strong><small>تستخدم عند التسعير أو احتساب العمولة حسب حجم السيارة.</small></div></div>
+                                        <div class="wof_system_value"><span>أحجام النظام المعتمدة</span><strong><field name="system_size_count" readonly="1" nolabel="1"/> أحجام</strong></div>
+                                        <div class="wof_inline_toggle"><field name="use_system_car_sizes" widget="boolean_toggle" nolabel="1"/><span>استخدام جميع أحجام النظام</span></div>
+                                        <div class="wof_size_chips"><field name="system_car_size_ids" widget="many2many_tags" readonly="1" nolabel="1" invisible="not use_system_car_sizes"/><field name="car_size_ids" widget="many2many_tags" nolabel="1" invisible="use_system_car_sizes"/></div>
                                     </div>
-                                </div>
+                                </details>
 
-                                <div class="wof_policy_grid">
-                                    <div class="wof_policy_box">
-                                        <div class="wof_policy_heading">
-                                            <i class="fa fa-tag" title="التسعير"/>
-                                            <div><strong>سياسة التسعير</strong><small>كيف سيتم تسعير هذا الفيلم / الخدمة؟</small></div>
-                                        </div>
-                                        <div class="wof_system_value">
-                                            <span>الافتراضي من النظام</span>
-                                            <field name="system_pricing_policy" readonly="1" nolabel="1"/>
-                                        </div>
-                                        <field name="use_system_pricing_policy" widget="boolean_toggle" nolabel="1"/>
-                                        <span class="wof_toggle_caption">استخدام سياسة النظام</span>
-                                        <div class="wof_override_area" invisible="use_system_pricing_policy">
-                                            <div class="o_form_label">تخصيص سياسة لهذا الفيلم / الخدمة</div>
-                                            <field name="pricing_policy" widget="radio" options="{'horizontal': True}" nolabel="1"/>
-                                        </div>
+                                <details class="wof_compact_section">
+                                    <summary>
+                                        <span class="wof_compact_icon"><i class="fa fa-tag" title="التسعير"/></span>
+                                        <span class="wof_compact_copy"><strong>التسعير</strong><small>حدد فقط سياسة التسعير الآن؛ القيم في خطوة الأسعار</small></span>
+                                        <span class="wof_compact_state"><i class="fa fa-check-circle" title="جاهز"/> يرث إعدادات النظام</span>
+                                        <i class="fa fa-chevron-down wof_compact_arrow" title="توسيع"/>
+                                    </summary>
+                                    <div class="wof_compact_content">
+                                        <div class="wof_policy_heading"><i class="fa fa-tag" title="سياسة التسعير"/><div><strong>سياسة التسعير</strong><small>سعر موحد أو حسب حجم السيارة.</small></div></div>
+                                        <div class="wof_system_value"><span>الافتراضي من النظام</span><field name="system_pricing_policy" readonly="1" nolabel="1"/></div>
+                                        <div class="wof_inline_toggle"><field name="use_system_pricing_policy" widget="boolean_toggle" nolabel="1"/><span>استخدام سياسة النظام</span></div>
+                                        <div class="wof_override_area" invisible="use_system_pricing_policy"><div class="o_form_label">تخصيص سياسة لهذا الفيلم / الخدمة</div><field name="pricing_policy" widget="radio" options="{'horizontal': True}" nolabel="1"/></div>
                                     </div>
+                                </details>
 
-                                    <div class="wof_policy_box">
-                                        <div class="wof_policy_heading">
-                                            <i class="fa fa-car" title="أحجام السيارات"/>
-                                            <div><strong>أحجام السيارات</strong><small>الأحجام التي ستتوفر عند التسعير حسب الحجم.</small></div>
-                                        </div>
-                                        <div class="wof_system_value">
-                                            <span>أحجام النظام المعتمدة</span>
-                                            <strong><field name="system_size_count" readonly="1" nolabel="1"/> أحجام</strong>
-                                        </div>
-                                        <field name="use_system_car_sizes" widget="boolean_toggle" nolabel="1"/>
-                                        <span class="wof_toggle_caption">استخدام جميع أحجام النظام</span>
-                                        <div class="wof_size_chips">
-                                            <field name="system_car_size_ids" widget="many2many_tags" readonly="1" nolabel="1" invisible="not use_system_car_sizes"/>
-                                            <field name="car_size_ids" widget="many2many_tags" nolabel="1" invisible="use_system_car_sizes"/>
+                                <details class="wof_compact_section">
+                                    <summary>
+                                        <span class="wof_compact_icon"><i class="fa fa-percent" title="العمولة"/></span>
+                                        <span class="wof_compact_copy"><strong>استحقاق العمولة</strong><small>وقت الاستحقاق وطريقة الاحتساب</small></span>
+                                        <span class="wof_compact_state"><i class="fa fa-check-circle" title="جاهز"/> سياسة العمولة جاهزة</span>
+                                        <i class="fa fa-chevron-down wof_compact_arrow" title="توسيع"/>
+                                    </summary>
+                                    <div class="wof_compact_content">
+                                        <div class="wof_policy_split">
+                                            <div>
+                                                <div class="wof_policy_heading"><i class="fa fa-clock-o" title="استحقاق العمولة"/><div><strong>استحقاق العمولة</strong><small>متى تصبح عمولة الفني مستحقة؟</small></div></div>
+                                                <div class="wof_system_value"><span>الافتراضي من النظام</span><field name="system_commission_event" readonly="1" nolabel="1"/></div>
+                                                <div class="wof_inline_toggle"><field name="use_system_commission_policy" widget="boolean_toggle" nolabel="1"/><span>استخدام سياسة النظام</span></div>
+                                                <div class="wof_override_area" invisible="use_system_commission_policy"><field name="commission_event" widget="radio" options="{'horizontal': True}" nolabel="1"/></div>
+                                            </div>
+                                            <div>
+                                                <div class="wof_policy_heading"><i class="fa fa-calculator" title="احتساب العمولة"/><div><strong>طريقة احتساب العمولة</strong><small>هنا نحدد السياسة فقط؛ المبلغ أو النسبة لكل حجم تُدخل لاحقاً.</small></div></div>
+                                                <field name="commission_calculation_policy" widget="radio" options="{'horizontal': True}" nolabel="1"/>
+                                                <div class="wof_policy_help" invisible="commission_calculation_policy != 'by_size'"><i class="fa fa-info-circle" title="معلومة"/> في خطوة الأسعار والعمولات ستظهر أحجام السيارات ويُدخل مبلغ أو نسبة العمولة لكل حجم.</div>
+                                            </div>
                                         </div>
                                     </div>
+                                </details>
 
-                                    <div class="wof_policy_box">
-                                        <div class="wof_policy_heading">
-                                            <i class="fa fa-users" title="العمولة"/>
-                                            <div><strong>سياسة العمولة</strong><small>متى تصبح عمولة الفني مستحقة؟</small></div>
-                                        </div>
-                                        <div class="wof_system_value">
-                                            <span>الافتراضي من النظام</span>
-                                            <field name="system_commission_event" readonly="1" nolabel="1"/>
-                                        </div>
-                                        <field name="use_system_commission_policy" widget="boolean_toggle" nolabel="1"/>
-                                        <span class="wof_toggle_caption">استخدام سياسة النظام</span>
-                                        <div class="wof_override_area" invisible="use_system_commission_policy">
-                                            <div class="o_form_label">تخصيص سياسة لهذا الفيلم / الخدمة</div>
-                                            <field name="commission_event" widget="radio" options="{'horizontal': True}" nolabel="1"/>
-                                        </div>
+                                <details class="wof_compact_section">
+                                    <summary>
+                                        <span class="wof_compact_icon"><i class="fa fa-cubes" title="المخزون والمنتج"/></span>
+                                        <span class="wof_compact_copy"><strong>المخزون والمنتج</strong><small>إعدادات الصرف والمنتج المخزني والتنبيه</small></span>
+                                        <span class="wof_compact_state"><i class="fa fa-check-circle" title="جاهز"/> وفق إعدادات النظام</span>
+                                        <i class="fa fa-chevron-down wof_compact_arrow" title="توسيع"/>
+                                    </summary>
+                                    <div class="wof_compact_content">
+                                        <div class="wof_policy_heading"><i class="fa fa-cube" title="المخزون"/><div><strong>المخزون</strong><small>حدد هل هذا العنصر يستهلك مواد فعلية من المخزون.</small></div></div>
+                                        <div class="wof_system_value"><span>إعداد النظام</span><strong invisible="not system_inventory_enabled">صرف المخزون مفعّل</strong><strong invisible="system_inventory_enabled">صرف المخزون غير مفعّل</strong></div>
+                                        <div class="wof_inventory_options"><div><field name="inventory_enabled" widget="boolean_toggle" nolabel="1"/><span>يصرف مواد من المخزون</span></div><div invisible="not inventory_enabled or item_type != 'film'"><field name="product_required" widget="boolean_toggle" nolabel="1"/><span>اختيار المنتج المخزني إلزامي</span></div></div>
+                                        <div class="wof_film_optional_row"><div class="wof_film_field"><div class="o_form_label">رسالة تنبيه <span class="wof_optional">اختياري</span></div><field name="warning_msg" nolabel="1" placeholder="رسالة تظهر للمستخدم عند اختيار هذا الفيلم / الخدمة"/></div></div>
                                     </div>
-
-                                    <div class="wof_policy_box">
-                                        <div class="wof_policy_heading">
-                                            <i class="fa fa-cube" title="المخزون"/>
-                                            <div><strong>المخزون</strong><small>حدد هل هذا العنصر يستهلك مواد فعلية من المخزون.</small></div>
-                                        </div>
-                                        <div class="wof_system_value">
-                                            <span>إعداد النظام</span>
-                                            <strong invisible="not system_inventory_enabled">صرف المخزون مفعّل</strong>
-                                            <strong invisible="system_inventory_enabled">صرف المخزون غير مفعّل</strong>
-                                        </div>
-                                        <div class="wof_inventory_options">
-                                            <div><field name="inventory_enabled" widget="boolean_toggle" nolabel="1"/><span>يصرف مواد من المخزون</span></div>
-                                            <div invisible="not inventory_enabled or item_type != 'film'"><field name="product_required" widget="boolean_toggle" nolabel="1"/><span>اختيار المنتج المخزني إلزامي</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="wof_film_optional_row">
-                                    <div class="wof_film_field">
-                                        <div class="o_form_label">رسالة تنبيه <span class="wof_optional">اختياري</span></div>
-                                        <field name="warning_msg" nolabel="1" placeholder="رسالة تظهر للمستخدم عند اختيار هذا الفيلم / الخدمة"/>
-                                    </div>
-                                </div>
+                                </details>
                             </section>
                         </div>
 
