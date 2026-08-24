@@ -3669,3 +3669,329 @@ body:has(.modal.show .wof_activity_hub_form),
         scrollbar-width: thin !important;
     }
 }
+
+/* ============================================================
+   Film / Service Setup Wizard — Stage 1 approved visual identity
+   ============================================================ */
+.wof_film_setup_form .o_form_sheet_bg,
+.wof_film_setup_form .o_form_sheet,
+.wof_film_setup_form .o_form_renderer {
+    background: #f8f9fc !important;
+}
+.wof_film_setup_form .o_form_sheet {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+.wof_film_setup_form .o_form_statusbar,
+.wof_film_setup_form .o_form_statusbar + .o_form_sheet_bg {
+    border: 0 !important;
+}
+.wof_film_setup_shell {
+    direction: rtl;
+    color: #25283a;
+    min-height: 640px;
+    padding-bottom: 4px;
+}
+.wof_film_setup_header {
+    text-align: center;
+    padding: 17px 24px 10px;
+    background: #fff;
+    border-bottom: 1px solid #e7e8ef;
+}
+.wof_film_setup_header h1 {
+    margin: 0;
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -.25px;
+    color: #1e2132;
+}
+.wof_film_setup_header p {
+    margin: 5px 0 9px;
+    color: #74788c;
+    font-size: 13px;
+}
+.wof_film_setup_activity_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: #eeedf4;
+    color: #4b4d5f;
+    font-size: 12px;
+}
+.wof_film_setup_activity_badge .o_field_widget { margin: 0 !important; }
+.wof_film_setup_steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    padding: 11px 28px 8px;
+    background: #fff;
+}
+.wof_film_step {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 38px;
+    border-bottom: 2px solid #e4e5eb;
+    color: #777b8e;
+    font-size: 12px;
+}
+.wof_film_step_no {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #f0f1f6;
+    color: #74788c;
+    font-weight: 800;
+}
+.wof_film_step.is-active {
+    color: #4f4899;
+    border-color: #655cc3;
+}
+.wof_film_step.is-active .wof_film_step_no {
+    background: linear-gradient(135deg, #655cc3, #4d4698);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(81,73,158,.22);
+}
+.wof_film_step.is-done { color: #5a6073; }
+.wof_film_step.is-done .wof_film_step_no { background: #edf0f8; color: #5d5895; }
+.wof_film_setup_intro {
+    text-align: center;
+    color: #74788c;
+    font-size: 12px;
+    padding: 1px 18px 10px;
+    background: #fff;
+}
+.wof_film_setup_intro i { color: #655cc3; margin-inline-end: 6px; }
+.wof_film_setup_body {
+    display: grid;
+    grid-template-columns: minmax(0, 2.25fr) minmax(250px, .82fr);
+    gap: 15px;
+    padding: 12px 18px 14px;
+    max-width: 1480px;
+    margin: 0 auto;
+}
+.wof_film_setup_main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.wof_film_setup_card,
+.wof_film_setup_summary {
+    background: #fff;
+    border: 1px solid #dedfeb;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(44,48,78,.045);
+}
+.wof_film_setup_card { padding: 15px 17px; }
+.wof_film_card_title {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-bottom: 13px;
+}
+.wof_film_card_icon {
+    width: 31px;
+    height: 31px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    color: #5c54ad;
+    background: #efedfb;
+    flex: 0 0 auto;
+}
+.wof_film_card_title h2 {
+    margin: 0;
+    color: #282b3e;
+    font-size: 17px;
+    font-weight: 800;
+}
+.wof_film_card_title p { margin: 3px 0 0; font-size: 11.5px; color: #8a8da0; }
+.wof_film_fields_grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 14px;
+}
+.wof_film_field { min-width: 0; }
+.wof_film_field.is-wide { grid-column: span 1; }
+.wof_film_field.is-full { grid-column: 1 / -1; }
+.wof_film_field .o_form_label,
+.wof_override_area .o_form_label {
+    display: block;
+    color: #3d4054;
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+.wof_required { color: #d34a4a; }
+.wof_optional { color: #a2a4b0; font-weight: 500; font-size: 10px; }
+.wof_film_field > .o_field_widget:not(.o_field_boolean),
+.wof_override_area > .o_field_widget:not(.o_field_boolean) {
+    width: 100% !important;
+}
+.wof_film_setup_form input[type="text"],
+.wof_film_setup_form input[type="number"],
+.wof_film_setup_form textarea,
+.wof_film_setup_form .o_input,
+.wof_film_setup_form .o_field_many2many_tags {
+    border-color: #d9dbe8 !important;
+    border-radius: 9px !important;
+    background: #fff !important;
+    min-height: 36px;
+}
+.wof_film_setup_form textarea { min-height: 58px !important; }
+.wof_film_field small { display: block; color: #a0a2af; font-size: 10px; margin-top: 4px; }
+.wof_film_setup_form .o_field_radio.o_horizontal { gap: 7px; }
+.wof_film_setup_form .o_field_radio .form-check {
+    border: 1px solid #dedfeb;
+    border-radius: 9px;
+    padding: 7px 11px 7px 28px;
+    background: #fbfbfd;
+}
+.wof_film_setup_form .o_field_radio .form-check:has(input:checked) {
+    border-color: #7168c5;
+    background: #f5f3ff;
+    color: #4f4899;
+}
+.wof_policy_grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+.wof_policy_box {
+    position: relative;
+    padding: 12px;
+    min-height: 142px;
+    border: 1px solid #e1e2ec;
+    border-radius: 12px;
+    background: #fcfcfe;
+}
+.wof_policy_heading { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+.wof_policy_heading > i {
+    width: 27px; height: 27px; border-radius: 8px; display: inline-flex;
+    align-items: center; justify-content: center; background: #f0eefb; color: #5a52a7;
+}
+.wof_policy_heading strong { display: block; font-size: 12px; color: #303348; }
+.wof_policy_heading small { display: block; color: #9396a7; font-size: 10px; margin-top: 2px; }
+.wof_system_value {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 9px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background: #f1f1f6;
+    color: #5c6071;
+    font-size: 10.5px;
+}
+.wof_system_value .o_field_widget { margin: 0 !important; font-weight: 700; color: #383b50; }
+.wof_policy_box > .o_field_boolean { display: inline-flex; vertical-align: middle; }
+.wof_toggle_caption { font-size: 10.5px; color: #55596b; margin-inline-start: 5px; }
+.wof_override_area { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #dedfeb; }
+.wof_size_chips { margin-top: 8px; }
+.wof_size_chips .badge { background: #efeff4 !important; color: #45495a !important; }
+.wof_inventory_options { display: flex; flex-direction: column; gap: 7px; margin-top: 8px; }
+.wof_inventory_options > div { display: flex; align-items: center; gap: 7px; font-size: 10.5px; color: #55596a; }
+.wof_film_optional_row { margin-top: 11px; padding-top: 10px; border-top: 1px solid #ececf2; }
+.wof_film_setup_summary {
+    padding: 17px 16px;
+    background: linear-gradient(180deg, #fcfbff 0%, #f7f6fd 100%);
+    border-color: #dcd9ef;
+    align-self: stretch;
+    text-align: center;
+}
+.wof_summary_topline { display: flex; justify-content: space-between; color: #666a7c; font-size: 10.5px; }
+.wof_summary_status { color: #3a8e57; background: #e9f7ed; padding: 3px 8px; border-radius: 999px; }
+.wof_summary_icon {
+    width: 64px; height: 64px; margin: 25px auto 12px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; background: #fff;
+    color: #5e55b0; font-size: 27px; border: 2px solid #efedfb;
+    box-shadow: 0 5px 16px rgba(82,74,157,.08);
+}
+.wof_film_setup_summary h2 { margin: 0 0 7px; font-size: 21px; color: #2f3145; font-weight: 800; }
+.wof_film_setup_summary h2 .o_field_widget { margin: 0 !important; }
+.wof_film_setup_summary > p { color: #777b8e; font-size: 11px; line-height: 1.65; min-height: 36px; }
+.wof_summary_stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); margin: 22px 0 18px;
+    border-top: 1px dashed #deddeb; border-bottom: 1px dashed #deddeb;
+}
+.wof_summary_stats > div { padding: 12px 4px; display: flex; flex-direction: column; gap: 2px; }
+.wof_summary_stats > div + div { border-inline-start: 1px solid #e0e0eb; }
+.wof_summary_stats i { color: #6159ad; }
+.wof_summary_stats strong { font-size: 15px; color: #33364a; }
+.wof_summary_stats span { color: #818596; font-size: 9.5px; }
+.wof_summary_policy { text-align: start; padding: 9px 4px 14px; }
+.wof_summary_policy span { display: block; color: #8c8f9e; font-size: 10px; }
+.wof_summary-policy strong,
+.wof_summary_policy strong { display: block; color: #373a4f; font-size: 12px; margin-top: 3px; }
+.wof_summary_note {
+    display: flex; gap: 8px; text-align: start; padding: 10px; border-radius: 10px;
+    background: #f0effb; color: #66627e; font-size: 10.5px; line-height: 1.5;
+}
+.wof_summary_note i { color: #655cc3; margin-top: 2px; }
+.wof_film_setup_footer {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 54px;
+    padding: 8px 18px !important;
+    border-top: 1px solid #e2e3eb !important;
+    background: #fff !important;
+}
+.wof_film_footer_actions { display: flex; align-items: center; gap: 8px; }
+.wof_film_setup_footer .btn-primary {
+    background: linear-gradient(135deg, #6057b9, #4f489b) !important;
+    border-color: #51499c !important;
+    min-width: 132px;
+}
+.wof_film_setup_footer .btn-outline-primary {
+    color: #51499c !important; border-color: #c9c5e8 !important; background: #fff !important;
+}
+.wof_film_stage_handoff {
+    margin: 22px auto; max-width: 700px; min-height: 370px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; padding: 30px;
+    background: #fff; border: 1px solid #dfdfeb; border-radius: 16px;
+}
+.wof_handoff_icon { width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #efedfb; color: #5c54ad; font-size: 30px; }
+.wof_film_stage_handoff h2 { margin: 17px 0 5px; font-size: 22px; }
+.wof_film_stage_handoff p { color: #7a7e90; }
+.wof_handoff_badges { display: flex; gap: 7px; margin: 8px 0 18px; }
+.wof_handoff_badges span { background: #efeff4; border-radius: 999px; padding: 5px 10px; font-size: 11px; }
+.wof_handoff_hint { font-size: 10px; margin-top: 15px; }
+
+@media (min-width: 1150px) {
+    .modal:has(.wof_film_setup_form) .modal-dialog {
+        width: 94vw !important;
+        max-width: 1500px !important;
+        margin: 1.3vh auto !important;
+    }
+    .modal:has(.wof_film_setup_form) .modal-content {
+        max-height: 97vh !important;
+        overflow: hidden !important;
+        border-radius: 15px !important;
+    }
+    .modal:has(.wof_film_setup_form) .modal-body {
+        overflow-y: auto !important;
+        max-height: calc(97vh - 112px) !important;
+        padding: 0 !important;
+    }
+}
+@media (max-width: 980px) {
+    .wof_film_setup_body { grid-template-columns: 1fr; }
+    .wof_film_setup_summary { order: -1; }
+    .wof_policy_grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+    .wof_film_setup_steps { grid-template-columns: 1fr; }
+    .wof_film_fields_grid { grid-template-columns: 1fr; }
+    .wof_film_field.is-full { grid-column: auto; }
+    .wof_film_setup_body { padding: 8px; }
+}

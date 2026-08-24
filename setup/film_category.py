@@ -38,6 +38,33 @@ class FilmCategory(models.Model):
         store=True, readonly=True, index=True,
     )
     active = fields.Boolean(default=True)
+
+    # Film/service configuration policy.  These fields preserve whether the
+    # record inherits company setup or intentionally overrides it.
+    use_system_pricing_policy = fields.Boolean(
+        string="استخدام سياسة تسعير النظام", default=True,
+    )
+    pricing_policy = fields.Selection(
+        [('fixed', 'سعر موحد'), ('by_size', 'حسب حجم السيارة')],
+        string="سياسة التسعير", default='fixed', required=True,
+    )
+    use_system_car_sizes = fields.Boolean(
+        string="استخدام أحجام السيارات من النظام", default=True,
+    )
+    car_size_ids = fields.Many2many(
+        'wof.car.size', 'wof_film_category_car_size_rel',
+        'film_id', 'size_id', string="أحجام السيارات",
+        domain="[('company_id', '=', company_id), ('active', '=', True)]",
+        check_company=True,
+    )
+    use_system_commission_policy = fields.Boolean(
+        string="استخدام سياسة عمولة النظام", default=True,
+    )
+    commission_event = fields.Selection(
+        [('delivery', 'بعد إنجاز أمر التركيب'),
+         ('invoice', 'بعد ترحيل الفاتورة')],
+        string="سياسة استحقاق العمولة", default='delivery', required=True,
+    )
     film_category_line_ids = fields.One2many(
         'wof.film.category.lines', 'header_id', string="درجات الفيلم والمنتجات",
     )
@@ -128,14 +155,13 @@ class FilmCategory(models.Model):
 
     def action_configure(self):
         self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'تهيئة %s' % self.display_name,
-            'res_model': 'wof.film.category',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+        hub = self.env.context.get('wof_activity_hub_id')
+        wizard = self.env['wof.film.setup.wizard'].create_for_activity(
+            self.service_type_id,
+            hub=self.env['wof.activity.hub'].browse(hub).exists() if hub else None,
+            film=self,
+        )
+        return wizard._dialog_action()
 
     def action_create_component(self):
         self.ensure_one()

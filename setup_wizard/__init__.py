@@ -5,3 +5,5 @@ from . import size_dialog
 from . import tint_dialog
 
 from . import activity_hub
+
+from . import film_setup_wizard

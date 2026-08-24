@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_wof_film_setup_wizard_form" model="ir.ui.view">
+        <field name="name">wof.film.setup.wizard.form</field>
+        <field name="model">wof.film.setup.wizard</field>
+        <field name="arch" type="xml">
+            <form string="إضافة فيلم / خدمة جديدة" class="wof_film_setup_form" create="0" edit="0" delete="0">
+                <field name="hub_id" invisible="1"/>
+                <field name="profile_id" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="activity_id" invisible="1"/>
+                <field name="film_id" invisible="1"/>
+                <field name="mode" invisible="1"/>
+                <field name="current_step" invisible="1"/>
+                <field name="supports_color_grades" invisible="1"/>
+                <field name="system_inventory_enabled" invisible="1"/>
+                <field name="system_tint_count" invisible="1"/>
+                <field name="system_size_count" invisible="1"/>
+                <field name="activity_film_count" invisible="1"/>
+                <field name="activity_parts_count" invisible="1"/>
+
+                <div class="wof_film_setup_shell">
+                    <div class="wof_film_setup_header">
+                        <h1>إضافة فيلم / خدمة جديدة</h1>
+                        <p>أدخل البيانات الأساسية أولاً، ثم أكمل درجات اللون والمكونات والأسعار في الخطوات التالية.</p>
+                        <div class="wof_film_setup_activity_badge">
+                            <span>النشاط:</span>
+                            <strong><field name="activity_id" readonly="1" nolabel="1"/></strong>
+                        </div>
+                    </div>
+
+                    <div class="wof_film_setup_steps">
+                        <div class="wof_film_step is-active" invisible="current_step != 'basic'">
+                            <span class="wof_film_step_no">1</span><strong>البيانات الأساسية</strong>
+                        </div>
+                        <div class="wof_film_step is-done" invisible="current_step == 'basic'">
+                            <span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>البيانات الأساسية</strong>
+                        </div>
+                        <div class="wof_film_step" invisible="current_step == 'tint'">
+                            <span class="wof_film_step_no">2</span><strong>درجات اللون</strong>
+                        </div>
+                        <div class="wof_film_step is-active" invisible="current_step != 'tint'">
+                            <span class="wof_film_step_no">2</span><strong>درجات اللون</strong>
+                        </div>
+                        <div class="wof_film_step">
+                            <span class="wof_film_step_no">3</span><strong>المكونات</strong>
+                        </div>
+                        <div class="wof_film_step">
+                            <span class="wof_film_step_no">4</span><strong>الأسعار والعمولات</strong>
+                        </div>
+                        <div class="wof_film_step">
+                            <span class="wof_film_step_no">5</span><strong>المراجعة والتفعيل</strong>
+                        </div>
+                    </div>
+
+                    <div class="wof_film_setup_intro" invisible="current_step != 'basic'">
+                        <i class="fa fa-magic" title="تهيئة"/>
+                        أدخل البيانات الأساسية للفيلم أو الخدمة. يمكنك تعديل جميع الإعدادات قبل التفعيل.
+                    </div>
+
+                    <div class="wof_film_setup_body" invisible="current_step != 'basic'">
+                        <div class="wof_film_setup_main">
+                            <section class="wof_film_setup_card wof_film_basic_card">
+                                <div class="wof_film_card_title">
+                                    <span class="wof_film_card_icon"><i class="fa fa-file-text-o" title="البيانات الأساسية"/></span>
+                                    <div>
+                                        <h2>بيانات الفيلم / الخدمة</h2>
+                                        <p>عرّف العنصر بشكل واضح ليظهر للمستخدمين بنفس الاسم والوصف.</p>
+                                    </div>
+                                </div>
+
+                                <div class="wof_film_fields_grid">
+                                    <div class="wof_film_field is-wide">
+                                        <div class="o_form_label">اسم الفيلم / الخدمة <span class="wof_required">*</span></div>
+                                        <field name="name" nolabel="1" placeholder="أدخل اسم الفيلم أو الخدمة"/>
+                                    </div>
+                                    <div class="wof_film_field">
+                                        <div class="o_form_label">نوع العنصر <span class="wof_required">*</span></div>
+                                        <field name="item_type" widget="radio" options="{'horizontal': True}" nolabel="1"/>
+                                    </div>
+                                    <div class="wof_film_field">
+                                        <div class="o_form_label">الكود <span class="wof_optional">اختياري</span></div>
+                                        <field name="code" nolabel="1" placeholder="يُنشأ تلقائياً إذا تُرك فارغاً"/>
+                                    </div>
+                                    <div class="wof_film_field is-full">
+                                        <div class="o_form_label">الوصف المختصر <span class="wof_optional">اختياري</span></div>
+                                        <field name="description" nolabel="1" placeholder="وصف مختصر يساعد المستخدم على معرفة الخدمة..."/>
+                                    </div>
+                                    <div class="wof_film_field">
+                                        <div class="o_form_label">الحالة الافتراضية</div>
+                                        <field name="active" widget="boolean_toggle" nolabel="1"/>
+                                        <small>يمكن إيقاف العنصر مؤقتاً دون حذف بياناته.</small>
+                                    </div>
+                                    <div class="wof_film_field">
+                                        <div class="o_form_label">سنوات الضمان</div>
+                                        <field name="warranty_years" nolabel="1"/>
+                                        <small>القيمة الافتراضية التي تظهر في بيانات الفيلم أو الخدمة.</small>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="wof_film_setup_card wof_film_policy_card">
+                                <div class="wof_film_card_title">
+                                    <span class="wof_film_card_icon"><i class="fa fa-sliders" title="السياسات"/></span>
+                                    <div>
+                                        <h2>السياسات الافتراضية</h2>
+                                        <p>تُورث من مركز تهيئة النظام ويمكن تخصيصها لهذا الفيلم أو الخدمة عند الحاجة.</p>
+                                    </div>
+                                </div>
+
+                                <div class="wof_policy_grid">
+                                    <div class="wof_policy_box">
+                                        <div class="wof_policy_heading">
+                                            <i class="fa fa-tag" title="التسعير"/>
+                                            <div><strong>سياسة التسعير</strong><small>كيف سيتم تسعير هذا الفيلم / الخدمة؟</small></div>
+                                        </div>
+                                        <div class="wof_system_value">
+                                            <span>الافتراضي من النظام</span>
+                                            <field name="system_pricing_policy" readonly="1" nolabel="1"/>
+                                        </div>
+                                        <field name="use_system_pricing_policy" widget="boolean_toggle" nolabel="1"/>
+                                        <span class="wof_toggle_caption">استخدام سياسة النظام</span>
+                                        <div class="wof_override_area" invisible="use_system_pricing_policy">
+                                            <div class="o_form_label">تخصيص سياسة لهذا الفيلم / الخدمة</div>
+                                            <field name="pricing_policy" widget="radio" options="{'horizontal': True}" nolabel="1"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="wof_policy_box">
+                                        <div class="wof_policy_heading">
+                                            <i class="fa fa-car" title="أحجام السيارات"/>
+                                            <div><strong>أحجام السيارات</strong><small>الأحجام التي ستتوفر عند التسعير حسب الحجم.</small></div>
+                                        </div>
+                                        <div class="wof_system_value">
+                                            <span>أحجام النظام المعتمدة</span>
+                                            <strong><field name="system_size_count" readonly="1" nolabel="1"/> أحجام</strong>
+                                        </div>
+                                        <field name="use_system_car_sizes" widget="boolean_toggle" nolabel="1"/>
+                                        <span class="wof_toggle_caption">استخدام جميع أحجام النظام</span>
+                                        <div class="wof_size_chips">
+                                            <field name="system_car_size_ids" widget="many2many_tags" readonly="1" nolabel="1" invisible="not use_system_car_sizes"/>
+                                            <field name="car_size_ids" widget="many2many_tags" nolabel="1" invisible="use_system_car_sizes"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="wof_policy_box">
+                                        <div class="wof_policy_heading">
+                                            <i class="fa fa-users" title="العمولة"/>
+                                            <div><strong>سياسة العمولة</strong><small>متى تصبح عمولة الفني مستحقة؟</small></div>
+                                        </div>
+                                        <div class="wof_system_value">
+                                            <span>الافتراضي من النظام</span>
+                                            <field name="system_commission_event" readonly="1" nolabel="1"/>
+                                        </div>
+                                        <field name="use_system_commission_policy" widget="boolean_toggle" nolabel="1"/>
+                                        <span class="wof_toggle_caption">استخدام سياسة النظام</span>
+                                        <div class="wof_override_area" invisible="use_system_commission_policy">
+                                            <div class="o_form_label">تخصيص سياسة لهذا الفيلم / الخدمة</div>
+                                            <field name="commission_event" widget="radio" options="{'horizontal': True}" nolabel="1"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="wof_policy_box">
+                                        <div class="wof_policy_heading">
+                                            <i class="fa fa-cube" title="المخزون"/>
+                                            <div><strong>المخزون</strong><small>حدد هل هذا العنصر يستهلك مواد فعلية من المخزون.</small></div>
+                                        </div>
+                                        <div class="wof_system_value">
+                                            <span>إعداد النظام</span>
+                                            <strong invisible="not system_inventory_enabled">صرف المخزون مفعّل</strong>
+                                            <strong invisible="system_inventory_enabled">صرف المخزون غير مفعّل</strong>
+                                        </div>
+                                        <div class="wof_inventory_options">
+                                            <div><field name="inventory_enabled" widget="boolean_toggle" nolabel="1"/><span>يصرف مواد من المخزون</span></div>
+                                            <div invisible="not inventory_enabled or item_type != 'film'"><field name="product_required" widget="boolean_toggle" nolabel="1"/><span>اختيار المنتج المخزني إلزامي</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="wof_film_optional_row">
+                                    <div class="wof_film_field">
+                                        <div class="o_form_label">رسالة تنبيه <span class="wof_optional">اختياري</span></div>
+                                        <field name="warning_msg" nolabel="1" placeholder="رسالة تظهر للمستخدم عند اختيار هذا الفيلم / الخدمة"/>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <aside class="wof_film_setup_summary">
+                            <div class="wof_summary_topline">
+                                <span>النشاط</span>
+                                <span class="wof_summary_status"><i class="fa fa-check-circle" title="مفعّل"/> مفعّل</span>
+                            </div>
+                            <div class="wof_summary_icon"><i class="fa fa-film" title="أفلام وخدمات"/></div>
+                            <h2><field name="activity_id" readonly="1" nolabel="1"/></h2>
+                            <p><field name="activity_description" readonly="1" nolabel="1"/></p>
+                            <div class="wof_summary_stats">
+                                <div><i class="fa fa-film" title="أفلام وخدمات"/><strong><field name="activity_film_count" readonly="1" nolabel="1"/></strong><span>أفلام / خدمات</span></div>
+                                <div><i class="fa fa-car" title="أحجام السيارات"/><strong><field name="system_size_count" readonly="1" nolabel="1"/></strong><span>أحجام سيارات</span></div>
+                                <div><i class="fa fa-tint" title="درجات اللون"/><strong><field name="system_tint_count" readonly="1" nolabel="1"/></strong><span>درجات لون</span></div>
+                            </div>
+                            <div class="wof_summary_policy">
+                                <span>سياسة التسعير</span>
+                                <strong><field name="system_pricing_policy" readonly="1" nolabel="1"/></strong>
+                            </div>
+                            <div class="wof_summary_note">
+                                <i class="fa fa-info-circle" title="معلومة"/>
+                                سيتم تطبيق إعدادات النشاط والنظام افتراضياً. يمكنك تخصيص أي سياسة من الكروت المجاورة.
+                            </div>
+                        </aside>
+                    </div>
+
+                    <div class="wof_film_stage_handoff" invisible="current_step != 'tint'">
+                        <div class="wof_handoff_icon"><i class="fa fa-paint-brush" title="درجات اللون"/></div>
+                        <h2>تم حفظ البيانات الأساسية</h2>
+                        <p>الخطوة التالية: تحديد درجات اللون المتاحة لهذا الفيلم وفق إعدادات النظام.</p>
+                        <div class="wof_handoff_badges">
+                            <span><field name="name" readonly="1" nolabel="1"/></span>
+                            <span><field name="activity_id" readonly="1" nolabel="1"/></span>
+                        </div>
+                        <button name="action_back_basic" type="object" class="btn btn-secondary">السابق: البيانات الأساسية</button>
+                        <p class="wof_handoff_hint">سيتم إضافة واجهة درجات اللون المعتمدة في الخطوة التالية دون تغيير بيانات هذه الشاشة.</p>
+                    </div>
+                </div>
+
+                <footer invisible="current_step != 'basic'" class="wof_film_setup_footer">
+                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
+                    <div class="wof_film_footer_actions">
+                        <button name="action_save_draft" string="حفظ كمسودة" type="object" class="btn btn-outline-primary"/>
+                        <button name="action_continue" string="حفظ والمتابعة" type="object" class="btn btn-primary"/>
+                    </div>
+                </footer>
+                <footer invisible="current_step == 'basic'" class="wof_film_setup_footer">
+                    <button name="action_cancel" string="العودة إلى الأفلام والخدمات" type="object" class="btn btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

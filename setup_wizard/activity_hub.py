@@ -123,19 +123,10 @@ class WofActivityHub(models.TransientModel):
         self._ensure_access()
         if not self.selected_activity_id:
             raise ValidationError(_('اختر نشاطًا قبل إضافة فيلم أو خدمة.'))
-        # Stage 1 wizard will replace this basic creation dialog in the next RC.
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('إضافة فيلم / خدمة'),
-            'res_model': 'wof.film.category',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_service_type_id': self.selected_activity_id.id,
-                'default_item_type': 'film',
-                'wof_activity_hub_id': self.id,
-            },
-        }
+        wizard = self.env['wof.film.setup.wizard'].create_for_activity(
+            self.selected_activity_id, hub=self,
+        )
+        return wizard._dialog_action()
 
 
 class WofActivityHubActivity(models.TransientModel):

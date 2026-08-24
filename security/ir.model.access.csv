@@ -66,3 +66,5 @@ access_wof_activity_hub_activity_settings,wof.activity.hub.activity.settings,mod
 access_wof_activity_hub_activity_manager,wof.activity.hub.activity.manager,model_wof_activity_hub_activity,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_activity_hub_film_settings,wof.activity.hub.film.settings,model_wof_activity_hub_film,yousentech_wo_v4.group_wo_settings,1,1,1,1
 access_wof_activity_hub_film_manager,wof.activity.hub.film.manager,model_wof_activity_hub_film,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_film_setup_wizard_settings,wof.film.setup.wizard.settings,model_wof_film_setup_wizard,yousentech_wo_v4.group_wo_settings,1,1,1,1
+access_wof_film_setup_wizard_manager,wof.film.setup.wizard.manager,model_wof_film_setup_wizard,yousentech_wo_v4.group_wo_manager,1,1,1,1
