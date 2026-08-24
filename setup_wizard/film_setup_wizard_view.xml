@@ -4,7 +4,7 @@
         <field name="name">wof.film.setup.wizard.form</field>
         <field name="model">wof.film.setup.wizard</field>
         <field name="arch" type="xml">
-            <form string="إضافة فيلم / خدمة جديدة" class="wof_film_setup_form" create="0" edit="0" delete="0">
+            <form string="إضافة فيلم / خدمة جديدة" class="wof_film_setup_form" create="0" edit="1" delete="0">
                 <field name="hub_id" invisible="1"/>
                 <field name="profile_id" invisible="1"/>
                 <field name="company_id" invisible="1"/>
@@ -72,7 +72,7 @@
                                 <div class="wof_film_fields_grid">
                                     <div class="wof_film_field is-wide">
                                         <div class="o_form_label">اسم الفيلم / الخدمة <span class="wof_required">*</span></div>
-                                        <field name="name" nolabel="1" placeholder="أدخل اسم الفيلم أو الخدمة"/>
+                                        <field name="name" required="1" nolabel="1" placeholder="أدخل اسم الفيلم أو الخدمة"/>
                                     </div>
                                     <div class="wof_film_field">
                                         <div class="o_form_label">نوع العنصر <span class="wof_required">*</span></div>

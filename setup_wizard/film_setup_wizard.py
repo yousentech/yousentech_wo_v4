@@ -31,7 +31,9 @@ class WofFilmSetupWizard(models.TransientModel):
     item_type = fields.Selection(
         [('film', 'فيلم'), ('service', 'خدمة')], string='نوع العنصر', default='film', required=True,
     )
-    name = fields.Char(string='اسم الفيلم / الخدمة', required=True)
+    # The transient wizard must be creatable before the user types a name.
+    # Requiredness is enforced in the view and again in _save_basic().
+    name = fields.Char(string='اسم الفيلم / الخدمة')
     code = fields.Char(string='الكود')
     description = fields.Text(string='الوصف المختصر')
     active = fields.Boolean(string='مفعّل', default=True)
