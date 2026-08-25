@@ -4102,3 +4102,43 @@ body:has(.modal.show .wof_activity_hub_form),
 @media (max-width: 980px) {
     .wof_tax_policy_grid { grid-template-columns: 1fr; }
 }
+
+/* RC17 — Stage 1 compact basic-data alignment.
+ * Keep the approved field order/identity; move only the activation control
+ * to the card corner and align warranty years opposite the film/service code. */
+.wof_film_setup_form .wof_film_basic_card {
+    position: relative;
+}
+.wof_film_setup_form .wof_film_active_corner {
+    position: absolute;
+    top: 13px;
+    right: 15px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 30px;
+    padding: 4px 9px;
+    border: 1px solid #e4e1f2;
+    border-radius: 999px;
+    background: #faf9ff;
+    color: #676a7c;
+    font-size: 10px;
+    font-weight: 700;
+}
+.wof_film_setup_form .wof_film_active_corner .o_field_boolean,
+.wof_film_setup_form .wof_film_active_corner .o_field_widget {
+    margin: 0 !important;
+}
+.wof_film_setup_form .wof_film_active_corner:has(input:checked) {
+    border-color: #d8eadc;
+    background: #f1faf3;
+    color: #338652;
+}
+@media (max-width: 980px) {
+    .wof_film_setup_form .wof_film_active_corner {
+        position: static;
+        margin: -2px 0 9px;
+        width: max-content;
+    }
+}

@@ -71,6 +71,10 @@
                                         <p>عرّف العنصر بشكل واضح ليظهر للمستخدمين بنفس الاسم والوصف.</p>
                                     </div>
                                 </div>
+                                <div class="wof_film_active_corner">
+                                    <span>الحالة</span>
+                                    <field name="active" widget="boolean_toggle" nolabel="1"/>
+                                </div>
 
                                 <div class="wof_film_fields_grid">
                                     <div class="wof_film_field is-wide">
@@ -85,19 +89,14 @@
                                         <div class="o_form_label">الكود <span class="wof_optional">اختياري</span></div>
                                         <field name="code" nolabel="1" placeholder="يُنشأ تلقائياً إذا تُرك فارغاً"/>
                                     </div>
-                                    <div class="wof_film_field is-full">
-                                        <div class="o_form_label">الوصف المختصر <span class="wof_optional">اختياري</span></div>
-                                        <field name="description" nolabel="1" placeholder="وصف مختصر يساعد المستخدم على معرفة الخدمة..."/>
-                                    </div>
-                                    <div class="wof_film_field">
-                                        <div class="o_form_label">الحالة الافتراضية</div>
-                                        <field name="active" widget="boolean_toggle" nolabel="1"/>
-                                        <small>يمكن إيقاف العنصر مؤقتاً دون حذف بياناته.</small>
-                                    </div>
                                     <div class="wof_film_field">
                                         <div class="o_form_label">سنوات الضمان</div>
                                         <field name="warranty_years" nolabel="1"/>
                                         <small>القيمة الافتراضية التي تظهر في بيانات الفيلم أو الخدمة.</small>
+                                    </div>
+                                    <div class="wof_film_field is-full">
+                                        <div class="o_form_label">الوصف المختصر <span class="wof_optional">اختياري</span></div>
+                                        <field name="description" nolabel="1" placeholder="وصف مختصر يساعد المستخدم على معرفة الخدمة..."/>
                                     </div>
                                 </div>
                             </section>
