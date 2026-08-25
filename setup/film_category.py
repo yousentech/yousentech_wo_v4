@@ -70,6 +70,21 @@ class FilmCategory(models.Model):
         string="طريقة احتساب العمولة", default='fixed', required=True,
         help="يحدد شكل إدخال العمولة في خطوة الأسعار والعمولات: قيمة/نسبة موحدة أو قيمة/نسبة مستقلة لكل حجم سيارة.",
     )
+    use_system_tax_policy = fields.Boolean(
+        string="استخدام السياسة الضريبية من النظام", default=True,
+        help="عند التفعيل يرث الفيلم/الخدمة إعداد الضريبة وطريقة إدخال السعر من مركز تهيئة النظام.",
+    )
+    tax_enabled = fields.Boolean(
+        string="تطبيق الضريبة", default=True,
+    )
+    tax_id = fields.Many2one(
+        'account.tax', string="الضريبة", check_company=True,
+        domain="[('type_tax_use', '=', 'sale'), ('company_id', '=', company_id)]",
+    )
+    price_input_mode = fields.Selection(
+        [('excluded', 'السعر قبل الضريبة'), ('included', 'السعر شامل الضريبة')],
+        string="طريقة إدخال السعر", default='excluded', required=True,
+    )
     film_category_line_ids = fields.One2many(
         'wof.film.category.lines', 'header_id', string="درجات الفيلم والمنتجات",
     )

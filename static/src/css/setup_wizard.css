@@ -4142,3 +4142,37 @@ body:has(.modal.show .wof_activity_hub_form),
         width: max-content;
     }
 }
+
+
+/* RC18 — activation status on the opposite corner of the approved basic-data card.
+ * UI-only: preserve every field position and the Stage 1 visual identity. */
+.wof_film_setup_form .wof_film_basic_card .wof_film_active_corner {
+    right: auto;
+    left: 15px;
+}
+@media (max-width: 980px) {
+    .wof_film_setup_form .wof_film_basic_card .wof_film_active_corner {
+        left: auto;
+    }
+}
+
+/* RC19 — per-film tax policy override, matching the existing compact policy cards. */
+.wof_film_setup_shell .wof_tax_override_grid {
+    display: grid;
+    grid-template-columns: minmax(150px, .7fr) minmax(220px, 1.15fr) minmax(280px, 1.4fr);
+    gap: 12px;
+    align-items: stretch;
+}
+.wof_film_setup_shell .wof_tax_override_item {
+    padding: 12px 14px;
+    border: 1px solid #e4e1f4;
+    border-radius: 12px;
+    background: #fff;
+}
+.wof_film_setup_shell .wof_tax_override_item .o_form_label {
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+@media (max-width: 1100px) {
+    .wof_film_setup_shell .wof_tax_override_grid { grid-template-columns: 1fr; }
+}

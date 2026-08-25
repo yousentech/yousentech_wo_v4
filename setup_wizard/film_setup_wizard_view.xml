@@ -13,6 +13,10 @@
                 <field name="mode" invisible="1"/>
                 <field name="current_step" invisible="1"/>
                 <field name="supports_color_grades" invisible="1"/>
+                <field name="use_system_tax_policy" invisible="1"/>
+                <field name="tax_enabled" invisible="1"/>
+                <field name="tax_id" invisible="1"/>
+                <field name="price_input_mode" invisible="1"/>
                 <field name="system_tax_enabled" invisible="1"/>
                 <field name="system_tax_id" invisible="1"/>
                 <field name="system_price_input_mode" invisible="1"/>
@@ -72,7 +76,8 @@
                                     </div>
                                 </div>
                                 <div class="wof_film_active_corner">
-                                    <span>الحالة</span>
+                                    <span invisible="not active">مفعّل</span>
+                                    <span invisible="active">غير مفعّل</span>
                                     <field name="active" widget="boolean_toggle" nolabel="1"/>
                                 </div>
 
@@ -158,27 +163,38 @@
                                 <details class="wof_compact_section" name="wof_film_policy_section">
                                     <summary>
                                         <span class="wof_compact_icon"><i class="fa fa-calculator" title="السياسات الضريبية"/></span>
-                                        <span class="wof_compact_copy"><strong>السياسات الضريبية</strong><small>الضريبة الافتراضية وطريقة إدخال السعر</small></span>
-                                        <span class="wof_compact_state"><i class="fa fa-check-circle" title="جاهز"/> يرث إعدادات النظام</span>
+                                        <span class="wof_compact_copy"><strong>السياسات الضريبية</strong><small>تطبيق الضريبة ونوعها وطريقة إدخال السعر</small></span>
+                                        <span class="wof_compact_state" invisible="not use_system_tax_policy"><i class="fa fa-check-circle" title="موروث"/> يرث إعدادات النظام</span>
+                                        <span class="wof_compact_state" invisible="use_system_tax_policy"><i class="fa fa-pencil" title="مخصص"/> سياسة مخصصة</span>
                                         <i class="fa fa-chevron-down wof_compact_arrow" title="توسيع"/>
                                     </summary>
                                     <div class="wof_compact_content">
-                                        <div class="wof_tax_policy_grid">
-                                            <div class="wof_tax_policy_item">
-                                                <span>تطبيق الضريبة</span>
-                                                <strong invisible="not system_tax_enabled">مفعّل</strong>
-                                                <strong invisible="system_tax_enabled">غير مفعّل</strong>
-                                            </div>
-                                            <div class="wof_tax_policy_item" invisible="not system_tax_enabled">
-                                                <span>الضريبة الافتراضية</span>
-                                                <field name="system_tax_id" readonly="1" nolabel="1"/>
-                                            </div>
-                                            <div class="wof_tax_policy_item">
-                                                <span>طريقة إدخال السعر</span>
-                                                <field name="system_price_input_mode" readonly="1" nolabel="1"/>
+                                        <div class="wof_policy_heading"><i class="fa fa-calculator" title="السياسات الضريبية"/><div><strong>السياسة الضريبية</strong><small>تأتي من مركز تهيئة النظام افتراضيًا، ويمكن تخصيصها لهذا الفيلم / الخدمة فقط.</small></div></div>
+                                        <div class="wof_system_value">
+                                            <span>سياسة النظام</span>
+                                            <strong invisible="not system_tax_enabled">الضريبة مفعّلة</strong>
+                                            <strong invisible="system_tax_enabled">الضريبة غير مفعّلة</strong>
+                                            <field name="system_tax_id" readonly="1" nolabel="1" invisible="not system_tax_enabled"/>
+                                            <field name="system_price_input_mode" readonly="1" nolabel="1" invisible="not system_tax_enabled"/>
+                                        </div>
+                                        <div class="wof_inline_toggle"><field name="use_system_tax_policy" widget="boolean_toggle" nolabel="1"/><span>استخدام سياسة النظام</span></div>
+                                        <div class="wof_override_area" invisible="use_system_tax_policy">
+                                            <div class="wof_tax_override_grid">
+                                                <div class="wof_tax_override_item">
+                                                    <div class="o_form_label">تطبيق الضريبة</div>
+                                                    <div class="wof_inline_toggle"><field name="tax_enabled" widget="boolean_toggle" nolabel="1"/><span invisible="not tax_enabled">مفعّل</span><span invisible="tax_enabled">غير مفعّل</span></div>
+                                                </div>
+                                                <div class="wof_tax_override_item" invisible="not tax_enabled">
+                                                    <div class="o_form_label">الضريبة المستخدمة</div>
+                                                    <field name="tax_id" nolabel="1" options="{'no_create': True, 'no_create_edit': True}"/>
+                                                </div>
+                                                <div class="wof_tax_override_item" invisible="not tax_enabled">
+                                                    <div class="o_form_label">طريقة إدخال السعر</div>
+                                                    <field name="price_input_mode" widget="radio" options="{'horizontal': True}" nolabel="1"/>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="wof_policy_help"><i class="fa fa-info-circle" title="معلومة"/> يتم تطبيق سياسة الضريبة من مركز تهيئة النظام على هذا الفيلم / الخدمة دون تكرار إعدادات الضريبة هنا.</div>
+                                        <div class="wof_policy_help"><i class="fa fa-info-circle" title="معلومة"/> عند اختيار التخصيص تُحفظ هذه السياسة على مستوى الفيلم / الخدمة ولا تتأثر بتغييرات إعداد النظام لاحقًا.</div>
                                     </div>
                                 </details>
 
