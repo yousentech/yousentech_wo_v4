@@ -27,6 +27,10 @@
                 <field name="system_size_count" invisible="1"/>
                 <field name="activity_film_count" invisible="1"/>
                 <field name="activity_parts_count" invisible="1"/>
+                <field name="tint_selection_mode" invisible="1"/>
+                <field name="system_tint_numbering_method" invisible="1"/>
+                <field name="selected_tint_count" invisible="1"/>
+                <field name="tint_required" invisible="1"/>
 
                 <div class="wof_film_setup_shell">
                     <div class="wof_film_setup_header">
@@ -45,13 +49,19 @@
                         <div class="wof_film_step is-done" invisible="current_step == 'basic'">
                             <span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>البيانات الأساسية</strong>
                         </div>
-                        <div class="wof_film_step" invisible="current_step == 'tint'">
+                        <div class="wof_film_step" invisible="current_step in ('tint', 'components', 'pricing', 'review')">
                             <span class="wof_film_step_no">2</span><strong>درجات اللون</strong>
                         </div>
                         <div class="wof_film_step is-active" invisible="current_step != 'tint'">
                             <span class="wof_film_step_no">2</span><strong>درجات اللون</strong>
                         </div>
-                        <div class="wof_film_step">
+                        <div class="wof_film_step is-done" invisible="current_step not in ('components', 'pricing', 'review')">
+                            <span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>درجات اللون</strong>
+                        </div>
+                        <div class="wof_film_step" invisible="current_step == 'components'">
+                            <span class="wof_film_step_no">3</span><strong>المكونات</strong>
+                        </div>
+                        <div class="wof_film_step is-active" invisible="current_step != 'components'">
                             <span class="wof_film_step_no">3</span><strong>المكونات</strong>
                         </div>
                         <div class="wof_film_step">
@@ -253,16 +263,147 @@
                         </aside>
                     </div>
 
-                    <div class="wof_film_stage_handoff" invisible="current_step != 'tint'">
-                        <div class="wof_handoff_icon"><i class="fa fa-paint-brush" title="درجات اللون"/></div>
-                        <h2>تم حفظ البيانات الأساسية</h2>
-                        <p>الخطوة التالية: تحديد درجات اللون المتاحة لهذا الفيلم وفق إعدادات النظام.</p>
+                    <div class="wof_film_tint_stage" invisible="current_step != 'tint'">
+                        <div class="wof_film_setup_intro wof_tint_intro">
+                            <i class="fa fa-info-circle" title="معلومة"/>
+                            درجات اللون تستخدم فقط للأفلام التي تعتمد درجات اللون. اختر جميع درجات النظام أو حدد درجات خاصة بهذا الفيلم.
+                        </div>
+
+                        <div class="wof_film_setup_body wof_tint_body">
+                            <div class="wof_film_setup_main">
+                                <section class="wof_film_setup_card wof_tint_main_card">
+                                    <div class="wof_film_card_title">
+                                        <span class="wof_film_card_icon"><i class="fa fa-tint" title="درجات اللون"/></span>
+                                        <div>
+                                            <h2>درجات اللون</h2>
+                                            <p>اختر درجات اللون المتاحة لهذا الفيلم من الدرجات المعتمدة في النظام.</p>
+                                        </div>
+                                        <span class="wof_tint_policy_badge" invisible="tint_selection_mode != 'all'"><i class="fa fa-check-circle" title="سياسة النظام"/> سياسة النظام</span>
+                                        <span class="wof_tint_policy_badge is-custom" invisible="tint_selection_mode != 'specific'"><i class="fa fa-pencil" title="تخصيص"/> درجات مخصصة</span>
+                                    </div>
+
+                                    <div class="wof_tint_not_required" invisible="tint_required">
+                                        <i class="fa fa-info-circle" title="غير مطلوب"/>
+                                        <div>
+                                            <strong>درجات اللون غير مطلوبة لهذا العنصر</strong>
+                                            <p>نوع العنصر أو النشاط الحالي لا يحتاج درجات لون. يمكنك المتابعة مباشرة إلى المكونات.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="wof_tint_required_area" invisible="not tint_required">
+                                        <div class="wof_tint_source_note">
+                                            <i class="fa fa-info-circle" title="إعدادات النظام"/>
+                                            <span>هذه الدرجات مأخوذة من مركز تهيئة النظام. إضافة أو حذف درجات النظام يتم من إعدادات التهيئة فقط.</span>
+                                            <div class="wof_tint_source_meta">
+                                                <span><strong><field name="system_tint_count" readonly="1" nolabel="1"/></strong> درجات</span>
+                                                <span>طريقة الترقيم: <strong><field name="system_tint_numbering_method" readonly="1" nolabel="1"/></strong></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="wof_tint_mode_label">طريقة الاستخدام</div>
+                                        <div class="wof_tint_mode_grid">
+                                            <button name="action_use_all_tints" type="object" class="btn wof_tint_mode_card is-selected" invisible="tint_selection_mode != 'all'">
+                                                <span class="wof_tint_mode_radio"><i class="fa fa-check" title="محدد"/></span>
+                                                <strong>استخدام جميع درجات النظام</strong>
+                                                <small>سيتم استخدام جميع درجات اللون المفعلة في إعدادات النظام.</small>
+                                            </button>
+                                            <button name="action_use_all_tints" type="object" class="btn wof_tint_mode_card" invisible="tint_selection_mode == 'all'">
+                                                <span class="wof_tint_mode_radio"></span>
+                                                <strong>استخدام جميع درجات النظام</strong>
+                                                <small>سيتم استخدام جميع درجات اللون المفعلة في إعدادات النظام.</small>
+                                            </button>
+                                            <button name="action_use_specific_tints" type="object" class="btn wof_tint_mode_card is-selected" invisible="tint_selection_mode != 'specific'">
+                                                <span class="wof_tint_mode_radio"><i class="fa fa-check" title="محدد"/></span>
+                                                <strong>اختيار درجات محددة لهذا الفيلم</strong>
+                                                <small>حدد فقط الدرجات التي تريد استخدامها في هذا الفيلم.</small>
+                                            </button>
+                                            <button name="action_use_specific_tints" type="object" class="btn wof_tint_mode_card" invisible="tint_selection_mode == 'specific'">
+                                                <span class="wof_tint_mode_radio"></span>
+                                                <strong>اختيار درجات محددة لهذا الفيلم</strong>
+                                                <small>حدد فقط الدرجات التي تريد استخدامها في هذا الفيلم.</small>
+                                            </button>
+                                        </div>
+
+                                        <div class="wof_tint_shades_panel">
+                                            <div class="wof_tint_shades_header">
+                                                <div>
+                                                    <h3>درجات اللون المتاحة في النظام</h3>
+                                                    <p invisible="tint_selection_mode != 'all'">جميع الدرجات ستستخدم تلقائياً ولا يمكن إلغاء درجة منفردة في وضع سياسة النظام.</p>
+                                                    <p invisible="tint_selection_mode != 'specific'">اضغط على أي درجة لتفعيلها أو إلغائها لهذا الفيلم فقط.</p>
+                                                </div>
+                                                <span class="wof_tint_selected_counter"><field name="selected_tint_count" readonly="1" nolabel="1"/> مختارة</span>
+                                            </div>
+                                            <field name="tint_line_ids" nolabel="1" mode="kanban" class="wof_film_tint_line_field">
+                                                <kanban create="0" delete="0" class="wof_film_tint_kanban">
+                                                    <field name="sequence"/>
+                                                    <field name="value"/>
+                                                    <field name="selected"/>
+                                                    <field name="locked"/>
+                                                    <templates>
+                                                        <t t-name="kanban-box">
+                                                            <div t-attf-class="wof_film_tint_card #{record.selected.raw_value ? 'is-selected' : 'is-unselected'} #{record.locked.raw_value ? 'is-locked' : ''}">
+                                                                <div class="wof_film_tint_card_label">درجة</div>
+                                                                <strong><field name="value"/></strong>
+                                                                <div class="wof_film_tint_locked_state" invisible="not locked">
+                                                                    <i class="fa fa-check-circle" title="مفعّلة"/> مفعّلة
+                                                                </div>
+                                                                <div class="wof_film_tint_inline_toggle" invisible="locked">
+                                                                    <field name="selected" widget="boolean_toggle" nolabel="1"/>
+                                                                    <span invisible="not selected">مفعّلة</span>
+                                                                    <span invisible="selected">غير مفعّلة</span>
+                                                                </div>
+                                                            </div>
+                                                        </t>
+                                                    </templates>
+                                                </kanban>
+                                            </field>
+                                            <div class="wof_tint_lock_note" invisible="tint_selection_mode != 'all'">
+                                                <i class="fa fa-lock" title="مقفل"/> لا يمكن تعديل أو إزالة الدرجات عند استخدام جميع درجات النظام.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <aside class="wof_film_setup_summary wof_tint_summary">
+                                <div class="wof_summary_topline">
+                                    <span>النشاط</span>
+                                    <span class="wof_summary_status"><i class="fa fa-check-circle" title="مفعّل"/> مفعّل</span>
+                                </div>
+                                <div class="wof_summary_icon"><i class="fa fa-film" title="أفلام وخدمات"/></div>
+                                <h2><field name="activity_id" readonly="1" nolabel="1"/></h2>
+                                <p><field name="activity_description" readonly="1" nolabel="1"/></p>
+                                <div class="wof_summary_stats">
+                                    <div><i class="fa fa-film" title="أفلام وخدمات"/><strong><field name="activity_film_count" readonly="1" nolabel="1"/></strong><span>أفلام / خدمات</span></div>
+                                    <div><i class="fa fa-car" title="أحجام السيارات"/><strong><field name="system_size_count" readonly="1" nolabel="1"/></strong><span>أحجام سيارات</span></div>
+                                    <div><i class="fa fa-tint" title="درجات اللون"/><strong><field name="selected_tint_count" readonly="1" nolabel="1"/></strong><span>درجات لون</span></div>
+                                </div>
+                                <div class="wof_summary_policy">
+                                    <span>سياسة التسعير</span>
+                                    <strong><field name="pricing_policy" readonly="1" nolabel="1"/></strong>
+                                </div>
+                                <div class="wof_summary_policy">
+                                    <span>طريقة درجات اللون</span>
+                                    <strong><field name="tint_selection_mode" readonly="1" nolabel="1"/></strong>
+                                </div>
+                                <div class="wof_summary_note">
+                                    <i class="fa fa-info-circle" title="معلومة"/>
+                                    يمكنك تعديل درجات هذا الفيلم قبل التفعيل. درجات النظام الأساسية تبقى محفوظة في مركز التهيئة.
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+
+                    <div class="wof_film_stage_handoff" invisible="current_step != 'components'">
+                        <div class="wof_handoff_icon"><i class="fa fa-cubes" title="المكونات"/></div>
+                        <h2>تم حفظ درجات اللون</h2>
+                        <p>الخطوة التالية: تحديد مكونات الفيلم أو الخدمة ومناطق الخدمة.</p>
                         <div class="wof_handoff_badges">
                             <span><field name="name" readonly="1" nolabel="1"/></span>
-                            <span><field name="activity_id" readonly="1" nolabel="1"/></span>
+                            <span><field name="selected_tint_count" readonly="1" nolabel="1"/> درجات لون</span>
                         </div>
-                        <button name="action_back_basic" type="object" class="btn btn-secondary">السابق: البيانات الأساسية</button>
-                        <p class="wof_handoff_hint">سيتم إضافة واجهة درجات اللون المعتمدة في الخطوة التالية دون تغيير بيانات هذه الشاشة.</p>
+                        <button name="action_back_tint" type="object" class="btn btn-secondary">السابق: درجات اللون</button>
+                        <p class="wof_handoff_hint">سيتم إضافة واجهة المكونات المعتمدة في الخطوة التالية دون تغيير البيانات المحفوظة.</p>
                     </div>
                 </div>
 
@@ -273,7 +414,14 @@
                         <button name="action_continue" string="حفظ والمتابعة" type="object" class="btn btn-primary"/>
                     </div>
                 </footer>
-                <footer invisible="current_step == 'basic'" class="wof_film_setup_footer">
+                <footer invisible="current_step != 'tint'" class="wof_film_setup_footer wof_tint_footer">
+                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
+                    <div class="wof_film_footer_actions">
+                        <button name="action_back_basic" string="السابق: البيانات الأساسية" type="object" class="btn btn-outline-primary"/>
+                        <button name="action_continue_tint" string="التالي: المكونات" type="object" class="btn btn-primary"/>
+                    </div>
+                </footer>
+                <footer invisible="current_step in ('basic', 'tint')" class="wof_film_setup_footer">
                     <button name="action_cancel" string="العودة إلى الأفلام والخدمات" type="object" class="btn btn-secondary"/>
                 </footer>
             </form>

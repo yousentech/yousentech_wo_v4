@@ -4176,3 +4176,285 @@ body:has(.modal.show .wof_activity_hub_form),
 @media (max-width: 1100px) {
     .wof_film_setup_shell .wof_tax_override_grid { grid-template-columns: 1fr; }
 }
+
+/* RC21 — Film Setup Stage 2: approved tint-shades UX. */
+.wof_film_tint_stage {
+    direction: rtl;
+}
+.wof_tint_intro {
+    margin: 0 !important;
+    border-top: 1px solid #ececf3;
+    border-bottom: 1px solid #ececf3;
+    background: #fff !important;
+    color: #777b8f !important;
+}
+.wof_tint_body {
+    align-items: stretch;
+}
+.wof_tint_main_card {
+    padding: 14px 16px !important;
+    min-height: 430px;
+}
+.wof_tint_main_card .wof_film_card_title {
+    position: relative;
+    padding-inline-end: 130px;
+    margin-bottom: 10px;
+}
+.wof_tint_policy_badge {
+    position: absolute;
+    inset-inline-end: 0;
+    top: 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #edf8f0;
+    color: #358957;
+    font-size: 9.5px;
+    font-weight: 700;
+}
+.wof_tint_policy_badge.is-custom {
+    background: #f1effd;
+    color: #5b52b0;
+}
+.wof_tint_source_note {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    gap: 9px;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid #e5eee6;
+    border-radius: 10px;
+    background: #f3faf5;
+    color: #397a55;
+    font-size: 10.5px;
+    line-height: 1.5;
+}
+.wof_tint_source_note > i {
+    color: #38a061;
+}
+.wof_tint_source_meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    white-space: nowrap;
+}
+.wof_tint_source_meta > span {
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.8);
+    border: 1px solid #dcebdd;
+}
+.wof_tint_mode_label {
+    margin: 13px 1px 7px;
+    color: #3b3e52;
+    font-size: 11px;
+    font-weight: 800;
+}
+.wof_tint_mode_grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 11px;
+}
+.wof_tint_mode_card {
+    min-height: 82px;
+    display: grid !important;
+    grid-template-columns: 24px minmax(0,1fr);
+    grid-template-rows: auto auto;
+    column-gap: 9px;
+    align-items: center;
+    text-align: start !important;
+    padding: 12px 13px !important;
+    border: 1px solid #dfdfea !important;
+    border-radius: 11px !important;
+    background: #fff !important;
+    color: #393c50 !important;
+    box-shadow: none !important;
+}
+.wof_tint_mode_card.is-selected {
+    border-color: #665bc4 !important;
+    background: linear-gradient(135deg,#f8f7ff,#f2f0ff) !important;
+    box-shadow: 0 4px 12px rgba(89,78,170,.08) !important;
+}
+.wof_tint_mode_card .wof_tint_mode_radio {
+    grid-row: 1 / span 2;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid #b9bbca;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-size: 9px;
+}
+.wof_tint_mode_card.is-selected .wof_tint_mode_radio {
+    border-color: #6258bc;
+    background: #6258bc;
+    color: #fff;
+}
+.wof_tint_mode_card strong {
+    font-size: 12px;
+    font-weight: 800;
+    color: #35384b;
+}
+.wof_tint_mode_card small {
+    display: block;
+    margin-top: 3px;
+    color: #8a8d9d;
+    font-size: 9.5px;
+    font-weight: 400;
+}
+.wof_tint_shades_panel {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #e2e1ee;
+    border-radius: 12px;
+    background: #fff;
+}
+.wof_tint_shades_header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 9px;
+}
+.wof_tint_shades_header h3 {
+    margin: 0;
+    font-size: 13px;
+    color: #34374a;
+    font-weight: 800;
+}
+.wof_tint_shades_header p {
+    margin: 3px 0 0;
+    color: #8a8d9d;
+    font-size: 9.5px;
+}
+.wof_tint_selected_counter {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #efeff5;
+    color: #676a7d;
+    font-size: 9.5px;
+    font-weight: 700;
+}
+.wof_film_tint_line_field .o_kanban_renderer,
+.wof_film_tint_kanban {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0,1fr)) !important;
+    gap: 10px !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+.wof_film_tint_line_field .o_kanban_record {
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+.wof_film_tint_card {
+    min-height: 112px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px;
+    border: 1px solid #dedbea;
+    border-radius: 11px;
+    background: #fff;
+    transition: .16s ease;
+}
+.wof_film_tint_card.is-selected {
+    border-color: #c9c3ee;
+    background: linear-gradient(180deg,#f8f7ff,#f3f1ff);
+}
+.wof_film_tint_card.is-unselected {
+    opacity: .72;
+    background: #fafafa;
+}
+.wof_film_tint_card:not(.is-locked):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(77,69,143,.08);
+}
+.wof_film_tint_card_label {
+    color: #86899b;
+    font-size: 9px;
+}
+.wof_film_tint_card > strong {
+    font-size: 23px;
+    color: #2f3247;
+    line-height: 1;
+}
+.wof_film_tint_locked_state,
+.wof_film_tint_toggle {
+    width: 100%;
+    min-height: 27px;
+    display: inline-flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 3px;
+    padding: 4px 7px !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: #eef8f1 !important;
+    color: #348956 !important;
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+}
+.wof_film_tint_toggle.is-off {
+    background: #f0f0f3 !important;
+    color: #7c7f8e !important;
+}
+.wof_tint_lock_note {
+    margin-top: 9px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    background: #f2f5fb;
+    color: #65749a;
+    font-size: 9.5px;
+}
+.wof_tint_not_required {
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    border: 1px dashed #d9d8e6;
+    border-radius: 12px;
+    background: #fafafd;
+    color: #6e7285;
+}
+.wof_tint_not_required > i {
+    font-size: 24px;
+    color: #6259b7;
+}
+.wof_tint_not_required strong { color:#33364a; }
+.wof_tint_not_required p { margin:3px 0 0; font-size:10px; }
+.wof_tint_summary .wof_summary_policy + .wof_summary_policy {
+    border-top: 1px dashed #e1e1ea;
+}
+@media (max-width: 1100px) {
+    .wof_film_tint_line_field .o_kanban_renderer,
+    .wof_film_tint_kanban { grid-template-columns: repeat(3,minmax(0,1fr)) !important; }
+}
+@media (max-width: 760px) {
+    .wof_tint_mode_grid { grid-template-columns: 1fr; }
+    .wof_tint_source_note { grid-template-columns: 22px 1fr; }
+    .wof_tint_source_meta { grid-column: 1 / -1; white-space: normal; flex-wrap: wrap; }
+    .wof_film_tint_line_field .o_kanban_renderer,
+    .wof_film_tint_kanban { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+}
+.wof_film_tint_inline_toggle {
+    width: 100%; min-height: 27px; display:flex; justify-content:center; align-items:center;
+    gap:6px; margin-top:3px; padding:4px 7px; border-radius:8px; background:#eef8f1;
+    color:#348956; font-size:9.5px; font-weight:700;
+}
+.wof_film_tint_inline_toggle .o_field_widget { margin:0 !important; }

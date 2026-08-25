@@ -51,6 +51,10 @@ class FilmCategory(models.Model):
     use_system_car_sizes = fields.Boolean(
         string="استخدام أحجام السيارات من النظام", default=True,
     )
+    use_system_tint_grades = fields.Boolean(
+        string="استخدام جميع درجات اللون من النظام", default=True,
+        help="عند التفعيل يستخدم الفيلم جميع درجات اللون المفعلة في مركز تهيئة النظام.",
+    )
     car_size_ids = fields.Many2many(
         'wof.car.size', 'wof_film_category_car_size_rel',
         'film_id', 'size_id', string="أحجام السيارات",

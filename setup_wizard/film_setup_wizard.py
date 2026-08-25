@@ -109,6 +109,36 @@ class WofFilmSetupWizard(models.TransientModel):
     supports_color_grades = fields.Boolean(related='activity_id.supports_color_grades', readonly=True)
     activity_description = fields.Text(related='activity_id.description', readonly=True)
 
+    # Stage 2 — tint shades. Keep the system setup as the single source of truth
+    # while allowing a film-level subset without duplicating the master degrees.
+    tint_selection_mode = fields.Selection(
+        [('all', 'استخدام جميع درجات النظام'), ('specific', 'اختيار درجات محددة')],
+        string='طريقة استخدام درجات اللون', default='all', required=True,
+    )
+    system_tint_numbering_method = fields.Selection(
+        [('sequential', 'ترقيم تسلسلي'), ('percentage', 'ترقيم بالنسب')],
+        string='طريقة ترقيم درجات النظام', readonly=True,
+    )
+    tint_line_ids = fields.One2many(
+        'wof.film.setup.tint.line', 'wizard_id', string='درجات اللون المتاحة',
+    )
+    selected_tint_count = fields.Integer(
+        string='درجات اللون المختارة', compute='_compute_selected_tint_count',
+    )
+    tint_required = fields.Boolean(
+        string='درجات اللون مطلوبة', compute='_compute_tint_required',
+    )
+
+    @api.depends('supports_color_grades', 'item_type')
+    def _compute_tint_required(self):
+        for wizard in self:
+            wizard.tint_required = bool(wizard.supports_color_grades and wizard.item_type == 'film')
+
+    @api.depends('tint_selection_mode', 'tint_line_ids.selected')
+    def _compute_selected_tint_count(self):
+        for wizard in self:
+            wizard.selected_tint_count = len(wizard.tint_line_ids.filtered('selected'))
+
     @api.depends('activity_id')
     def _compute_activity_summary(self):
         Film = self.env['wof.film.category'].with_context(active_test=False)
@@ -162,6 +192,7 @@ class WofFilmSetupWizard(models.TransientModel):
             'system_car_size_ids': [(6, 0, active_sizes.ids)],
             'system_size_count': len(active_sizes),
             'system_tint_count': len(selected_shades),
+            'system_tint_numbering_method': profile.tint_numbering_method,
         }
         if film:
             price_lines = film.film_part_line_ids.price_line_ids
@@ -221,7 +252,45 @@ class WofFilmSetupWizard(models.TransientModel):
                 'tax_id': profile.operation_tax_id.id if profile.operation_tax_id else False,
                 'price_input_mode': profile.operation_price_input_mode,
             })
-        return self.create(vals)
+        # Infer the Stage-2 mode from existing data for backward-compatible upgrades.
+        if film and activity.supports_color_grades and film.item_type == 'film':
+            system_codes = set(selected_shades.mapped('code'))
+            active_grade_codes = set(film.film_category_line_ids.filtered('active').mapped('code'))
+            use_all = bool(system_codes) and active_grade_codes == system_codes
+            if hasattr(film, 'use_system_tint_grades'):
+                use_all = bool(film.use_system_tint_grades) or use_all
+            vals['tint_selection_mode'] = 'all' if use_all else 'specific'
+        else:
+            vals['tint_selection_mode'] = 'all'
+
+        wizard = self.create(vals)
+        wizard._prepare_tint_lines(selected_shades=selected_shades)
+        return wizard
+
+    def _prepare_tint_lines(self, selected_shades=None):
+        self.ensure_one()
+        self.tint_line_ids.unlink()
+        selected_shades = selected_shades or self.profile_id.tint_shade_line_ids.filtered('selected')
+        existing_codes = set()
+        existing_values = set()
+        if self.film_id:
+            existing = self.film_id.film_category_line_ids.filtered('active')
+            existing_codes = set(existing.mapped('code'))
+            existing_values = set(existing.mapped('name'))
+        vals_list = []
+        for line in selected_shades.sorted(lambda rec: (rec.sequence, rec.id)):
+            selected = True
+            if self.tint_selection_mode == 'specific' and self.film_id:
+                selected = line.code in existing_codes or line.value in existing_values
+            vals_list.append({
+                'wizard_id': self.id,
+                'sequence': line.sequence,
+                'value': line.value,
+                'code': line.code,
+                'selected': selected,
+            })
+        if vals_list:
+            self.env['wof.film.setup.tint.line'].create(vals_list)
 
     @api.onchange('use_system_pricing_policy')
     def _onchange_use_system_pricing_policy(self):
@@ -380,9 +449,6 @@ class WofFilmSetupWizard(models.TransientModel):
 
     def action_continue(self):
         self._save_basic()
-        # Stage 2 is deliberately entered through the same wizard.  The next RC
-        # will replace the hand-off card with the approved tint-shades UI without
-        # changing the saved Stage-1 data or its model contract.
         self.current_step = 'tint'
         return self._dialog_action()
 
@@ -390,8 +456,117 @@ class WofFilmSetupWizard(models.TransientModel):
         self.current_step = 'basic'
         return self._dialog_action()
 
+    def action_use_all_tints(self):
+        self.ensure_one()
+        self.tint_selection_mode = 'all'
+        self.tint_line_ids.write({'selected': True})
+        return self._dialog_action()
+
+    def action_use_specific_tints(self):
+        self.ensure_one()
+        self.tint_selection_mode = 'specific'
+        # Preserve the current set; when switching from 'all' the user starts
+        # from all enabled and can remove only the shades that do not apply.
+        return self._dialog_action()
+
+    def _save_tint(self):
+        self.ensure_one()
+        self._ensure_access()
+        if not self.film_id:
+            self._save_basic()
+        Grade = self.env['wof.film.category.lines'].with_context(active_test=False)
+        existing = Grade.search([('header_id', '=', self.film_id.id)])
+
+        if not self.tint_required:
+            if existing:
+                existing.write({'active': False})
+            if hasattr(self.film_id, 'use_system_tint_grades'):
+                self.film_id.use_system_tint_grades = True
+            return True
+
+        lines = self.tint_line_ids.filtered('selected')
+        if self.tint_selection_mode == 'all':
+            lines = self.tint_line_ids
+            if lines.filtered(lambda rec: not rec.selected):
+                lines.write({'selected': True})
+        if not lines:
+            raise ValidationError(_('اختر درجة لون واحدة على الأقل لهذا الفيلم.'))
+
+        selected_codes = set(lines.mapped('code'))
+        selected_values = set(lines.mapped('value'))
+        for line in lines:
+            grade = existing.filtered(lambda rec: rec.code == line.code)[:1]
+            if not grade:
+                grade = existing.filtered(lambda rec: rec.name == line.value)[:1]
+            vals = {
+                'header_id': self.film_id.id,
+                'sequence': line.sequence,
+                'name': line.value,
+                'code': line.code,
+                'active': True,
+            }
+            # Percentage-numbered degrees also carry a useful transmission value.
+            if self.system_tint_numbering_method == 'percentage':
+                digits = re.sub(r'[^0-9]', '', line.value or '')
+                if digits:
+                    vals['transmission_percent'] = max(0, min(100, int(digits)))
+            if grade:
+                grade.write(vals)
+            else:
+                Grade.create(vals)
+
+        # Archive, rather than delete, degrees removed from this film so old
+        # installation orders that reference them remain historically valid.
+        for grade in existing.filtered('active'):
+            if grade.code:
+                keep = grade.code in selected_codes
+            else:
+                keep = grade.name in selected_values
+            if not keep:
+                grade.write({'active': False})
+
+        if hasattr(self.film_id, 'use_system_tint_grades'):
+            self.film_id.use_system_tint_grades = self.tint_selection_mode == 'all'
+        return True
+
+    def action_continue_tint(self):
+        self._save_tint()
+        self.current_step = 'components'
+        return self._dialog_action()
+
+    def action_back_tint(self):
+        self.current_step = 'tint'
+        return self._dialog_action()
+
     def action_cancel(self):
         if self.hub_id:
             self.hub_id._refresh_films()
             return self.hub_id._reopen_hub()
         return {'type': 'ir.actions.act_window_close'}
+
+
+class WofFilmSetupTintLine(models.TransientModel):
+    _name = 'wof.film.setup.tint.line'
+    _description = 'درجة لون في معالج تهيئة الفيلم'
+    _order = 'sequence, id'
+
+    wizard_id = fields.Many2one(
+        'wof.film.setup.wizard', required=True, ondelete='cascade', index=True,
+    )
+    sequence = fields.Integer(default=10, readonly=True)
+    value = fields.Char(string='درجة اللون', required=True, readonly=True)
+    code = fields.Char(string='الكود', required=True, readonly=True)
+    selected = fields.Boolean(string='مفعّلة', default=True)
+    locked = fields.Boolean(compute='_compute_locked')
+
+    @api.depends('wizard_id.tint_selection_mode')
+    def _compute_locked(self):
+        for line in self:
+            line.locked = line.wizard_id.tint_selection_mode == 'all'
+
+    def action_toggle_selected(self):
+        self.ensure_one()
+        if self.locked:
+            return self.wizard_id._dialog_action()
+        self.selected = not self.selected
+        return self.wizard_id._dialog_action()
