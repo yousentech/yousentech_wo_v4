@@ -20,6 +20,8 @@
                 <field name="system_tax_enabled" invisible="1"/>
                 <field name="system_tax_id" invisible="1"/>
                 <field name="system_price_input_mode" invisible="1"/>
+                <field name="tax_price_included" invisible="1"/>
+                <field name="system_commission_calculation_policy" invisible="1"/>
                 <field name="system_inventory_enabled" invisible="1"/>
                 <field name="system_tint_count" invisible="1"/>
                 <field name="system_size_count" invisible="1"/>
@@ -152,9 +154,16 @@
                                                 <div class="wof_override_area" invisible="use_system_commission_policy"><field name="commission_event" widget="radio" options="{'horizontal': True}" nolabel="1"/></div>
                                             </div>
                                             <div>
-                                                <div class="wof_policy_heading"><i class="fa fa-calculator" title="احتساب العمولة"/><div><strong>طريقة احتساب العمولة</strong><small>هنا نحدد السياسة فقط؛ المبلغ أو النسبة لكل حجم تُدخل لاحقاً.</small></div></div>
-                                                <field name="commission_calculation_policy" widget="radio" options="{'horizontal': True}" nolabel="1"/>
-                                                <div class="wof_policy_help" invisible="commission_calculation_policy != 'by_size'"><i class="fa fa-info-circle" title="معلومة"/> في خطوة الأسعار والعمولات ستظهر أحجام السيارات ويُدخل مبلغ أو نسبة العمولة لكل حجم.</div>
+                                                <div class="wof_policy_heading"><i class="fa fa-calculator" title="احتساب العمولة"/><div><strong>طريقة احتساب العمولة</strong><small>تتبع سياسة النظام ما دام خيار استخدام سياسة النظام مفعّلًا.</small></div></div>
+                                                <div class="wof_system_value" invisible="not use_system_commission_policy">
+                                                    <span>حسب سياسة النظام</span>
+                                                    <field name="system_commission_calculation_policy" readonly="1" nolabel="1"/>
+                                                </div>
+                                                <div class="wof_override_area" invisible="use_system_commission_policy">
+                                                    <div class="o_form_label">تخصيص طريقة الاحتساب لهذا الفيلم / الخدمة</div>
+                                                    <field name="commission_calculation_policy" widget="radio" options="{'horizontal': True}" nolabel="1"/>
+                                                </div>
+                                                <div class="wof_policy_help" invisible="use_system_commission_policy or commission_calculation_policy != 'by_size'"><i class="fa fa-info-circle" title="معلومة"/> في خطوة الأسعار والعمولات ستظهر أحجام السيارات ويُدخل مبلغ أو نسبة العمولة لكل حجم.</div>
                                             </div>
                                         </div>
                                     </div>
@@ -190,7 +199,12 @@
                                                 </div>
                                                 <div class="wof_tax_override_item" invisible="not tax_enabled">
                                                     <div class="o_form_label">طريقة إدخال السعر</div>
-                                                    <field name="price_input_mode" widget="radio" options="{'horizontal': True}" nolabel="1"/>
+                                                    <div class="wof_system_value" invisible="not tax_price_included">
+                                                        <i class="fa fa-lock" title="تحددها الضريبة"/>
+                                                        <strong>السعر شامل الضريبة</strong>
+                                                        <small>هذه الضريبة مضبوطة كشاملة للسعر، لذلك لا يمكن اختيار سعر قبل الضريبة.</small>
+                                                    </div>
+                                                    <field name="price_input_mode" widget="radio" options="{'horizontal': True}" nolabel="1" invisible="tax_price_included"/>
                                                 </div>
                                             </div>
                                         </div>

@@ -54,6 +54,10 @@ class WofFilmSetupWizard(models.TransientModel):
         [('fixed', 'عمولة موحدة'), ('by_size', 'حسب حجم السيارة')],
         string='طريقة احتساب العمولة', default='fixed', required=True,
     )
+    system_commission_calculation_policy = fields.Selection(
+        [('fixed', 'عمولة موحدة'), ('by_size', 'حسب حجم السيارة')],
+        string='طريقة احتساب العمولة من النظام', readonly=True,
+    )
 
     use_system_car_sizes = fields.Boolean(string='استخدام أحجام النظام', default=True)
     car_size_ids = fields.Many2many(
@@ -89,6 +93,9 @@ class WofFilmSetupWizard(models.TransientModel):
     )
     system_tax_enabled = fields.Boolean(string='تطبيق الضريبة من النظام', readonly=True)
     system_tax_id = fields.Many2one('account.tax', string='الضريبة الافتراضية من النظام', readonly=True)
+    tax_price_included = fields.Boolean(
+        related='tax_id.price_include', string='الضريبة شاملة السعر', readonly=True,
+    )
     system_price_input_mode = fields.Selection(
         [('excluded', 'السعر قبل الضريبة'), ('included', 'السعر شامل الضريبة')],
         string='طريقة إدخال السعر من النظام', readonly=True,
@@ -147,6 +154,7 @@ class WofFilmSetupWizard(models.TransientModel):
             'current_step': 'basic',
             'system_pricing_policy': profile.operation_pricing_policy,
             'system_commission_event': profile.commission_event,
+            'system_commission_calculation_policy': 'by_size' if profile.advanced_commission else 'fixed',
             'system_tax_enabled': profile.operation_tax_enabled,
             'system_tax_id': profile.operation_tax_id.id if profile.operation_tax_id else False,
             'system_price_input_mode': profile.operation_price_input_mode,
@@ -186,7 +194,11 @@ class WofFilmSetupWizard(models.TransientModel):
                 'car_size_ids': [(6, 0, selected_sizes.ids)],
                 'use_system_commission_policy': film.use_system_commission_policy,
                 'commission_event': film.commission_event or profile.commission_event,
-                'commission_calculation_policy': film.commission_calculation_policy or 'fixed',
+                'commission_calculation_policy': (
+                    ('by_size' if profile.advanced_commission else 'fixed')
+                    if film.use_system_commission_policy
+                    else (film.commission_calculation_policy or 'fixed')
+                ),
                 'use_system_tax_policy': film.use_system_tax_policy,
                 'tax_enabled': film.tax_enabled if not film.use_system_tax_policy else profile.operation_tax_enabled,
                 'tax_id': (film.tax_id.id if film.tax_id else False) if not film.use_system_tax_policy else (profile.operation_tax_id.id if profile.operation_tax_id else False),
@@ -203,7 +215,7 @@ class WofFilmSetupWizard(models.TransientModel):
                 'car_size_ids': [(6, 0, active_sizes.ids)],
                 'use_system_commission_policy': True,
                 'commission_event': profile.commission_event,
-                'commission_calculation_policy': 'fixed',
+                'commission_calculation_policy': 'by_size' if profile.advanced_commission else 'fixed',
                 'use_system_tax_policy': True,
                 'tax_enabled': profile.operation_tax_enabled,
                 'tax_id': profile.operation_tax_id.id if profile.operation_tax_id else False,
@@ -221,12 +233,23 @@ class WofFilmSetupWizard(models.TransientModel):
         if self.use_system_tax_policy:
             self.tax_enabled = self.system_tax_enabled
             self.tax_id = self.system_tax_id
-            self.price_input_mode = self.system_price_input_mode
+            self.price_input_mode = (
+                'included'
+                if self.system_tax_id and self.system_tax_id.price_include
+                else self.system_price_input_mode
+            )
+
+    @api.onchange('tax_id')
+    def _onchange_tax_id_price_include(self):
+        """A price-included tax defines the input mode; do not allow a contradictory mode."""
+        if not self.use_system_tax_policy and self.tax_id and self.tax_id.price_include:
+            self.price_input_mode = 'included'
 
     @api.onchange('use_system_commission_policy')
     def _onchange_use_system_commission_policy(self):
         if self.use_system_commission_policy:
             self.commission_event = self.system_commission_event
+            self.commission_calculation_policy = self.system_commission_calculation_policy
 
     @api.onchange('use_system_car_sizes')
     def _onchange_use_system_car_sizes(self):
@@ -273,22 +296,35 @@ class WofFilmSetupWizard(models.TransientModel):
         self.ensure_one()
         pricing_policy = self.system_pricing_policy if self.use_system_pricing_policy else self.pricing_policy
         commission_event = self.system_commission_event if self.use_system_commission_policy else self.commission_event
+        commission_calculation_policy = (
+            self.system_commission_calculation_policy
+            if self.use_system_commission_policy
+            else self.commission_calculation_policy
+        )
         sizes = self.system_car_size_ids if self.use_system_car_sizes else self.car_size_ids
         tax_enabled = self.system_tax_enabled if self.use_system_tax_policy else self.tax_enabled
         tax_id = self.system_tax_id if self.use_system_tax_policy else self.tax_id
         price_input_mode = self.system_price_input_mode if self.use_system_tax_policy else self.price_input_mode
+        if tax_enabled and tax_id and tax_id.price_include:
+            price_input_mode = 'included'
         if pricing_policy == 'by_size' and not sizes:
             raise ValidationError(_('حدد حجم سيارة واحدًا على الأقل عند استخدام التسعير حسب الحجم.'))
         if tax_enabled and not tax_id:
             raise ValidationError(_('حدد الضريبة المستخدمة، أو أوقف تطبيق الضريبة لهذا الفيلم / الخدمة.'))
-        return pricing_policy, commission_event, sizes, tax_enabled, tax_id, price_input_mode
+        return (
+            pricing_policy, commission_event, commission_calculation_policy,
+            sizes, tax_enabled, tax_id, price_input_mode,
+        )
 
     def _save_basic(self):
         self.ensure_one()
         self._ensure_access()
         if not (self.name or '').strip():
             raise ValidationError(_('أدخل اسم الفيلم أو الخدمة.'))
-        pricing_policy, commission_event, sizes, tax_enabled, tax_id, price_input_mode = self._effective_values()
+        (
+            pricing_policy, commission_event, commission_calculation_policy,
+            sizes, tax_enabled, tax_id, price_input_mode,
+        ) = self._effective_values()
         code = self._normalize_code(self.code) or self._generate_code()
         vals = {
             'name': self.name.strip(),
@@ -307,7 +343,7 @@ class WofFilmSetupWizard(models.TransientModel):
             'car_size_ids': [(6, 0, sizes.ids)],
             'use_system_commission_policy': self.use_system_commission_policy,
             'commission_event': commission_event,
-            'commission_calculation_policy': self.commission_calculation_policy,
+            'commission_calculation_policy': commission_calculation_policy,
             'use_system_tax_policy': self.use_system_tax_policy,
             'tax_enabled': tax_enabled,
             'tax_id': tax_id.id if tax_id else False,
