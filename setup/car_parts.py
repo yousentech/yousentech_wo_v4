@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class CarParts(models.Model):
@@ -32,6 +33,14 @@ class CarParts(models.Model):
         [('car_part', 'جزء سيارة'), ('service_area', 'منطقة خدمة')],
         string="نوع الجزء", required=True, default='car_part',
     )
+    service_area_part_ids = fields.Many2many(
+        'wof.car.parts',
+        'wof_car_parts_service_area_rel',
+        'service_area_id', 'child_part_id',
+        string="أجزاء منطقة الخدمة",
+        domain="[('company_id', '=', company_id), ('part_type', '=', 'car_part'), ('active', '=', True)]",
+        help="تُستخدم فقط عندما يكون نوع المكوّن منطقة خدمة. هذه الأجزاء بنيوية/تشغيلية، بينما تسعير المنطقة وعمولتها يتمان كوحدة تجارية واحدة.",
+    )
     part_options_required = fields.Boolean(string="الخيارات الإضافية إجبارية")
     film_category_readonly = fields.Boolean(string="فيلم غير قابل للتعديل")
     notes = fields.Char(string="ملاحظات")
@@ -49,6 +58,25 @@ class CarParts(models.Model):
          'check(commission >= 0 AND commission <= 100)',
          'عمولة الفني يجب أن تكون بين 0 و100.'),
     ]
+
+    @api.constrains('part_type', 'service_area_part_ids', 'company_id')
+    def _check_service_area_parts(self):
+        for record in self:
+            if record.part_type != 'service_area' and record.service_area_part_ids:
+                raise ValidationError('يمكن تحديد أجزاء داخلية فقط للمكوّن من نوع منطقة خدمة.')
+            if record in record.service_area_part_ids:
+                raise ValidationError('لا يمكن أن تحتوي منطقة الخدمة على نفسها.')
+            wrong_type = record.service_area_part_ids.filtered(lambda part: part.part_type != 'car_part')
+            if wrong_type:
+                raise ValidationError('منطقة الخدمة يمكن أن تحتوي فقط على مكونات معرفة كأجزاء سيارة.')
+            wrong_company = record.service_area_part_ids.filtered(lambda part: part.company_id != record.company_id)
+            if wrong_company:
+                raise ValidationError('جميع أجزاء منطقة الخدمة يجب أن تتبع نفس الشركة.')
+
+    @api.onchange('part_type')
+    def _onchange_part_type_clear_service_area_parts(self):
+        if self.part_type != 'service_area':
+            self.service_area_part_ids = [(5, 0, 0)]
 
     @api.model
     def name_get(self):

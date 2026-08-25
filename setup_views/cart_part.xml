@@ -80,7 +80,12 @@
                         </group>
                         <group>
                           <field name="part_type" widget="radio"/>
-                          
+                          <field name="service_area_part_ids" widget="many2many_tags"
+                                 invisible="part_type != 'service_area'"
+                                 options="{'no_create': True, 'no_create_edit': True}"/>
+                          <div class="text-muted" invisible="part_type != 'service_area'">
+                              أجزاء المنطقة بنيوية وتشغيلية فقط؛ تسعير وعمولة منطقة الخدمة يتمان كوحدة واحدة.
+                          </div>
 
                         </group>
                         

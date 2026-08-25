@@ -31,6 +31,7 @@
                 <field name="system_tint_numbering_method" invisible="1"/>
                 <field name="selected_tint_count" invisible="1"/>
                 <field name="tint_required" invisible="1"/>
+                <field name="component_view_mode" invisible="1"/>
 
                 <div class="wof_film_setup_shell">
                     <div class="wof_film_setup_header">
@@ -382,16 +383,168 @@
                         </div>
                     </div>
 
-                    <div class="wof_film_stage_handoff" invisible="current_step != 'components'">
-                        <div class="wof_handoff_icon"><i class="fa fa-cubes" title="المكونات"/></div>
-                        <h2>تم حفظ درجات اللون</h2>
-                        <p>الخطوة التالية: تحديد مكونات الفيلم أو الخدمة ومناطق الخدمة.</p>
+                    <div class="wof_film_components_stage" invisible="current_step != 'components'">
+                        <div class="wof_film_setup_intro">
+                            <i class="fa fa-info-circle" title="معلومة"/>
+                            حدد المكونات التي يتكوّن منها الفيلم / الخدمة. نوع المكوّن وأجزاء منطقة الخدمة تأتي من تعريف المكوّن الأساسي.
+                        </div>
+                        <div class="wof_film_setup_body wof_components_body">
+                            <div class="wof_film_setup_main">
+                                <section class="wof_film_setup_card wof_components_main_card">
+                                    <div class="wof_film_card_title wof_components_title">
+                                        <span class="wof_film_card_icon"><i class="fa fa-cubes" title="المكونات"/></span>
+                                        <div>
+                                            <h2>المكونات</h2>
+                                            <p>أضف ورتب مكونات الفيلم / الخدمة. مناطق الخدمة تعرض أجزاءها الداخلية بشكل شجري.</p>
+                                        </div>
+                                        <span class="wof_components_policy_badge"><i class="fa fa-check-circle" title="تعريف موحد"/> من تعريف المكونات</span>
+                                    </div>
+
+                                    <div class="wof_components_toolbar">
+                                        <div class="wof_components_view_switch">
+                                            <button name="action_component_tree_view" type="object" class="btn is-active" invisible="component_view_mode != 'tree'">
+                                                <i class="fa fa-sitemap" title="شجرة"/> عرض على شكل شجرة
+                                            </button>
+                                            <button name="action_component_tree_view" type="object" class="btn" invisible="component_view_mode == 'tree'">
+                                                <i class="fa fa-sitemap" title="شجرة"/> عرض على شكل شجرة
+                                            </button>
+                                            <button name="action_component_list_view" type="object" class="btn is-active" invisible="component_view_mode != 'list'">
+                                                <i class="fa fa-list" title="قائمة"/> عرض على شكل قائمة
+                                            </button>
+                                            <button name="action_component_list_view" type="object" class="btn" invisible="component_view_mode == 'list'">
+                                                <i class="fa fa-list" title="قائمة"/> عرض على شكل قائمة
+                                            </button>
+                                        </div>
+                                        <div class="wof_components_add_actions">
+                                            <button name="action_add_service_area" type="object" class="btn btn-outline-primary">
+                                                <i class="fa fa-folder-open" title="منطقة خدمة"/> إضافة منطقة خدمة
+                                            </button>
+                                            <button name="action_add_component" type="object" class="btn btn-primary">
+                                                <i class="fa fa-plus" title="إضافة"/> إضافة مكوّن
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="wof_components_definition_note">
+                                        <i class="fa fa-info-circle" title="تعريف المكونات"/>
+                                        <span>المكوّن يُعرّف مسبقًا كـ <strong>جزء سيارة</strong> أو <strong>منطقة خدمة</strong>. إذا كان منطقة خدمة، تظهر أجزاؤها الداخلية تلقائيًا هنا ولا يتم تسعيرها منفردة.</span>
+                                    </div>
+
+                                    <div class="wof_components_empty" invisible="selected_component_count != 0">
+                                        <span class="wof_components_empty_icon"><i class="fa fa-cubes" title="لا توجد مكونات"/></span>
+                                        <strong>لم تتم إضافة مكونات بعد</strong>
+                                        <p>ابدأ بإضافة جزء سيارة أو منطقة خدمة من الأزرار أعلاه.</p>
+                                    </div>
+
+                                    <div class="wof_components_tree_area" invisible="component_view_mode != 'tree' or selected_component_count == 0">
+                                        <field name="component_line_ids" nolabel="1" mode="kanban" class="wof_component_tree_field">
+                                            <kanban create="0" delete="0" class="wof_component_tree_kanban">
+                                                <field name="sequence"/>
+                                                <field name="car_part_id"/>
+                                                <field name="part_type"/>
+                                                <field name="code"/>
+                                                <field name="selected"/>
+                                                <field name="is_child"/>
+                                                <field name="parent_master_id"/>
+                                                <field name="parent_selected"/>
+                                                <field name="child_count"/>
+                                                <templates>
+                                                    <t t-name="kanban-box">
+                                                        <div t-attf-class="wof_component_tree_row #{record.is_child.raw_value ? 'is-child' : ''} #{record.part_type.raw_value === 'service_area' ? 'is-area' : 'is-part'}"
+                                                             t-if="!record.is_child.raw_value || record.parent_selected.raw_value">
+                                                            <div class="wof_component_drag"><i class="fa fa-th" title="ترتيب"/></div>
+                                                            <div class="wof_component_expand" t-if="record.part_type.raw_value === 'service_area' &amp;&amp; !record.is_child.raw_value">
+                                                                <i class="fa fa-chevron-down" title="أجزاء المنطقة"/>
+                                                            </div>
+                                                            <div class="wof_component_kind_icon">
+                                                                <i t-if="record.part_type.raw_value === 'service_area'" class="fa fa-folder" title="منطقة خدمة"/>
+                                                                <i t-else="" class="fa fa-cube" title="جزء سيارة"/>
+                                                            </div>
+                                                            <div class="wof_component_name">
+                                                                <strong><field name="car_part_id"/></strong>
+                                                                <span t-if="record.is_child.raw_value" class="wof_component_child_hint">جزء داخل منطقة الخدمة</span>
+                                                                <span t-elif="record.part_type.raw_value === 'service_area'" class="wof_component_type_badge is-area">منطقة خدمة</span>
+                                                                <span t-else="" class="wof_component_type_badge">مكوّن</span>
+                                                            </div>
+                                                            <div class="wof_component_meta" t-if="record.part_type.raw_value === 'service_area' &amp;&amp; !record.is_child.raw_value">
+                                                                <span><field name="child_count"/> أجزاء</span>
+                                                            </div>
+                                                            <div class="wof_component_meta" t-if="record.is_child.raw_value">
+                                                                <span>بنيوي / تشغيلي</span>
+                                                            </div>
+                                                            <div class="wof_component_actions" t-if="!record.is_child.raw_value">
+                                                                <button name="action_edit" type="object" class="btn" title="تعديل"><i class="fa fa-pencil" title="تعديل"/></button>
+                                                                <button name="action_remove" type="object" class="btn is-danger" title="إزالة"><i class="fa fa-trash" title="إزالة"/></button>
+                                                            </div>
+                                                        </div>
+                                                    </t>
+                                                </templates>
+                                            </kanban>
+                                        </field>
+                                    </div>
+
+                                    <div class="wof_components_list_area" invisible="component_view_mode != 'list' or selected_component_count == 0">
+                                        <field name="component_top_line_ids" nolabel="1">
+                                            <tree create="0" delete="0" editable="bottom" class="wof_component_list_tree">
+                                                <field name="sequence" widget="handle"/>
+                                                <field name="car_part_id" string="المكوّن" readonly="1"/>
+                                                <field name="part_type" string="النوع" readonly="1"/>
+                                                <field name="child_count" string="الأجزاء الداخلية" readonly="1"/>
+                                                <field name="child_names" string="تفاصيل منطقة الخدمة" readonly="1"/>
+                                                <button name="action_edit" type="object" icon="fa-pencil" string="تعديل"/>
+                                                <button name="action_remove" type="object" icon="fa-trash" string="إزالة"/>
+                                            </tree>
+                                        </field>
+                                    </div>
+
+                                    <div class="wof_components_summary_bar" invisible="selected_component_count == 0">
+                                        <span><strong><field name="selected_component_count" readonly="1" nolabel="1"/></strong> مكونات تجارية</span>
+                                        <span><strong><field name="service_area_count" readonly="1" nolabel="1"/></strong> مناطق خدمة</span>
+                                        <span><strong><field name="structural_part_count" readonly="1" nolabel="1"/></strong> أجزاء بنيوية داخل المناطق</span>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <aside class="wof_film_setup_summary wof_components_summary">
+                                <div class="wof_summary_topline">
+                                    <span>النشاط</span>
+                                    <span class="wof_summary_status"><i class="fa fa-check-circle" title="مفعّل"/> مفعّل</span>
+                                </div>
+                                <div class="wof_summary_icon"><i class="fa fa-film" title="أفلام وخدمات"/></div>
+                                <h2><field name="activity_id" readonly="1" nolabel="1"/></h2>
+                                <p><field name="activity_description" readonly="1" nolabel="1"/></p>
+                                <div class="wof_summary_stats wof_components_stats">
+                                    <div><i class="fa fa-cubes" title="المكونات"/><strong><field name="selected_component_count" readonly="1" nolabel="1"/></strong><span>مكونات</span></div>
+                                    <div><i class="fa fa-folder" title="مناطق الخدمة"/><strong><field name="service_area_count" readonly="1" nolabel="1"/></strong><span>مناطق خدمة</span></div>
+                                    <div><i class="fa fa-car" title="الأحجام"/><strong><field name="system_size_count" readonly="1" nolabel="1"/></strong><span>أحجام سيارات</span></div>
+                                    <div><i class="fa fa-tint" title="الدرجات"/><strong><field name="selected_tint_count" readonly="1" nolabel="1"/></strong><span>درجات لون</span></div>
+                                </div>
+                                <div class="wof_summary_policy">
+                                    <span>سياسة التسعير</span>
+                                    <strong><field name="pricing_policy" readonly="1" nolabel="1"/></strong>
+                                </div>
+                                <div class="wof_summary_policy">
+                                    <span>طريقة احتساب العمولة</span>
+                                    <strong><field name="commission_calculation_policy" readonly="1" nolabel="1"/></strong>
+                                </div>
+                                <div class="wof_summary_note">
+                                    <i class="fa fa-info-circle" title="معلومة"/>
+                                    منطقة الخدمة تُسعّر وتُحتسب عمولتها كوحدة واحدة. أجزاؤها الداخلية تستخدم للبنية والتنفيذ والمخزون فقط.
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                    <div class="wof_film_stage_handoff" invisible="current_step != 'pricing'">
+                        <div class="wof_handoff_icon"><i class="fa fa-money" title="الأسعار والعمولات"/></div>
+                        <h2>تم حفظ المكونات</h2>
+                        <p>الخطوة التالية: تحديد أسعار المكونات ومناطق الخدمة ثم إعداد العمولات.</p>
                         <div class="wof_handoff_badges">
                             <span><field name="name" readonly="1" nolabel="1"/></span>
-                            <span><field name="selected_tint_count" readonly="1" nolabel="1"/> درجات لون</span>
+                            <span><field name="selected_component_count" readonly="1" nolabel="1"/> مكونات</span>
+                            <span><field name="service_area_count" readonly="1" nolabel="1"/> مناطق خدمة</span>
                         </div>
-                        <button name="action_back_tint" type="object" class="btn btn-secondary">السابق: درجات اللون</button>
-                        <p class="wof_handoff_hint">سيتم إضافة واجهة المكونات المعتمدة في الخطوة التالية دون تغيير البيانات المحفوظة.</p>
+                        <button name="action_back_components" type="object" class="btn btn-secondary">السابق: المكونات</button>
+                        <p class="wof_handoff_hint">منطقة الخدمة ستظهر كسطر تجاري واحد في التسعير والعمولة، وأجزاؤها الداخلية لن تُسعّر منفردة.</p>
                     </div>
                 </div>
 
@@ -409,8 +562,55 @@
                         <button name="action_continue_tint" string="التالي: المكونات" type="object" class="btn btn-primary"/>
                     </div>
                 </footer>
-                <footer invisible="current_step in ('basic', 'tint')" class="wof_film_setup_footer">
+                <footer invisible="current_step != 'components'" class="wof_film_setup_footer wof_components_footer">
+                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
+                    <div class="wof_film_footer_actions">
+                        <button name="action_back_tint" string="السابق: درجات اللون" type="object" class="btn btn-outline-primary"/>
+                        <button name="action_continue_components" string="التالي: الأسعار والعمولات" type="object" class="btn btn-primary"/>
+                    </div>
+                </footer>
+                <footer invisible="current_step in ('basic', 'tint', 'components')" class="wof_film_setup_footer">
                     <button name="action_cancel" string="العودة إلى الأفلام والخدمات" type="object" class="btn btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wof_film_setup_component_dialog_form" model="ir.ui.view">
+        <field name="name">wof.film.setup.component.dialog.form</field>
+        <field name="model">wof.film.setup.component.dialog</field>
+        <field name="arch" type="xml">
+            <form string="إضافة مكوّن" class="wof_component_dialog_form" create="0" edit="1" delete="0">
+                <field name="wizard_id" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="expected_type" invisible="1"/>
+                <field name="line_id" invisible="1"/>
+                <div class="wof_component_dialog_shell">
+                    <div class="wof_component_dialog_header">
+                        <span class="wof_component_dialog_icon"><i class="fa fa-cube" title="مكوّن"/></span>
+                        <div>
+                            <h2 invisible="expected_type != 'car_part'">اختيار جزء سيارة</h2>
+                            <h2 invisible="expected_type != 'service_area'">اختيار منطقة خدمة</h2>
+                            <p invisible="expected_type != 'car_part'">اختر مكوّنًا معرفًا مسبقًا كجزء سيارة.</p>
+                            <p invisible="expected_type != 'service_area'">اختر منطقة خدمة؛ ستظهر أجزاؤها الداخلية تلقائيًا في العرض الشجري.</p>
+                        </div>
+                    </div>
+                    <div class="wof_component_dialog_field">
+                        <label for="car_part_id" string="المكوّن"/>
+                        <field name="car_part_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                    </div>
+                    <div class="wof_component_dialog_children" invisible="expected_type != 'service_area' or not car_part_id">
+                        <div class="wof_component_dialog_children_title">
+                            <i class="fa fa-sitemap" title="أجزاء المنطقة"/> أجزاء منطقة الخدمة
+                        </div>
+                        <field name="child_part_ids" widget="many2many_tags" readonly="1" nolabel="1"/>
+                        <small>هذه الأجزاء بنيوية/تشغيلية، ولا يتم إنشاء سعر أو عمولة منفصلة لها في الفيلم.</small>
+                    </div>
+                </div>
+                <footer>
+                    <button string="إلغاء" special="cancel" class="btn btn-secondary"/>
+                    <button name="action_confirm" string="إضافة" type="object" class="btn btn-primary" invisible="line_id"/>
+                    <button name="action_confirm" string="حفظ التعديل" type="object" class="btn btn-primary" invisible="not line_id"/>
                 </footer>
             </form>
         </field>

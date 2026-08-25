@@ -129,6 +129,42 @@ class WofFilmSetupWizard(models.TransientModel):
         string='درجات اللون مطلوبة', compute='_compute_tint_required',
     )
 
+    # Stage 3 — components. The master component defines whether it is a
+    # normal car part or a service area. Service-area child parts are defined
+    # once on wof.car.parts and are shown here structurally; the service area
+    # itself remains the single commercial line for pricing and commission.
+    component_view_mode = fields.Selection(
+        [('tree', 'عرض على شكل شجرة'), ('list', 'عرض على شكل قائمة')],
+        string='طريقة عرض المكونات', default='tree', required=True,
+    )
+    component_line_ids = fields.One2many(
+        'wof.film.setup.component.line', 'wizard_id', string='المكونات',
+    )
+    component_top_line_ids = fields.One2many(
+        'wof.film.setup.component.line', 'wizard_id', string='المكونات الرئيسية',
+        domain=[('is_child', '=', False)],
+    )
+    selected_component_count = fields.Integer(
+        string='المكونات المختارة', compute='_compute_component_summary',
+    )
+    service_area_count = fields.Integer(
+        string='مناطق الخدمة', compute='_compute_component_summary',
+    )
+    structural_part_count = fields.Integer(
+        string='الأجزاء البنيوية', compute='_compute_component_summary',
+    )
+
+    @api.depends('component_line_ids.selected', 'component_line_ids.part_type',
+                 'component_line_ids.is_child')
+    def _compute_component_summary(self):
+        for wizard in self:
+            top = wizard.component_line_ids.filtered(lambda line: not line.is_child and line.selected)
+            wizard.selected_component_count = len(top)
+            wizard.service_area_count = len(top.filtered(lambda line: line.part_type == 'service_area'))
+            wizard.structural_part_count = len(wizard.component_line_ids.filtered(
+                lambda line: line.is_child and line.parent_selected
+            ))
+
     @api.depends('supports_color_grades', 'item_type')
     def _compute_tint_required(self):
         for wizard in self:
@@ -532,6 +568,147 @@ class WofFilmSetupWizard(models.TransientModel):
     def action_continue_tint(self):
         self._save_tint()
         self.current_step = 'components'
+        self._prepare_component_lines()
+        return self._dialog_action()
+
+    def _prepare_component_lines(self):
+        self.ensure_one()
+        self.component_line_ids.unlink()
+        if not self.film_id:
+            return
+        existing_part_ids = set(self.film_id.film_part_line_ids.filtered('part_selected').mapped('car_part_id').ids)
+        masters = self.env['wof.car.parts'].with_context(active_test=False).search([
+            ('company_id', '=', self.company_id.id),
+            ('active', '=', True),
+        ], order='priority_part, name, id')
+        vals = []
+        seq = 10
+        for part in masters:
+            # Top-level component row. Existing film selections remain selected;
+            # new masters remain available in the add dialog instead of cluttering the tree.
+            if part.id not in existing_part_ids:
+                continue
+            vals.append({
+                'wizard_id': self.id,
+                'sequence': seq,
+                'car_part_id': part.id,
+                'selected': True,
+                'is_child': False,
+            })
+            parent_seq = seq
+            seq += 10
+            if part.part_type == 'service_area':
+                for child in part.service_area_part_ids.sorted(lambda rec: (rec.priority_part, rec.name or '', rec.id)):
+                    vals.append({
+                        'wizard_id': self.id,
+                        'sequence': parent_seq + 1,
+                        'car_part_id': child.id,
+                        'selected': True,
+                        'is_child': True,
+                        'parent_master_id': part.id,
+                    })
+                    parent_seq += 1
+        if vals:
+            self.env['wof.film.setup.component.line'].create(vals)
+
+    def _append_component_master(self, part):
+        self.ensure_one()
+        part.ensure_one()
+        if part.company_id != self.company_id or not part.active:
+            raise ValidationError(_('المكوّن المحدد غير متاح لهذه الشركة.'))
+        existing = self.component_line_ids.filtered(
+            lambda line: not line.is_child and line.car_part_id == part
+        )[:1]
+        if existing:
+            existing.selected = True
+            return existing
+        max_seq = max(self.component_line_ids.mapped('sequence') or [0])
+        parent = self.env['wof.film.setup.component.line'].create({
+            'wizard_id': self.id, 'sequence': max_seq + 10,
+            'car_part_id': part.id, 'selected': True, 'is_child': False,
+        })
+        if part.part_type == 'service_area':
+            child_seq = parent.sequence + 1
+            for child in part.service_area_part_ids.sorted(lambda rec: (rec.priority_part, rec.name or '', rec.id)):
+                self.env['wof.film.setup.component.line'].create({
+                    'wizard_id': self.id, 'sequence': child_seq,
+                    'car_part_id': child.id, 'selected': True, 'is_child': True,
+                    'parent_master_id': part.id,
+                })
+                child_seq += 1
+        return parent
+
+    # Proxy methods keep static view validation satisfied for nested x2many
+    # object buttons; at runtime those buttons are executed on component-line records.
+    def action_edit(self):
+        return self._dialog_action()
+
+    def action_remove(self):
+        return self._dialog_action()
+
+    def action_add_component(self):
+        self.ensure_one()
+        dialog = self.env['wof.film.setup.component.dialog'].create({
+            'wizard_id': self.id, 'expected_type': 'car_part',
+        })
+        return dialog._dialog_action()
+
+    def action_add_service_area(self):
+        self.ensure_one()
+        dialog = self.env['wof.film.setup.component.dialog'].create({
+            'wizard_id': self.id, 'expected_type': 'service_area',
+        })
+        return dialog._dialog_action()
+
+    def action_component_tree_view(self):
+        self.component_view_mode = 'tree'
+        return self._dialog_action()
+
+    def action_component_list_view(self):
+        self.component_view_mode = 'list'
+        return self._dialog_action()
+
+    def _save_components(self):
+        self.ensure_one()
+        self._ensure_access()
+        if not self.film_id:
+            self._save_basic()
+        selected = self.component_line_ids.filtered(lambda line: not line.is_child and line.selected)
+        if not selected:
+            raise ValidationError(_('أضف مكوّنًا واحدًا على الأقل للفيلم / الخدمة.'))
+        empty_areas = selected.filtered(
+            lambda line: line.part_type == 'service_area' and not line.car_part_id.service_area_part_ids
+        )
+        if empty_areas:
+            raise ValidationError(_('منطقة الخدمة يجب أن تحتوي على جزء واحد على الأقل في تعريف المكوّن قبل استخدامها.'))
+        Line = self.env['wof.film.parts.lines']
+        existing = Line.search([('header_id', '=', self.film_id.id)])
+        selected_ids = set(selected.mapped('car_part_id').ids)
+        # Preserve historical price/commission records by deactivating the film
+        # selection flag instead of deleting existing component lines.
+        for old_line in existing:
+            old_line.part_selected = old_line.car_part_id.id in selected_ids
+        seq = 10
+        for line in selected.sorted(lambda rec: (rec.sequence, rec.id)):
+            target = existing.filtered(lambda rec: rec.car_part_id == line.car_part_id)[:1]
+            vals = {'header_id': self.film_id.id, 'car_part_id': line.car_part_id.id,
+                    'part_selected': True, 'sequence': seq}
+            if target:
+                target.write(vals)
+            else:
+                Line.create(vals)
+            seq += 10
+        return True
+
+    def action_continue_components(self):
+        self._save_components()
+        self.current_step = 'pricing'
+        return self._dialog_action()
+
+    def action_back_components(self):
+        self.current_step = 'components'
+        if not self.component_line_ids and self.film_id:
+            self._prepare_component_lines()
         return self._dialog_action()
 
     def action_back_tint(self):
@@ -543,6 +720,138 @@ class WofFilmSetupWizard(models.TransientModel):
             self.hub_id._refresh_films()
             return self.hub_id._reopen_hub()
         return {'type': 'ir.actions.act_window_close'}
+
+
+class WofFilmSetupComponentLine(models.TransientModel):
+    _name = 'wof.film.setup.component.line'
+    _description = 'مكوّن في معالج تهيئة الفيلم'
+    _order = 'sequence, id'
+
+    wizard_id = fields.Many2one('wof.film.setup.wizard', required=True, ondelete='cascade', index=True)
+    sequence = fields.Integer(default=10)
+    car_part_id = fields.Many2one('wof.car.parts', string='المكوّن', required=True, ondelete='cascade')
+    part_type = fields.Selection(related='car_part_id.part_type', string='النوع', readonly=True)
+    code = fields.Char(related='car_part_id.code', readonly=True)
+    selected = fields.Boolean(default=True)
+    is_child = fields.Boolean(string='جزء داخلي', default=False, readonly=True)
+    parent_master_id = fields.Many2one('wof.car.parts', string='منطقة الخدمة', readonly=True)
+    parent_selected = fields.Boolean(compute='_compute_parent_selected')
+    child_count = fields.Integer(compute='_compute_child_count')
+    child_names = fields.Char(compute='_compute_child_count')
+
+    @api.depends('wizard_id.component_line_ids.selected', 'parent_master_id')
+    def _compute_parent_selected(self):
+        for line in self:
+            if not line.is_child or not line.parent_master_id:
+                line.parent_selected = False
+                continue
+            parent = line.wizard_id.component_line_ids.filtered(
+                lambda rec: not rec.is_child and rec.car_part_id == line.parent_master_id
+            )[:1]
+            line.parent_selected = bool(parent and parent.selected)
+
+    @api.depends('car_part_id.service_area_part_ids')
+    def _compute_child_count(self):
+        for line in self:
+            children = line.car_part_id.service_area_part_ids if line.part_type == 'service_area' else self.env['wof.car.parts']
+            line.child_count = len(children)
+            line.child_names = '، '.join(children.mapped('name'))
+
+    def action_edit(self):
+        self.ensure_one()
+        if self.is_child:
+            return self.wizard_id._dialog_action()
+        dialog = self.env['wof.film.setup.component.dialog'].create({
+            'wizard_id': self.wizard_id.id,
+            'expected_type': self.part_type,
+            'line_id': self.id,
+            'car_part_id': self.car_part_id.id,
+        })
+        return dialog._dialog_action()
+
+    def action_remove(self):
+        self.ensure_one()
+        wizard = self.wizard_id
+        if self.is_child:
+            return wizard._dialog_action()
+        # Remove transient row and all visual children. Persistent data is only
+        # changed when the user continues to the next step.
+        wizard.component_line_ids.filtered(
+            lambda rec: rec.is_child and rec.parent_master_id == self.car_part_id
+        ).unlink()
+        self.unlink()
+        return wizard._dialog_action()
+
+    def action_move_up(self):
+        self.ensure_one()
+        if self.is_child:
+            return self.wizard_id._dialog_action()
+        siblings = self.wizard_id.component_line_ids.filtered(lambda rec: not rec.is_child).sorted(lambda rec: (rec.sequence, rec.id))
+        idx = list(siblings).index(self)
+        if idx > 0:
+            prev = siblings[idx - 1]
+            old_seq = self.sequence
+            self.sequence = prev.sequence
+            prev.sequence = old_seq
+        return self.wizard_id._dialog_action()
+
+
+class WofFilmSetupComponentDialog(models.TransientModel):
+    _name = 'wof.film.setup.component.dialog'
+    _description = 'اختيار مكوّن للفيلم'
+
+    wizard_id = fields.Many2one('wof.film.setup.wizard', required=True, ondelete='cascade', readonly=True)
+    company_id = fields.Many2one(related='wizard_id.company_id', readonly=True)
+    expected_type = fields.Selection([('car_part', 'جزء سيارة'), ('service_area', 'منطقة خدمة')], required=True, readonly=True)
+    line_id = fields.Many2one('wof.film.setup.component.line', string='السطر الحالي', readonly=True)
+    car_part_id = fields.Many2one(
+        'wof.car.parts', string='المكوّن', required=True,
+        domain="[('company_id', '=', company_id), ('active', '=', True), ('part_type', '=', expected_type)]",
+    )
+    child_part_ids = fields.Many2many(related='car_part_id.service_area_part_ids', readonly=True)
+
+    def _dialog_action(self):
+        self.ensure_one()
+        view = self.env.ref('yousentech_wo_v4.view_wof_film_setup_component_dialog_form')
+        return {
+            'type': 'ir.actions.act_window', 'name': _('إضافة مكوّن') if self.expected_type == 'car_part' else _('إضافة منطقة خدمة'),
+            'res_model': self._name, 'res_id': self.id, 'view_mode': 'form',
+            'views': [(view.id, 'form')], 'target': 'new', 'context': dict(self.env.context),
+        }
+
+    def action_confirm(self):
+        self.ensure_one()
+        if self.car_part_id.part_type != self.expected_type:
+            raise ValidationError(_('نوع المكوّن المحدد لا يطابق نوع الإضافة.'))
+        if self.expected_type == 'service_area' and not self.car_part_id.service_area_part_ids:
+            raise ValidationError(_('منطقة الخدمة المحددة لا تحتوي على أجزاء. أضف أجزاءها من تعريف المكوّن أولاً.'))
+        duplicate = self.wizard_id.component_line_ids.filtered(
+            lambda line: not line.is_child and line.car_part_id == self.car_part_id
+            and (not self.line_id or line != self.line_id)
+        )
+        if duplicate:
+            raise ValidationError(_('هذا المكوّن مضاف بالفعل لهذا الفيلم / الخدمة.'))
+        if self.line_id:
+            old_part = self.line_id.car_part_id
+            self.wizard_id.component_line_ids.filtered(
+                lambda rec: rec.is_child and rec.parent_master_id == old_part
+            ).unlink()
+            self.line_id.car_part_id = self.car_part_id
+            if self.car_part_id.part_type == 'service_area':
+                seq = self.line_id.sequence + 1
+                for child in self.car_part_id.service_area_part_ids.sorted(
+                    lambda rec: (rec.priority_part, rec.name or '', rec.id)
+                ):
+                    self.env['wof.film.setup.component.line'].create({
+                        'wizard_id': self.wizard_id.id, 'sequence': seq,
+                        'car_part_id': child.id, 'selected': True, 'is_child': True,
+                        'parent_master_id': self.car_part_id.id,
+                    })
+                    seq += 1
+        else:
+            self.wizard_id._append_component_master(self.car_part_id)
+        return self.wizard_id._dialog_action()
+
 
 
 class WofFilmSetupTintLine(models.TransientModel):
