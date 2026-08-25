@@ -108,7 +108,6 @@
                                         <i class="fa fa-chevron-down wof_compact_arrow" title="توسيع"/>
                                     </summary>
                                     <div class="wof_compact_content">
-                                        <div class="wof_policy_heading"><i class="fa fa-car" title="أحجام السيارات"/><div><strong>أحجام السيارات</strong><small>تستخدم عند التسعير أو احتساب العمولة حسب حجم السيارة.</small></div></div>
                                         <div class="wof_system_value"><span>أحجام النظام المعتمدة</span><strong><field name="system_size_count" readonly="1" nolabel="1"/> أحجام</strong></div>
                                         <div class="wof_inline_toggle"><field name="use_system_car_sizes" widget="boolean_toggle" nolabel="1"/><span>استخدام جميع أحجام النظام</span></div>
                                         <div class="wof_size_chips"><field name="system_car_size_ids" widget="many2many_tags" readonly="1" nolabel="1" invisible="not use_system_car_sizes"/><field name="car_size_ids" widget="many2many_tags" nolabel="1" invisible="use_system_car_sizes"/></div>
