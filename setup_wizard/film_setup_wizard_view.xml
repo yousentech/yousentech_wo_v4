@@ -291,15 +291,6 @@
                                     </div>
 
                                     <div class="wof_tint_required_area" invisible="not tint_required">
-                                        <div class="wof_tint_source_note">
-                                            <i class="fa fa-info-circle" title="إعدادات النظام"/>
-                                            <span>هذه الدرجات مأخوذة من مركز تهيئة النظام. إضافة أو حذف درجات النظام يتم من إعدادات التهيئة فقط.</span>
-                                            <div class="wof_tint_source_meta">
-                                                <span><strong><field name="system_tint_count" readonly="1" nolabel="1"/></strong> درجات</span>
-                                                <span>طريقة الترقيم: <strong><field name="system_tint_numbering_method" readonly="1" nolabel="1"/></strong></span>
-                                            </div>
-                                        </div>
-
                                         <div class="wof_tint_mode_label">طريقة الاستخدام</div>
                                         <div class="wof_tint_mode_grid">
                                             <button name="action_use_all_tints" type="object" class="btn wof_tint_mode_card is-selected" invisible="tint_selection_mode != 'all'">
@@ -327,11 +318,11 @@
                                         <div class="wof_tint_shades_panel">
                                             <div class="wof_tint_shades_header">
                                                 <div>
-                                                    <h3>درجات اللون المتاحة في النظام</h3>
-                                                    <p invisible="tint_selection_mode != 'all'">جميع الدرجات ستستخدم تلقائياً ولا يمكن إلغاء درجة منفردة في وضع سياسة النظام.</p>
-                                                    <p invisible="tint_selection_mode != 'specific'">اضغط على أي درجة لتفعيلها أو إلغائها لهذا الفيلم فقط.</p>
+                                                    <h3>درجات اللون</h3>
+                                                    <p invisible="tint_selection_mode != 'specific'">اختر الدرجات التي تريد استخدامها لهذا الفيلم.</p>
                                                 </div>
-                                                <span class="wof_tint_selected_counter"><field name="selected_tint_count" readonly="1" nolabel="1"/> مختارة</span>
+                                                <span class="wof_tint_selected_counter" invisible="tint_selection_mode != 'all'"><field name="system_tint_count" readonly="1" nolabel="1"/> درجات من النظام</span>
+                                                <span class="wof_tint_selected_counter is-custom" invisible="tint_selection_mode != 'specific'"><field name="selected_tint_count" readonly="1" nolabel="1"/> مختارة</span>
                                             </div>
                                             <field name="tint_line_ids" nolabel="1" mode="kanban" class="wof_film_tint_line_field">
                                                 <kanban create="0" delete="0" class="wof_film_tint_kanban">
@@ -345,7 +336,7 @@
                                                                 <div class="wof_film_tint_card_label">درجة</div>
                                                                 <strong><field name="value"/></strong>
                                                                 <div class="wof_film_tint_locked_state" invisible="not locked">
-                                                                    <i class="fa fa-check-circle" title="مفعّلة"/> مفعّلة
+                                                                    <i class="fa fa-check" title="مستخدمة من النظام"/>
                                                                 </div>
                                                                 <div class="wof_film_tint_inline_toggle" invisible="locked">
                                                                     <field name="selected" widget="boolean_toggle" nolabel="1"/>
@@ -357,9 +348,6 @@
                                                     </templates>
                                                 </kanban>
                                             </field>
-                                            <div class="wof_tint_lock_note" invisible="tint_selection_mode != 'all'">
-                                                <i class="fa fa-lock" title="مقفل"/> لا يمكن تعديل أو إزالة الدرجات عند استخدام جميع درجات النظام.
-                                            </div>
                                         </div>
                                     </div>
                                 </section>

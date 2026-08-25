@@ -4458,3 +4458,106 @@ body:has(.modal.show .wof_activity_hub_form),
     color:#348956; font-size:9.5px; font-weight:700;
 }
 .wof_film_tint_inline_toggle .o_field_widget { margin:0 !important; }
+
+
+/* RC22 — Stage 2 visual simplification: fewer repeated notes, readable tint cards. */
+.wof_film_tint_stage .wof_tint_required_area {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.wof_film_tint_stage .wof_tint_mode_label {
+    margin-top: 8px;
+}
+.wof_film_tint_stage .wof_tint_shades_panel {
+    margin-top: 11px;
+    padding: 12px 14px 14px;
+}
+.wof_film_tint_stage .wof_tint_shades_header {
+    align-items: center;
+    margin-bottom: 11px;
+}
+.wof_film_tint_stage .wof_tint_shades_header h3 {
+    font-size: 12px;
+}
+.wof_film_tint_stage .wof_tint_shades_header p {
+    margin-top: 2px;
+    font-size: 9px;
+}
+.wof_film_tint_stage .wof_tint_selected_counter {
+    padding: 5px 9px;
+    background: #f1f0f7;
+    color: #64677a;
+}
+.wof_film_tint_stage .wof_tint_selected_counter.is-custom {
+    background: #f1effd;
+    color: #5b52b0;
+}
+.wof_film_tint_stage .wof_film_tint_line_field,
+.wof_film_tint_stage .wof_film_tint_line_field .o_field_x2many,
+.wof_film_tint_stage .wof_film_tint_line_field .o_kanban_view,
+.wof_film_tint_stage .wof_film_tint_line_field .o_kanban_renderer,
+.wof_film_tint_stage .wof_film_tint_kanban {
+    width: 100% !important;
+    min-width: 0 !important;
+}
+.wof_film_tint_stage .wof_film_tint_line_field .o_kanban_renderer,
+.wof_film_tint_stage .wof_film_tint_kanban {
+    grid-template-columns: repeat(5, minmax(104px, 1fr)) !important;
+    gap: 12px !important;
+    overflow: visible !important;
+}
+.wof_film_tint_stage .wof_film_tint_card {
+    width: 100%;
+    min-width: 104px;
+    min-height: 96px;
+    gap: 5px;
+    padding: 9px 8px;
+    border-radius: 12px;
+}
+.wof_film_tint_stage .wof_film_tint_card_label {
+    font-size: 8.5px;
+    line-height: 1;
+}
+.wof_film_tint_stage .wof_film_tint_card > strong,
+.wof_film_tint_stage .wof_film_tint_card > strong .o_field_widget {
+    font-size: 22px !important;
+    line-height: 1.05;
+    white-space: nowrap;
+}
+.wof_film_tint_stage .wof_film_tint_locked_state {
+    width: 26px !important;
+    min-height: 26px;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: #eaf7ee !important;
+    color: #3a985e !important;
+    font-size: 10px !important;
+}
+.wof_film_tint_stage .wof_film_tint_inline_toggle {
+    min-height: 25px;
+    font-size: 9px;
+    margin-top: 1px;
+}
+.wof_film_tint_stage .wof_film_tint_card.is-selected {
+    border-color: #bfb8ea;
+    background: linear-gradient(180deg,#faf9ff,#f2f0ff);
+    box-shadow: 0 4px 10px rgba(84,74,157,.06);
+}
+.wof_film_tint_stage .wof_film_tint_card.is-unselected {
+    opacity: 1;
+    background: #fbfbfd;
+    border-color: #e2e2ea;
+}
+@media (max-width: 1100px) {
+    .wof_film_tint_stage .wof_film_tint_line_field .o_kanban_renderer,
+    .wof_film_tint_stage .wof_film_tint_kanban {
+        grid-template-columns: repeat(3, minmax(104px,1fr)) !important;
+    }
+}
+@media (max-width: 760px) {
+    .wof_film_tint_stage .wof_film_tint_line_field .o_kanban_renderer,
+    .wof_film_tint_stage .wof_film_tint_kanban {
+        grid-template-columns: repeat(2, minmax(100px,1fr)) !important;
+    }
+}
