@@ -4021,3 +4021,84 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_film_basic_card { margin-bottom:0; }
 .wof_film_setup_main { gap:8px !important; }
 @media (max-width:980px){ .wof_policy_split{grid-template-columns:1fr;} .wof_compact_state{display:none;} .wof_compact_section > summary{grid-template-columns:34px minmax(0,1fr) 18px;} }
+
+
+/* RC16 — Stage 1 policy discoverability polish.
+ * Goal: keep the approved field order and visual identity, while making all
+ * five low-frequency policy groups visible sooner and keeping one group open. */
+.wof_film_setup_form .wof_film_basic_card {
+    padding: 12px 15px;
+}
+.wof_film_setup_form .wof_film_basic_card .wof_film_card_title {
+    margin-bottom: 9px;
+}
+.wof_film_setup_form .wof_film_basic_card .wof_film_fields_grid {
+    gap: 7px 13px;
+}
+.wof_film_setup_form .wof_film_basic_card .wof_film_field .o_form_label {
+    margin-bottom: 3px;
+}
+.wof_film_setup_form .wof_film_basic_card input[type="text"],
+.wof_film_setup_form .wof_film_basic_card input[type="number"],
+.wof_film_setup_form .wof_film_basic_card .o_input {
+    min-height: 32px;
+}
+.wof_film_setup_form .wof_film_basic_card textarea {
+    min-height: 44px !important;
+    max-height: 54px;
+}
+.wof_film_setup_form .wof_film_basic_card .wof_film_field small {
+    margin-top: 2px;
+    line-height: 1.25;
+}
+.wof_film_setup_form .wof_film_compact_sections {
+    gap: 5px;
+    position: relative;
+}
+.wof_film_setup_form .wof_compact_section > summary {
+    min-height: 47px;
+    padding: 6px 11px;
+}
+.wof_film_setup_form .wof_compact_content {
+    padding: 10px 13px 12px;
+}
+.wof_film_setup_form .wof_compact_section[open] > summary {
+    background: linear-gradient(90deg, #f5f3ff 0%, #efedfc 100%);
+}
+.wof_tax_policy_grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+}
+.wof_tax_policy_item {
+    min-width: 0;
+    padding: 9px 10px;
+    border: 1px solid #e8e6f2;
+    border-radius: 9px;
+    background: #fff;
+}
+.wof_tax_policy_item > span {
+    display: block;
+    color: #8a8d9c;
+    font-size: 9.5px;
+    margin-bottom: 3px;
+}
+.wof_tax_policy_item > strong,
+.wof_tax_policy_item > .o_field_widget {
+    color: #393c50;
+    font-size: 11px;
+    font-weight: 700;
+    margin: 0 !important;
+}
+@media (min-width: 1150px) and (min-height: 760px) {
+    .wof_film_setup_form .wof_film_setup_body {
+        padding-top: 9px;
+        padding-bottom: 10px;
+    }
+    .wof_film_setup_form .wof_film_setup_main {
+        gap: 7px !important;
+    }
+}
+@media (max-width: 980px) {
+    .wof_tax_policy_grid { grid-template-columns: 1fr; }
+}

@@ -76,6 +76,16 @@ class WofFilmSetupWizard(models.TransientModel):
         string='سياسة العمولة من النظام', readonly=True,
     )
 
+    # Tax policy is inherited from the company setup in Stage 1.
+    # We expose it here so the user sees all five policy groups without
+    # duplicating tax configuration on the film record.
+    system_tax_enabled = fields.Boolean(string='تطبيق الضريبة من النظام', readonly=True)
+    system_tax_id = fields.Many2one('account.tax', string='الضريبة الافتراضية من النظام', readonly=True)
+    system_price_input_mode = fields.Selection(
+        [('excluded', 'السعر قبل الضريبة'), ('included', 'السعر شامل الضريبة')],
+        string='طريقة إدخال السعر من النظام', readonly=True,
+    )
+
     system_inventory_enabled = fields.Boolean(string='المخزون مفعل في النظام', readonly=True)
     system_tint_count = fields.Integer(string='درجات اللون في النظام', readonly=True)
     system_size_count = fields.Integer(string='أحجام السيارات في النظام', readonly=True)
@@ -129,6 +139,9 @@ class WofFilmSetupWizard(models.TransientModel):
             'current_step': 'basic',
             'system_pricing_policy': profile.operation_pricing_policy,
             'system_commission_event': profile.commission_event,
+            'system_tax_enabled': profile.operation_tax_enabled,
+            'system_tax_id': profile.operation_tax_id.id if profile.operation_tax_id else False,
+            'system_price_input_mode': profile.operation_price_input_mode,
             'system_inventory_enabled': profile.use_inventory,
             'system_car_size_ids': [(6, 0, active_sizes.ids)],
             'system_size_count': len(active_sizes),

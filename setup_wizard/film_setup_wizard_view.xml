@@ -13,6 +13,9 @@
                 <field name="mode" invisible="1"/>
                 <field name="current_step" invisible="1"/>
                 <field name="supports_color_grades" invisible="1"/>
+                <field name="system_tax_enabled" invisible="1"/>
+                <field name="system_tax_id" invisible="1"/>
+                <field name="system_price_input_mode" invisible="1"/>
                 <field name="system_inventory_enabled" invisible="1"/>
                 <field name="system_tint_count" invisible="1"/>
                 <field name="system_size_count" invisible="1"/>
@@ -100,7 +103,7 @@
                             </section>
 
                             <section class="wof_film_compact_sections">
-                                <details class="wof_compact_section">
+                                <details class="wof_compact_section" name="wof_film_policy_section">
                                     <summary>
                                         <span class="wof_compact_icon"><i class="fa fa-car" title="الأحجام والسيارة"/></span>
                                         <span class="wof_compact_copy"><strong>الأحجام والسيارة</strong><small>الأحجام المتاحة لهذا الفيلم / الخدمة</small></span>
@@ -114,7 +117,7 @@
                                     </div>
                                 </details>
 
-                                <details class="wof_compact_section">
+                                <details class="wof_compact_section" name="wof_film_policy_section">
                                     <summary>
                                         <span class="wof_compact_icon"><i class="fa fa-tag" title="التسعير"/></span>
                                         <span class="wof_compact_copy"><strong>التسعير</strong><small>حدد فقط سياسة التسعير الآن؛ القيم في خطوة الأسعار</small></span>
@@ -129,7 +132,7 @@
                                     </div>
                                 </details>
 
-                                <details class="wof_compact_section">
+                                <details class="wof_compact_section" name="wof_film_policy_section">
                                     <summary>
                                         <span class="wof_compact_icon"><i class="fa fa-percent" title="العمولة"/></span>
                                         <span class="wof_compact_copy"><strong>استحقاق العمولة</strong><small>وقت الاستحقاق وطريقة الاحتساب</small></span>
@@ -153,7 +156,34 @@
                                     </div>
                                 </details>
 
-                                <details class="wof_compact_section">
+                                <details class="wof_compact_section" name="wof_film_policy_section">
+                                    <summary>
+                                        <span class="wof_compact_icon"><i class="fa fa-calculator" title="السياسات الضريبية"/></span>
+                                        <span class="wof_compact_copy"><strong>السياسات الضريبية</strong><small>الضريبة الافتراضية وطريقة إدخال السعر</small></span>
+                                        <span class="wof_compact_state"><i class="fa fa-check-circle" title="جاهز"/> يرث إعدادات النظام</span>
+                                        <i class="fa fa-chevron-down wof_compact_arrow" title="توسيع"/>
+                                    </summary>
+                                    <div class="wof_compact_content">
+                                        <div class="wof_tax_policy_grid">
+                                            <div class="wof_tax_policy_item">
+                                                <span>تطبيق الضريبة</span>
+                                                <strong invisible="not system_tax_enabled">مفعّل</strong>
+                                                <strong invisible="system_tax_enabled">غير مفعّل</strong>
+                                            </div>
+                                            <div class="wof_tax_policy_item" invisible="not system_tax_enabled">
+                                                <span>الضريبة الافتراضية</span>
+                                                <field name="system_tax_id" readonly="1" nolabel="1"/>
+                                            </div>
+                                            <div class="wof_tax_policy_item">
+                                                <span>طريقة إدخال السعر</span>
+                                                <field name="system_price_input_mode" readonly="1" nolabel="1"/>
+                                            </div>
+                                        </div>
+                                        <div class="wof_policy_help"><i class="fa fa-info-circle" title="معلومة"/> يتم تطبيق سياسة الضريبة من مركز تهيئة النظام على هذا الفيلم / الخدمة دون تكرار إعدادات الضريبة هنا.</div>
+                                    </div>
+                                </details>
+
+                                <details class="wof_compact_section" name="wof_film_policy_section">
                                     <summary>
                                         <span class="wof_compact_icon"><i class="fa fa-cubes" title="المخزون والمنتج"/></span>
                                         <span class="wof_compact_copy"><strong>المخزون والمنتج</strong><small>إعدادات الصرف والمنتج المخزني والتنبيه</small></span>
