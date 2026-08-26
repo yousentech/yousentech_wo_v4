@@ -441,6 +441,7 @@
                                             <kanban create="0" delete="0" class="wof_component_tree_kanban">
                                                 <field name="sequence"/>
                                                 <field name="car_part_id"/>
+                                                <field name="part_name"/>
                                                 <field name="part_type"/>
                                                 <field name="code"/>
                                                 <field name="selected"/>
@@ -468,7 +469,7 @@
                                                                 <i t-else="" class="fa fa-cube" title="جزء سيارة"/>
                                                             </div>
                                                             <div class="wof_component_name">
-                                                                <strong class="wof_component_name_text"><t t-esc="record.car_part_id.value"/></strong>
+                                                                <strong class="wof_component_name_text"><t t-esc="record.part_name.value || record.car_part_id.value"/></strong>
                                                                 <span t-if="record.is_child.raw_value" class="wof_component_child_hint">جزء داخل منطقة الخدمة</span>
                                                                 <span t-elif="record.part_type.raw_value === 'service_area'" class="wof_component_type_badge is-area">منطقة خدمة</span>
                                                                 <span t-else="" class="wof_component_type_badge">مكوّن</span>

@@ -4910,3 +4910,16 @@ body:has(.modal.show .wof_activity_hub_form),
     max-height:44px !important;
     overflow:visible !important;
 }
+
+
+/* RC30 — deterministic component name rendering in Stage 3.
+   The label now comes from a dedicated related Char instead of relying on the
+   embedded Kanban many2one display payload, which could render as an empty cell. */
+.wof_component_tree_row .wof_component_name_text {
+    visibility:visible !important;
+    opacity:1 !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_name {
+    position:relative !important;
+    z-index:1 !important;
+}
