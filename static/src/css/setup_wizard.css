@@ -4868,3 +4868,45 @@ body:has(.modal.show .wof_activity_hub_form),
     max-height:40px !important;
     overflow:hidden !important;
 }
+
+
+/* RC29 — keep standalone part labels fully readable without widening the whole card.
+   Kanban readonly many2one widgets can collapse inside the compact grid, so the label
+   is rendered as plain display text and the name cell owns the available row width. */
+.wof_component_tree_row.is-part:not(.is-child) {
+    height:44px !important;
+    min-height:44px !important;
+    max-height:44px !important;
+    grid-template-columns:20px 0 27px minmax(0,1fr) 0 68px !important;
+    column-gap:8px !important;
+    overflow:visible !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_name {
+    width:100% !important;
+    min-width:0 !important;
+    overflow:visible !important;
+    flex-wrap:nowrap !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_name_text {
+    display:block !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    color:#303446 !important;
+    font-size:11px !important;
+    font-weight:800 !important;
+    line-height:1.35 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_type_badge {
+    flex:0 0 auto !important;
+    margin-inline-start:4px !important;
+}
+.wof_component_tree_field .o_kanban_record:has(.wof_component_tree_row.is-part:not(.is-child)) {
+    min-height:44px !important;
+    height:44px !important;
+    max-height:44px !important;
+    overflow:visible !important;
+}

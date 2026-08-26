@@ -468,7 +468,7 @@
                                                                 <i t-else="" class="fa fa-cube" title="جزء سيارة"/>
                                                             </div>
                                                             <div class="wof_component_name">
-                                                                <strong><field name="car_part_id"/></strong>
+                                                                <strong class="wof_component_name_text"><t t-esc="record.car_part_id.value"/></strong>
                                                                 <span t-if="record.is_child.raw_value" class="wof_component_child_hint">جزء داخل منطقة الخدمة</span>
                                                                 <span t-elif="record.part_type.raw_value === 'service_area'" class="wof_component_type_badge is-area">منطقة خدمة</span>
                                                                 <span t-else="" class="wof_component_type_badge">مكوّن</span>
