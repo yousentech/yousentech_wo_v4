@@ -455,24 +455,27 @@
                                                     <t t-name="kanban-box">
                                                         <div t-attf-class="wof_component_tree_row #{record.is_child.raw_value ? 'is-child' : ''} #{record.part_type.raw_value === 'service_area' ? 'is-area' : 'is-part'}"
                                                              t-if="!record.is_child.raw_value || (record.parent_selected.raw_value &amp;&amp; record.parent_expanded.raw_value)">
-                                                            <div class="wof_component_drag" t-if="!record.is_child.raw_value"><i class="fa fa-th" title="ترتيب"/></div>
-                                                            <div class="wof_component_drag is-child-spacer" t-if="record.is_child.raw_value"/>
-                                                            <div class="wof_component_expand" t-if="record.part_type.raw_value === 'service_area' &amp;&amp; !record.is_child.raw_value">
-                                                                <button name="action_toggle_children" type="object" class="btn" title="فتح / طي أجزاء المنطقة">
-                                                                    <i t-if="!record.expanded.raw_value" class="fa fa-chevron-down" title="فتح الأجزاء"/>
-                                                                    <i t-if="record.expanded.raw_value" class="fa fa-chevron-up" title="طي الأجزاء"/>
-                                                                </button>
-                                                            </div>
-                                                            <div class="wof_component_expand is-child-spacer" t-if="record.is_child.raw_value"/>
-                                                            <div class="wof_component_kind_icon">
-                                                                <i t-if="record.part_type.raw_value === 'service_area'" class="fa fa-folder" title="منطقة خدمة"/>
-                                                                <i t-else="" class="fa fa-cube" title="جزء سيارة"/>
-                                                            </div>
-                                                            <div class="wof_component_name">
-                                                                <strong class="wof_component_name_text"><t t-esc="record.part_name.value || record.car_part_id.value"/></strong>
-                                                                <span t-if="record.is_child.raw_value" class="wof_component_child_hint">جزء داخل منطقة الخدمة</span>
-                                                                <span t-elif="record.part_type.raw_value === 'service_area'" class="wof_component_type_badge is-area">منطقة خدمة</span>
-                                                                <span t-else="" class="wof_component_type_badge">مكوّن</span>
+                                                            <div class="wof_component_identity">
+                                                                <div class="wof_component_drag" t-if="!record.is_child.raw_value"><i class="fa fa-th" title="ترتيب"/></div>
+                                                                <div class="wof_component_drag is-child-spacer" t-if="record.is_child.raw_value"/>
+                                                                <div class="wof_component_expand" t-if="record.part_type.raw_value === 'service_area' &amp;&amp; !record.is_child.raw_value">
+                                                                    <button name="action_toggle_children" type="object" class="btn" title="فتح / طي أجزاء المنطقة">
+                                                                        <i t-if="!record.expanded.raw_value" class="fa fa-chevron-down" title="فتح الأجزاء"/>
+                                                                        <i t-if="record.expanded.raw_value" class="fa fa-chevron-up" title="طي الأجزاء"/>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="wof_component_kind_icon">
+                                                                    <i t-if="record.part_type.raw_value === 'service_area'" class="fa fa-folder" title="منطقة خدمة"/>
+                                                                    <i t-else="" class="fa fa-cube" title="جزء سيارة"/>
+                                                                </div>
+                                                                <div class="wof_component_label_block">
+                                                                    <strong class="wof_component_name_text"><field name="part_name" nolabel="1" readonly="1"/></strong>
+                                                                    <div class="wof_component_label_meta">
+                                                                        <span t-if="record.is_child.raw_value" class="wof_component_child_hint">جزء داخل منطقة الخدمة</span>
+                                                                        <span t-elif="record.part_type.raw_value === 'service_area'" class="wof_component_type_badge is-area">منطقة خدمة</span>
+                                                                        <span t-else="" class="wof_component_type_badge">مكوّن</span>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                             <div class="wof_component_meta" t-if="record.part_type.raw_value === 'service_area' &amp;&amp; !record.is_child.raw_value">
                                                                 <span><field name="child_count"/> أجزاء</span>

@@ -725,7 +725,7 @@ class WofFilmSetupComponentLine(models.TransientModel):
     # Dedicated plain-text label for the custom Kanban.  Odoo's many2one
     # record.value can collapse/come back empty in this compact embedded Kanban,
     # while the related master name is deterministic and keeps RTL rendering stable.
-    part_name = fields.Char(related='car_part_id.name', string='اسم المكوّن', readonly=True)
+    part_name = fields.Char(related='car_part_id.name', string='اسم المكوّن', readonly=True, store=True)
     part_type = fields.Selection(related='car_part_id.part_type', string='النوع', readonly=True)
     code = fields.Char(related='car_part_id.code', readonly=True)
     selected = fields.Boolean(default=True)

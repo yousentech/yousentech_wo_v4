@@ -4923,3 +4923,125 @@ body:has(.modal.show .wof_activity_hub_form),
     position:relative !important;
     z-index:1 !important;
 }
+\n\n/* RC31 — Stage 3 tree identity layout hard fix.
+   The previous compact grid allowed the standalone-part name cell to collapse in RTL.
+   Each row now has a dedicated flexible identity region, so the name always owns real width. */
+.wof_component_tree_row {
+    display:flex !important;
+    direction:rtl !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:10px !important;
+    min-height:48px !important;
+    height:auto !important;
+    max-height:none !important;
+    padding:7px 10px !important;
+    overflow:visible !important;
+}
+.wof_component_identity {
+    display:flex !important;
+    align-items:center !important;
+    gap:8px !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    width:auto !important;
+}
+.wof_component_identity .wof_component_drag {
+    flex:0 0 20px !important;
+    width:20px !important;
+}
+.wof_component_identity .wof_component_expand {
+    flex:0 0 25px !important;
+    width:25px !important;
+}
+.wof_component_identity .wof_component_expand .btn {
+    width:25px !important;
+    height:25px !important;
+    padding:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    border:0 !important;
+    background:#f1effb !important;
+    color:#6259b7 !important;
+    border-radius:7px !important;
+}
+.wof_component_identity .wof_component_kind_icon {
+    flex:0 0 28px !important;
+    width:28px !important;
+    height:28px !important;
+}
+.wof_component_label_block {
+    display:flex !important;
+    align-items:center !important;
+    gap:8px !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    width:100% !important;
+}
+.wof_component_label_block .wof_component_name_text {
+    display:block !important;
+    flex:0 1 auto !important;
+    min-width:80px !important;
+    max-width:70% !important;
+    color:#25283b !important;
+    font-size:11px !important;
+    font-weight:800 !important;
+    line-height:1.45 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    visibility:visible !important;
+    opacity:1 !important;
+}
+.wof_component_label_block .wof_component_name_text .o_field_widget,
+.wof_component_label_block .wof_component_name_text .o_field_char {
+    display:inline !important;
+    color:inherit !important;
+    font:inherit !important;
+    white-space:inherit !important;
+}
+.wof_component_label_meta {
+    display:flex !important;
+    align-items:center !important;
+    gap:5px !important;
+    flex:0 0 auto !important;
+}
+.wof_component_tree_row > .wof_component_meta {
+    flex:0 0 auto !important;
+    min-width:60px !important;
+    text-align:center !important;
+}
+.wof_component_tree_row > .wof_component_actions {
+    flex:0 0 auto !important;
+    margin-inline-start:auto !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) {
+    min-height:48px !important;
+    height:48px !important;
+    max-height:48px !important;
+    padding:7px 10px !important;
+    display:flex !important;
+    overflow:visible !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_identity {
+    padding-inline-start:0 !important;
+}
+.wof_component_tree_row.is-child {
+    width:calc(100% - 34px) !important;
+    margin-inline-start:34px !important;
+    min-height:42px !important;
+    padding:6px 10px !important;
+    display:flex !important;
+    background:#fbfbfd !important;
+}
+.wof_component_tree_row.is-child .wof_component_label_block .wof_component_name_text {
+    font-size:10.5px !important;
+    min-width:100px !important;
+}
+.wof_component_tree_field .o_kanban_record:has(.wof_component_tree_row.is-part:not(.is-child)) {
+    min-height:48px !important;
+    height:48px !important;
+    max-height:48px !important;
+    overflow:visible !important;
+}
