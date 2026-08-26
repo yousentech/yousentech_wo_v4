@@ -311,6 +311,15 @@ class FilmPartLine(models.Model):
     commission_line_ids = fields.One2many(
         'wof.film.parts.commission.lines', 'part_line_id', string="العمولات",
     )
+    service_commission_source = fields.Selection(
+        [('independent', 'عمولة مستقلة'), ('from_parts', 'حسب عمولات مكونات منطقة الخدمة')],
+        string="مصدر عمولة منطقة الخدمة", default='independent', required=True,
+        help="يستخدم فقط عندما يكون المكوّن منطقة خدمة. في وضع حسب المكونات تُشتق عمولة المنطقة من أجزائها.",
+    )
+    technician_commission_distribution = fields.Selection(
+        [('equal', 'بالتساوي بين الفنيين'), ('by_part', 'حسب عمولة الجزء المنفذ')],
+        string="طريقة توزيع عمولة الفنيين", default='equal', required=True,
+    )
     price_count = fields.Integer(compute='_compute_counts')
     commission_count = fields.Integer(compute='_compute_counts')
     price_mode = fields.Selection(

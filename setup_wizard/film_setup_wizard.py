@@ -22,8 +22,8 @@ class WofFilmSetupWizard(models.TransientModel):
     mode = fields.Selection([('create', 'إضافة'), ('edit', 'تعديل')], default='create', required=True, readonly=True)
     current_step = fields.Selection(
         [('basic', 'البيانات الأساسية'), ('tint', 'درجات اللون'),
-         ('components', 'المكونات'), ('pricing', 'الأسعار والعمولات'),
-         ('review', 'المراجعة والتفعيل')],
+         ('components', 'المكونات'), ('pricing', 'التسعير'),
+         ('commission', 'العمولات'), ('review', 'المراجعة والتفعيل')],
         default='basic', required=True, readonly=True,
     )
 
@@ -177,8 +177,9 @@ class WofFilmSetupWizard(models.TransientModel):
     def _compute_commercial_summary(self):
         for wizard in self:
             lines = wizard.commercial_line_ids
-            wizard.price_complete_count = len(lines.filtered('price_complete'))
-            wizard.price_missing_count = len(lines.filtered(lambda rec: not rec.price_complete))
+            price_lines = lines.filtered(lambda rec: not rec.commission_basis_only)
+            wizard.price_complete_count = len(price_lines.filtered('price_complete'))
+            wizard.price_missing_count = len(price_lines.filtered(lambda rec: not rec.price_complete))
             wizard.commission_complete_count = len(lines.filtered('commission_complete'))
             wizard.commission_missing_count = len(lines.filtered(lambda rec: not rec.commission_complete))
 
@@ -746,29 +747,58 @@ class WofFilmSetupWizard(models.TransientModel):
 
     def action_pricing_tab_price(self):
         self.ensure_one()
+        self.current_step = 'pricing'
         self.pricing_tab = 'price'
         return self._dialog_action()
 
     def action_pricing_tab_commission(self):
         self.ensure_one()
+        self.current_step = 'commission'
         self.pricing_tab = 'commission'
         return self._dialog_action()
 
     def action_continue_pricing(self):
+        """Stage 4 validates pricing only, then hands off to commissions."""
         self.ensure_one()
         if not self.commercial_line_ids:
             self._prepare_commercial_lines()
         missing_prices = self.commercial_line_ids.filtered(lambda rec: not rec.price_complete)
         if missing_prices:
             raise ValidationError(_(
-                'أكمل تسعير جميع المكونات قبل المتابعة. المكونات الناقصة: %s'
+                'أكمل تسعير جميع المكونات أو حددها كمجانية قبل المتابعة. المكونات الناقصة: %s'
             ) % '، '.join(missing_prices.mapped('part_name')))
+        self.current_step = 'commission'
+        self.pricing_tab = 'commission'
+        # Rebuild the transient commercial list, then expose structural child
+        # rows only when a service area is configured to derive commission.
+        self._prepare_commercial_lines()
+        for area in self.commercial_line_ids.filtered(lambda rec: rec.part_type == 'service_area' and rec.part_line_id.service_commission_source == 'from_parts'):
+            area._ensure_commission_basis_lines()
+        return self._dialog_action()
+
+    def action_continue_commission(self):
+        """Stage 5 validates commissions and materializes derived service-area totals."""
+        self.ensure_one()
+        if not self.commercial_line_ids:
+            self._prepare_commercial_lines()
+        # Derived service-area commission rows are snapshots used by the current
+        # runtime pricing resolver. Their source remains the child components.
+        for line in self.commercial_line_ids.filtered(lambda rec: rec.part_type == 'service_area'):
+            if line.part_line_id.service_commission_source == 'from_parts':
+                line._sync_commission_from_children()
         missing_commissions = self.commercial_line_ids.filtered(lambda rec: not rec.commission_complete)
         if missing_commissions:
             raise ValidationError(_(
                 'أكمل إعداد عمولة جميع المكونات قبل المتابعة. المكونات الناقصة: %s'
             ) % '، '.join(missing_commissions.mapped('part_name')))
         self.current_step = 'review'
+        return self._dialog_action()
+
+    def action_back_pricing(self):
+        self.ensure_one()
+        self.current_step = 'pricing'
+        self.pricing_tab = 'price'
+        self._prepare_commercial_lines()
         return self._dialog_action()
 
     def action_back_components(self):
@@ -1140,41 +1170,154 @@ class WofFilmSetupCommercialLine(models.TransientModel):
     commission_missing_count = fields.Integer(compute='_compute_completion')
     price_summary = fields.Char(compute='_compute_completion')
     commission_summary = fields.Char(compute='_compute_completion')
+    price_is_free = fields.Boolean(compute='_compute_completion')
+    service_commission_source = fields.Selection(related='part_line_id.service_commission_source', readonly=True)
+    technician_commission_distribution = fields.Selection(related='part_line_id.technician_commission_distribution', readonly=True)
+    derived_commission_details = fields.Char(compute='_compute_completion')
+    commission_basis_only = fields.Boolean(string='أساس عمولة فقط', default=False, readonly=True)
+    parent_service_area_id = fields.Many2one('wof.car.parts', string='منطقة الخدمة الأم', readonly=True)
 
     @api.depends('car_part_id.service_area_part_ids')
     def _compute_child_names(self):
         for rec in self:
             rec.child_names = '، '.join(rec.car_part_id.service_area_part_ids.mapped('name')) if rec.part_type == 'service_area' else ''
 
-    def _required_sizes(self):
+    def _ensure_commission_basis_lines(self):
         self.ensure_one()
-        if self.wizard_id.pricing_policy == 'by_size':
-            return self.wizard_id.film_id.car_size_ids
-        return self.env['wof.car.size']
+        if self.part_type != 'service_area':
+            return self.env['wof.film.setup.commercial.line']
+        FilmPart = self.env['wof.film.parts.lines']
+        Commercial = self.env['wof.film.setup.commercial.line']
+        created = Commercial
+        for idx, child in enumerate(self.car_part_id.service_area_part_ids, start=1):
+            part_line = self.wizard_id.film_id.film_part_line_ids.filtered(lambda line: line.car_part_id == child)[:1]
+            if not part_line:
+                part_line = FilmPart.create({
+                    'header_id': self.wizard_id.film_id.id,
+                    'car_part_id': child.id,
+                    'part_selected': False,
+                    'sequence': self.sequence + idx,
+                })
+            existing = self.wizard_id.commercial_line_ids.filtered(lambda line: line.part_line_id == part_line)[:1]
+            if not existing:
+                existing = Commercial.create({
+                    'wizard_id': self.wizard_id.id,
+                    'sequence': self.sequence + idx,
+                    'part_line_id': part_line.id,
+                    'commission_basis_only': True,
+                    'parent_service_area_id': self.car_part_id.id,
+                })
+                created |= existing
+        return created
+
+    def _child_part_lines(self):
+        self.ensure_one()
+        if self.part_type != 'service_area':
+            return self.env['wof.film.parts.lines']
+        child_ids = self.car_part_id.service_area_part_ids.ids
+        return self.wizard_id.film_id.film_part_line_ids.filtered(lambda line: line.car_part_id.id in child_ids)
+
+    def _commission_value_for_size(self, part_line, size=False):
+        lines = part_line.commission_line_ids
+        if size:
+            found = lines.filtered(lambda line: line.car_size_id == size)[:1]
+            if found:
+                return found.commission, True
+        found = lines.filtered(lambda line: not line.car_size_id)[:1]
+        return (found.commission, True) if found else (0.0, False)
+
+    def _derived_commission_values(self):
+        self.ensure_one()
+        children = self.car_part_id.service_area_part_ids
+        child_lines = self._child_part_lines()
+        line_by_part = {line.car_part_id.id: line for line in child_lines}
+        missing_parts = children.filtered(lambda part: part.id not in line_by_part)
+        if missing_parts:
+            return [], missing_parts.mapped('name')
+        values = []
+        missing = []
+        if self.wizard_id.commission_calculation_policy == 'by_size':
+            for size in self.wizard_id.film_id.car_size_ids:
+                total = 0.0
+                ok = True
+                for part in children:
+                    value, found = self._commission_value_for_size(line_by_part[part.id], size)
+                    total += value
+                    ok = ok and found
+                if not ok:
+                    missing.append(size.name)
+                values.append((size, total))
+        else:
+            total = 0.0
+            for part in children:
+                value, found = self._commission_value_for_size(line_by_part[part.id], False)
+                total += value
+                if not found:
+                    missing.append(part.name)
+            values.append((False, total))
+        return values, missing
+
+    def _sync_commission_from_children(self):
+        self.ensure_one()
+        if self.part_type != 'service_area' or self.part_line_id.service_commission_source != 'from_parts':
+            return True
+        values, missing = self._derived_commission_values()
+        if missing:
+            return False
+        Model = self.env['wof.film.parts.commission.lines']
+        existing = self.part_line_id.commission_line_ids
+        desired = {size.id if size else False for size, amount in values}
+        existing.filtered(lambda line: (line.car_size_id.id if line.car_size_id else False) not in desired).unlink()
+        for size, amount in values:
+            target = existing.filtered(lambda line: line.car_size_id == size)[:1] if size else existing.filtered(lambda line: not line.car_size_id)[:1]
+            vals = {'part_line_id': self.part_line_id.id, 'car_size_id': size.id if size else False, 'commission': amount}
+            target.write(vals) if target else Model.create(vals)
+        return True
 
     @api.depends(
-        'part_line_id.price_line_ids.car_size_id',
+        'part_line_id.price_line_ids.car_size_id', 'part_line_id.price_line_ids.free_part',
         'part_line_id.commission_line_ids.car_size_id',
+        'part_line_id.service_commission_source', 'part_line_id.technician_commission_distribution',
         'wizard_id.pricing_policy', 'wizard_id.commission_calculation_policy',
-        'wizard_id.film_id.car_size_ids',
+        'wizard_id.film_id.car_size_ids', 'car_part_id.service_area_part_ids',
     )
     def _compute_completion(self):
         for rec in self:
             sizes = rec.wizard_id.film_id.car_size_ids
             price_lines = rec.part_line_id.price_line_ids
             commission_lines = rec.part_line_id.commission_line_ids
-            if rec.wizard_id.pricing_policy == 'by_size':
-                configured = set(price_lines.filtered('car_size_id').mapped('car_size_id').ids)
+            free_line = price_lines.filtered('free_part')[:1]
+            rec.price_is_free = bool(free_line)
+            if free_line:
+                rec.price_missing_count = 0
+                rec.price_complete = True
+                rec.price_summary = 'مجاني — لا يتطلب إدخال أسعار'
+            elif rec.wizard_id.pricing_policy == 'by_size':
+                configured = set(price_lines.filtered(lambda l: l.car_size_id and not l.free_part).mapped('car_size_id').ids)
                 required = set(sizes.ids)
                 rec.price_missing_count = len(required - configured)
                 rec.price_complete = bool(required) and not rec.price_missing_count
                 rec.price_summary = '%s/%s أسعار' % (len(required & configured), len(required))
             else:
-                ok = bool(price_lines.filtered(lambda line: not line.car_size_id))
+                ok = bool(price_lines.filtered(lambda line: not line.car_size_id and not line.free_part))
                 rec.price_missing_count = 0 if ok else 1
                 rec.price_complete = ok
                 rec.price_summary = 'سعر موحد محفوظ' if ok else 'السعر الموحد غير مدخل'
-            if rec.wizard_id.commission_calculation_policy == 'by_size':
+
+            rec.derived_commission_details = ''
+            if rec.part_type == 'service_area' and rec.part_line_id.service_commission_source == 'from_parts':
+                values, missing = rec._derived_commission_values()
+                rec.commission_missing_count = len(missing)
+                rec.commission_complete = not missing and bool(values)
+                if missing:
+                    rec.commission_summary = 'تحتاج عمولات الأجزاء: %s' % '، '.join(missing)
+                else:
+                    rec.commission_summary = 'محسوبة تلقائيًا من عمولات الأجزاء'
+                    rec.derived_commission_details = ' | '.join(
+                        ('%s: %.2f' % (size.name, amount)) if size else ('الإجمالي: %.2f' % amount)
+                        for size, amount in values
+                    )
+            elif rec.wizard_id.commission_calculation_policy == 'by_size':
                 configured = set(commission_lines.filtered('car_size_id').mapped('car_size_id').ids)
                 required = set(sizes.ids)
                 rec.commission_missing_count = len(required - configured)
@@ -1187,21 +1330,17 @@ class WofFilmSetupCommercialLine(models.TransientModel):
                 rec.commission_summary = 'عمولة موحدة محفوظة' if ok else 'العمولة الموحدة غير مدخلة'
 
     def action_toggle_price(self):
-        self.ensure_one()
-        self.price_expanded = not self.price_expanded
+        self.ensure_one(); self.price_expanded = not self.price_expanded
         return self.wizard_id._dialog_action()
 
     def action_toggle_commission(self):
-        self.ensure_one()
-        self.commission_expanded = not self.commission_expanded
+        self.ensure_one(); self.commission_expanded = not self.commission_expanded
         return self.wizard_id._dialog_action()
 
     def _open_value_dialog(self, mode):
         self.ensure_one()
         dialog = self.env['wof.film.setup.value.dialog'].create({
-            'wizard_id': self.wizard_id.id,
-            'commercial_line_id': self.id,
-            'mode': mode,
+            'wizard_id': self.wizard_id.id, 'commercial_line_id': self.id, 'mode': mode,
         })
         dialog._prepare_entries()
         return dialog._dialog_action()
@@ -1227,6 +1366,18 @@ class WofFilmSetupValueDialog(models.TransientModel):
     child_names = fields.Char(related='commercial_line_id.child_names', readonly=True)
     currency_id = fields.Many2one(related='wizard_id.company_id.currency_id', readonly=True)
     entry_ids = fields.One2many('wof.film.setup.value.entry', 'dialog_id', string='القيم')
+    price_charge_mode = fields.Selection(
+        [('paid', 'مدفوع'), ('free', 'مجاني')], string='نوع التسعير', default='paid', required=True,
+    )
+    service_commission_source = fields.Selection(
+        [('independent', 'عمولة مستقلة لمنطقة الخدمة'), ('from_parts', 'حسب عمولات مكونات المنطقة')],
+        string='مصدر عمولة منطقة الخدمة', default='independent', required=True,
+    )
+    technician_commission_distribution = fields.Selection(
+        [('equal', 'بالتساوي بين الفنيين'), ('by_part', 'حسب عمولة الجزء المنفذ')],
+        string='توزيع العمولة على الفنيين', default='equal', required=True,
+    )
+    derived_commission_details = fields.Char(string='تفاصيل العمولة المحسوبة', readonly=True)
 
     def _dialog_action(self):
         self.ensure_one()
@@ -1242,64 +1393,109 @@ class WofFilmSetupValueDialog(models.TransientModel):
         self.ensure_one()
         self.entry_ids.unlink()
         part_line = self.commercial_line_id.part_line_id
+        if self.mode == 'price':
+            self.price_charge_mode = 'free' if part_line.price_line_ids.filtered('free_part') else 'paid'
+        if self.mode == 'commission' and self.part_type == 'service_area':
+            self.service_commission_source = part_line.service_commission_source or 'independent'
+            self.technician_commission_distribution = part_line.technician_commission_distribution or 'equal'
+            if self.service_commission_source == 'from_parts':
+                self.technician_commission_distribution = 'by_part'
+                values, missing = self.commercial_line_id._derived_commission_values()
+                self.derived_commission_details = (
+                    ' | '.join((('%s: %.2f' % (size.name, amount)) if size else ('الإجمالي: %.2f' % amount)) for size, amount in values)
+                    if not missing else 'ناقص إعداد: %s' % '، '.join(missing)
+                )
+                return
         policy = self.pricing_policy if self.mode == 'price' else self.commission_policy
         existing = part_line.price_line_ids if self.mode == 'price' else part_line.commission_line_ids
         sizes = self.wizard_id.film_id.car_size_ids if policy == 'by_size' else self.env['wof.car.size']
-        values = []
         targets = sizes if policy == 'by_size' else [False]
+        values = []
         for seq, size in enumerate(targets, start=1):
             found = existing.filtered(lambda line: line.car_size_id == size)[:1] if size else existing.filtered(lambda line: not line.car_size_id)[:1]
             amount = (found.part_price if self.mode == 'price' else found.commission) if found else 0.0
-            values.append({
-                'dialog_id': self.id, 'sequence': seq * 10,
-                'car_size_id': size.id if size else False,
-                'label': size.name if size else (_('السعر الموحد') if self.mode == 'price' else _('العمولة الموحدة')),
-                'amount': amount,
-            })
+            values.append({'dialog_id': self.id, 'sequence': seq * 10,
+                           'car_size_id': size.id if size else False,
+                           'label': size.name if size else (_('السعر الموحد') if self.mode == 'price' else _('العمولة الموحدة')),
+                           'amount': amount})
         if values:
             self.env['wof.film.setup.value.entry'].create(values)
 
+    @api.onchange('price_charge_mode', 'service_commission_source')
+    def _onchange_commercial_modes(self):
+        if self.mode == 'commission' and self.service_commission_source == 'from_parts':
+            self.technician_commission_distribution = 'by_part'
+            if self.commercial_line_id:
+                values, missing = self.commercial_line_id._derived_commission_values()
+                self.derived_commission_details = (' | '.join((('%s: %.2f' % (s.name, a)) if s else ('الإجمالي: %.2f' % a)) for s, a in values)
+                                                   if not missing else 'ناقص إعداد: %s' % '، '.join(missing))
+        elif self.mode == 'commission' and self.part_type == 'service_area' and not self.entry_ids:
+            # Switching from automatic child-based commission back to an
+            # independent commission must immediately restore editable values.
+            policy = self.commission_policy
+            existing = self.commercial_line_id.part_line_id.commission_line_ids
+            sizes = self.wizard_id.film_id.car_size_ids if policy == 'by_size' else self.env['wof.car.size']
+            targets = sizes if policy == 'by_size' else [False]
+            self.entry_ids = [(0, 0, {
+                'sequence': seq * 10,
+                'car_size_id': size.id if size else False,
+                'label': size.name if size else _('العمولة الموحدة'),
+                'amount': ((existing.filtered(lambda line: line.car_size_id == size)[:1].commission if existing.filtered(lambda line: line.car_size_id == size)[:1] else 0.0) if size else (existing.filtered(lambda line: not line.car_size_id)[:1].commission if existing.filtered(lambda line: not line.car_size_id)[:1] else 0.0)),
+            }) for seq, size in enumerate(targets, start=1)]
+
     def action_save(self):
         self.ensure_one()
+        part_line = self.commercial_line_id.part_line_id
+        if self.mode == 'price' and self.price_charge_mode == 'free':
+            part_line.price_line_ids.unlink()
+            self.env['wof.film.parts.price.lines'].create({
+                'part_line_id': part_line.id, 'car_size_id': False,
+                'part_price': 0.0, 'tax_id': False, 'free_part': True,
+            })
+            self.commercial_line_id.price_expanded = True
+            self.wizard_id.commercial_line_ids.invalidate_recordset()
+            return self.wizard_id._dialog_action()
+
+        if self.mode == 'commission' and self.part_type == 'service_area':
+            part_line.write({
+                'service_commission_source': self.service_commission_source,
+                'technician_commission_distribution': ('by_part' if self.service_commission_source == 'from_parts' else self.technician_commission_distribution),
+            })
+            if self.service_commission_source == 'from_parts':
+                self.commercial_line_id._ensure_commission_basis_lines()
+                # It is valid to save this policy before child commissions are
+                # complete. The stage will reveal those child rows and keep the
+                # area marked as incomplete until they are configured.
+                self.commercial_line_id._sync_commission_from_children()
+                self.commercial_line_id.commission_expanded = True
+                self.wizard_id.commercial_line_ids.invalidate_recordset()
+                return self.wizard_id._dialog_action()
+
         if not self.entry_ids:
             raise ValidationError(_('لا توجد قيم متاحة للحفظ.'))
         if any(entry.amount < 0 for entry in self.entry_ids):
             raise ValidationError(_('القيمة لا يمكن أن تكون سالبة.'))
-        part_line = self.commercial_line_id.part_line_id
         if self.mode == 'price':
-            Model = self.env['wof.film.parts.price.lines']
-            existing = part_line.price_line_ids
+            Model = self.env['wof.film.parts.price.lines']; existing = part_line.price_line_ids
         else:
-            Model = self.env['wof.film.parts.commission.lines']
-            existing = part_line.commission_line_ids
+            Model = self.env['wof.film.parts.commission.lines']; existing = part_line.commission_line_ids
         desired_size_ids = set(self.entry_ids.filtered('car_size_id').mapped('car_size_id').ids)
         wants_default = bool(self.entry_ids.filtered(lambda e: not e.car_size_id))
-        # Remove configuration rows that contradict the selected policy. These
-        # rows are configuration data; installation lines keep their captured
-        # price/commission values for historical documents.
         obsolete = existing.filtered(lambda line: (bool(line.car_size_id) and line.car_size_id.id not in desired_size_ids) or (not line.car_size_id and not wants_default))
         if obsolete:
             obsolete.unlink()
         tax = self.wizard_id.film_id.tax_id if self.wizard_id.film_id.tax_enabled else self.env['account.tax']
         for entry in self.entry_ids:
             target = existing.filtered(lambda line: line.car_size_id == entry.car_size_id)[:1] if entry.car_size_id else existing.filtered(lambda line: not line.car_size_id)[:1]
-            vals = {
-                'part_line_id': part_line.id,
-                'car_size_id': entry.car_size_id.id if entry.car_size_id else False,
-            }
+            vals = {'part_line_id': part_line.id, 'car_size_id': entry.car_size_id.id if entry.car_size_id else False}
             if self.mode == 'price':
-                vals.update({'part_price': entry.amount, 'tax_id': tax.id if tax else False})
+                vals.update({'part_price': entry.amount, 'tax_id': tax.id if tax else False, 'free_part': False})
             else:
                 vals.update({'commission': entry.amount})
-            if target:
-                target.write(vals)
-            else:
-                Model.create(vals)
-        # Expand the edited card so the result is visible immediately.
-        if self.mode == 'price':
-            self.commercial_line_id.price_expanded = True
-        else:
-            self.commercial_line_id.commission_expanded = True
+            target.write(vals) if target else Model.create(vals)
+        if self.mode == 'price': self.commercial_line_id.price_expanded = True
+        else: self.commercial_line_id.commission_expanded = True
+        self.wizard_id.commercial_line_ids.invalidate_recordset()
         return self.wizard_id._dialog_action()
 
 
