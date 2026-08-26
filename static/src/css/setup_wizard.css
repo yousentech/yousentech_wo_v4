@@ -5490,3 +5490,139 @@ body:has(.modal.show .wof_activity_hub_form),
     .wof_component_dialog_field_head { align-items:flex-start !important; flex-direction:column !important; gap:3px !important; }
     .wof_components_list_area .o_list_table { font-size:9px !important; }
 }
+
+/* RC35 — Stage 3: breathable new component / service-area creation dialog. */
+.o_dialog .modal-dialog:has(.wof_component_create_form),
+.modal-dialog:has(.wof_component_create_form) {
+    width:min(920px, 86vw) !important;
+    max-width:min(920px, 86vw) !important;
+}
+.wof_component_create_form .o_form_sheet_bg,
+.wof_component_create_form .o_form_sheet { background:#f7f7fb !important; }
+.wof_component_create_shell_v2 {
+    max-width:860px !important;
+    margin:0 auto !important;
+    padding:14px 16px 8px !important;
+    direction:rtl !important;
+}
+.wof_component_create_header_v2 {
+    min-height:76px !important;
+    margin:0 0 12px !important;
+    padding:13px 14px !important;
+    border:1px solid #e5e2f1 !important;
+    border-radius:14px !important;
+    background:linear-gradient(135deg,#fff 0%,#f7f5fd 100%) !important;
+    box-shadow:0 4px 16px rgba(61,55,105,.04) !important;
+}
+.wof_component_create_header_v2 .wof_component_create_icon {
+    width:46px !important; height:46px !important; flex:0 0 46px !important;
+    border-radius:13px !important; background:#efedfb !important; color:#6259b7 !important;
+    box-shadow:0 4px 12px rgba(83,73,160,.08) !important;
+}
+.wof_component_create_header_v2 .wof_component_create_heading h2 {
+    font-size:16px !important; line-height:1.45 !important;
+}
+.wof_component_create_header_v2 .wof_component_create_heading p {
+    max-width:610px !important; font-size:9.3px !important; line-height:1.75 !important;
+}
+.wof_component_create_header_v2 .wof_component_create_type_badge {
+    display:inline-flex !important; align-items:center !important; gap:5px !important;
+    padding:5px 10px !important; font-size:8.7px !important;
+}
+.wof_component_create_main_card {
+    margin-bottom:10px !important;
+    padding:13px 14px !important;
+    border:1px solid #e4e2ed !important;
+    border-radius:13px !important;
+    background:#fff !important;
+    box-shadow:0 3px 12px rgba(53,48,92,.035) !important;
+}
+.wof_component_create_main_card.is-area-card {
+    border-color:#e1dcef !important;
+    background:linear-gradient(135deg,#fff 0%,#fcfbff 100%) !important;
+}
+.wof_component_create_section_head {
+    display:flex !important; align-items:center !important; gap:9px !important; margin-bottom:11px !important;
+}
+.wof_component_create_section_head.compact { margin-bottom:9px !important; }
+.wof_component_create_section_head > div {
+    min-width:0 !important; flex:1 1 auto !important; display:flex !important; flex-direction:column !important; gap:2px !important;
+}
+.wof_component_create_section_head strong { color:#363a4d !important; font-size:10.8px !important; font-weight:800 !important; }
+.wof_component_create_section_head small { color:#9193a2 !important; font-size:8.3px !important; line-height:1.55 !important; }
+.wof_component_create_section_icon {
+    width:31px !important; height:31px !important; flex:0 0 31px !important;
+    display:flex !important; align-items:center !important; justify-content:center !important;
+    border-radius:9px !important; background:#f0effb !important; color:#6259b7 !important;
+}
+.wof_component_create_section_icon.is-area { background:#fff5df !important; color:#9a6d1d !important; }
+.wof_component_create_section_icon.is-product { background:#edf7f1 !important; color:#43855d !important; }
+.wof_component_create_rule_badge,
+.wof_recommended_badge {
+    flex:0 0 auto !important; padding:4px 8px !important; border-radius:999px !important;
+    font-size:7.8px !important; font-weight:800 !important; white-space:nowrap !important;
+}
+.wof_component_create_rule_badge { background:#fff5df !important; color:#95681c !important; }
+.wof_recommended_badge { margin-inline-start:auto !important; background:#e7f6eb !important; color:#2f7a4c !important; }
+.wof_component_create_identity_grid {
+    display:grid !important; grid-template-columns:minmax(0,2fr) minmax(170px,.75fr) !important; gap:12px !important; align-items:start !important;
+}
+.wof_component_create_field .o_form_label em {
+    margin-inline-start:5px !important; color:#a1a3af !important; font-size:7.5px !important; font-style:normal !important; font-weight:500 !important;
+}
+.wof_component_create_shell_v2 .wof_component_create_field .o_input,
+.wof_component_create_shell_v2 .o_field_many2one .o_input,
+.wof_component_create_shell_v2 .o_field_widget input {
+    min-height:38px !important; border:1px solid #dedbe8 !important; border-radius:9px !important;
+    background:#fdfdff !important; padding:6px 9px !important; font-size:10px !important;
+}
+.wof_component_create_shell_v2 .wof_component_create_field .o_input:focus,
+.wof_component_create_shell_v2 .o_field_many2one .o_input:focus {
+    border-color:#8278d0 !important; box-shadow:0 0 0 3px rgba(98,89,183,.08) !important; background:#fff !important;
+}
+.wof_component_area_parts_v2 {
+    min-height:48px !important; padding:8px 10px !important; border:1px dashed #dcd6eb !important;
+    border-radius:10px !important; background:#faf9fe !important;
+}
+.wof_component_area_parts_v2 .o_tag {
+    margin:2px !important; border-radius:999px !important; background:#fff !important;
+    border:1px solid #ddd9ea !important; color:#505366 !important; font-size:8.7px !important;
+}
+.wof_component_product_mode { display:block !important; }
+.wof_component_auto_product_v2 {
+    display:flex !important; align-items:center !important; gap:9px !important;
+    min-height:48px !important; padding:8px 10px !important;
+    border:1px solid #dcecdf !important; border-radius:10px !important; background:#f7fbf8 !important;
+}
+.wof_component_auto_product_v2 > div { display:flex !important; flex-direction:column !important; gap:2px !important; }
+.wof_component_auto_product_v2 strong { color:#3d5e47 !important; font-size:9.2px !important; }
+.wof_component_auto_product_v2 span { color:#829086 !important; font-size:7.8px !important; }
+.wof_component_existing_product_v2 {
+    margin-top:8px !important; padding:9px 10px !important; border:1px solid #e4e1ec !important; border-radius:10px !important; background:#fbfbfd !important;
+}
+.wof_component_existing_product_v2 .o_form_label { display:block !important; margin-bottom:4px !important; font-size:9px !important; font-weight:700 !important; color:#56596b !important; }
+.wof_component_create_advanced_v2 { margin:0 0 9px !important; border-radius:12px !important; background:#fbfbfd !important; }
+.wof_component_create_advanced_v2 summary {
+    min-height:38px !important; padding:9px 12px !important; justify-content:space-between !important;
+}
+.wof_advanced_title { display:inline-flex !important; align-items:center !important; gap:7px !important; color:#55586b !important; font-weight:800 !important; }
+.wof_component_create_advanced_v2[open] summary { background:#f2f0fa !important; }
+.wof_component_create_hint_v2 {
+    display:flex !important; align-items:center !important; gap:6px !important;
+    padding:8px 10px !important; border:1px solid #dceadf !important; background:#f4faf6 !important; color:#60766a !important;
+}
+.wof_component_create_hint_v2 i { color:#3c9560 !important; }
+.wof_component_create_footer_v2 {
+    display:flex !important; align-items:center !important; justify-content:flex-end !important; gap:8px !important;
+    padding:10px 16px !important; border-top:1px solid #e7e5ee !important; background:#fff !important;
+}
+.wof_component_create_footer_v2 .btn { min-width:90px !important; height:34px !important; border-radius:8px !important; font-size:9.3px !important; font-weight:800 !important; }
+.wof_component_create_footer_v2 .btn-primary { min-width:145px !important; background:#6259b7 !important; border-color:#6259b7 !important; }
+@media (max-width:760px) {
+    .o_dialog .modal-dialog:has(.wof_component_create_form), .modal-dialog:has(.wof_component_create_form) { width:96vw !important; max-width:96vw !important; }
+    .wof_component_create_identity_grid { grid-template-columns:1fr !important; }
+    .wof_component_create_header_v2 { align-items:flex-start !important; flex-wrap:wrap !important; }
+    .wof_component_create_header_v2 .wof_component_create_type_badge { margin-inline-start:55px !important; }
+    .wof_component_create_section_head { align-items:flex-start !important; }
+    .wof_component_create_rule_badge { display:none !important; }
+}
