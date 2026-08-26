@@ -4810,3 +4810,61 @@ body:has(.modal.show .wof_activity_hub_form),
     height:23px;
     background:#f4f3fa;
 }
+
+
+/* RC28 — compact standalone parts in Stage 3 tree.
+   Service areas keep the expandable parent/children hierarchy; a normal car part
+   is deliberately rendered as one compact row so it does not look like a second card. */
+.wof_component_tree_row.is-part:not(.is-child) {
+    height:40px !important;
+    min-height:40px !important;
+    max-height:40px !important;
+    padding:4px 8px !important;
+    grid-template-columns:20px 18px 25px minmax(180px,1fr) 0 66px !important;
+    gap:6px !important;
+    border-radius:8px !important;
+    background:#fff !important;
+    overflow:hidden !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_expand {
+    width:0 !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_name {
+    min-height:28px !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:7px !important;
+    flex-wrap:nowrap !important;
+    overflow:hidden !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_name strong {
+    display:block !important;
+    min-width:0 !important;
+    font-size:10.2px !important;
+    line-height:1.2 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_type_badge {
+    flex:0 0 auto !important;
+    padding:1px 6px !important;
+    font-size:7.7px !important;
+    line-height:1.4 !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_kind_icon {
+    width:24px !important;
+    height:24px !important;
+}
+.wof_component_tree_row.is-part:not(.is-child) .wof_component_actions .btn {
+    width:25px !important;
+    height:25px !important;
+}
+.wof_component_tree_field .o_kanban_record:has(.wof_component_tree_row.is-part:not(.is-child)) {
+    min-height:40px !important;
+    height:40px !important;
+    max-height:40px !important;
+    overflow:hidden !important;
+}
