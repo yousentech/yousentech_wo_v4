@@ -804,8 +804,11 @@ class WofFilmSetupComponentDialog(models.TransientModel):
     company_id = fields.Many2one(related='wizard_id.company_id', readonly=True)
     expected_type = fields.Selection([('car_part', 'جزء سيارة'), ('service_area', 'منطقة خدمة')], required=True, readonly=True)
     line_id = fields.Many2one('wof.film.setup.component.line', string='السطر الحالي', readonly=True)
+    # Do not make this field ORM-required: the transient dialog itself must be
+    # created first so Odoo can open the popup, then the user chooses a component.
+    # Business-required validation is enforced in action_confirm().
     car_part_id = fields.Many2one(
-        'wof.car.parts', string='المكوّن', required=True,
+        'wof.car.parts', string='المكوّن', required=False,
         domain="[('company_id', '=', company_id), ('active', '=', True), ('part_type', '=', expected_type)]",
     )
     child_part_ids = fields.Many2many(related='car_part_id.service_area_part_ids', readonly=True)
@@ -821,6 +824,8 @@ class WofFilmSetupComponentDialog(models.TransientModel):
 
     def action_confirm(self):
         self.ensure_one()
+        if not self.car_part_id:
+            raise ValidationError(_('اختر المكوّن أولاً قبل الإضافة.'))
         if self.car_part_id.part_type != self.expected_type:
             raise ValidationError(_('نوع المكوّن المحدد لا يطابق نوع الإضافة.'))
         if self.expected_type == 'service_area' and not self.car_part_id.service_area_part_ids:
