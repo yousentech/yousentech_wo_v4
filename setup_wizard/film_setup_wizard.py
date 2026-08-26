@@ -154,6 +154,34 @@ class WofFilmSetupWizard(models.TransientModel):
         string='الأجزاء البنيوية', compute='_compute_component_summary',
     )
 
+
+    # Stage 4 — commercial pricing and commissions.  The persistent film-part
+    # line remains the commercial unit; service-area children never receive
+    # independent price/commission rows.
+    pricing_tab = fields.Selection(
+        [('price', 'التسعير'), ('commission', 'العمولات')],
+        string='تبويب الأسعار والعمولات', default='price', required=True,
+    )
+    commercial_line_ids = fields.One2many(
+        'wof.film.setup.commercial.line', 'wizard_id', string='المكونات التجارية',
+    )
+    price_complete_count = fields.Integer(compute='_compute_commercial_summary')
+    price_missing_count = fields.Integer(compute='_compute_commercial_summary')
+    commission_complete_count = fields.Integer(compute='_compute_commercial_summary')
+    commission_missing_count = fields.Integer(compute='_compute_commercial_summary')
+
+    @api.depends(
+        'commercial_line_ids.price_complete',
+        'commercial_line_ids.commission_complete',
+    )
+    def _compute_commercial_summary(self):
+        for wizard in self:
+            lines = wizard.commercial_line_ids
+            wizard.price_complete_count = len(lines.filtered('price_complete'))
+            wizard.price_missing_count = len(lines.filtered(lambda rec: not rec.price_complete))
+            wizard.commission_complete_count = len(lines.filtered('commission_complete'))
+            wizard.commission_missing_count = len(lines.filtered(lambda rec: not rec.commission_complete))
+
     @api.depends('component_line_ids.selected', 'component_line_ids.part_type',
                  'component_line_ids.is_child')
     def _compute_component_summary(self):
@@ -692,9 +720,55 @@ class WofFilmSetupWizard(models.TransientModel):
             seq += 10
         return True
 
+    def _prepare_commercial_lines(self):
+        self.ensure_one()
+        self.commercial_line_ids.unlink()
+        if not self.film_id:
+            return
+        vals = []
+        for part_line in self.film_id.film_part_line_ids.filtered('part_selected').sorted(
+            lambda rec: (rec.sequence, rec.id)
+        ):
+            vals.append({
+                'wizard_id': self.id,
+                'sequence': part_line.sequence,
+                'part_line_id': part_line.id,
+            })
+        if vals:
+            self.env['wof.film.setup.commercial.line'].create(vals)
+
     def action_continue_components(self):
         self._save_components()
         self.current_step = 'pricing'
+        self.pricing_tab = 'price'
+        self._prepare_commercial_lines()
+        return self._dialog_action()
+
+    def action_pricing_tab_price(self):
+        self.ensure_one()
+        self.pricing_tab = 'price'
+        return self._dialog_action()
+
+    def action_pricing_tab_commission(self):
+        self.ensure_one()
+        self.pricing_tab = 'commission'
+        return self._dialog_action()
+
+    def action_continue_pricing(self):
+        self.ensure_one()
+        if not self.commercial_line_ids:
+            self._prepare_commercial_lines()
+        missing_prices = self.commercial_line_ids.filtered(lambda rec: not rec.price_complete)
+        if missing_prices:
+            raise ValidationError(_(
+                'أكمل تسعير جميع المكونات قبل المتابعة. المكونات الناقصة: %s'
+            ) % '، '.join(missing_prices.mapped('part_name')))
+        missing_commissions = self.commercial_line_ids.filtered(lambda rec: not rec.commission_complete)
+        if missing_commissions:
+            raise ValidationError(_(
+                'أكمل إعداد عمولة جميع المكونات قبل المتابعة. المكونات الناقصة: %s'
+            ) % '، '.join(missing_commissions.mapped('part_name')))
+        self.current_step = 'review'
         return self._dialog_action()
 
     def action_back_components(self):
@@ -1043,6 +1117,203 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
         self.wizard_id._append_component_master(part)
         return self.wizard_id._dialog_action()
 
+
+
+class WofFilmSetupCommercialLine(models.TransientModel):
+    _name = 'wof.film.setup.commercial.line'
+    _description = 'سطر تسعير وعمولة في معالج الفيلم'
+    _order = 'sequence, id'
+
+    wizard_id = fields.Many2one('wof.film.setup.wizard', required=True, ondelete='cascade', index=True)
+    sequence = fields.Integer(default=10)
+    part_line_id = fields.Many2one('wof.film.parts.lines', required=True, ondelete='cascade', readonly=True)
+    car_part_id = fields.Many2one(related='part_line_id.car_part_id', readonly=True)
+    part_name = fields.Char(related='part_line_id.car_part_id.name', readonly=True)
+    part_type = fields.Selection(related='part_line_id.car_part_id.part_type', readonly=True)
+    pricing_tab = fields.Selection(related='wizard_id.pricing_tab', readonly=True)
+    child_names = fields.Char(compute='_compute_child_names')
+    price_expanded = fields.Boolean(default=False)
+    commission_expanded = fields.Boolean(default=False)
+    price_complete = fields.Boolean(compute='_compute_completion')
+    price_missing_count = fields.Integer(compute='_compute_completion')
+    commission_complete = fields.Boolean(compute='_compute_completion')
+    commission_missing_count = fields.Integer(compute='_compute_completion')
+    price_summary = fields.Char(compute='_compute_completion')
+    commission_summary = fields.Char(compute='_compute_completion')
+
+    @api.depends('car_part_id.service_area_part_ids')
+    def _compute_child_names(self):
+        for rec in self:
+            rec.child_names = '، '.join(rec.car_part_id.service_area_part_ids.mapped('name')) if rec.part_type == 'service_area' else ''
+
+    def _required_sizes(self):
+        self.ensure_one()
+        if self.wizard_id.pricing_policy == 'by_size':
+            return self.wizard_id.film_id.car_size_ids
+        return self.env['wof.car.size']
+
+    @api.depends(
+        'part_line_id.price_line_ids.car_size_id',
+        'part_line_id.commission_line_ids.car_size_id',
+        'wizard_id.pricing_policy', 'wizard_id.commission_calculation_policy',
+        'wizard_id.film_id.car_size_ids',
+    )
+    def _compute_completion(self):
+        for rec in self:
+            sizes = rec.wizard_id.film_id.car_size_ids
+            price_lines = rec.part_line_id.price_line_ids
+            commission_lines = rec.part_line_id.commission_line_ids
+            if rec.wizard_id.pricing_policy == 'by_size':
+                configured = set(price_lines.filtered('car_size_id').mapped('car_size_id').ids)
+                required = set(sizes.ids)
+                rec.price_missing_count = len(required - configured)
+                rec.price_complete = bool(required) and not rec.price_missing_count
+                rec.price_summary = '%s/%s أسعار' % (len(required & configured), len(required))
+            else:
+                ok = bool(price_lines.filtered(lambda line: not line.car_size_id))
+                rec.price_missing_count = 0 if ok else 1
+                rec.price_complete = ok
+                rec.price_summary = 'سعر موحد محفوظ' if ok else 'السعر الموحد غير مدخل'
+            if rec.wizard_id.commission_calculation_policy == 'by_size':
+                configured = set(commission_lines.filtered('car_size_id').mapped('car_size_id').ids)
+                required = set(sizes.ids)
+                rec.commission_missing_count = len(required - configured)
+                rec.commission_complete = bool(required) and not rec.commission_missing_count
+                rec.commission_summary = '%s/%s عمولات' % (len(required & configured), len(required))
+            else:
+                ok = bool(commission_lines.filtered(lambda line: not line.car_size_id))
+                rec.commission_missing_count = 0 if ok else 1
+                rec.commission_complete = ok
+                rec.commission_summary = 'عمولة موحدة محفوظة' if ok else 'العمولة الموحدة غير مدخلة'
+
+    def action_toggle_price(self):
+        self.ensure_one()
+        self.price_expanded = not self.price_expanded
+        return self.wizard_id._dialog_action()
+
+    def action_toggle_commission(self):
+        self.ensure_one()
+        self.commission_expanded = not self.commission_expanded
+        return self.wizard_id._dialog_action()
+
+    def _open_value_dialog(self, mode):
+        self.ensure_one()
+        dialog = self.env['wof.film.setup.value.dialog'].create({
+            'wizard_id': self.wizard_id.id,
+            'commercial_line_id': self.id,
+            'mode': mode,
+        })
+        dialog._prepare_entries()
+        return dialog._dialog_action()
+
+    def action_edit_price(self):
+        return self._open_value_dialog('price')
+
+    def action_edit_commission(self):
+        return self._open_value_dialog('commission')
+
+
+class WofFilmSetupValueDialog(models.TransientModel):
+    _name = 'wof.film.setup.value.dialog'
+    _description = 'إدخال أسعار أو عمولات مكوّن الفيلم'
+
+    wizard_id = fields.Many2one('wof.film.setup.wizard', required=True, ondelete='cascade', readonly=True)
+    commercial_line_id = fields.Many2one('wof.film.setup.commercial.line', required=True, ondelete='cascade', readonly=True)
+    mode = fields.Selection([('price', 'التسعير'), ('commission', 'العمولة')], required=True, readonly=True)
+    pricing_policy = fields.Selection(related='wizard_id.pricing_policy', readonly=True)
+    commission_policy = fields.Selection(related='wizard_id.commission_calculation_policy', readonly=True)
+    part_name = fields.Char(related='commercial_line_id.part_name', readonly=True)
+    part_type = fields.Selection(related='commercial_line_id.part_type', readonly=True)
+    child_names = fields.Char(related='commercial_line_id.child_names', readonly=True)
+    currency_id = fields.Many2one(related='wizard_id.company_id.currency_id', readonly=True)
+    entry_ids = fields.One2many('wof.film.setup.value.entry', 'dialog_id', string='القيم')
+
+    def _dialog_action(self):
+        self.ensure_one()
+        view = self.env.ref('yousentech_wo_v4.view_wof_film_setup_value_dialog_form')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('تسعير %s') % self.part_name if self.mode == 'price' else _('عمولة %s') % self.part_name,
+            'res_model': self._name, 'res_id': self.id, 'view_mode': 'form',
+            'views': [(view.id, 'form')], 'target': 'new', 'context': dict(self.env.context),
+        }
+
+    def _prepare_entries(self):
+        self.ensure_one()
+        self.entry_ids.unlink()
+        part_line = self.commercial_line_id.part_line_id
+        policy = self.pricing_policy if self.mode == 'price' else self.commission_policy
+        existing = part_line.price_line_ids if self.mode == 'price' else part_line.commission_line_ids
+        sizes = self.wizard_id.film_id.car_size_ids if policy == 'by_size' else self.env['wof.car.size']
+        values = []
+        targets = sizes if policy == 'by_size' else [False]
+        for seq, size in enumerate(targets, start=1):
+            found = existing.filtered(lambda line: line.car_size_id == size)[:1] if size else existing.filtered(lambda line: not line.car_size_id)[:1]
+            amount = (found.part_price if self.mode == 'price' else found.commission) if found else 0.0
+            values.append({
+                'dialog_id': self.id, 'sequence': seq * 10,
+                'car_size_id': size.id if size else False,
+                'label': size.name if size else (_('السعر الموحد') if self.mode == 'price' else _('العمولة الموحدة')),
+                'amount': amount,
+            })
+        if values:
+            self.env['wof.film.setup.value.entry'].create(values)
+
+    def action_save(self):
+        self.ensure_one()
+        if not self.entry_ids:
+            raise ValidationError(_('لا توجد قيم متاحة للحفظ.'))
+        if any(entry.amount < 0 for entry in self.entry_ids):
+            raise ValidationError(_('القيمة لا يمكن أن تكون سالبة.'))
+        part_line = self.commercial_line_id.part_line_id
+        if self.mode == 'price':
+            Model = self.env['wof.film.parts.price.lines']
+            existing = part_line.price_line_ids
+        else:
+            Model = self.env['wof.film.parts.commission.lines']
+            existing = part_line.commission_line_ids
+        desired_size_ids = set(self.entry_ids.filtered('car_size_id').mapped('car_size_id').ids)
+        wants_default = bool(self.entry_ids.filtered(lambda e: not e.car_size_id))
+        # Remove configuration rows that contradict the selected policy. These
+        # rows are configuration data; installation lines keep their captured
+        # price/commission values for historical documents.
+        obsolete = existing.filtered(lambda line: (bool(line.car_size_id) and line.car_size_id.id not in desired_size_ids) or (not line.car_size_id and not wants_default))
+        if obsolete:
+            obsolete.unlink()
+        tax = self.wizard_id.film_id.tax_id if self.wizard_id.film_id.tax_enabled else self.env['account.tax']
+        for entry in self.entry_ids:
+            target = existing.filtered(lambda line: line.car_size_id == entry.car_size_id)[:1] if entry.car_size_id else existing.filtered(lambda line: not line.car_size_id)[:1]
+            vals = {
+                'part_line_id': part_line.id,
+                'car_size_id': entry.car_size_id.id if entry.car_size_id else False,
+            }
+            if self.mode == 'price':
+                vals.update({'part_price': entry.amount, 'tax_id': tax.id if tax else False})
+            else:
+                vals.update({'commission': entry.amount})
+            if target:
+                target.write(vals)
+            else:
+                Model.create(vals)
+        # Expand the edited card so the result is visible immediately.
+        if self.mode == 'price':
+            self.commercial_line_id.price_expanded = True
+        else:
+            self.commercial_line_id.commission_expanded = True
+        return self.wizard_id._dialog_action()
+
+
+class WofFilmSetupValueEntry(models.TransientModel):
+    _name = 'wof.film.setup.value.entry'
+    _description = 'قيمة سعر أو عمولة في معالج الفيلم'
+    _order = 'sequence, id'
+
+    dialog_id = fields.Many2one('wof.film.setup.value.dialog', required=True, ondelete='cascade', index=True)
+    sequence = fields.Integer(default=10, readonly=True)
+    car_size_id = fields.Many2one('wof.car.size', string='حجم السيارة', readonly=True)
+    label = fields.Char(string='الحجم / السياسة', readonly=True)
+    currency_id = fields.Many2one(related='dialog_id.currency_id', readonly=True)
+    amount = fields.Monetary(string='القيمة', currency_field='currency_id', required=True)
 
 
 class WofFilmSetupTintLine(models.TransientModel):

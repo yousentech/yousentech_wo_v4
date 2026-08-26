@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <odoo>
     <record id="view_wof_film_setup_wizard_form" model="ir.ui.view">
         <field name="name">wof.film.setup.wizard.form</field>
@@ -33,7 +33,7 @@
                 <field name="tint_required" invisible="1"/>
                 <field name="component_view_mode" invisible="1"/>
 
-                <div class="wof_film_setup_shell">
+                <field name="pricing_tab" invisible="1"/><div class="wof_film_setup_shell">
                     <div class="wof_film_setup_header">
                         <h1>إضافة فيلم / خدمة جديدة</h1>
                         <p>أدخل البيانات الأساسية أولاً، ثم أكمل درجات اللون والمكونات والأسعار في الخطوات التالية.</p>
@@ -59,19 +59,15 @@
                         <div class="wof_film_step is-done" invisible="current_step not in ('components', 'pricing', 'review')">
                             <span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>درجات اللون</strong>
                         </div>
-                        <div class="wof_film_step" invisible="current_step == 'components'">
-                            <span class="wof_film_step_no">3</span><strong>المكونات</strong>
-                        </div>
-                        <div class="wof_film_step is-active" invisible="current_step != 'components'">
-                            <span class="wof_film_step_no">3</span><strong>المكونات</strong>
-                        </div>
-                        <div class="wof_film_step">
-                            <span class="wof_film_step_no">4</span><strong>الأسعار والعمولات</strong>
-                        </div>
-                        <div class="wof_film_step">
-                            <span class="wof_film_step_no">5</span><strong>المراجعة والتفعيل</strong>
-                        </div>
-                    </div>
+                        <div class="wof_film_step" invisible="current_step in ('components', 'pricing', 'review')"><span class="wof_film_step_no">3</span><strong>المكونات</strong></div>
+<div class="wof_film_step is-active" invisible="current_step != 'components'"><span class="wof_film_step_no">3</span><strong>المكونات</strong></div>
+<div class="wof_film_step is-done" invisible="current_step not in ('pricing', 'review')"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>المكونات</strong></div>
+<div class="wof_film_step" invisible="current_step in ('pricing', 'review')"><span class="wof_film_step_no">4</span><strong>الأسعار والعمولات</strong></div>
+<div class="wof_film_step is-active" invisible="current_step != 'pricing'"><span class="wof_film_step_no">4</span><strong>الأسعار والعمولات</strong></div>
+<div class="wof_film_step is-done" invisible="current_step != 'review'"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>الأسعار والعمولات</strong></div>
+<div class="wof_film_step" invisible="current_step == 'review'"><span class="wof_film_step_no">5</span><strong>المراجعة والتفعيل</strong></div>
+<div class="wof_film_step is-active" invisible="current_step != 'review'"><span class="wof_film_step_no">5</span><strong>المراجعة والتفعيل</strong></div>
+</div>
 
                     <div class="wof_film_setup_intro" invisible="current_step != 'basic'">
                         <i class="fa fa-magic" title="تهيئة"/>
@@ -300,7 +296,7 @@
                                                 <small>سيتم استخدام جميع درجات اللون المفعلة في إعدادات النظام.</small>
                                             </button>
                                             <button name="action_use_all_tints" type="object" class="btn wof_tint_mode_card" invisible="tint_selection_mode == 'all'">
-                                                <span class="wof_tint_mode_radio"></span>
+                                                <span class="wof_tint_mode_radio"/>
                                                 <strong>استخدام جميع درجات النظام</strong>
                                                 <small>سيتم استخدام جميع درجات اللون المفعلة في إعدادات النظام.</small>
                                             </button>
@@ -310,7 +306,7 @@
                                                 <small>حدد فقط الدرجات التي تريد استخدامها في هذا الفيلم.</small>
                                             </button>
                                             <button name="action_use_specific_tints" type="object" class="btn wof_tint_mode_card" invisible="tint_selection_mode == 'specific'">
-                                                <span class="wof_tint_mode_radio"></span>
+                                                <span class="wof_tint_mode_radio"/>
                                                 <strong>اختيار درجات محددة لهذا الفيلم</strong>
                                                 <small>حدد فقط الدرجات التي تريد استخدامها في هذا الفيلم.</small>
                                             </button>
@@ -456,8 +452,7 @@
                                                         <!-- Service areas deliberately use the original stable six-column tree row.
                                                              Keeping this layout separate prevents later compact-part CSS from
                                                              rearranging the expand button, name, child count and actions in RTL. -->
-                                                        <div class="wof_component_tree_row is-area wof_service_area_row"
-                                                             t-if="!record.is_child.raw_value &amp;&amp; record.part_type.raw_value === 'service_area'">
+                                                        <div class="wof_component_tree_row is-area wof_service_area_row" t-if="!record.is_child.raw_value &amp;&amp; record.part_type.raw_value === 'service_area'">
                                                             <div class="wof_component_drag"><i class="fa fa-th" title="ترتيب"/></div>
                                                             <div class="wof_component_expand">
                                                                 <button name="action_toggle_children" type="object" class="btn" title="فتح / طي أجزاء المنطقة">
@@ -479,8 +474,7 @@
 
                                                         <!-- Normal components and service-area children keep the RC31 flexible
                                                              identity layout that fixed disappearing part names. -->
-                                                        <div t-attf-class="wof_component_tree_row #{record.is_child.raw_value ? 'is-child' : 'is-part'}"
-                                                             t-if="record.part_type.raw_value !== 'service_area' &amp;&amp; (!record.is_child.raw_value || (record.parent_selected.raw_value &amp;&amp; record.parent_expanded.raw_value))">
+                                                        <div t-attf-class="wof_component_tree_row #{record.is_child.raw_value ? 'is-child' : 'is-part'}" t-if="record.part_type.raw_value !== 'service_area' &amp;&amp; (!record.is_child.raw_value || (record.parent_selected.raw_value &amp;&amp; record.parent_expanded.raw_value))">
                                                             <div class="wof_component_identity">
                                                                 <div class="wof_component_drag" t-if="!record.is_child.raw_value"><i class="fa fa-th" title="ترتيب"/></div>
                                                                 <div class="wof_component_drag is-child-spacer" t-if="record.is_child.raw_value"/>
@@ -510,9 +504,7 @@
                                             <tree create="0" delete="0" editable="bottom" class="wof_component_list_tree">
                                                 <field name="sequence" widget="handle"/>
                                                 <field name="car_part_id" string="المكوّن" readonly="1" class="wof_component_list_name"/>
-                                                <field name="part_type" string="النوع" readonly="1" widget="badge"
-                                                       decoration-primary="part_type == 'service_area'"
-                                                       decoration-info="part_type == 'car_part'"/>
+                                                <field name="part_type" string="النوع" readonly="1" widget="badge" decoration-primary="part_type == 'service_area'" decoration-info="part_type == 'car_part'"/>
                                                 <field name="child_count" string="عدد الأجزاء" readonly="1"/>
                                                 <field name="child_names" string="أجزاء منطقة الخدمة" readonly="1" class="wof_component_list_children"/>
                                                 <button name="action_edit" type="object" icon="fa-pencil" string="تعديل" class="wof_component_list_action is-edit"/>
@@ -558,19 +550,76 @@
                             </aside>
                         </div>
                     </div>
-                    <div class="wof_film_stage_handoff" invisible="current_step != 'pricing'">
-                        <div class="wof_handoff_icon"><i class="fa fa-money" title="الأسعار والعمولات"/></div>
-                        <h2>تم حفظ المكونات</h2>
-                        <p>الخطوة التالية: تحديد أسعار المكونات ومناطق الخدمة ثم إعداد العمولات.</p>
-                        <div class="wof_handoff_badges">
-                            <span><field name="name" readonly="1" nolabel="1"/></span>
-                            <span><field name="selected_component_count" readonly="1" nolabel="1"/> مكونات</span>
-                            <span><field name="service_area_count" readonly="1" nolabel="1"/> مناطق خدمة</span>
-                        </div>
-                        <button name="action_back_components" type="object" class="btn btn-secondary">السابق: المكونات</button>
-                        <p class="wof_handoff_hint">منطقة الخدمة ستظهر كسطر تجاري واحد في التسعير والعمولة، وأجزاؤها الداخلية لن تُسعّر منفردة.</p>
-                    </div>
+                    <div class="wof_stage4_shell" invisible="current_step != 'pricing'">
+  <div class="wof_stage4_intro"><i class="fa fa-info-circle" title="معلومة"/> حدد أسعار الفيلم وعمولاته. تظهر فقط القيم المطلوبة حسب السياسات التي اخترتها مسبقًا.</div>
+  <div class="wof_stage4_body">
+    <section class="wof_stage4_main">
+      <div class="wof_stage4_head">
+        <div><h2>الأسعار والعمولات</h2><p>أكمل القيم الناقصة فقط؛ المكونات المكتملة تبقى واضحة ويمكن طيها.</p></div>
+        <div class="wof_stage4_counters">
+          <span><strong><field name="selected_component_count" readonly="1" nolabel="1"/></strong> مكونات</span>
+          <span class="is-ok" invisible="pricing_tab != 'price'"><strong><field name="price_complete_count" readonly="1" nolabel="1"/></strong> مكتملة</span><span class="is-warn" invisible="pricing_tab != 'price'"><strong><field name="price_missing_count" readonly="1" nolabel="1"/></strong> تحتاج تسعير</span><span class="is-ok" invisible="pricing_tab != 'commission'"><strong><field name="commission_complete_count" readonly="1" nolabel="1"/></strong> مكتملة</span><span class="is-warn" invisible="pricing_tab != 'commission'"><strong><field name="commission_missing_count" readonly="1" nolabel="1"/></strong> تحتاج عمولة</span></div>
+      </div>
+      <div class="wof_stage4_tabs">
+        <button name="action_pricing_tab_price" type="object" class="btn" invisible="pricing_tab == 'price'"><i class="fa fa-tag" title="التسعير"/> التسعير</button>
+        <button name="action_pricing_tab_price" type="object" class="btn is-active" invisible="pricing_tab != 'price'"><i class="fa fa-tag" title="التسعير"/> التسعير</button>
+        <button name="action_pricing_tab_commission" type="object" class="btn" invisible="pricing_tab == 'commission'"><i class="fa fa-percent" title="العمولات"/> العمولات</button>
+        <button name="action_pricing_tab_commission" type="object" class="btn is-active" invisible="pricing_tab != 'commission'"><i class="fa fa-percent" title="العمولات"/> العمولات</button>
+      </div>
+      <div class="wof_stage4_policy_strip" invisible="pricing_tab != 'price'">
+        <span>سياسة التسعير</span><strong><field name="pricing_policy" readonly="1" nolabel="1"/></strong>
+        <span invisible="pricing_policy != 'by_size'">تُدخل قيمة لكل حجم سيارة معتمد.</span>
+        <span invisible="pricing_policy != 'fixed'">تُدخل قيمة موحدة واحدة لكل مكوّن.</span>
+      </div>
+      <div class="wof_stage4_policy_strip" invisible="pricing_tab != 'commission'">
+        <span>سياسة العمولة</span><strong><field name="commission_calculation_policy" readonly="1" nolabel="1"/></strong>
+        <span invisible="commission_calculation_policy != 'by_size'">تُدخل عمولة مستقلة لكل حجم سيارة معتمد.</span>
+        <span invisible="commission_calculation_policy != 'fixed'">تُدخل عمولة موحدة واحدة لكل مكوّن.</span>
+      </div>
+      <field name="commercial_line_ids" nolabel="1" class="wof_stage4_cards" mode="kanban">
+        <kanban create="0" delete="0" edit="0">
+          <field name="pricing_tab"/><field name="part_name"/><field name="part_type"/><field name="child_names"/>
+          <field name="price_complete"/><field name="price_missing_count"/><field name="price_summary"/><field name="price_expanded"/>
+          <field name="commission_complete"/><field name="commission_missing_count"/><field name="commission_summary"/><field name="commission_expanded"/>
+          <templates><t t-name="kanban-box">
+            <div class="wof_stage4_component_card">
+              <div class="wof_stage4_component_head">
+                <div class="wof_stage4_component_identity">
+                  <span class="wof_stage4_kind"><i t-att-class="record.part_type.raw_value == 'service_area' ? 'fa fa-folder' : 'fa fa-cube'" title="النوع"/></span>
+                  <div><strong><field name="part_name"/></strong><small t-if="record.part_type.raw_value == 'service_area'"><field name="child_names"/></small></div>
+                  <span class="wof_stage4_type"><t t-if="record.part_type.raw_value == 'service_area'">منطقة خدمة</t><t t-else="">جزء سيارة</t></span>
                 </div>
+                <div class="wof_stage4_status" t-if="record.price_complete.raw_value" invisible="pricing_tab != 'price'"><i class="fa fa-check-circle" title="إجراء"/> مكتمل</div>
+                <div class="wof_stage4_status is-warn" t-if="!record.price_complete.raw_value" invisible="pricing_tab != 'price'"><i class="fa fa-exclamation-triangle" title="إجراء"/> يحتاج تسعير</div>
+                <div class="wof_stage4_status" t-if="record.commission_complete.raw_value" invisible="pricing_tab != 'commission'"><i class="fa fa-check-circle" title="إجراء"/> مكتمل</div>
+                <div class="wof_stage4_status is-warn" t-if="!record.commission_complete.raw_value" invisible="pricing_tab != 'commission'"><i class="fa fa-exclamation-triangle" title="إجراء"/> يحتاج استكمال</div>
+                <button name="action_toggle_price" type="object" class="btn wof_stage4_toggle" invisible="pricing_tab != 'price'"><i t-att-class="record.price_expanded.raw_value ? 'fa fa-chevron-up' : 'fa fa-chevron-down'" title="إجراء"/></button>
+                <button name="action_toggle_commission" type="object" class="btn wof_stage4_toggle" invisible="pricing_tab != 'commission'"><i t-att-class="record.commission_expanded.raw_value ? 'fa fa-chevron-up' : 'fa fa-chevron-down'" title="إجراء"/></button>
+              </div>
+              <div class="wof_stage4_component_body" t-if="record.price_expanded.raw_value" invisible="pricing_tab != 'price'">
+                <div class="wof_stage4_saved_summary"><span><field name="price_summary"/></span><small>منطقة الخدمة تُسعّر كوحدة واحدة ولا تُسعّر أجزاؤها منفردة.</small></div>
+                <button name="action_edit_price" type="object" class="btn btn-outline-primary"><i class="fa fa-pencil" title="إجراء"/> <t t-if="record.price_complete.raw_value">تعديل الأسعار</t><t t-else="">إدخال الأسعار</t></button>
+              </div>
+              <div class="wof_stage4_component_body" t-if="record.commission_expanded.raw_value" invisible="pricing_tab != 'commission'">
+                <div class="wof_stage4_saved_summary"><span><field name="commission_summary"/></span><small>العمولة تخص المكوّن التجاري نفسه؛ أجزاء منطقة الخدمة بنيوية فقط.</small></div>
+                <button name="action_edit_commission" type="object" class="btn btn-outline-primary"><i class="fa fa-pencil" title="إجراء"/> <t t-if="record.commission_complete.raw_value">تعديل العمولة</t><t t-else="">إدخال العمولة</t></button>
+              </div>
+            </div>
+          </t></templates>
+        </kanban>
+      </field>
+    </section>
+    <aside class="wof_stage4_summary">
+      <div class="wof_stage4_summary_title"><i class="fa fa-clipboard" title="ملخص"/><strong>ملخص الفيلم</strong></div>
+      <div class="wof_stage4_summary_row"><span>النشاط</span><strong><field name="activity_id" readonly="1" nolabel="1"/></strong></div>
+      <div class="wof_stage4_summary_row"><span>الفيلم / الخدمة</span><strong><field name="name" readonly="1" nolabel="1"/></strong></div>
+      <div class="wof_stage4_summary_row"><span>سياسة التسعير</span><strong><field name="pricing_policy" readonly="1" nolabel="1"/></strong></div>
+      <div class="wof_stage4_summary_row"><span>سياسة العمولة</span><strong><field name="commission_calculation_policy" readonly="1" nolabel="1"/></strong></div>
+      <div class="wof_stage4_summary_stats"><div><strong><field name="selected_component_count" readonly="1" nolabel="1"/></strong><span>مكونات</span></div><div><strong><field name="price_complete_count" readonly="1" nolabel="1"/></strong><span>مكتملة</span></div><div class="is-warn"><strong><field name="price_missing_count" readonly="1" nolabel="1"/></strong><span>تحتاج تسعير</span></div></div>
+      <div class="wof_stage4_summary_note"><i class="fa fa-info-circle" title="إجراء"/> منطقة الخدمة تظهر كسطر تجاري واحد في السعر والعمولة.</div>
+    </aside>
+  </div>
+</div><div class="wof_film_stage_handoff" invisible="current_step != 'review'"><div class="wof_handoff_icon"><i class="fa fa-check-circle" title="المراجعة"/></div><h2>تم حفظ الأسعار والعمولات</h2><p>الخطوة التالية: المراجعة النهائية والتفعيل.</p><div class="wof_handoff_badges"><span><field name="name" readonly="1" nolabel="1"/></span><span><field name="selected_component_count" readonly="1" nolabel="1"/> مكونات</span></div><button name="action_back_components" type="object" class="btn btn-secondary">العودة للمكونات</button></div></div>
 
                 <footer invisible="current_step != 'basic'" class="wof_film_setup_footer">
                     <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
@@ -593,7 +642,7 @@
                         <button name="action_continue_components" string="التالي: الأسعار والعمولات" type="object" class="btn btn-primary"/>
                     </div>
                 </footer>
-                <footer invisible="current_step in ('basic', 'tint', 'components')" class="wof_film_setup_footer">
+                <footer invisible="current_step != 'pricing'" class="wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_components" string="السابق: المكونات" type="object" class="btn btn-outline-primary"/><button name="action_continue_pricing" string="التالي: المراجعة والتفعيل" type="object" class="btn btn-primary"/></div></footer><footer invisible="current_step != 'review'" class="wof_film_setup_footer">
                     <button name="action_cancel" string="العودة إلى الأفلام والخدمات" type="object" class="btn btn-secondary"/>
                 </footer>
             </form>
@@ -713,8 +762,7 @@
                             <span class="wof_component_create_rule_badge">وحدة تجارية واحدة</span>
                         </div>
                         <div class="wof_component_area_parts wof_component_area_parts_v2">
-                            <field name="service_area_part_ids" widget="many2many_tags" nolabel="1"
-                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="service_area_part_ids" widget="many2many_tags" nolabel="1" options="{'no_create': True, 'no_create_edit': True}"/>
                         </div>
                     </div>
 
@@ -790,4 +838,4 @@
         </field>
     </record>
 
-</odoo>
+<record id="view_wof_film_setup_value_dialog_form" model="ir.ui.view"><field name="name">wof.film.setup.value.dialog.form</field><field name="model">wof.film.setup.value.dialog</field><field name="arch" type="xml"><form string="إدخال القيم" class="wof_stage4_value_dialog" create="0" delete="0"><field name="wizard_id" invisible="1"/><field name="commercial_line_id" invisible="1"/><field name="mode" invisible="1"/><field name="pricing_policy" invisible="1"/><field name="commission_policy" invisible="1"/><field name="part_type" invisible="1"/><div class="wof_stage4_dialog_shell"><div class="wof_stage4_dialog_header"><span><i class="fa fa-tag" invisible="mode != 'price'" title="إجراء"/><i class="fa fa-percent" invisible="mode != 'commission'" title="إجراء"/></span><div><h2 invisible="mode != 'price'">تسعير <field name="part_name" readonly="1" nolabel="1"/></h2><h2 invisible="mode != 'commission'">عمولة <field name="part_name" readonly="1" nolabel="1"/></h2><p invisible="part_type != 'service_area'">منطقة خدمة تجارية واحدة تشمل: <field name="child_names" readonly="1" nolabel="1"/></p><p invisible="part_type == 'service_area'">أدخل القيم المطلوبة حسب السياسة المعتمدة لهذا الفيلم.</p></div></div><div class="wof_stage4_dialog_policy"><span invisible="mode != 'price'">سياسة التسعير: <strong><field name="pricing_policy" readonly="1" nolabel="1"/></strong></span><span invisible="mode != 'commission'">سياسة العمولة: <strong><field name="commission_policy" readonly="1" nolabel="1"/></strong></span></div><field name="entry_ids" nolabel="1"><tree editable="bottom" create="0" delete="0"><field name="sequence" column_invisible="1"/><field name="label" string="الحجم / السياسة" readonly="1"/><field name="amount" string="القيمة"/><field name="currency_id" column_invisible="1"/></tree></field></div><footer><button string="إلغاء" special="cancel" class="btn btn-secondary"/><button name="action_save" string="حفظ القيم" type="object" class="btn btn-primary"/></footer></form></field></record></odoo>
