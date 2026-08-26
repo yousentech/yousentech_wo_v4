@@ -1286,23 +1286,27 @@ class WofFilmSetupCommercialLine(models.TransientModel):
             sizes = rec.wizard_id.film_id.car_size_ids
             price_lines = rec.part_line_id.price_line_ids
             commission_lines = rec.part_line_id.commission_line_ids
-            free_line = price_lines.filtered('free_part')[:1]
-            rec.price_is_free = bool(free_line)
-            if free_line:
-                rec.price_missing_count = 0
-                rec.price_complete = True
-                rec.price_summary = 'مجاني — لا يتطلب إدخال أسعار'
-            elif rec.wizard_id.pricing_policy == 'by_size':
-                configured = set(price_lines.filtered(lambda l: l.car_size_id and not l.free_part).mapped('car_size_id').ids)
+            if rec.wizard_id.pricing_policy == 'by_size':
                 required = set(sizes.ids)
+                configured_lines = price_lines.filtered(lambda l: l.car_size_id and l.car_size_id.id in required)
+                configured = set(configured_lines.mapped('car_size_id').ids)
+                free_sizes = set(configured_lines.filtered('free_part').mapped('car_size_id').ids)
                 rec.price_missing_count = len(required - configured)
                 rec.price_complete = bool(required) and not rec.price_missing_count
-                rec.price_summary = '%s/%s أسعار' % (len(required & configured), len(required))
+                rec.price_is_free = bool(required) and configured == required and free_sizes == required
+                if rec.price_is_free:
+                    rec.price_summary = 'جميع الأحجام مجانية'
+                elif rec.price_complete:
+                    paid_count = len(required - free_sizes)
+                    rec.price_summary = '%s مدفوعة · %s مجانية' % (paid_count, len(free_sizes)) if free_sizes else '%s/%s أسعار مكتملة' % (len(configured), len(required))
+                else:
+                    rec.price_summary = '%s/%s أسعار مكتملة' % (len(configured), len(required))
             else:
-                ok = bool(price_lines.filtered(lambda line: not line.car_size_id and not line.free_part))
-                rec.price_missing_count = 0 if ok else 1
-                rec.price_complete = ok
-                rec.price_summary = 'سعر موحد محفوظ' if ok else 'السعر الموحد غير مدخل'
+                default_line = price_lines.filtered(lambda line: not line.car_size_id)[:1]
+                rec.price_is_free = bool(default_line and default_line.free_part)
+                rec.price_missing_count = 0 if default_line else 1
+                rec.price_complete = bool(default_line)
+                rec.price_summary = ('مجاني — لا يتطلب سعرًا' if rec.price_is_free else ('سعر موحد محفوظ' if default_line else 'السعر الموحد غير مدخل'))
 
             rec.derived_commission_details = ''
             if rec.part_type == 'service_area' and rec.part_line_id.service_commission_source == 'from_parts':
@@ -1394,7 +1398,8 @@ class WofFilmSetupValueDialog(models.TransientModel):
         self.entry_ids.unlink()
         part_line = self.commercial_line_id.part_line_id
         if self.mode == 'price':
-            self.price_charge_mode = 'free' if part_line.price_line_ids.filtered('free_part') else 'paid'
+            # RC38: المجانية أصبحت على مستوى كل حجم/سطر تسعير، وليس على مستوى المكوّن بالكامل.
+            self.price_charge_mode = 'paid'
         if self.mode == 'commission' and self.part_type == 'service_area':
             self.service_commission_source = part_line.service_commission_source or 'independent'
             self.technician_commission_distribution = part_line.technician_commission_distribution or 'equal'
@@ -1417,7 +1422,9 @@ class WofFilmSetupValueDialog(models.TransientModel):
             values.append({'dialog_id': self.id, 'sequence': seq * 10,
                            'car_size_id': size.id if size else False,
                            'label': size.name if size else (_('السعر الموحد') if self.mode == 'price' else _('العمولة الموحدة')),
-                           'amount': amount})
+                           'amount': amount,
+                           'is_free': bool(found.free_part) if (self.mode == 'price' and found) else False,
+                           'price_readonly': bool(found.price_readonly) if (self.mode == 'price' and found) else False})
         if values:
             self.env['wof.film.setup.value.entry'].create(values)
 
@@ -1446,16 +1453,6 @@ class WofFilmSetupValueDialog(models.TransientModel):
     def action_save(self):
         self.ensure_one()
         part_line = self.commercial_line_id.part_line_id
-        if self.mode == 'price' and self.price_charge_mode == 'free':
-            part_line.price_line_ids.unlink()
-            self.env['wof.film.parts.price.lines'].create({
-                'part_line_id': part_line.id, 'car_size_id': False,
-                'part_price': 0.0, 'tax_id': False, 'free_part': True,
-            })
-            self.commercial_line_id.price_expanded = True
-            self.wizard_id.commercial_line_ids.invalidate_recordset()
-            return self.wizard_id._dialog_action()
-
         if self.mode == 'commission' and self.part_type == 'service_area':
             part_line.write({
                 'service_commission_source': self.service_commission_source,
@@ -1489,7 +1486,13 @@ class WofFilmSetupValueDialog(models.TransientModel):
             target = existing.filtered(lambda line: line.car_size_id == entry.car_size_id)[:1] if entry.car_size_id else existing.filtered(lambda line: not line.car_size_id)[:1]
             vals = {'part_line_id': part_line.id, 'car_size_id': entry.car_size_id.id if entry.car_size_id else False}
             if self.mode == 'price':
-                vals.update({'part_price': entry.amount, 'tax_id': tax.id if tax else False, 'free_part': False})
+                is_free = bool(entry.is_free)
+                vals.update({
+                    'part_price': 0.0 if is_free else entry.amount,
+                    'tax_id': False if is_free else (tax.id if tax else False),
+                    'free_part': is_free,
+                    'price_readonly': False if is_free else bool(entry.price_readonly),
+                })
             else:
                 vals.update({'commission': entry.amount})
             target.write(vals) if target else Model.create(vals)
@@ -1510,6 +1513,15 @@ class WofFilmSetupValueEntry(models.TransientModel):
     label = fields.Char(string='الحجم / السياسة', readonly=True)
     currency_id = fields.Many2one(related='dialog_id.currency_id', readonly=True)
     amount = fields.Monetary(string='القيمة', currency_field='currency_id', required=True)
+    is_free = fields.Boolean(string='مجاني')
+    price_readonly = fields.Boolean(string='للقراءة فقط')
+
+    @api.onchange('is_free')
+    def _onchange_is_free(self):
+        for entry in self:
+            if entry.is_free:
+                entry.amount = 0.0
+                entry.price_readonly = False
 
 
 class WofFilmSetupTintLine(models.TransientModel):

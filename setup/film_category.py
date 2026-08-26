@@ -455,6 +455,7 @@ class FilmPartPriceLine(models.Model):
             if record.free_part:
                 record.part_price = 0.0
                 record.tax_id = False
+                record.price_readonly = False
 
     @api.constrains('free_part', 'part_price', 'tax_id')
     def _check_free_part_price(self):

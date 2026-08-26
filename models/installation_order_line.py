@@ -692,6 +692,10 @@ class WofInstallationOrderLine(models.Model):
                         'اكتب سبب تجاوز السعر قبل تطبيق السعر الاستثنائي.'
                     )
                 part_line, price, commission, source = line._pricing_configuration()
+                if price.free_part:
+                    raise ValidationError('هذا السعر محدد كمجاني في تهيئة الفيلم ولا يمكن تجاوزه يدويًا.')
+                if price.price_readonly:
+                    raise ValidationError('هذا السعر محدد للقراءة فقط في تهيئة الفيلم ولا يمكن تجاوزه يدويًا.')
                 line._write_line_internal({
                     'unit_price': line.manual_unit_price,
                     'configured_unit_price': price.part_price,

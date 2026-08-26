@@ -5652,3 +5652,23 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_derived_commission p { margin:4px 0; font-size:9px; color:#55776e; }
 .wof_derived_commission small { font-size:8px; color:#729087; }
 @media(max-width:1200px){ .wof_film_setup_steps.wof_six_steps .wof_film_step strong{font-size:8px;} .wof_dialog_choice .o_radio_item{min-width:145px;} }
+
+/* RC38 — pricing-only UX polish: compact cards + familiar summary + per-size free/read-only. */
+.wof_stage4_shell:not(.wof_stage5_commission) .wof_stage4_body{grid-template-columns:minmax(0,1fr) 300px;gap:16px}
+.wof_stage4_shell:not(.wof_stage5_commission) .wof_stage4_main{padding:12px}
+.wof_stage4_shell:not(.wof_stage5_commission) .wof_stage4_component_head{padding:7px 10px;min-height:44px}
+.wof_stage4_shell:not(.wof_stage5_commission) .wof_stage4_kind{width:26px;height:26px}
+.wof_stage4_shell:not(.wof_stage5_commission) .wof_stage4_component_body{padding:6px 10px;min-height:40px}
+.wof_stage4_shell:not(.wof_stage5_commission) .wof_stage4_cards .o_kanban_record{margin-bottom:6px!important}
+.wof_stage4_shell:not(.wof_stage5_commission) .wof_stage4_component_identity>div small{display:none!important}
+.wof_pricing_summary{min-height:0!important;padding:15px 14px!important}
+.wof_pricing_summary .wof_summary_icon{width:54px;height:54px;margin:17px auto 9px;font-size:23px}
+.wof_pricing_summary h2{font-size:18px}
+.wof_pricing_summary>p{min-height:28px;font-size:9.5px}
+.wof_pricing_summary .wof_summary_stats{margin:14px 0 12px}
+.wof_pricing_summary .wof_summary_stats>div{padding:9px 3px}
+.wof_price_entries .o_list_table td,.wof_price_entries .o_list_table th{vertical-align:middle!important}
+.wof_price_entries .o_field_boolean{display:flex!important;justify-content:center}
+.wof_price_entry_hint{margin-top:8px;padding:8px 10px;border-radius:8px;background:#f5f4fb;color:#716f87;font-size:8.5px;line-height:1.6}
+.wof_price_entry_hint i{color:#6259c4;margin-left:5px}
+@media(max-width:1100px){.wof_stage4_shell:not(.wof_stage5_commission) .wof_stage4_body{grid-template-columns:1fr}.wof_pricing_summary{order:-1}}
