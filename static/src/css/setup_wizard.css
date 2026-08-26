@@ -4738,3 +4738,75 @@ body:has(.modal.show .wof_activity_hub_form),
     .wof_component_create_header { align-items:flex-start; }
     .wof_component_create_entry { align-items:flex-start; flex-direction:column; }
 }
+
+
+/* RC26 — compact Stage 3 tree and true expand/collapse for service areas. */
+.wof_component_tree_field .o_kanban_renderer,
+.wof_component_tree_kanban {
+    align-items:stretch !important;
+}
+.wof_component_tree_field .o_kanban_record {
+    min-height:0 !important;
+    height:auto !important;
+    flex:0 0 auto !important;
+    align-self:stretch !important;
+}
+.wof_component_tree_row {
+    min-height:42px !important;
+    height:auto !important;
+    padding:6px 9px !important;
+}
+.wof_component_tree_row.is-child {
+    min-height:34px !important;
+    height:auto !important;
+    margin-block:0 !important;
+    padding:5px 9px !important;
+    border-radius:8px !important;
+    background:#fcfcfe !important;
+}
+.wof_component_tree_row.is-child + .wof_component_tree_row.is-child {
+    margin-top:2px !important;
+}
+.wof_component_expand {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.wof_component_expand .btn {
+    width:25px;
+    height:25px;
+    min-height:25px;
+    padding:0 !important;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:0 !important;
+    border-radius:7px !important;
+    background:#eeecfb !important;
+    color:#5f56b5 !important;
+    box-shadow:none !important;
+}
+.wof_component_expand .btn:hover {
+    background:#e4e0f8 !important;
+    color:#4e45a6 !important;
+}
+.wof_component_expand.is-child-spacer,
+.wof_component_drag.is-child-spacer {
+    pointer-events:none;
+}
+.wof_component_tree_row.is-area {
+    border-color:#d9d4ef !important;
+    box-shadow:0 1px 4px rgba(74,65,135,.04);
+}
+.wof_component_tree_row.is-area .wof_component_name strong {
+    font-weight:800;
+}
+.wof_component_tree_row.is-child .wof_component_name strong {
+    font-size:9.8px;
+    font-weight:700;
+}
+.wof_component_tree_row.is-child .wof_component_kind_icon {
+    width:23px;
+    height:23px;
+    background:#f4f3fa;
+}

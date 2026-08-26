@@ -640,6 +640,13 @@ class WofFilmSetupWizard(models.TransientModel):
 
     # Proxy methods keep static view validation satisfied for nested x2many
     # object buttons; at runtime those buttons are executed on component-line records.
+    def action_toggle_children(self):
+        self.ensure_one()
+        if self.is_child or self.part_type != 'service_area':
+            return self.wizard_id._dialog_action()
+        self.expanded = not self.expanded
+        return self.wizard_id._dialog_action()
+
     def action_edit(self):
         return self._dialog_action()
 
@@ -736,6 +743,8 @@ class WofFilmSetupComponentLine(models.TransientModel):
     is_child = fields.Boolean(string='جزء داخلي', default=False, readonly=True)
     parent_master_id = fields.Many2one('wof.car.parts', string='منطقة الخدمة', readonly=True)
     parent_selected = fields.Boolean(compute='_compute_parent_selected')
+    expanded = fields.Boolean(string='إظهار أجزاء منطقة الخدمة', default=False)
+    parent_expanded = fields.Boolean(compute='_compute_parent_expanded')
     child_count = fields.Integer(compute='_compute_child_count')
     child_names = fields.Char(compute='_compute_child_count')
 
@@ -749,6 +758,17 @@ class WofFilmSetupComponentLine(models.TransientModel):
                 lambda rec: not rec.is_child and rec.car_part_id == line.parent_master_id
             )[:1]
             line.parent_selected = bool(parent and parent.selected)
+
+    @api.depends('wizard_id.component_line_ids.expanded', 'parent_master_id')
+    def _compute_parent_expanded(self):
+        for line in self:
+            if not line.is_child or not line.parent_master_id:
+                line.parent_expanded = False
+                continue
+            parent = line.wizard_id.component_line_ids.filtered(
+                lambda rec: not rec.is_child and rec.car_part_id == line.parent_master_id
+            )[:1]
+            line.parent_expanded = bool(parent and parent.expanded)
 
     @api.depends('car_part_id.service_area_part_ids')
     def _compute_child_count(self):
