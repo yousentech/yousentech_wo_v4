@@ -29,6 +29,7 @@ access_car_size_user,car.size.user,model_wof_car_size,yousentech_wo_v4.group_wo_
 access_car_size_manager,car.size.manager,model_wof_car_size,yousentech_wo_v4.group_wo_manager,1,1,1,0
 access_car_parts_user,car.parts.user,model_wof_car_parts,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_car_parts_manager,car.parts.manager,model_wof_car_parts,yousentech_wo_v4.group_wo_manager,1,1,1,0
+access_car_parts_settings,car.parts.settings,model_wof_car_parts,yousentech_wo_v4.group_wo_settings,1,1,1,0
 access_car_type_manager,car.type.manager,model_wof_car_type,yousentech_wo_v4.group_wo_manager,1,1,1,0
 access_car_type_user,car.type.user,model_wof_car_type,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_car_manufactory_manager,car.manufactory.manager,model_wof_car_manufactory,yousentech_wo_v4.group_wo_manager,1,1,1,0
@@ -74,3 +75,5 @@ access_wof_film_setup_component_line_settings,wof.film.setup.component.line.sett
 access_wof_film_setup_component_line_manager,wof.film.setup.component.line.manager,model_wof_film_setup_component_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_film_setup_component_dialog_settings,wof.film.setup.component.dialog.settings,model_wof_film_setup_component_dialog,yousentech_wo_v4.group_wo_settings,1,1,1,1
 access_wof_film_setup_component_dialog_manager,wof.film.setup.component.dialog.manager,model_wof_film_setup_component_dialog,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_film_setup_component_create_dialog_settings,wof.film.setup.component.create.dialog.settings,model_wof_film_setup_component_create_dialog,yousentech_wo_v4.group_wo_settings,1,1,1,1
+access_wof_film_setup_component_create_dialog_manager,wof.film.setup.component.create.dialog.manager,model_wof_film_setup_component_create_dialog,yousentech_wo_v4.group_wo_manager,1,1,1,1

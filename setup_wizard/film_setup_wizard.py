@@ -822,6 +822,15 @@ class WofFilmSetupComponentDialog(models.TransientModel):
             'views': [(view.id, 'form')], 'target': 'new', 'context': dict(self.env.context),
         }
 
+    def action_create_new(self):
+        self.ensure_one()
+        create_dialog = self.env['wof.film.setup.component.create.dialog'].create({
+            'wizard_id': self.wizard_id.id,
+            'source_dialog_id': self.id,
+            'expected_type': self.expected_type,
+        })
+        return create_dialog._dialog_action()
+
     def action_confirm(self):
         self.ensure_one()
         if not self.car_part_id:
@@ -855,6 +864,160 @@ class WofFilmSetupComponentDialog(models.TransientModel):
                     seq += 1
         else:
             self.wizard_id._append_component_master(self.car_part_id)
+        return self.wizard_id._dialog_action()
+
+
+class WofFilmSetupComponentCreateDialog(models.TransientModel):
+    _name = 'wof.film.setup.component.create.dialog'
+    _description = 'إنشاء مكوّن جديد من معالج الفيلم'
+
+    wizard_id = fields.Many2one(
+        'wof.film.setup.wizard', required=True, ondelete='cascade', readonly=True,
+    )
+    source_dialog_id = fields.Many2one(
+        'wof.film.setup.component.dialog', string='نافذة الاختيار',
+        ondelete='set null', readonly=True,
+    )
+    company_id = fields.Many2one(related='wizard_id.company_id', readonly=True)
+    expected_type = fields.Selection(
+        [('car_part', 'جزء سيارة'), ('service_area', 'منطقة خدمة')],
+        required=True, readonly=True,
+    )
+    name = fields.Char(string='اسم المكوّن')
+    code = fields.Char(
+        string='الكود',
+        help='اختياري. إذا تركته فارغًا سيتم إنشاء كود تلقائي فريد داخل الشركة.',
+    )
+    auto_create_product = fields.Boolean(
+        string='إنشاء صنف خدمي تلقائيًا', default=True,
+        help='ينشئ صنف خدمة مرتبطًا بالمكوّن بنفس الاسم. ألغِ الخيار إذا أردت ربط صنف خدمي موجود.',
+    )
+    product_id = fields.Many2one(
+        'product.product', string='الصنف الخدمي',
+        domain="[('type', '=', 'service')]",
+    )
+    priority_part = fields.Integer(string='ترتيب الأولوية', default=10)
+    service_area_part_ids = fields.Many2many(
+        'wof.car.parts',
+        'wof_film_component_create_area_part_rel',
+        'dialog_id', 'part_id',
+        string='أجزاء منطقة الخدمة',
+        domain="[('company_id', '=', company_id), ('part_type', '=', 'car_part'), ('active', '=', True)]",
+    )
+    part_options_required = fields.Boolean(string='الخيارات الإضافية إجبارية')
+    part_options_ids = fields.Many2many(
+        'wof.car.part.options',
+        'wof_film_component_create_option_rel',
+        'dialog_id', 'option_id',
+        string='خيارات إضافية',
+        domain="[('active', '=', True)]",
+    )
+    notes = fields.Char(string='ملاحظات')
+    warning_msg = fields.Char(string='رسالة تحذير')
+
+    def _dialog_action(self):
+        self.ensure_one()
+        view = self.env.ref('yousentech_wo_v4.view_wof_film_setup_component_create_dialog_form')
+        title = _('إنشاء جزء سيارة جديد') if self.expected_type == 'car_part' else _('إنشاء منطقة خدمة جديدة')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': title,
+            'res_model': self._name,
+            'res_id': self.id,
+            'view_mode': 'form',
+            'views': [(view.id, 'form')],
+            'target': 'new',
+            'context': dict(self.env.context),
+        }
+
+    def action_back_to_selection(self):
+        self.ensure_one()
+        if self.source_dialog_id:
+            return self.source_dialog_id._dialog_action()
+        return {'type': 'ir.actions.act_window_close'}
+
+    def _generate_component_code(self):
+        self.ensure_one()
+        prefix = 'AREA' if self.expected_type == 'service_area' else 'PART'
+        Master = self.env['wof.car.parts'].with_context(active_test=False)
+        # Keep generated codes readable while guaranteeing uniqueness per company.
+        number = Master.search_count([
+            ('company_id', '=', self.company_id.id),
+            ('part_type', '=', self.expected_type),
+        ]) + 1
+        for _attempt in range(10000):
+            code = '%s-%04d' % (prefix, number)
+            if not Master.search_count([
+                ('company_id', '=', self.company_id.id), ('code', '=', code),
+            ]):
+                return code
+            number += 1
+        raise ValidationError(_('تعذر إنشاء كود تلقائي فريد للمكوّن. أدخل الكود يدويًا.'))
+
+    def _resolve_service_product(self):
+        self.ensure_one()
+        if not self.auto_create_product:
+            if not self.product_id:
+                raise ValidationError(_('اختر الصنف الخدمي المرتبط بالمكوّن.'))
+            if self.product_id.type != 'service':
+                raise ValidationError(_('الصنف المرتبط بالمكوّن يجب أن يكون من نوع خدمة.'))
+            return self.product_id
+
+        Product = self.env['product.product']
+        vals = {
+            'name': (self.name or '').strip(),
+            'type': 'service',
+            'sale_ok': True,
+            'purchase_ok': False,
+        }
+        return Product.create(vals)
+
+    def action_create_and_add(self):
+        self.ensure_one()
+        self.wizard_id._ensure_access()
+        name = (self.name or '').strip()
+        if not name:
+            raise ValidationError(_('أدخل اسم المكوّن أولاً.'))
+        if self.expected_type == 'service_area' and not self.service_area_part_ids:
+            raise ValidationError(_('حدد جزءًا واحدًا على الأقل داخل منطقة الخدمة.'))
+
+        Master = self.env['wof.car.parts'].with_context(active_test=False)
+        duplicate_name = Master.search([
+            ('company_id', '=', self.company_id.id),
+            ('name', '=ilike', name),
+        ], limit=1)
+        if duplicate_name:
+            raise ValidationError(_(
+                'يوجد مكوّن باسم "%s" بالفعل. ارجع إلى نافذة الاختيار واختره بدل إنشاء نسخة مكررة.'
+            ) % duplicate_name.display_name)
+
+        code = (self.code or '').strip() or self._generate_component_code()
+        if Master.search_count([
+            ('company_id', '=', self.company_id.id), ('code', '=', code),
+        ]):
+            raise ValidationError(_('كود المكوّن "%s" مستخدم مسبقًا في هذه الشركة.') % code)
+
+        product = self._resolve_service_product()
+        vals = {
+            'name': name,
+            'code': code,
+            'part_type': self.expected_type,
+            'company_id': self.company_id.id,
+            'product_id': product.id,
+            'priority_part': self.priority_part,
+            'part_options_required': self.part_options_required,
+            'part_options_ids': [(6, 0, self.part_options_ids.ids)],
+            'notes': self.notes,
+            'warning_msg': self.warning_msg,
+            'active': True,
+        }
+        if self.expected_type == 'service_area':
+            vals['service_area_part_ids'] = [(6, 0, self.service_area_part_ids.ids)]
+
+        part = Master.create(vals)
+        # The user created the master from this film flow, so add it immediately
+        # to the current film and let the existing tree builder create area children.
+        self.wizard_id._append_component_master(part)
         return self.wizard_id._dialog_action()
 
 
