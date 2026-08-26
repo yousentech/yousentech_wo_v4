@@ -638,21 +638,6 @@ class WofFilmSetupWizard(models.TransientModel):
                 child_seq += 1
         return parent
 
-    # Proxy methods keep static view validation satisfied for nested x2many
-    # object buttons; at runtime those buttons are executed on component-line records.
-    def action_toggle_children(self):
-        self.ensure_one()
-        if self.is_child or self.part_type != 'service_area':
-            return self.wizard_id._dialog_action()
-        self.expanded = not self.expanded
-        return self.wizard_id._dialog_action()
-
-    def action_edit(self):
-        return self._dialog_action()
-
-    def action_remove(self):
-        return self._dialog_action()
-
     def action_add_component(self):
         self.ensure_one()
         dialog = self.env['wof.film.setup.component.dialog'].create({
@@ -776,6 +761,20 @@ class WofFilmSetupComponentLine(models.TransientModel):
             children = line.car_part_id.service_area_part_ids if line.part_type == 'service_area' else self.env['wof.car.parts']
             line.child_count = len(children)
             line.child_names = '، '.join(children.mapped('name'))
+
+    def action_toggle_children(self):
+        """Open/collapse the structural children of a service-area row.
+
+        This method belongs to the component-line model because the kanban
+        object button is rendered on ``wof.film.setup.component.line``.
+        Keeping the state on the transient parent row also means the toggle is
+        purely visual and never changes the persistent component definition.
+        """
+        self.ensure_one()
+        if self.is_child or self.part_type != 'service_area':
+            return self.wizard_id._dialog_action()
+        self.expanded = not self.expanded
+        return self.wizard_id._dialog_action()
 
     def action_edit(self):
         self.ensure_one()
