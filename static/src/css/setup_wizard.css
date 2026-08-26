@@ -5111,3 +5111,77 @@ body:has(.modal.show .wof_activity_hub_form),
     max-height:56px !important;
     overflow:visible !important;
 }
+
+
+/* RC33 — restore the proven service-area tree layout independently from normal parts.
+   Important: this selector only targets top-level service areas. Standalone parts keep
+   the RC31 flexible identity layout that solved missing names. */
+.wof_component_tree_row.wof_service_area_row {
+    display:grid !important;
+    grid-template-columns:22px 25px 28px minmax(220px,1fr) 64px 70px !important;
+    align-items:center !important;
+    justify-content:stretch !important;
+    gap:7px !important;
+    width:100% !important;
+    min-height:48px !important;
+    height:48px !important;
+    max-height:48px !important;
+    padding:6px 9px !important;
+    direction:inherit !important;
+    overflow:hidden !important;
+    background:linear-gradient(90deg,#fbfaff,#f6f4ff) !important;
+    border:1px solid #d9d4ef !important;
+    border-radius:9px !important;
+    box-shadow:0 1px 4px rgba(74,65,135,.04) !important;
+}
+.wof_component_tree_row.wof_service_area_row .wof_component_drag,
+.wof_component_tree_row.wof_service_area_row .wof_component_expand,
+.wof_component_tree_row.wof_service_area_row .wof_component_kind_icon,
+.wof_component_tree_row.wof_service_area_row .wof_component_meta,
+.wof_component_tree_row.wof_service_area_row .wof_component_actions {
+    min-width:0 !important;
+    margin:0 !important;
+}
+.wof_component_tree_row.wof_service_area_row .wof_service_area_name {
+    min-width:0 !important;
+    width:100% !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:7px !important;
+    flex-wrap:nowrap !important;
+    overflow:hidden !important;
+}
+.wof_component_tree_row.wof_service_area_row .wof_component_name_text {
+    display:block !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    font-size:11px !important;
+    font-weight:800 !important;
+    line-height:1.35 !important;
+    color:#25283b !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+}
+.wof_component_tree_row.wof_service_area_row .wof_component_type_badge {
+    flex:0 0 auto !important;
+}
+.wof_component_tree_row.wof_service_area_row .wof_component_meta {
+    width:64px !important;
+    text-align:center !important;
+    white-space:nowrap !important;
+}
+.wof_component_tree_row.wof_service_area_row .wof_component_actions {
+    width:70px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:4px !important;
+}
+.wof_component_tree_field .o_kanban_record:has(.wof_service_area_row) {
+    min-height:48px !important;
+    height:48px !important;
+    max-height:48px !important;
+    overflow:visible !important;
+}
