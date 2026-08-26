@@ -5045,3 +5045,69 @@ body:has(.modal.show .wof_activity_hub_form),
     max-height:48px !important;
     overflow:visible !important;
 }
+
+/* RC32 — Stage 3 service-area row balance.
+   Keep the RC31 standalone component fix, while giving service areas their own
+   spacious identity layout so the area name never competes with badges/actions. */
+.wof_component_tree_row.is-area:not(.is-child) {
+    min-height:56px !important;
+    height:56px !important;
+    max-height:56px !important;
+    padding:7px 10px !important;
+    gap:12px !important;
+    overflow:visible !important;
+}
+.wof_component_tree_row.is-area:not(.is-child) .wof_component_identity {
+    flex:1 1 0 !important;
+    min-width:0 !important;
+    width:0 !important;
+    gap:8px !important;
+}
+.wof_component_tree_row.is-area:not(.is-child) .wof_component_label_block {
+    flex:1 1 0 !important;
+    min-width:0 !important;
+    width:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:8px !important;
+    overflow:visible !important;
+}
+.wof_component_tree_row.is-area:not(.is-child) .wof_component_name_text {
+    flex:1 1 auto !important;
+    min-width:140px !important;
+    max-width:none !important;
+    width:auto !important;
+    display:block !important;
+    font-size:11.5px !important;
+    font-weight:800 !important;
+    color:#25283b !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+}
+.wof_component_tree_row.is-area:not(.is-child) .wof_component_label_meta {
+    flex:0 0 auto !important;
+    min-width:max-content !important;
+}
+.wof_component_tree_row.is-area:not(.is-child) > .wof_component_meta {
+    flex:0 0 auto !important;
+    min-width:54px !important;
+    padding:0 4px !important;
+    font-size:9px !important;
+    white-space:nowrap !important;
+}
+.wof_component_tree_row.is-area:not(.is-child) > .wof_component_actions {
+    flex:0 0 64px !important;
+    width:64px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:5px !important;
+    margin-inline-start:0 !important;
+}
+.wof_component_tree_field .o_kanban_record:has(.wof_component_tree_row.is-area:not(.is-child)) {
+    min-height:56px !important;
+    height:56px !important;
+    max-height:56px !important;
+    overflow:visible !important;
+}
