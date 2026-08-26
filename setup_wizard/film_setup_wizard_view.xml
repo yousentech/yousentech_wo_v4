@@ -509,12 +509,14 @@
                                         <field name="component_top_line_ids" nolabel="1">
                                             <tree create="0" delete="0" editable="bottom" class="wof_component_list_tree">
                                                 <field name="sequence" widget="handle"/>
-                                                <field name="car_part_id" string="المكوّن" readonly="1"/>
-                                                <field name="part_type" string="النوع" readonly="1"/>
-                                                <field name="child_count" string="الأجزاء الداخلية" readonly="1"/>
-                                                <field name="child_names" string="تفاصيل منطقة الخدمة" readonly="1"/>
-                                                <button name="action_edit" type="object" icon="fa-pencil" string="تعديل"/>
-                                                <button name="action_remove" type="object" icon="fa-trash" string="إزالة"/>
+                                                <field name="car_part_id" string="المكوّن" readonly="1" class="wof_component_list_name"/>
+                                                <field name="part_type" string="النوع" readonly="1" widget="badge"
+                                                       decoration-primary="part_type == 'service_area'"
+                                                       decoration-info="part_type == 'car_part'"/>
+                                                <field name="child_count" string="عدد الأجزاء" readonly="1"/>
+                                                <field name="child_names" string="أجزاء منطقة الخدمة" readonly="1" class="wof_component_list_children"/>
+                                                <button name="action_edit" type="object" icon="fa-pencil" string="تعديل" class="wof_component_list_action is-edit"/>
+                                                <button name="action_remove" type="object" icon="fa-trash" string="إزالة" class="wof_component_list_action is-remove"/>
                                             </tree>
                                         </field>
                                     </div>
@@ -610,15 +612,21 @@
                 <div class="wof_component_dialog_shell">
                     <div class="wof_component_dialog_header">
                         <span class="wof_component_dialog_icon"><i class="fa fa-cube" title="مكوّن"/></span>
-                        <div>
+                        <div class="wof_component_dialog_heading">
                             <h2 invisible="expected_type != 'car_part'">اختيار جزء سيارة</h2>
                             <h2 invisible="expected_type != 'service_area'">اختيار منطقة خدمة</h2>
                             <p invisible="expected_type != 'car_part'">اختر مكوّنًا معرفًا مسبقًا كجزء سيارة.</p>
                             <p invisible="expected_type != 'service_area'">اختر منطقة خدمة؛ ستظهر أجزاؤها الداخلية تلقائيًا في العرض الشجري.</p>
                         </div>
+                        <span class="wof_component_dialog_type_badge" invisible="expected_type != 'car_part'"><i class="fa fa-cube" title="جزء سيارة"/> جزء سيارة</span>
+                        <span class="wof_component_dialog_type_badge is-area" invisible="expected_type != 'service_area'"><i class="fa fa-folder-open" title="منطقة خدمة"/> منطقة خدمة</span>
                     </div>
                     <div class="wof_component_dialog_field">
-                        <label for="car_part_id" string="المكوّن"/>
+                        <div class="wof_component_dialog_field_head">
+                            <label for="car_part_id" string="المكوّن"/>
+                            <span invisible="expected_type != 'car_part'">اختر من أجزاء السيارة المعرفة في النظام</span>
+                            <span invisible="expected_type != 'service_area'">اختر من مناطق الخدمة المعرفة في النظام</span>
+                        </div>
                         <field name="car_part_id" options="{'no_create': True, 'no_create_edit': True}"/>
                     </div>
                     <div class="wof_component_create_entry" invisible="line_id">
