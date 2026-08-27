@@ -1373,6 +1373,13 @@ class WofFilmSetupValueDialog(models.TransientModel):
     price_charge_mode = fields.Selection(
         [('paid', 'مدفوع'), ('free', 'مجاني')], string='نوع التسعير', default='paid', required=True,
     )
+    pricing_application_mode = fields.Selection([
+        ('per_size', 'سعر مستقل لكل حجم'),
+        ('uniform', 'نفس السعر لكل الأحجام'),
+        ('all_free', 'مجاني لكل الأحجام'),
+    ], string='طريقة تطبيق السعر على الأحجام', default='per_size', required=True)
+    uniform_price = fields.Monetary(string='السعر الموحد لجميع الأحجام', currency_field='currency_id')
+    uniform_price_readonly = fields.Boolean(string='للقراءة فقط')
     service_commission_source = fields.Selection(
         [('independent', 'عمولة مستقلة لمنطقة الخدمة'), ('from_parts', 'حسب عمولات مكونات المنطقة')],
         string='مصدر عمولة منطقة الخدمة', default='independent', required=True,
@@ -1398,8 +1405,24 @@ class WofFilmSetupValueDialog(models.TransientModel):
         self.entry_ids.unlink()
         part_line = self.commercial_line_id.part_line_id
         if self.mode == 'price':
-            # RC38: المجانية أصبحت على مستوى كل حجم/سطر تسعير، وليس على مستوى المكوّن بالكامل.
             self.price_charge_mode = 'paid'
+            # Keep the detailed per-size mode as the safe default. If all saved
+            # size rows already share one state/value, reopen in the compact mode.
+            existing_prices = part_line.price_line_ids
+            if self.pricing_policy == 'by_size' and existing_prices:
+                expected = self.wizard_id.film_id.car_size_ids
+                saved = existing_prices.filtered(lambda l: l.car_size_id in expected)
+                if expected and len(saved) == len(expected) and all(saved.mapped('free_part')):
+                    self.pricing_application_mode = 'all_free'
+                elif expected and len(saved) == len(expected) and not any(saved.mapped('free_part')):
+                    amounts = {round(v, 6) for v in saved.mapped('part_price')}
+                    ro = set(saved.mapped('price_readonly'))
+                    if len(amounts) == 1 and len(ro) == 1:
+                        self.pricing_application_mode = 'uniform'
+                        self.uniform_price = saved[0].part_price
+                        self.uniform_price_readonly = saved[0].price_readonly
+            else:
+                self.pricing_application_mode = 'per_size'
         if self.mode == 'commission' and self.part_type == 'service_area':
             self.service_commission_source = part_line.service_commission_source or 'independent'
             self.technician_commission_distribution = part_line.technician_commission_distribution or 'equal'
@@ -1428,8 +1451,21 @@ class WofFilmSetupValueDialog(models.TransientModel):
         if values:
             self.env['wof.film.setup.value.entry'].create(values)
 
-    @api.onchange('price_charge_mode', 'service_commission_source')
+    @api.onchange('price_charge_mode', 'service_commission_source', 'pricing_application_mode', 'uniform_price', 'uniform_price_readonly')
     def _onchange_commercial_modes(self):
+        if self.mode == 'price':
+            if self.pricing_application_mode == 'all_free':
+                self.uniform_price = 0.0
+                self.uniform_price_readonly = False
+                for entry in self.entry_ids:
+                    entry.is_free = True
+                    entry.amount = 0.0
+                    entry.price_readonly = False
+            elif self.pricing_application_mode == 'uniform':
+                for entry in self.entry_ids:
+                    entry.is_free = False
+                    entry.amount = self.uniform_price or 0.0
+                    entry.price_readonly = bool(self.uniform_price_readonly)
         if self.mode == 'commission' and self.service_commission_source == 'from_parts':
             self.technician_commission_distribution = 'by_part'
             if self.commercial_line_id:
@@ -1468,6 +1504,15 @@ class WofFilmSetupValueDialog(models.TransientModel):
                 self.wizard_id.commercial_line_ids.invalidate_recordset()
                 return self.wizard_id._dialog_action()
 
+        if self.mode == 'price' and self.pricing_policy == 'by_size':
+            if self.pricing_application_mode == 'all_free':
+                for entry in self.entry_ids:
+                    entry.is_free = True; entry.amount = 0.0; entry.price_readonly = False
+            elif self.pricing_application_mode == 'uniform':
+                if self.uniform_price < 0:
+                    raise ValidationError(_('السعر لا يمكن أن يكون سالبًا.'))
+                for entry in self.entry_ids:
+                    entry.is_free = False; entry.amount = self.uniform_price; entry.price_readonly = bool(self.uniform_price_readonly)
         if not self.entry_ids:
             raise ValidationError(_('لا توجد قيم متاحة للحفظ.'))
         if any(entry.amount < 0 for entry in self.entry_ids):
