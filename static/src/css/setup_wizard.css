@@ -5991,3 +5991,24 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_stage_inline_nav .btn{min-height:36px;border-radius:8px!important;font-weight:700!important;}
 .wof_stage_inline_nav .btn-primary{min-width:160px;background:linear-gradient(135deg,#6057b9,#4f489b)!important;border-color:#51499c!important;color:#fff!important;}
 .wof_stage_inline_nav .btn-outline-primary{min-width:138px;color:#51499c!important;border-color:#c9c5e8!important;background:#fff!important;}
+
+
+/* RC50 — Film setup uses the same real Odoo modal footer for every stage.
+ * Stage 4/5 must not move navigation inside the scrolling body. */
+.modal-content:has(.wof_film_setup_form) > .modal-footer {
+    display:flex !important;
+    flex:0 0 auto !important;
+    position:sticky !important;
+    bottom:0 !important;
+    z-index:30 !important;
+    padding:0 !important;
+    margin:0 !important;
+    border-top:0 !important;
+    background:#fff !important;
+}
+.modal-content:has(.wof_film_setup_form) > .modal-footer > .wof_film_setup_footer {
+    width:100% !important;
+    margin:0 !important;
+}
+/* RC49 inline navigation is retired; keep hidden if stale assets/templates survive an upgrade. */
+.wof_stage_inline_nav{display:none !important;}

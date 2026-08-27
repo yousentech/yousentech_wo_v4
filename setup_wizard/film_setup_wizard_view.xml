@@ -574,10 +574,6 @@
       <div class="wof_summary_note"><i class="fa fa-info-circle" title="معلومة"/> يمكن جعل حجم سيارة مجانيًا بشكل مستقل، ويُحفظ المجاني بسعر صفر وبدون ضريبة.</div>
     </aside>
   </div>
-  <div class="wof_stage_inline_nav wof_pricing_inline_nav">
-    <button name="action_back_components" string="السابق: المكونات" type="object" class="btn btn-outline-primary"/>
-    <button name="action_continue_pricing" string="التالي: العمولات" type="object" class="btn btn-primary"/>
-  </div>
 </div>
 <div class="wof_stage4_shell wof_stage5_commission" invisible="current_step != 'commission'">
   <div class="wof_stage4_intro"><i class="fa fa-percent" title="العمولات"/> التسعير مكتمل. الآن حدد عمولات الفنيين فقط، مع فصل واضح بين عمولة الجزء وعمولة منطقة الخدمة.</div>
@@ -602,10 +598,6 @@
       <div class="wof_summary_policy"><span>وقت الاستحقاق</span><strong><field name="commission_event" readonly="1" nolabel="1"/></strong></div>
       <div class="wof_summary_note"><i class="fa fa-info-circle" title="معلومة"/> افتح تفاصيل أي مكوّن لتحديد نوع العمولة وقيمتها وطريقة توزيعها على الفنيين.</div>
     </aside></div>
-  <div class="wof_stage_inline_nav wof_commission_inline_nav">
-    <button name="action_back_pricing" string="السابق: التسعير" type="object" class="btn btn-outline-primary"/>
-    <button name="action_continue_commission" string="التالي: المراجعة والتفعيل" type="object" class="btn btn-primary"/>
-  </div>
 </div>
 <div class="wof_film_stage_handoff" invisible="current_step != 'review'"><div class="wof_handoff_icon"><i class="fa fa-check-circle" title="المراجعة"/></div><h2>اكتملت التهيئة التجارية</h2><p>الأسعار والعمولات مكتملة. راجع الإعدادات ثم فعّل الفيلم / الخدمة.</p><div class="wof_handoff_badges"><span><field name="name" readonly="1" nolabel="1"/></span><span><field name="selected_component_count" readonly="1" nolabel="1"/> مكونات</span></div><button name="action_back_components" type="object" class="btn btn-secondary">العودة للمكونات</button></div></div>
 
