@@ -1512,16 +1512,10 @@
 
 /* Stage 4 owns its visible controls exactly like the previously approved
  * stages; keep Odoo's generic modal footer out of the way. */
-.modal-content:has(.wof_stage4_shell) > .modal-footer:not(.wof_film_setup_footer),
+.modal-content:has(.wof_stage4_shell) > .modal-footer,
 .modal-content:has(.wof_stage4_shell) .o_form_button_save,
 .modal-content:has(.wof_stage4_shell) .o_form_button_cancel {
     display: none !important;
-}
-
-/* RC48: Stage 4/5 use their own wizard footer. Do not let the generic
- * modal-footer suppression hide the custom pricing/commission navigation. */
-.modal-content:has(.wof_stage4_shell) > .modal-footer.wof_film_setup_footer {
-    display: flex !important;
 }
 
 @media (max-width: 900px) {
@@ -5977,3 +5971,23 @@ body:has(.modal.show .wof_activity_hub_form),
     .wof_commission_choice_radio .o_field_radio{grid-template-columns:1fr}
     .wof_commission_uniform_value{grid-template-columns:1fr}
 }
+
+
+/* RC49 — stage navigation lives inside the stage shell so Odoo modal footer rules cannot hide it. */
+.wof_stage_inline_nav{
+    position:sticky;
+    bottom:0;
+    z-index:8;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:14px 0 0;
+    padding:10px 12px;
+    border-top:1px solid #e7e5ef;
+    background:rgba(255,255,255,.97);
+    backdrop-filter:blur(4px);
+}
+.wof_stage_inline_nav .btn{min-height:36px;border-radius:8px!important;font-weight:700!important;}
+.wof_stage_inline_nav .btn-primary{min-width:160px;background:linear-gradient(135deg,#6057b9,#4f489b)!important;border-color:#51499c!important;color:#fff!important;}
+.wof_stage_inline_nav .btn-outline-primary{min-width:138px;color:#51499c!important;border-color:#c9c5e8!important;background:#fff!important;}
