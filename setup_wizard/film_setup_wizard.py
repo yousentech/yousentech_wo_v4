@@ -1466,6 +1466,13 @@ class WofFilmSetupValueDialog(models.TransientModel):
                     entry.is_free = False
                     entry.amount = self.uniform_price or 0.0
                     entry.price_readonly = bool(self.uniform_price_readonly)
+            elif self.pricing_application_mode == 'per_size':
+                # Leaving "free for all sizes" must start the detailed mode
+                # with normal editable size rows.  Do not carry the global-free
+                # state into each individual vehicle size.
+                for entry in self.entry_ids:
+                    entry.is_free = False
+                    entry.price_readonly = False
         if self.mode == 'commission' and self.service_commission_source == 'from_parts':
             self.technician_commission_distribution = 'by_part'
             if self.commercial_line_id:
