@@ -25,6 +25,7 @@
                 <sheet>
                     <field name="company_id" invisible="1"/>
                     <field name="supports_color_grades" invisible="1"/>
+                    <field name="part_type" invisible="1"/>
                     <div class="wof_service_hero wof_service_hero_compact">
                         <div class="wof_service_hero_copy">
                             <span class="wof_service_eyebrow">مكوّن الخدمة</span>
@@ -88,8 +89,14 @@
                         </page>
                         <page string="العمولات">
                             <div class="wof_section_intro">
-                                السطر بلا حجم هو العمولة العامة، ويمكن تخصيص عمولة لكل حجم.
+                                السطر بلا حجم هو العمولة العامة، ويمكن تخصيص عمولة لكل حجم. نوع العمولة يطبق على جميع أسطر هذا المكوّن.
                             </div>
+                            <group col="4">
+                                <field name="commission_value_type"/>
+                                <field name="commission_readonly"/>
+                                <field name="technician_commission_distribution"/>
+                                <field name="service_commission_source" invisible="part_type != 'service_area'"/>
+                            </group>
                             <field name="commission_line_ids">
                                 <tree editable="bottom">
                                     <field name="company_id" column_invisible="1"/>

@@ -298,6 +298,9 @@ class FilmPartLine(models.Model):
         'wof.car.parts', string="الجزء", required=True,
         ondelete='restrict', check_company=True, index=True,
     )
+    part_type = fields.Selection(
+        related='car_part_id.part_type', readonly=True, string='نوع المكوّن',
+    )
     film_category_line_id = fields.Many2one(
         'wof.film.category.lines', string="الدرجة الافتراضية",
         domain="[('header_id', '=', header_id)]", check_company=True,
@@ -316,9 +319,21 @@ class FilmPartLine(models.Model):
         string="مصدر عمولة منطقة الخدمة", default='independent', required=True,
         help="يستخدم فقط عندما يكون المكوّن منطقة خدمة. في وضع حسب المكونات تُشتق عمولة المنطقة من أجزائها.",
     )
+    commission_value_type = fields.Selection(
+        [('fixed', 'مبلغ ثابت'), ('percent', 'نسبة مئوية')],
+        string="نوع العمولة", default='fixed', required=True,
+        help="يحدد ما إذا كانت قيمة العمولة مبلغًا ثابتًا أو نسبة مئوية من سعر المكوّن المهيأ.",
+    )
+    commission_readonly = fields.Boolean(
+        string="العمولة للقراءة فقط",
+        help="عند التفعيل تعتبر عمولة هذا المكوّن ثابتة ولا يسمح بتجاوزها تشغيليًا.",
+    )
     technician_commission_distribution = fields.Selection(
-        [('equal', 'بالتساوي بين الفنيين'), ('by_part', 'حسب عمولة الجزء المنفذ')],
+        [('equal', 'بالتساوي بين الفنيين'),
+         ('by_technician_ratio', 'حسب نسبة الفني'),
+         ('by_part', 'حسب عمولة الجزء المنفذ')],
         string="طريقة توزيع عمولة الفنيين", default='equal', required=True,
+        help="حسب نسبة الفني تستخدم النسبة المعرفة في بطاقة مستخدم الفني. خيار حسب الجزء مخصص لمناطق الخدمة.",
     )
     price_count = fields.Integer(compute='_compute_counts')
     commission_count = fields.Integer(compute='_compute_counts')
@@ -509,7 +524,12 @@ class FilmPartCommissionLine(models.Model):
         ondelete='restrict', check_company=True, index=True,
     )
     commission = fields.Monetary(
-        string="عمولة الفني", currency_field='currency_id',
+        string="قيمة العمولة", currency_field='currency_id',
+        help="تُفسر كمبلغ أو كنسبة مئوية وفق نوع العمولة في المكوّن.",
+    )
+    commission_value_type = fields.Selection(
+        related='part_line_id.commission_value_type', store=True, readonly=True,
+        string="نوع العمولة",
     )
 
     _sql_constraints = [
@@ -518,6 +538,15 @@ class FilmPartCommissionLine(models.Model):
         ('film_part_commission_nonnegative', 'check(commission >= 0)',
          'العمولة لا يمكن أن تكون سالبة.'),
     ]
+
+    @api.constrains('commission', 'part_line_id')
+    def _check_percentage_commission_range(self):
+        for record in self:
+            if (
+                record.part_line_id.commission_value_type == 'percent'
+                and (record.commission < 0 or record.commission > 100)
+            ):
+                raise ValidationError('نسبة العمولة يجب أن تكون بين 0 و100.')
 
     @api.constrains('part_line_id', 'car_size_id')
     def _check_unique_size_including_default(self):

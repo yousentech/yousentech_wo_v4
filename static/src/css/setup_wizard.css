@@ -5877,3 +5877,97 @@ body:has(.modal.show .wof_activity_hub_form),
     .wof_uniform_price_value{min-width:100%!important;max-width:none!important;flex-basis:100%!important}
     .wof_uniform_price_readonly{align-items:flex-start!important;padding-bottom:0!important}
 }
+
+/* RC46 — Stage 5 commission detail for ordinary car parts. */
+.wof_film_setup_steps.wof_six_steps{
+    grid-template-columns:repeat(6,minmax(0,1fr));
+}
+.wof_commission_title{
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    padding:12px 14px 16px;border-bottom:1px solid #eeedf5;margin-bottom:2px;
+}
+.wof_commission_title_icon{
+    width:38px;height:38px;display:grid;place-items:center;border-radius:11px;
+    background:#f0eeff;color:#5b51c3;font-size:18px;
+}
+.wof_commission_title strong{font-size:18px;color:#25293d;line-height:1.2}
+.wof_commission_title .o_field_widget{margin:0!important}
+.wof_commission_title_badge{
+    padding:5px 10px;border-radius:999px;background:#f0f8ee;color:#4b8a54;
+    font-size:9px;border:1px solid #dcefdc;white-space:nowrap;
+}
+.wof_commission_detail{
+    border:1px solid #e5e3ef;border-radius:13px;background:#fff;overflow:hidden;
+    margin-top:8px;
+}
+.wof_commission_section{
+    padding:14px 16px;border-bottom:1px solid #ecebf3;
+}
+.wof_commission_section:last-child{border-bottom:0}
+.wof_commission_section_copy{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.wof_commission_section_copy strong{color:#564bb5;font-size:11.5px;font-weight:800}
+.wof_commission_section_copy small{color:#85889a;font-size:8.8px}
+.wof_commission_choice_radio .o_field_radio{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px!important;
+}
+.wof_commission_choice_radio .o_radio_item{
+    position:relative;display:flex!important;align-items:center!important;min-height:76px;
+    padding:14px 16px!important;border:1px solid #dedceb!important;border-radius:11px!important;
+    background:#fff!important;transition:.15s ease;box-shadow:none!important;
+}
+.wof_commission_choice_radio .o_radio_item:hover{border-color:#c9c4ee!important;background:#fbfaff!important}
+.wof_commission_choice_radio .o_radio_item:has(input:checked){
+    border-color:#675dd0!important;background:#f6f4ff!important;box-shadow:0 0 0 1px rgba(103,93,208,.05)!important;
+}
+.wof_commission_choice_radio .o_radio_item label{
+    margin:0!important;padding-inline-start:8px;color:#3f4255;font-size:10.5px;font-weight:700;cursor:pointer;
+}
+.wof_commission_choice_radio .o_radio_item:has(input:checked) label{color:#5549bb}
+.wof_commission_choice_radio.is-policy .o_radio_item{opacity:.9;cursor:default}
+.wof_commission_default_hint{
+    display:inline-flex;align-items:center;gap:5px;margin-top:7px;padding:4px 8px;border-radius:999px;
+    background:#eef9f1;color:#36804e;font-size:8px;
+}
+.wof_commission_uniform_value{
+    display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:14px;align-items:end;
+    padding:12px;border:1px solid #e7e4f3;border-radius:11px;background:#fcfbff;
+}
+.wof_commission_value_field,.wof_commission_readonly{display:flex;flex-direction:column;gap:6px}
+.wof_commission_value_field>label,.wof_commission_readonly>label{font-size:9px;font-weight:700;color:#55586a}
+.wof_commission_value_control{
+    display:flex;align-items:center;min-height:42px;border:1px solid #d9d6e9;border-radius:9px;background:#fff;overflow:hidden;
+}
+.wof_commission_value_control>.o_field_widget{flex:1;margin:0!important;padding:0 10px!important}
+.wof_commission_value_control>span{
+    min-width:54px;display:flex;align-items:center;justify-content:center;align-self:stretch;
+    border-inline-start:1px solid #e3e1ee;color:#554ba8;font-weight:800;background:#faf9ff;font-size:10px;
+}
+.wof_commission_value_control input{font-size:15px!important;font-weight:800!important;color:#2f3348!important}
+.wof_commission_readonly{align-items:center;justify-content:center;text-align:center}
+.wof_commission_apply_note{
+    grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 9px;
+    border-radius:8px;background:#f2f7ff;color:#5e74a0;font-size:8.3px;
+}
+.wof_commission_size_values{border:1px solid #e7e4f3;border-radius:11px;overflow:hidden;background:#fff}
+.wof_commission_size_toolbar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 11px;background:#f9f8fd;
+    border-bottom:1px solid #ebe9f3;font-size:9px;font-weight:700;color:#55586a;
+}
+.wof_commission_size_toolbar>div{display:flex;align-items:center;gap:7px;font-size:8.5px}
+.wof_commission_entries .o_list_table{font-size:9.5px!important;margin:0!important}
+.wof_commission_entries .o_list_table thead{background:#f6f5fb!important}
+.wof_commission_entries .o_list_table td,.wof_commission_entries .o_list_table th{vertical-align:middle!important;padding:8px 10px!important}
+.wof_commission_distribution_hint{
+    margin-top:8px;padding:8px 10px;border-radius:8px;background:#eef6ff;color:#59759a;font-size:8.3px;text-align:center;
+}
+.wof_commission_preview_strip{
+    display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border:1px solid #e6e4f2;
+    border-radius:9px;background:#faf9ff;color:#686b7e;font-size:9px;
+}
+.wof_commission_preview_strip i{color:#6258c4}
+.wof_commission_preview_strip strong{color:#373a50;font-size:11px}
+@media(max-width:980px){
+    .wof_film_setup_steps.wof_six_steps{grid-template-columns:repeat(6,minmax(105px,1fr));overflow-x:auto}
+    .wof_commission_choice_radio .o_field_radio{grid-template-columns:1fr}
+    .wof_commission_uniform_value{grid-template-columns:1fr}
+}

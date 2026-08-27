@@ -677,6 +677,22 @@ class WofInstallationOrderLine(models.Model):
             ], limit=1)
         return part_line, price, commission, source
 
+    def _resolved_configured_commission(self, price, commission):
+        """Return the monetary commission snapshot without changing legacy fixed-amount behavior.
+
+        Percentage commissions are resolved from the configured component price.
+        Because Odoo's tax policy may mark that configured price as tax-included,
+        using the stored configured price keeps the calculation aligned with the
+        commercial price shown to the user.
+        """
+        self.ensure_one()
+        if not commission:
+            return 0.0
+        value = commission.commission or 0.0
+        if commission.part_line_id.commission_value_type == 'percent':
+            return (price.part_price or 0.0) * value / 100.0
+        return value
+
     def _refresh_pricing(self):
         for line in self:
             if line.use_manual_price:
@@ -703,7 +719,7 @@ class WofInstallationOrderLine(models.Model):
                     'price_source_note': 'سعر استثنائي معتمد: %s' % reason,
                     'tax_id': price.tax_id.id if price.tax_id else False,
                     'max_discount_percent': price.discount_exceed_limit,
-                    'configured_commission': commission.commission if commission else 0.0,
+                    'configured_commission': line._resolved_configured_commission(price, commission),
                 })
                 continue
             part_line, price, commission, source = line._pricing_configuration()
@@ -720,7 +736,7 @@ class WofInstallationOrderLine(models.Model):
                 'price_source_note': note,
                 'tax_id': price.tax_id.id if price.tax_id else False,
                 'max_discount_percent': price.discount_exceed_limit,
-                'configured_commission': commission.commission if commission else 0.0,
+                'configured_commission': line._resolved_configured_commission(price, commission),
             }
             if not line.film_product_id and line.film_category_line_id.product_id:
                 values['film_product_id'] = line.film_category_line_id.product_id.id

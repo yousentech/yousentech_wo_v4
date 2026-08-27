@@ -1219,12 +1219,21 @@ class WofFilmSetupCommercialLine(models.TransientModel):
 
     def _commission_value_for_size(self, part_line, size=False):
         lines = part_line.commission_line_ids
+        found = self.env['wof.film.parts.commission.lines']
         if size:
             found = lines.filtered(lambda line: line.car_size_id == size)[:1]
-            if found:
-                return found.commission, True
-        found = lines.filtered(lambda line: not line.car_size_id)[:1]
-        return (found.commission, True) if found else (0.0, False)
+        if not found:
+            found = lines.filtered(lambda line: not line.car_size_id)[:1]
+        if not found:
+            return 0.0, False
+        value = found.commission or 0.0
+        if part_line.commission_value_type == 'percent':
+            prices = part_line.price_line_ids
+            price = prices.filtered(lambda line: line.car_size_id == size)[:1] if size else self.env['wof.film.parts.price.lines']
+            if not price:
+                price = prices.filtered(lambda line: not line.car_size_id)[:1]
+            value = (price.part_price if price else 0.0) * value / 100.0
+        return value, True
 
     def _derived_commission_values(self):
         self.ensure_one()
@@ -1384,11 +1393,33 @@ class WofFilmSetupValueDialog(models.TransientModel):
         [('independent', 'عمولة مستقلة لمنطقة الخدمة'), ('from_parts', 'حسب عمولات مكونات المنطقة')],
         string='مصدر عمولة منطقة الخدمة', default='independent', required=True,
     )
+    commission_value_type = fields.Selection(
+        [('fixed', 'مبلغ ثابت'), ('percent', 'نسبة مئوية')],
+        string='نوع العمولة', default='fixed', required=True,
+    )
+    commission_readonly = fields.Boolean(string='للقراءة فقط')
+    uniform_commission_value = fields.Float(string='قيمة العمولة الموحدة')
+    commission_size_names = fields.Char(string='أحجام السيارات', compute='_compute_commission_size_names')
     technician_commission_distribution = fields.Selection(
-        [('equal', 'بالتساوي بين الفنيين'), ('by_part', 'حسب عمولة الجزء المنفذ')],
+        [('equal', 'بالتساوي بين الفنيين'),
+         ('by_technician_ratio', 'حسب نسبة الفني'),
+         ('by_part', 'حسب عمولة الجزء المنفذ')],
         string='توزيع العمولة على الفنيين', default='equal', required=True,
     )
+    technician_distribution_simple = fields.Selection(
+        [('equal', 'بالتساوي بين الفنيين'), ('by_technician_ratio', 'حسب نسبة الفني')],
+        string='توزيع العمولة على الفنيين', default='equal', required=True,
+    )
+    service_technician_distribution = fields.Selection(
+        [('equal', 'بالتساوي بين الفنيين'), ('by_part', 'حسب عمولة الجزء المنفذ')],
+        string='توزيع عمولة منطقة الخدمة', default='equal', required=True,
+    )
     derived_commission_details = fields.Char(string='تفاصيل العمولة المحسوبة', readonly=True)
+
+    @api.depends('wizard_id.film_id.car_size_ids')
+    def _compute_commission_size_names(self):
+        for dialog in self:
+            dialog.commission_size_names = '، '.join(dialog.wizard_id.film_id.car_size_ids.mapped('name'))
 
     def _dialog_action(self):
         self.ensure_one()
@@ -1423,9 +1454,20 @@ class WofFilmSetupValueDialog(models.TransientModel):
                         self.uniform_price_readonly = saved[0].price_readonly
             else:
                 self.pricing_application_mode = 'per_size'
+        if self.mode == 'commission':
+            self.commission_value_type = part_line.commission_value_type or 'fixed'
+            self.commission_readonly = bool(part_line.commission_readonly)
+            self.technician_commission_distribution = part_line.technician_commission_distribution or 'equal'
+            self.technician_distribution_simple = (
+                part_line.technician_commission_distribution
+                if part_line.technician_commission_distribution in ('equal', 'by_technician_ratio') else 'equal'
+            )
+            self.service_technician_distribution = (
+                part_line.technician_commission_distribution
+                if part_line.technician_commission_distribution in ('equal', 'by_part') else 'equal'
+            )
         if self.mode == 'commission' and self.part_type == 'service_area':
             self.service_commission_source = part_line.service_commission_source or 'independent'
-            self.technician_commission_distribution = part_line.technician_commission_distribution or 'equal'
             if self.service_commission_source == 'from_parts':
                 self.technician_commission_distribution = 'by_part'
                 values, missing = self.commercial_line_id._derived_commission_values()
@@ -1445,13 +1487,17 @@ class WofFilmSetupValueDialog(models.TransientModel):
             values.append({'dialog_id': self.id, 'sequence': seq * 10,
                            'car_size_id': size.id if size else False,
                            'label': size.name if size else (_('السعر الموحد') if self.mode == 'price' else _('العمولة الموحدة')),
-                           'amount': amount,
+                           'amount': amount if self.mode == 'price' else 0.0,
+                           'commission_value': amount if self.mode == 'commission' else 0.0,
                            'is_free': bool(found.free_part) if (self.mode == 'price' and found) else False,
                            'price_readonly': bool(found.price_readonly) if (self.mode == 'price' and found) else False})
         if values:
             self.env['wof.film.setup.value.entry'].create(values)
+        if self.mode == 'commission' and policy == 'fixed':
+            first = self.entry_ids[:1]
+            self.uniform_commission_value = first.commission_value if first else 0.0
 
-    @api.onchange('price_charge_mode', 'service_commission_source', 'pricing_application_mode', 'uniform_price', 'uniform_price_readonly')
+    @api.onchange('price_charge_mode', 'service_commission_source', 'pricing_application_mode', 'uniform_price', 'uniform_price_readonly', 'uniform_commission_value', 'commission_value_type')
     def _onchange_commercial_modes(self):
         if self.mode == 'price':
             if self.pricing_application_mode == 'all_free':
@@ -1473,8 +1519,11 @@ class WofFilmSetupValueDialog(models.TransientModel):
                 for entry in self.entry_ids:
                     entry.is_free = False
                     entry.price_readonly = False
+        if self.mode == 'commission' and self.commission_policy == 'fixed' and self.entry_ids:
+            self.entry_ids[0].commission_value = self.uniform_commission_value or 0.0
         if self.mode == 'commission' and self.service_commission_source == 'from_parts':
             self.technician_commission_distribution = 'by_part'
+            self.service_technician_distribution = 'by_part'
             if self.commercial_line_id:
                 values, missing = self.commercial_line_id._derived_commission_values()
                 self.derived_commission_details = (' | '.join((('%s: %.2f' % (s.name, a)) if s else ('الإجمالي: %.2f' % a)) for s, a in values)
@@ -1490,16 +1539,29 @@ class WofFilmSetupValueDialog(models.TransientModel):
                 'sequence': seq * 10,
                 'car_size_id': size.id if size else False,
                 'label': size.name if size else _('العمولة الموحدة'),
-                'amount': ((existing.filtered(lambda line: line.car_size_id == size)[:1].commission if existing.filtered(lambda line: line.car_size_id == size)[:1] else 0.0) if size else (existing.filtered(lambda line: not line.car_size_id)[:1].commission if existing.filtered(lambda line: not line.car_size_id)[:1] else 0.0)),
+                'amount': 0.0,
+                'commission_value': ((existing.filtered(lambda line: line.car_size_id == size)[:1].commission if existing.filtered(lambda line: line.car_size_id == size)[:1] else 0.0) if size else (existing.filtered(lambda line: not line.car_size_id)[:1].commission if existing.filtered(lambda line: not line.car_size_id)[:1] else 0.0)),
             }) for seq, size in enumerate(targets, start=1)]
 
     def action_save(self):
         self.ensure_one()
         part_line = self.commercial_line_id.part_line_id
+        if self.mode == 'commission':
+            distribution = (
+                self.service_technician_distribution if self.part_type == 'service_area'
+                else self.technician_distribution_simple
+            )
+            part_line.write({
+                'commission_value_type': self.commission_value_type or 'fixed',
+                'commission_readonly': bool(self.commission_readonly),
+                'technician_commission_distribution': distribution,
+            })
+            if self.commission_policy == 'fixed' and self.entry_ids:
+                self.entry_ids[0].commission_value = self.uniform_commission_value or 0.0
         if self.mode == 'commission' and self.part_type == 'service_area':
             part_line.write({
                 'service_commission_source': self.service_commission_source,
-                'technician_commission_distribution': ('by_part' if self.service_commission_source == 'from_parts' else self.technician_commission_distribution),
+                'technician_commission_distribution': ('by_part' if self.service_commission_source == 'from_parts' else self.service_technician_distribution),
             })
             if self.service_commission_source == 'from_parts':
                 self.commercial_line_id._ensure_commission_basis_lines()
@@ -1522,8 +1584,10 @@ class WofFilmSetupValueDialog(models.TransientModel):
                     entry.is_free = False; entry.amount = self.uniform_price; entry.price_readonly = bool(self.uniform_price_readonly)
         if not self.entry_ids:
             raise ValidationError(_('لا توجد قيم متاحة للحفظ.'))
-        if any(entry.amount < 0 for entry in self.entry_ids):
+        if any((entry.amount if self.mode == 'price' else entry.commission_value) < 0 for entry in self.entry_ids):
             raise ValidationError(_('القيمة لا يمكن أن تكون سالبة.'))
+        if self.mode == 'commission' and self.commission_value_type == 'percent' and any(entry.commission_value > 100 for entry in self.entry_ids):
+            raise ValidationError(_('نسبة العمولة يجب أن تكون بين 0 و100.'))
         if self.mode == 'price':
             Model = self.env['wof.film.parts.price.lines']; existing = part_line.price_line_ids
         else:
@@ -1546,7 +1610,7 @@ class WofFilmSetupValueDialog(models.TransientModel):
                     'price_readonly': False if is_free else bool(entry.price_readonly),
                 })
             else:
-                vals.update({'commission': entry.amount})
+                vals.update({'commission': entry.commission_value})
             target.write(vals) if target else Model.create(vals)
         if self.mode == 'price': self.commercial_line_id.price_expanded = True
         else: self.commercial_line_id.commission_expanded = True
@@ -1565,6 +1629,7 @@ class WofFilmSetupValueEntry(models.TransientModel):
     label = fields.Char(string='الحجم / السياسة', readonly=True)
     currency_id = fields.Many2one(related='dialog_id.currency_id', readonly=True)
     amount = fields.Monetary(string='القيمة', currency_field='currency_id', required=True)
+    commission_value = fields.Float(string='قيمة العمولة')
     is_free = fields.Boolean(string='مجاني')
     price_readonly = fields.Boolean(string='للقراءة فقط')
 
