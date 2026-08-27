@@ -6032,3 +6032,205 @@ body:has(.modal.show .wof_activity_hub_form),
 @media(max-width:900px){
   .wof_commission_detail .wof_commission_choice_radio{width:100%!important}
 }
+
+
+/* RC52 — Commission dialog follows the same visual language as the approved pricing dialog.
+ * Visual-only: no commission business logic is changed here. */
+.wof_commission_dialog_header{
+    margin-bottom:10px!important;
+}
+.wof_commission_detail{
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    overflow:visible!important;
+    margin-top:0!important;
+}
+.wof_commission_detail .wof_commission_section{
+    margin:12px 0!important;
+    padding:16px!important;
+    border:1px solid #e2dff0!important;
+    border-radius:14px!important;
+    background:#fff!important;
+    box-shadow:none!important;
+}
+.wof_commission_detail .wof_commission_section:last-child{
+    border-bottom:1px solid #e2dff0!important;
+}
+.wof_commission_detail .wof_commission_section_copy{
+    max-width:none!important;
+    margin:0 0 14px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:4px!important;
+    text-align:start!important;
+}
+.wof_commission_detail .wof_commission_section_copy strong{
+    font-size:12px!important;
+    color:#303347!important;
+    font-weight:800!important;
+}
+.wof_commission_detail .wof_commission_section_copy small{
+    font-size:9px!important;
+    line-height:1.55!important;
+    color:#8a8d9d!important;
+}
+
+/* Make the two commission choices use the same balanced-card behavior as pricing. */
+.wof_commission_detail .wof_commission_choice_radio,
+.wof_commission_detail .wof_commission_choice_radio .o_field_radio,
+.wof_commission_detail .wof_commission_choice_radio .o_field_radio > div,
+.wof_commission_detail .wof_commission_choice_radio > div{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+}
+.wof_commission_detail .wof_commission_choice_radio .o_field_radio,
+.wof_commission_detail .wof_commission_choice_radio .o_field_radio > div:has(.o_radio_item),
+.wof_commission_detail .wof_commission_choice_radio > div:has(.o_radio_item){
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    justify-content:stretch!important;
+    gap:14px!important;
+}
+.wof_commission_detail .wof_commission_choice_radio .o_radio_item{
+    flex:1 1 0!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    min-height:76px!important;
+    margin:0!important;
+    padding:14px 16px!important;
+    border:1px solid #dcd9e9!important;
+    border-radius:13px!important;
+    background:#fff!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:10px!important;
+    text-align:center!important;
+    color:#34384d!important;
+    box-shadow:0 1px 2px rgba(47,43,83,.02)!important;
+    transition:border-color .15s ease,background .15s ease,box-shadow .15s ease!important;
+    opacity:1!important;
+    cursor:pointer!important;
+}
+.wof_commission_detail .wof_commission_choice_radio .o_radio_item:hover{
+    border-color:#b9b3e3!important;
+    background:#fbfaff!important;
+}
+.wof_commission_detail .wof_commission_choice_radio .o_radio_item:has(input:checked){
+    border-color:#6459d2!important;
+    background:#f6f4ff!important;
+    color:#5549c6!important;
+    box-shadow:0 0 0 1px rgba(100,89,210,.10)!important;
+}
+.wof_commission_detail .wof_commission_choice_radio .o_radio_item input[type="radio"]{
+    flex:0 0 auto!important;
+    margin:0!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+}
+.wof_commission_detail .wof_commission_choice_radio .o_radio_item label{
+    width:auto!important;
+    margin:0!important;
+    padding:0!important;
+    font-size:11.5px!important;
+    font-weight:700!important;
+    line-height:1.45!important;
+    color:inherit!important;
+    white-space:normal!important;
+    cursor:pointer!important;
+}
+
+.wof_commission_detail .wof_commission_default_hint{
+    width:max-content!important;
+    margin:8px 0 0!important;
+    padding:5px 9px!important;
+    border-radius:999px!important;
+    background:#eef9f1!important;
+    color:#36804e!important;
+    font-size:8.5px!important;
+}
+
+/* Value area mirrors the unified price card: explanation + focused input area. */
+.wof_commission_detail .wof_commission_uniform_value{
+    max-width:none!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) 125px!important;
+    gap:16px!important;
+    align-items:end!important;
+    margin:0!important;
+    padding:15px 16px!important;
+    border:1px solid #e3e0f0!important;
+    border-radius:13px!important;
+    background:#faf9ff!important;
+}
+.wof_commission_detail .wof_commission_value_field,
+.wof_commission_detail .wof_commission_readonly{
+    gap:6px!important;
+}
+.wof_commission_detail .wof_commission_value_field>label,
+.wof_commission_detail .wof_commission_readonly>label{
+    font-size:9.5px!important;
+    font-weight:700!important;
+    color:#4e5163!important;
+}
+.wof_commission_detail .wof_commission_value_control{
+    min-height:42px!important;
+    border:1px solid #cfcbe7!important;
+    border-radius:9px!important;
+    background:#fff!important;
+}
+.wof_commission_detail .wof_commission_value_control:focus-within{
+    border-color:#655bd0!important;
+    box-shadow:0 0 0 2px rgba(101,91,208,.08)!important;
+}
+.wof_commission_detail .wof_commission_value_control input{
+    font-size:15px!important;
+    font-weight:800!important;
+}
+.wof_commission_detail .wof_commission_apply_note{
+    margin-top:2px!important;
+    padding:7px 10px!important;
+    border-radius:8px!important;
+    background:#f2f7ff!important;
+    color:#5e74a0!important;
+}
+
+.wof_commission_detail .wof_commission_size_values{
+    max-width:none!important;
+    margin:0!important;
+    border:1px solid #e3e0f0!important;
+    border-radius:13px!important;
+    overflow:hidden!important;
+    background:#fff!important;
+}
+.wof_commission_detail .wof_commission_size_toolbar{
+    padding:10px 12px!important;
+    background:#f8f7fc!important;
+}
+.wof_commission_detail .wof_commission_entries .o_list_table td,
+.wof_commission_detail .wof_commission_entries .o_list_table th{
+    padding:9px 11px!important;
+}
+.wof_commission_detail .wof_commission_distribution_hint{
+    margin:10px 0 0!important;
+    padding:8px 10px!important;
+    border-radius:8px!important;
+    background:#eef6ff!important;
+    color:#59759a!important;
+}
+
+@media(max-width:900px){
+    .wof_commission_detail .wof_commission_choice_radio .o_field_radio,
+    .wof_commission_detail .wof_commission_choice_radio .o_field_radio > div:has(.o_radio_item),
+    .wof_commission_detail .wof_commission_choice_radio > div:has(.o_radio_item){
+        flex-wrap:wrap!important;
+    }
+    .wof_commission_detail .wof_commission_choice_radio .o_radio_item{flex:1 1 100%!important}
+    .wof_commission_detail .wof_commission_uniform_value{grid-template-columns:1fr!important}
+    .wof_commission_detail .wof_commission_readonly{align-items:flex-start!important}
+}
