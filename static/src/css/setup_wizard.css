@@ -1,6 +1,6 @@
 .wof_setup_form,
 .wof_setup_sheet {
-    direction: rtl;
+
 }
 
 .wof_setup_hero {
@@ -108,7 +108,7 @@
 
     .wof_setup_progress {
         min-width: 0;
-        text-align: right;
+        text-align: start;
     }
 
     .wof_setup_steps {
@@ -121,7 +121,7 @@
     .wof_setup_step {
         flex: 0 0 8.5rem;
         scroll-snap-align: start;
-        text-align: right;
+        text-align: start;
     }
 }
 
@@ -137,8 +137,7 @@
     --wof-line: #d7dee0;
     --wof-text: #1f2933;
     --wof-muted: #68737d;
-    /* Direction comes from dir="rtl" on the Stage 1 root.
-       Do not hard-code rtl here because Odoo rtlcss would mirror it to ltr. */
+    /* Direction is inherited from Odoo according to the current user language. */
     direction: inherit;
     background: #fff;
     border: 1px solid var(--wof-line);
@@ -296,7 +295,7 @@
 }
 
 .wof_stage1_title_row .wof_stage1_add_activity {
-    left: 15px;
+    inset-inline-end: 15px;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -372,7 +371,7 @@
     gap: 7px;
     justify-content: flex-start;
     min-width: 0;
-    text-align: right;
+    text-align: start;
 }
 
 .wof_stage1_activity_identity strong,
@@ -429,7 +428,7 @@
     line-height: 1.65;
     margin: 7px 0 5px;
     max-width: 94%;
-    text-align: right;
+    text-align: start;
 }
 
 .wof_stage1_activity_meta {
@@ -524,7 +523,7 @@
 
 .wof_activity_name_dialog,
 .wof_activity_name_edit {
-    direction: rtl;
+
 }
 
 
@@ -542,12 +541,12 @@
 
 .wof_activity_dialog_form,
 .wof_activity_dialog_body {
-    direction: rtl;
+
 }
 
 .wof_activity_dialog_body {
     padding: 0;
-    text-align: right;
+    text-align: start;
 }
 
 .wof_activity_dialog_heading {
@@ -621,7 +620,7 @@
 }
 
 .wof_activity_dialog_footer {
-    direction: rtl;
+
     gap: 8px;
 }
 
@@ -715,7 +714,7 @@
 
     .wof_stage1_title_row .wof_stage1_add_activity {
         align-self: center;
-        left: auto;
+        inset-inline-end: auto;
         position: static;
         top: auto;
         transform: none;
@@ -1571,7 +1570,7 @@
  * Stage 5 — review, activation and success
  * ------------------------------------------------------------------------- */
 .wof_stage5_shell {
-    direction: rtl;
+
     margin: 0 auto;
     max-width: 1180px;
     width: 100%;
@@ -1586,7 +1585,7 @@
 
 .wof_stage5_title {
     margin-bottom: 12px;
-    text-align: right;
+    text-align: start;
 }
 
 .wof_stage5_title h2 {
@@ -2297,8 +2296,7 @@
 .wof_stage4_radio_cards .o_radio_input,
 .wof_stage4_radio_cards .form-check-input {
     position: absolute !important;
-    right: 12px !important;
-    left: auto !important;
+    inset-inline-start: 12px !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
     margin: 0 !important;
@@ -3649,11 +3647,6 @@ body:has(.modal.show .wof_activity_hub_form),
         margin: 0 !important;
     }
 
-    /* A single/short row stays aligned to the RTL side naturally, while
-       retaining the exact same card width it would have in a full row. */
-    [dir="rtl"] .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer {
-        direction: rtl !important;
-    }
 }
 
 @media (min-width: 721px) and (max-width: 1120px) {
@@ -3690,7 +3683,7 @@ body:has(.modal.show .wof_activity_hub_form),
     border: 0 !important;
 }
 .wof_film_setup_shell {
-    direction: rtl;
+
     color: #25283a;
     min-height: 640px;
     padding-bottom: 4px;
@@ -4112,7 +4105,7 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_film_setup_form .wof_film_active_corner {
     position: absolute;
     top: 13px;
-    right: 15px;
+    inset-inline-end: 15px;
     z-index: 2;
     display: inline-flex;
     align-items: center;
@@ -4147,8 +4140,8 @@ body:has(.modal.show .wof_activity_hub_form),
 /* RC18 — activation status on the opposite corner of the approved basic-data card.
  * UI-only: preserve every field position and the Stage 1 visual identity. */
 .wof_film_setup_form .wof_film_basic_card .wof_film_active_corner {
-    right: auto;
-    left: 15px;
+    inset-inline-start: auto;
+    inset-inline-end: 15px;
 }
 @media (max-width: 980px) {
     .wof_film_setup_form .wof_film_basic_card .wof_film_active_corner {
@@ -4179,7 +4172,7 @@ body:has(.modal.show .wof_activity_hub_form),
 
 /* RC21 — Film Setup Stage 2: approved tint-shades UX. */
 .wof_film_tint_stage {
-    direction: rtl;
+
 }
 .wof_tint_intro {
     margin: 0 !important;
@@ -4677,7 +4670,7 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_component_create_entry_text span { font-size:8.8px; color:#8a8d9d; }
 .wof_component_create_entry .btn { white-space:nowrap; border-radius:8px !important; font-size:9.5px !important; }
 
-.wof_component_create_shell { padding:8px 5px 3px; direction:rtl; }
+.wof_component_create_shell { padding:8px 5px 3px;  }
 .wof_component_create_header {
     position:relative; display:flex; align-items:center; gap:11px; padding:4px 2px 13px; margin-bottom:10px;
     border-bottom:1px solid #eceaf3;
@@ -4928,7 +4921,7 @@ body:has(.modal.show .wof_activity_hub_form),
    Each row now has a dedicated flexible identity region, so the name always owns real width. */
 .wof_component_tree_row {
     display:flex !important;
-    direction:rtl !important;
+
     align-items:center !important;
     justify-content:space-between !important;
     gap:10px !important;
@@ -5308,7 +5301,7 @@ body:has(.modal.show .wof_activity_hub_form),
 }
 .wof_component_dialog_shell {
     padding:14px 14px 7px !important;
-    direction:rtl !important;
+
 }
 .wof_component_dialog_header {
     position:relative !important;
@@ -5503,7 +5496,7 @@ body:has(.modal.show .wof_activity_hub_form),
     max-width:860px !important;
     margin:0 auto !important;
     padding:14px 16px 8px !important;
-    direction:rtl !important;
+
 }
 .wof_component_create_header_v2 {
     min-height:76px !important;
@@ -5629,7 +5622,7 @@ body:has(.modal.show .wof_activity_hub_form),
 
 
 /* RC36 — Stage 4 pricing & commissions: breathable, policy-driven UI */
-.wof_stage4_shell{padding:0 8px 8px;direction:rtl}.wof_stage4_intro{margin:0 0 10px;padding:8px 12px;border-radius:9px;background:#f4f3ff;color:#66638b;font-size:9.5px;text-align:center}.wof_stage4_intro i{color:#6259c4;margin-left:6px}.wof_stage4_body{display:grid;grid-template-columns:minmax(0,1fr) 255px;gap:14px;align-items:start}.wof_stage4_main,.wof_stage4_summary{border:1px solid #e4e2ef;border-radius:13px;background:#fff}.wof_stage4_main{padding:14px}.wof_stage4_head{display:flex;justify-content:space-between;gap:15px;align-items:center;padding-bottom:10px;border-bottom:1px solid #ecebf3}.wof_stage4_head h2{margin:0;color:#303348;font-size:15px}.wof_stage4_head p{margin:3px 0 0;color:#888b9c;font-size:9px}.wof_stage4_counters{display:flex;gap:7px}.wof_stage4_counters span{display:flex;align-items:center;gap:4px;padding:6px 9px;border-radius:9px;background:#f7f7fa;color:#66697a;font-size:8.5px}.wof_stage4_counters .is-ok{background:#eef9f1;color:#328451}.wof_stage4_counters .is-warn{background:#fff5e9;color:#bd6b22}.wof_stage4_tabs{display:flex;gap:4px;margin-top:10px;border-bottom:1px solid #ebe9f3}.wof_stage4_tabs .btn{border:0!important;background:transparent!important;color:#707386!important;border-radius:8px 8px 0 0!important;padding:8px 16px!important;font-size:10px!important}.wof_stage4_tabs .btn.is-active{background:#f3f1ff!important;color:#564db4!important;font-weight:800!important;border-bottom:2px solid #6259c4!important}.wof_stage4_policy_strip{display:flex;align-items:center;gap:8px;margin:10px 0;padding:7px 10px;border-radius:8px;background:#faf9fe;color:#76788b;font-size:8.8px}.wof_stage4_policy_strip strong{color:#554ca8}.wof_stage4_cards .o_kanban_renderer{display:block!important;background:transparent!important;padding:0!important}.wof_stage4_cards .o_kanban_record{width:100%!important;max-width:none!important;margin:0 0 8px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}.wof_stage4_component_card{border:1px solid #e0deec;border-radius:11px;background:#fff;overflow:hidden;transition:.15s ease}.wof_stage4_component_card:hover{border-color:#cfc9ec;box-shadow:0 3px 10px rgba(73,63,150,.05)}.wof_stage4_component_head{display:grid;grid-template-columns:minmax(0,1fr) auto 32px;gap:9px;align-items:center;padding:10px 11px}.wof_stage4_component_identity{display:flex;align-items:center;gap:8px;min-width:0}.wof_stage4_kind{width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:#f2f0ff;color:#6259c4}.wof_stage4_component_identity>div{min-width:0;display:flex;flex-direction:column}.wof_stage4_component_identity strong{font-size:10.5px;color:#343749}.wof_stage4_component_identity small{font-size:8px;color:#8b8d9d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px}.wof_stage4_type{padding:3px 7px;border-radius:999px;background:#f1effb;color:#6259a9;font-size:7.7px;white-space:nowrap}.wof_stage4_status{padding:5px 8px;border-radius:8px;background:#eef9f1;color:#318451;font-size:8.3px;font-weight:700;white-space:nowrap}.wof_stage4_status.is-warn{background:#fff3e7;color:#bd6821}.wof_stage4_toggle{width:30px!important;height:30px!important;padding:0!important;border:0!important;background:#f7f6fb!important;color:#6259b8!important;border-radius:8px!important}.wof_stage4_component_body{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 12px;border-top:1px solid #eeedf4;background:#fcfcfe}.wof_stage4_saved_summary{display:flex;flex-direction:column;gap:2px}.wof_stage4_saved_summary span{font-size:9.5px;font-weight:700;color:#56596b}.wof_stage4_saved_summary small{font-size:7.8px;color:#9395a3}.wof_stage4_component_body .btn{font-size:8.8px!important;border-radius:8px!important}.wof_stage4_summary{padding:14px;min-height:360px}.wof_stage4_summary_title{display:flex;align-items:center;gap:7px;color:#574eae;margin-bottom:13px}.wof_stage4_summary_title i{width:28px;height:28px;display:grid;place-items:center;background:#f1efff;border-radius:8px}.wof_stage4_summary_row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed #ebe9f1;font-size:8.7px;color:#858797}.wof_stage4_summary_row strong{color:#4e5062}.wof_stage4_summary_stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:14px 0}.wof_stage4_summary_stats div{display:flex;flex-direction:column;align-items:center;padding:8px 3px;border-radius:8px;background:#f7f7fa}.wof_stage4_summary_stats strong{font-size:13px;color:#5148a7}.wof_stage4_summary_stats span{font-size:7.5px;color:#8b8d9c}.wof_stage4_summary_stats .is-warn{background:#fff7ed}.wof_stage4_summary_stats .is-warn strong{color:#c17328}.wof_stage4_summary_note{padding:10px;border-radius:9px;background:#f5f3ff;color:#706c91;font-size:8.2px;line-height:1.7}.wof_stage4_value_dialog .modal-dialog{max-width:760px!important}.wof_stage4_dialog_shell{padding:6px 4px;direction:rtl}.wof_stage4_dialog_header{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e5e3ef;border-radius:11px;background:#fbfaff}.wof_stage4_dialog_header>span{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;background:#efedff;color:#5d54bb}.wof_stage4_dialog_header h2{margin:0;color:#343748;font-size:14px}.wof_stage4_dialog_header p{margin:3px 0 0;color:#898b9b;font-size:8.5px}.wof_stage4_dialog_policy{margin:9px 0;padding:7px 10px;border-radius:8px;background:#f5f4fb;color:#737687;font-size:8.8px}.wof_stage4_dialog_policy strong{color:#554ba7}.wof_stage4_value_dialog .o_list_table{font-size:10px}.wof_stage4_value_dialog .o_list_table thead{background:#f7f6fb}.wof_stage4_footer{border-top:1px solid #ebeaf2!important}
+.wof_stage4_shell{padding:0 8px 8px;}.wof_stage4_intro{margin:0 0 10px;padding:8px 12px;border-radius:9px;background:#f4f3ff;color:#66638b;font-size:9.5px;text-align:center}.wof_stage4_intro i{color:#6259c4;margin-inline-end:6px}.wof_stage4_body{display:grid;grid-template-columns:minmax(0,1fr) 255px;gap:14px;align-items:start}.wof_stage4_main,.wof_stage4_summary{border:1px solid #e4e2ef;border-radius:13px;background:#fff}.wof_stage4_main{padding:14px}.wof_stage4_head{display:flex;justify-content:space-between;gap:15px;align-items:center;padding-bottom:10px;border-bottom:1px solid #ecebf3}.wof_stage4_head h2{margin:0;color:#303348;font-size:15px}.wof_stage4_head p{margin:3px 0 0;color:#888b9c;font-size:9px}.wof_stage4_counters{display:flex;gap:7px}.wof_stage4_counters span{display:flex;align-items:center;gap:4px;padding:6px 9px;border-radius:9px;background:#f7f7fa;color:#66697a;font-size:8.5px}.wof_stage4_counters .is-ok{background:#eef9f1;color:#328451}.wof_stage4_counters .is-warn{background:#fff5e9;color:#bd6b22}.wof_stage4_tabs{display:flex;gap:4px;margin-top:10px;border-bottom:1px solid #ebe9f3}.wof_stage4_tabs .btn{border:0!important;background:transparent!important;color:#707386!important;border-radius:8px 8px 0 0!important;padding:8px 16px!important;font-size:10px!important}.wof_stage4_tabs .btn.is-active{background:#f3f1ff!important;color:#564db4!important;font-weight:800!important;border-bottom:2px solid #6259c4!important}.wof_stage4_policy_strip{display:flex;align-items:center;gap:8px;margin:10px 0;padding:7px 10px;border-radius:8px;background:#faf9fe;color:#76788b;font-size:8.8px}.wof_stage4_policy_strip strong{color:#554ca8}.wof_stage4_cards .o_kanban_renderer{display:block!important;background:transparent!important;padding:0!important}.wof_stage4_cards .o_kanban_record{width:100%!important;max-width:none!important;margin:0 0 8px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}.wof_stage4_component_card{border:1px solid #e0deec;border-radius:11px;background:#fff;overflow:hidden;transition:.15s ease}.wof_stage4_component_card:hover{border-color:#cfc9ec;box-shadow:0 3px 10px rgba(73,63,150,.05)}.wof_stage4_component_head{display:grid;grid-template-columns:minmax(0,1fr) auto 32px;gap:9px;align-items:center;padding:10px 11px}.wof_stage4_component_identity{display:flex;align-items:center;gap:8px;min-width:0}.wof_stage4_kind{width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:#f2f0ff;color:#6259c4}.wof_stage4_component_identity>div{min-width:0;display:flex;flex-direction:column}.wof_stage4_component_identity strong{font-size:10.5px;color:#343749}.wof_stage4_component_identity small{font-size:8px;color:#8b8d9d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px}.wof_stage4_type{padding:3px 7px;border-radius:999px;background:#f1effb;color:#6259a9;font-size:7.7px;white-space:nowrap}.wof_stage4_status{padding:5px 8px;border-radius:8px;background:#eef9f1;color:#318451;font-size:8.3px;font-weight:700;white-space:nowrap}.wof_stage4_status.is-warn{background:#fff3e7;color:#bd6821}.wof_stage4_toggle{width:30px!important;height:30px!important;padding:0!important;border:0!important;background:#f7f6fb!important;color:#6259b8!important;border-radius:8px!important}.wof_stage4_component_body{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 12px;border-top:1px solid #eeedf4;background:#fcfcfe}.wof_stage4_saved_summary{display:flex;flex-direction:column;gap:2px}.wof_stage4_saved_summary span{font-size:9.5px;font-weight:700;color:#56596b}.wof_stage4_saved_summary small{font-size:7.8px;color:#9395a3}.wof_stage4_component_body .btn{font-size:8.8px!important;border-radius:8px!important}.wof_stage4_summary{padding:14px;min-height:360px}.wof_stage4_summary_title{display:flex;align-items:center;gap:7px;color:#574eae;margin-bottom:13px}.wof_stage4_summary_title i{width:28px;height:28px;display:grid;place-items:center;background:#f1efff;border-radius:8px}.wof_stage4_summary_row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed #ebe9f1;font-size:8.7px;color:#858797}.wof_stage4_summary_row strong{color:#4e5062}.wof_stage4_summary_stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:14px 0}.wof_stage4_summary_stats div{display:flex;flex-direction:column;align-items:center;padding:8px 3px;border-radius:8px;background:#f7f7fa}.wof_stage4_summary_stats strong{font-size:13px;color:#5148a7}.wof_stage4_summary_stats span{font-size:7.5px;color:#8b8d9c}.wof_stage4_summary_stats .is-warn{background:#fff7ed}.wof_stage4_summary_stats .is-warn strong{color:#c17328}.wof_stage4_summary_note{padding:10px;border-radius:9px;background:#f5f3ff;color:#706c91;font-size:8.2px;line-height:1.7}.wof_stage4_value_dialog .modal-dialog{max-width:760px!important}.wof_stage4_dialog_shell{padding:6px 4px;}.wof_stage4_dialog_header{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e5e3ef;border-radius:11px;background:#fbfaff}.wof_stage4_dialog_header>span{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;background:#efedff;color:#5d54bb}.wof_stage4_dialog_header h2{margin:0;color:#343748;font-size:14px}.wof_stage4_dialog_header p{margin:3px 0 0;color:#898b9b;font-size:8.5px}.wof_stage4_dialog_policy{margin:9px 0;padding:7px 10px;border-radius:8px;background:#f5f4fb;color:#737687;font-size:8.8px}.wof_stage4_dialog_policy strong{color:#554ba7}.wof_stage4_value_dialog .o_list_table{font-size:10px}.wof_stage4_value_dialog .o_list_table thead{background:#f7f6fb}.wof_stage4_footer{border-top:1px solid #ebeaf2!important}
 @media(max-width:1100px){.wof_stage4_body{grid-template-columns:1fr}.wof_stage4_summary{min-height:0}.wof_stage4_head{align-items:flex-start;flex-direction:column}.wof_stage4_component_identity small{max-width:340px}}
 
 /* RC37 — separated pricing/commission stages; preserve existing visual identity. */
@@ -5670,5 +5663,5 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_price_entries .o_list_table td,.wof_price_entries .o_list_table th{vertical-align:middle!important}
 .wof_price_entries .o_field_boolean{display:flex!important;justify-content:center}
 .wof_price_entry_hint{margin-top:8px;padding:8px 10px;border-radius:8px;background:#f5f4fb;color:#716f87;font-size:8.5px;line-height:1.6}
-.wof_price_entry_hint i{color:#6259c4;margin-left:5px}
+.wof_price_entry_hint i{color:#6259c4;margin-inline-end:5px}
 @media(max-width:1100px){.wof_stage4_shell:not(.wof_stage5_commission) .wof_stage4_body{grid-template-columns:1fr}.wof_pricing_summary{order:-1}}

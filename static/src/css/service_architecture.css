@@ -4,7 +4,6 @@
     --wof-service-accent: #178c82;
     --wof-service-soft: #f8f3f7;
     --wof-service-border: #e7dce4;
-    direction: rtl;
 }
 
 .o_form_view.wof_service_architecture .wof_service_hero {
@@ -117,7 +116,6 @@
 }
 
 .o_kanban_view.wof_activity_kanban {
-    direction: rtl;
 }
 
 .o_kanban_view.wof_activity_kanban .wof_activity_card {
@@ -191,7 +189,7 @@
     }
 
     .o_form_view.wof_service_architecture .wof_service_hero_code {
-        text-align: right;
+        text-align: start;
     }
 }
 
@@ -201,7 +199,6 @@
     --wof-film-primary-dark: #39356f;
     --wof-film-teal: #4f8f93;
     --wof-film-border: #dddde8;
-    direction: rtl;
     align-content: flex-start;
     gap: 1rem;
     padding: 1.5rem max(1rem, 6vw);

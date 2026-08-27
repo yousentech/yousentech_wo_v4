@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <form string="تعديل اسم النشاط" create="0" delete="0" class="wof_activity_name_dialog">
                 <sheet>
-                    <div class="wof_activity_name_edit" dir="rtl">
+                    <div class="wof_activity_name_edit">
                         <h3>تعديل اسم النشاط</h3>
                         <p class="text-muted">يمكن تغيير الاسم الظاهر فقط، بينما يبقى نوع النشاط الداخلي ثابتًا.</p>
                         <group>
@@ -28,7 +28,7 @@
                     <field name="mode" invisible="1"/>
                     <field name="profile_id" invisible="1"/>
                     <field name="activity_line_id" invisible="1"/>
-                    <div class="wof_activity_dialog_body" dir="rtl">
+                    <div class="wof_activity_dialog_body">
                         <div class="wof_activity_dialog_heading" invisible="mode != 'edit'">
                             <h3>تعديل النشاط</h3>
                             <p>عدّل الاسم أو الملاحظات، وسيبقى سلوك النشاط الداخلي كما هو.</p>
@@ -69,7 +69,7 @@
                     <field name="mode" invisible="1"/>
                     <field name="profile_id" invisible="1"/>
                     <field name="size_line_id" invisible="1"/>
-                    <div class="wof_activity_dialog_body" dir="rtl">
+                    <div class="wof_activity_dialog_body">
                         <div class="wof_activity_dialog_heading" invisible="mode != 'edit'">
                             <h3>تعديل حجم السيارة</h3>
                             <p>غيّر الاسم الظاهر للحجم، وسيبقى الكود الداخلي ثابتًا لحماية الأسعار والبيانات المرتبطة.</p>
@@ -107,7 +107,7 @@
                 <sheet>
                     <field name="profile_id" invisible="1"/>
                     <field name="tint_line_id" invisible="1"/>
-                    <div class="wof_activity_dialog_body" dir="rtl">
+                    <div class="wof_activity_dialog_body">
                         <div class="wof_activity_dialog_heading">
                             <h3>تعديل درجة اللون</h3>
                             <p>عدّل الاسم الظاهر للدرجة فقط، بينما يبقى الكود الداخلي وطريقة الترقيم ثابتين.</p>
@@ -184,7 +184,7 @@
 
                     </div>
 
-                    <div invisible="current_step != 'activity'" class="wof_stage1_shell" dir="rtl">
+                    <div invisible="current_step != 'activity'" class="wof_stage1_shell">
                         <div class="wof_stage1_intro_panel">
                             <div class="wof_stage1_header">
                                 <h1>مركز تهيئة النظام</h1>
@@ -279,7 +279,7 @@
                         </div>
                     </div>
 
-                    <div invisible="current_step != 'sizes'" class="wof_stage1_shell wof_stage2_shell" dir="rtl">
+                    <div invisible="current_step != 'sizes'" class="wof_stage1_shell wof_stage2_shell">
                         <div class="wof_stage1_intro_panel">
                             <div class="wof_stage1_header">
                                 <h1>مركز تهيئة النظام</h1>
@@ -380,7 +380,7 @@
                         </div>
                     </div>
 
-                    <div invisible="current_step != 'services'" class="wof_stage1_shell wof_stage3_shell" dir="rtl">
+                    <div invisible="current_step != 'services'" class="wof_stage1_shell wof_stage3_shell">
                         <field name="tint_numbering_method" invisible="1"/>
                         <field name="has_tint_activity" invisible="1"/>
                         <div class="wof_stage1_intro_panel">
@@ -510,7 +510,7 @@
                         </div>
                     </div>
 
-                    <div invisible="current_step != 'operations'" class="wof_stage1_shell wof_stage4_shell" dir="rtl">
+                    <div invisible="current_step != 'operations'" class="wof_stage1_shell wof_stage4_shell">
                         <div class="wof_stage1_intro_panel">
                             <div class="wof_stage1_header">
                                 <h1>مركز تهيئة النظام</h1>
@@ -685,7 +685,7 @@
                         </div>
                     </div>
 
-                    <div invisible="current_step != 'review'" class="wof_stage5_shell" dir="rtl">
+                    <div invisible="current_step != 'review'" class="wof_stage5_shell">
                         <div class="wof_stage1_intro_panel">
                             <div class="wof_stage1_header">
                                 <h1>مركز تهيئة النظام</h1>
