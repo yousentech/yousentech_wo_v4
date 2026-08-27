@@ -5811,3 +5811,69 @@ body:has(.modal.show .wof_activity_hub_form),
     .wof_price_mode_panel .o_radio_item{flex:1 1 100%!important}
     .wof_uniform_price_fields{grid-template-columns:1fr 1fr!important}
 }
+
+
+/* RC44 — clearer unified price input without changing pricing logic */
+.wof_uniform_price_fields{
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:flex-start!important;
+    gap:24px!important;
+}
+.wof_uniform_price_value{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:6px!important;
+    min-width:260px!important;
+    max-width:360px!important;
+    flex:1 1 320px!important;
+}
+.wof_uniform_price_value label{
+    display:block!important;
+    margin:0!important;
+    font-size:10px!important;
+    font-weight:700!important;
+    color:#3f4358!important;
+}
+.wof_uniform_price_value .o_field_widget{
+    width:100%!important;
+}
+.wof_uniform_price_value .o_input{
+    width:100%!important;
+    min-height:42px!important;
+    padding:8px 12px!important;
+    border:1px solid #cfc9f3!important;
+    border-radius:10px!important;
+    background:#fff!important;
+    color:#292d43!important;
+    font-size:16px!important;
+    font-weight:700!important;
+    box-shadow:0 0 0 3px rgba(103,93,197,.05)!important;
+}
+.wof_uniform_price_value .o_input:focus{
+    border-color:#675dc5!important;
+    box-shadow:0 0 0 3px rgba(103,93,197,.12)!important;
+}
+.wof_uniform_price_readonly{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:8px!important;
+    min-width:90px!important;
+    padding-bottom:7px!important;
+}
+.wof_uniform_price_readonly label{
+    margin:0!important;
+    font-size:9.5px!important;
+    font-weight:600!important;
+    color:#4e5163!important;
+}
+.wof_uniform_price_readonly .o_field_widget{
+    margin:0!important;
+}
+@media(max-width:900px){
+    .wof_uniform_price_fields{align-items:stretch!important;flex-wrap:wrap!important;gap:14px!important}
+    .wof_uniform_price_value{min-width:100%!important;max-width:none!important;flex-basis:100%!important}
+    .wof_uniform_price_readonly{align-items:flex-start!important;padding-bottom:0!important}
+}

@@ -819,7 +819,10 @@
     </div>
     <div class="wof_uniform_price_box" invisible="mode != 'price' or pricing_policy != 'by_size' or pricing_application_mode != 'uniform'">
       <div><strong>السعر الموحد لجميع الأحجام</strong><small>سيتم تطبيق نفس السعر على جميع أحجام السيارات المعتمدة.</small></div>
-      <div class="wof_uniform_price_fields"><label for="uniform_price" string="السعر"/><field name="uniform_price" nolabel="1"/><label for="uniform_price_readonly" string="للقراءة فقط"/><field name="uniform_price_readonly" widget="boolean_toggle" nolabel="1"/></div>
+      <div class="wof_uniform_price_fields">
+        <div class="wof_uniform_price_value"><label for="uniform_price" string="السعر"/><field name="uniform_price" nolabel="1"/></div>
+        <div class="wof_uniform_price_readonly"><label for="uniform_price_readonly" string="للقراءة فقط"/><field name="uniform_price_readonly" widget="boolean_toggle" nolabel="1"/></div>
+      </div>
     </div>
     <div class="wof_all_free_box" invisible="mode != 'price' or pricing_policy != 'by_size' or pricing_application_mode != 'all_free'"><i class="fa fa-gift" title="مجاني"/><div><strong>مجاني لجميع الأحجام</strong><small>لن يطلب النظام أي سعر لهذا المكوّن، وستصبح جميع أسعار الأحجام صفرًا.</small></div></div>
     <div class="wof_dialog_choice" invisible="mode != 'commission' or part_type != 'service_area'"><div class="wof_dialog_choice_title">مصدر عمولة منطقة الخدمة</div><field name="service_commission_source" widget="radio" options="{'horizontal': True}" nolabel="1"/><small invisible="service_commission_source != 'from_parts'">تعتمد المنطقة على عمولات أجزائها؛ لا تدخل عمولة مستقلة هنا.</small></div>
