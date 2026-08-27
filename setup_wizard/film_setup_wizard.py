@@ -1287,6 +1287,7 @@ class WofFilmSetupCommercialLine(models.TransientModel):
         'part_line_id.price_line_ids.car_size_id', 'part_line_id.price_line_ids.free_part',
         'part_line_id.commission_line_ids.car_size_id',
         'part_line_id.service_commission_source', 'part_line_id.technician_commission_distribution',
+        'part_line_id.commission_calculation_policy',
         'wizard_id.pricing_policy', 'wizard_id.commission_calculation_policy',
         'wizard_id.film_id.car_size_ids', 'car_part_id.service_area_part_ids',
     )
@@ -1330,7 +1331,7 @@ class WofFilmSetupCommercialLine(models.TransientModel):
                         ('%s: %.2f' % (size.name, amount)) if size else ('الإجمالي: %.2f' % amount)
                         for size, amount in values
                     )
-            elif rec.wizard_id.commission_calculation_policy == 'by_size':
+            elif (rec.part_line_id.commission_calculation_policy or rec.wizard_id.commission_calculation_policy) == 'by_size':
                 configured = set(commission_lines.filtered('car_size_id').mapped('car_size_id').ids)
                 required = set(sizes.ids)
                 rec.commission_missing_count = len(required - configured)
@@ -1373,7 +1374,7 @@ class WofFilmSetupValueDialog(models.TransientModel):
     commercial_line_id = fields.Many2one('wof.film.setup.commercial.line', required=True, ondelete='cascade', readonly=True)
     mode = fields.Selection([('price', 'التسعير'), ('commission', 'العمولة')], required=True, readonly=True)
     pricing_policy = fields.Selection(related='wizard_id.pricing_policy', readonly=True)
-    commission_policy = fields.Selection(related='wizard_id.commission_calculation_policy', readonly=True)
+    commission_policy = fields.Selection([('fixed', 'عمولة موحدة'), ('by_size', 'حسب حجم السيارة')], string='طريقة احتساب العمولة', default='fixed', required=True)
     part_name = fields.Char(related='commercial_line_id.part_name', readonly=True)
     part_type = fields.Selection(related='commercial_line_id.part_type', readonly=True)
     child_names = fields.Char(related='commercial_line_id.child_names', readonly=True)
@@ -1455,6 +1456,7 @@ class WofFilmSetupValueDialog(models.TransientModel):
             else:
                 self.pricing_application_mode = 'per_size'
         if self.mode == 'commission':
+            self.commission_policy = part_line.commission_calculation_policy or self.wizard_id.commission_calculation_policy or 'fixed'
             self.commission_value_type = part_line.commission_value_type or 'fixed'
             self.commission_readonly = bool(part_line.commission_readonly)
             self.technician_commission_distribution = part_line.technician_commission_distribution or 'equal'
@@ -1497,7 +1499,7 @@ class WofFilmSetupValueDialog(models.TransientModel):
             first = self.entry_ids[:1]
             self.uniform_commission_value = first.commission_value if first else 0.0
 
-    @api.onchange('price_charge_mode', 'service_commission_source', 'pricing_application_mode', 'uniform_price', 'uniform_price_readonly', 'uniform_commission_value', 'commission_value_type')
+    @api.onchange('price_charge_mode', 'service_commission_source', 'pricing_application_mode', 'uniform_price', 'uniform_price_readonly', 'uniform_commission_value', 'commission_value_type', 'commission_policy')
     def _onchange_commercial_modes(self):
         if self.mode == 'price':
             if self.pricing_application_mode == 'all_free':
@@ -1519,6 +1521,29 @@ class WofFilmSetupValueDialog(models.TransientModel):
                 for entry in self.entry_ids:
                     entry.is_free = False
                     entry.price_readonly = False
+        if self.mode == 'commission':
+            existing = self.commercial_line_id.part_line_id.commission_line_ids
+            needs_by_size = self.commission_policy == 'by_size' and (not self.entry_ids or any(not entry.car_size_id for entry in self.entry_ids))
+            needs_fixed = self.commission_policy == 'fixed' and (not self.entry_ids or any(entry.car_size_id for entry in self.entry_ids))
+            if needs_by_size:
+                commands = [(5, 0, 0)]
+                for seq, size in enumerate(self.wizard_id.film_id.car_size_ids, start=1):
+                    found = existing.filtered(lambda line: line.car_size_id == size)[:1]
+                    fallback = existing.filtered(lambda line: not line.car_size_id)[:1]
+                    value = found.commission if found else (fallback.commission if fallback else 0.0)
+                    commands.append((0, 0, {
+                        'sequence': seq * 10, 'car_size_id': size.id, 'label': size.name,
+                        'commission_value': value, 'amount': 0.0,
+                    }))
+                self.entry_ids = commands
+            elif needs_fixed:
+                default_line = existing.filtered(lambda line: not line.car_size_id)[:1]
+                current_value = self.entry_ids[:1].commission_value if self.entry_ids else 0.0
+                value = default_line.commission if default_line else current_value
+                self.uniform_commission_value = value
+                self.entry_ids = [(5, 0, 0), (0, 0, {
+                    'sequence': 10, 'label': _('العمولة الموحدة'), 'commission_value': value, 'amount': 0.0,
+                })]
         if self.mode == 'commission' and self.commission_policy == 'fixed' and self.entry_ids:
             self.entry_ids[0].commission_value = self.uniform_commission_value or 0.0
         if self.mode == 'commission' and self.service_commission_source == 'from_parts':
@@ -1552,6 +1577,7 @@ class WofFilmSetupValueDialog(models.TransientModel):
                 else self.technician_distribution_simple
             )
             part_line.write({
+                'commission_calculation_policy': self.commission_policy or self.wizard_id.commission_calculation_policy or 'fixed',
                 'commission_value_type': self.commission_value_type or 'fixed',
                 'commission_readonly': bool(self.commission_readonly),
                 'technician_commission_distribution': distribution,

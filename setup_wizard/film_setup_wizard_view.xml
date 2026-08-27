@@ -848,8 +848,8 @@
         <div class="wof_commission_default_hint" invisible="commission_value_type != 'fixed'"><i class="fa fa-check-circle" title="افتراضي"/> الافتراضي: مبلغ ثابت</div>
       </section>
       <section class="wof_commission_section">
-        <div class="wof_commission_section_copy"><strong>2. طريقة احتساب العمولة</strong><small>هذه السياسة معتمدة للفيلم؛ تظهر هنا للوضوح ولا تحتاج لإعادة اختيارها.</small></div>
-        <field name="commission_policy" widget="radio" options="{'horizontal': True}" nolabel="1" readonly="1" class="wof_commission_choice_radio is-policy"/>
+        <div class="wof_commission_section_copy"><strong>2. طريقة احتساب العمولة</strong><small>اختر للمكوّن: عمولة واحدة لكل أحجام السيارة أو قيمة مستقلة لكل حجم.</small></div>
+        <field name="commission_policy" widget="radio" options="{'horizontal': True}" nolabel="1" class="wof_commission_choice_radio is-policy"/>
       </section>
       <section class="wof_commission_section">
         <div class="wof_commission_section_copy"><strong>3. قيمة العمولة</strong><small invisible="commission_policy != 'fixed'">أدخل قيمة واحدة تطبق على جميع أحجام السيارات.</small><small invisible="commission_policy != 'by_size'">أدخل قيمة العمولة لكل حجم سيارة معتمد.</small></div>
@@ -868,10 +868,7 @@
         <field name="technician_distribution_simple" widget="radio" options="{'horizontal': True}" nolabel="1" class="wof_commission_choice_radio is-tech"/>
         <div class="wof_commission_distribution_hint" invisible="technician_distribution_simple != 'by_technician_ratio'"><i class="fa fa-info-circle" title="نسبة الفني"/> يتم التوزيع حسب نسبة الفني المعرفة في بطاقة الموظف، وتستخدم كنسبة ترجيح بين الفنيين المشاركين.</div>
       </section>
-      <section class="wof_commission_section is-preview">
-        <div class="wof_commission_section_copy"><strong>5. معاينة العمولة</strong><small invisible="commission_policy != 'fixed'">القيمة الموحدة ستطبق على جميع الأحجام المذكورة أعلاه.</small><small invisible="commission_policy != 'by_size'">القيم المدخلة أعلاه هي القيم النهائية لكل حجم.</small></div>
-        <div class="wof_commission_preview_strip"><i class="fa fa-eye" title="معاينة"/><span invisible="commission_policy != 'fixed'">القيمة: <strong><field name="uniform_commission_value" readonly="1" nolabel="1"/></strong><span invisible="commission_value_type != 'percent'">%</span></span><span invisible="commission_policy != 'by_size'">تم إعداد العمولة حسب حجم السيارة.</span></div>
-      </section>
+
     </div>
     <div class="wof_dialog_choice" invisible="mode != 'commission' or part_type != 'service_area'"><div class="wof_dialog_choice_title">مصدر عمولة منطقة الخدمة</div><field name="service_commission_source" widget="radio" options="{'horizontal': True}" nolabel="1"/><small invisible="service_commission_source != 'from_parts'">تعتمد المنطقة على عمولات أجزائها؛ لا تدخل عمولة مستقلة هنا.</small></div>
     <div class="wof_dialog_choice" invisible="mode != 'commission' or part_type != 'service_area' or service_commission_source == 'from_parts'"><div class="wof_dialog_choice_title">كيف توزع عمولة المنطقة على الفنيين؟</div><field name="service_technician_distribution" widget="radio" options="{'horizontal': True}" nolabel="1"/></div>

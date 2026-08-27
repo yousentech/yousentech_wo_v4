@@ -319,6 +319,11 @@ class FilmPartLine(models.Model):
         string="مصدر عمولة منطقة الخدمة", default='independent', required=True,
         help="يستخدم فقط عندما يكون المكوّن منطقة خدمة. في وضع حسب المكونات تُشتق عمولة المنطقة من أجزائها.",
     )
+    commission_calculation_policy = fields.Selection(
+        [('fixed', 'عمولة موحدة'), ('by_size', 'حسب حجم السيارة')],
+        string="طريقة احتساب عمولة المكوّن",
+        help="إذا لم تُحدد، تستخدم سياسة العمولة العامة للفيلم. يمكن تخصيصها لكل مكوّن من شاشة تفاصيل العمولة.",
+    )
     commission_value_type = fields.Selection(
         [('fixed', 'مبلغ ثابت'), ('percent', 'نسبة مئوية')],
         string="نوع العمولة", default='fixed', required=True,

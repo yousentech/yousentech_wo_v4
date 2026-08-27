@@ -5901,7 +5901,7 @@ body:has(.modal.show .wof_activity_hub_form),
     margin-top:8px;
 }
 .wof_commission_section{
-    padding:14px 16px;border-bottom:1px solid #ecebf3;
+    padding:11px 14px;border-bottom:1px solid #ecebf3;
 }
 .wof_commission_section:last-child{border-bottom:0}
 .wof_commission_section_copy{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
@@ -5911,8 +5911,8 @@ body:has(.modal.show .wof_activity_hub_form),
     display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px!important;
 }
 .wof_commission_choice_radio .o_radio_item{
-    position:relative;display:flex!important;align-items:center!important;min-height:76px;
-    padding:14px 16px!important;border:1px solid #dedceb!important;border-radius:11px!important;
+    position:relative;display:flex!important;align-items:center!important;min-height:58px;
+    padding:10px 13px!important;border:1px solid #dedceb!important;border-radius:11px!important;
     background:#fff!important;transition:.15s ease;box-shadow:none!important;
 }
 .wof_commission_choice_radio .o_radio_item:hover{border-color:#c9c4ee!important;background:#fbfaff!important}
@@ -5923,7 +5923,7 @@ body:has(.modal.show .wof_activity_hub_form),
     margin:0!important;padding-inline-start:8px;color:#3f4255;font-size:10.5px;font-weight:700;cursor:pointer;
 }
 .wof_commission_choice_radio .o_radio_item:has(input:checked) label{color:#5549bb}
-.wof_commission_choice_radio.is-policy .o_radio_item{opacity:.9;cursor:default}
+.wof_commission_choice_radio.is-policy .o_radio_item{opacity:1;cursor:pointer}
 .wof_commission_default_hint{
     display:inline-flex;align-items:center;gap:5px;margin-top:7px;padding:4px 8px;border-radius:999px;
     background:#eef9f1;color:#36804e;font-size:8px;
@@ -6012,3 +6012,23 @@ body:has(.modal.show .wof_activity_hub_form),
 }
 /* RC49 inline navigation is retired; keep hidden if stale assets/templates survive an upgrade. */
 .wof_stage_inline_nav{display:none !important;}
+
+/* RC51 — compact, editable commission detail; preview removed. */
+.wof_commission_detail .wof_commission_section_copy{margin-bottom:8px}
+.wof_commission_detail .wof_commission_choice_radio .o_radio_item{min-height:58px!important}
+.wof_commission_detail .wof_commission_choice_radio .o_radio_item label{font-size:10px!important}
+.wof_commission_detail .wof_commission_default_hint{margin-top:5px!important}
+.wof_commission_detail .wof_commission_uniform_value{padding:10px!important}
+
+/* RC51 visual alignment with the approved compact commission mockup. */
+.wof_commission_detail .wof_commission_choice_radio{
+    display:block!important;width:min(100%,760px)!important;max-width:760px!important;margin:0 auto!important;
+}
+.wof_commission_detail .wof_commission_choice_radio .o_field_radio{width:100%!important;margin:0!important}
+.wof_commission_detail .wof_commission_choice_radio .o_radio_item{justify-content:flex-start!important}
+.wof_commission_detail .wof_commission_section_copy{max-width:760px;margin-inline:auto!important}
+.wof_commission_detail .wof_commission_default_hint{margin-inline:auto!important;width:max-content}
+.wof_commission_detail .wof_commission_uniform_value,.wof_commission_detail .wof_commission_size_values{max-width:980px;margin-inline:auto}
+@media(max-width:900px){
+  .wof_commission_detail .wof_commission_choice_radio{width:100%!important}
+}
