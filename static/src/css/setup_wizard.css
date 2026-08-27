@@ -1512,10 +1512,16 @@
 
 /* Stage 4 owns its visible controls exactly like the previously approved
  * stages; keep Odoo's generic modal footer out of the way. */
-.modal-content:has(.wof_stage4_shell) > .modal-footer,
+.modal-content:has(.wof_stage4_shell) > .modal-footer:not(.wof_film_setup_footer),
 .modal-content:has(.wof_stage4_shell) .o_form_button_save,
 .modal-content:has(.wof_stage4_shell) .o_form_button_cancel {
     display: none !important;
+}
+
+/* RC48: Stage 4/5 use their own wizard footer. Do not let the generic
+ * modal-footer suppression hide the custom pricing/commission navigation. */
+.modal-content:has(.wof_stage4_shell) > .modal-footer.wof_film_setup_footer {
+    display: flex !important;
 }
 
 @media (max-width: 900px) {
