@@ -5673,3 +5673,141 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_uniform_price_box{display:grid;grid-template-columns:minmax(220px,1fr) minmax(360px,1.4fr);gap:18px;align-items:center;margin:10px 0;padding:14px 16px;border:1px solid #e3e0f0;border-radius:12px;background:#faf9ff}.wof_uniform_price_box>div:first-child{display:flex;flex-direction:column;gap:4px}.wof_uniform_price_box strong{color:#554ba7;font-size:11px}.wof_uniform_price_box small{color:#858899;font-size:8.5px}.wof_uniform_price_fields{display:grid;grid-template-columns:auto minmax(130px,1fr) auto auto;gap:10px;align-items:center}.wof_uniform_price_fields label{margin:0;font-size:9px;color:#4e5163}.wof_uniform_price_fields .o_field_widget{margin:0!important}
 .wof_all_free_box{display:flex;align-items:center;gap:12px;margin:10px 0;padding:16px;border:1px solid #dcebdc;border-radius:12px;background:#f4fbf5;color:#34784a}.wof_all_free_box>i{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;background:#e7f6e9}.wof_all_free_box div{display:flex;flex-direction:column;gap:3px}.wof_all_free_box small{font-size:8.5px;color:#6f8b76}.wof_price_preview_title{margin:12px 0 6px;font-size:9.5px;font-weight:700;color:#5b52b2}.wof_price_preview_title i{margin-inline-end:5px}
 @media(max-width:900px){.wof_price_mode_panel .o_field_radio{grid-template-columns:1fr}.wof_uniform_price_box{grid-template-columns:1fr}.wof_uniform_price_fields{grid-template-columns:auto 1fr}.wof_uniform_price_fields label{grid-column:auto}}
+
+
+/* RC43 - pricing application mode cards aligned with approved visual mockup. */
+.wof_price_mode_panel{
+    margin:14px 0 12px!important;
+    padding:16px!important;
+    border:1px solid #e2dff0!important;
+    border-radius:14px!important;
+    background:#fff!important;
+}
+.wof_price_mode_title{
+    display:flex!important;
+    align-items:flex-start!important;
+    justify-content:space-between!important;
+    gap:16px!important;
+    margin-bottom:14px!important;
+}
+.wof_price_mode_title strong{font-size:12px!important;color:#303347!important}
+.wof_price_mode_title small{font-size:9px!important;color:#8a8d9d!important}
+
+/* Odoo's radio widget can add one internal wrapper depending on version/theme.
+   Style both levels so the three choices always stay on one balanced row. */
+.wof_price_mode_panel .wof_price_mode_radio,
+.wof_price_mode_panel .o_field_radio,
+.wof_price_mode_panel .o_field_radio > div,
+.wof_price_mode_panel .wof_price_mode_radio > div{
+    width:100%!important;
+    max-width:none!important;
+}
+.wof_price_mode_panel .o_field_radio,
+.wof_price_mode_panel .o_field_radio > div:has(.o_radio_item),
+.wof_price_mode_panel .wof_price_mode_radio,
+.wof_price_mode_panel .wof_price_mode_radio > div:has(.o_radio_item){
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    justify-content:stretch!important;
+    gap:14px!important;
+}
+.wof_price_mode_panel .o_radio_item{
+    flex:1 1 0!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    min-height:96px!important;
+    margin:0!important;
+    padding:16px 18px!important;
+    border:1px solid #dcd9e9!important;
+    border-radius:13px!important;
+    background:#fff!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:10px!important;
+    text-align:center!important;
+    color:#34384d!important;
+    font-size:12px!important;
+    font-weight:700!important;
+    box-shadow:0 1px 2px rgba(47,43,83,.02)!important;
+    transition:border-color .15s ease,background .15s ease,box-shadow .15s ease!important;
+}
+.wof_price_mode_panel .o_radio_item:hover{
+    border-color:#b9b3e3!important;
+    background:#fbfaff!important;
+}
+.wof_price_mode_panel .o_radio_item:has(input:checked){
+    border-color:#6459d2!important;
+    background:#f6f4ff!important;
+    color:#5549c6!important;
+    box-shadow:0 0 0 1px rgba(100,89,210,.10)!important;
+}
+.wof_price_mode_panel .o_radio_item input[type="radio"]{
+    flex:0 0 auto!important;
+    margin:0!important;
+}
+.wof_price_mode_panel .o_radio_item label{
+    width:auto!important;
+    margin:0!important;
+    font-size:12px!important;
+    font-weight:700!important;
+    line-height:1.45!important;
+    white-space:normal!important;
+}
+
+/* Unified-price panel follows the approved mockup: one calm horizontal card. */
+.wof_uniform_price_box{
+    display:grid!important;
+    grid-template-columns:minmax(260px,1.05fr) minmax(420px,1.8fr)!important;
+    gap:22px!important;
+    align-items:center!important;
+    margin:12px 0!important;
+    padding:17px 18px!important;
+    border:1px solid #e2dff0!important;
+    border-radius:13px!important;
+    background:#faf9ff!important;
+}
+.wof_uniform_price_box>div:first-child{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:5px!important;
+}
+.wof_uniform_price_box strong{font-size:12px!important;color:#5548c3!important}
+.wof_uniform_price_box small{font-size:9px!important;line-height:1.6!important;color:#858899!important}
+.wof_uniform_price_fields{
+    display:grid!important;
+    grid-template-columns:auto minmax(190px,1fr) auto auto!important;
+    gap:12px!important;
+    align-items:center!important;
+}
+.wof_uniform_price_fields label{margin:0!important;font-size:10px!important;color:#3f4358!important;font-weight:600!important}
+.wof_uniform_price_fields .o_field_widget{margin:0!important}
+.wof_uniform_price_fields .o_input{min-height:38px!important;border-radius:9px!important}
+
+.wof_all_free_box{
+    min-height:86px!important;
+    margin:12px 0!important;
+    padding:18px!important;
+    border-radius:13px!important;
+}
+.wof_price_preview_title{
+    margin:15px 0 7px!important;
+    padding-top:2px!important;
+    font-size:10px!important;
+}
+
+@media(max-width:1050px){
+    .wof_price_mode_panel .o_field_radio,
+    .wof_price_mode_panel .o_field_radio > div:has(.o_radio_item),
+    .wof_price_mode_panel .wof_price_mode_radio,
+    .wof_price_mode_panel .wof_price_mode_radio > div:has(.o_radio_item){flex-wrap:wrap!important}
+    .wof_price_mode_panel .o_radio_item{flex:1 1 30%!important}
+    .wof_uniform_price_box{grid-template-columns:1fr!important}
+}
+@media(max-width:760px){
+    .wof_price_mode_panel .o_radio_item{flex:1 1 100%!important}
+    .wof_uniform_price_fields{grid-template-columns:1fr 1fr!important}
+}

@@ -815,7 +815,7 @@
     <div class="wof_stage4_dialog_policy" invisible="mode != 'price'">سياسة التسعير: <strong><field name="pricing_policy" readonly="1" nolabel="1"/></strong><span invisible="pricing_policy != 'by_size'"> — حدد طريقة تطبيق السعر على أحجام السيارات.</span></div>
     <div class="wof_price_mode_panel" invisible="mode != 'price' or pricing_policy != 'by_size'">
       <div class="wof_price_mode_title"><strong>طريقة تطبيق السعر على الأحجام</strong><small>اختر أبسط طريقة تناسب هذا المكوّن.</small></div>
-      <field name="pricing_application_mode" widget="radio" options="{'horizontal': True}" nolabel="1"/>
+      <field name="pricing_application_mode" widget="radio" options="{'horizontal': True}" nolabel="1" class="wof_price_mode_radio"/>
     </div>
     <div class="wof_uniform_price_box" invisible="mode != 'price' or pricing_policy != 'by_size' or pricing_application_mode != 'uniform'">
       <div><strong>السعر الموحد لجميع الأحجام</strong><small>سيتم تطبيق نفس السعر على جميع أحجام السيارات المعتمدة.</small></div>
