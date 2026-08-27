@@ -842,15 +842,18 @@
     </div>
     <div class="wof_all_free_box" invisible="mode != 'price' or pricing_policy != 'by_size' or pricing_application_mode != 'all_free'"><i class="fa fa-gift" title="مجاني"/><div><strong>مجاني لجميع الأحجام</strong><small>لن يطلب النظام أي سعر لهذا المكوّن، وستصبح جميع أسعار الأحجام صفرًا.</small></div></div>
     <div class="wof_commission_detail" invisible="mode != 'commission' or part_type == 'service_area'">
-      <section class="wof_commission_section">
-        <div class="wof_commission_section_copy"><strong>1. نوع العمولة</strong><small>اختر نوع القيمة التي سيحتسبها النظام لهذا المكوّن.</small></div>
-        <field name="commission_value_type" widget="radio" options="{'horizontal': True}" nolabel="1" class="wof_commission_choice_radio is-type"/>
-        <div class="wof_commission_default_hint" invisible="commission_value_type != 'fixed'"><i class="fa fa-check-circle" title="افتراضي"/> الافتراضي: مبلغ ثابت</div>
-      </section>
-      <section class="wof_commission_section">
-        <div class="wof_commission_section_copy"><strong>2. طريقة احتساب العمولة</strong><small>اختر للمكوّن: عمولة واحدة لكل أحجام السيارة أو قيمة مستقلة لكل حجم.</small></div>
-        <field name="commission_policy" widget="radio" options="{'horizontal': True}" nolabel="1" class="wof_commission_choice_radio is-policy"/>
-      </section>
+      <div class="wof_commission_top_grid">
+        <section class="wof_commission_section wof_commission_section_compact">
+          <div class="wof_commission_section_copy"><strong>1. نوع العمولة</strong><small>اختر نوع القيمة التي سيحتسبها النظام لهذا المكوّن.</small></div>
+          <field name="commission_value_type" widget="radio" options="{'horizontal': True}" nolabel="1" class="wof_commission_choice_radio is-type"/>
+          <div class="wof_commission_default_hint" invisible="commission_value_type != 'fixed'"><i class="fa fa-check-circle" title="افتراضي"/> الافتراضي: مبلغ ثابت</div>
+        </section>
+        <section class="wof_commission_section wof_commission_section_compact">
+          <div class="wof_commission_section_copy"><strong>2. طريقة احتساب العمولة</strong><small>اختر للمكوّن: عمولة واحدة لكل أحجام السيارة أو قيمة مستقلة لكل حجم.</small></div>
+          <field name="commission_policy" widget="radio" options="{'horizontal': True}" nolabel="1" class="wof_commission_choice_radio is-policy"/>
+          <div class="wof_commission_default_hint"><i class="fa fa-check-circle" title="إعداد"/> يحدد هل القيمة موحدة أو حسب حجم السيارة.</div>
+        </section>
+      </div>
       <section class="wof_commission_section">
         <div class="wof_commission_section_copy"><strong>3. قيمة العمولة</strong><small invisible="commission_policy != 'fixed'">أدخل قيمة واحدة تطبق على جميع أحجام السيارات.</small><small invisible="commission_policy != 'by_size'">أدخل قيمة العمولة لكل حجم سيارة معتمد.</small></div>
         <div class="wof_commission_uniform_value" invisible="commission_policy != 'fixed'">
