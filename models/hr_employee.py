@@ -4,8 +4,8 @@ from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 
-class ResUsers(models.Model):
-    _inherit = 'res.users'
+class HrEmployee(models.Model):
+    _inherit = 'hr.employee'
 
     technician_commission_ratio = fields.Float(
         string='نسبة توزيع عمولة الفني (%)',
@@ -16,6 +16,6 @@ class ResUsers(models.Model):
 
     @api.constrains('technician_commission_ratio')
     def _check_technician_commission_ratio(self):
-        for user in self:
-            if user.technician_commission_ratio < 0 or user.technician_commission_ratio > 100:
+        for employee in self:
+            if employee.technician_commission_ratio < 0 or employee.technician_commission_ratio > 100:
                 raise ValidationError('نسبة توزيع عمولة الفني يجب أن تكون بين 0 و100.')

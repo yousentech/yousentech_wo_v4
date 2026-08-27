@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_users_form_technician_commission_ratio" model="ir.ui.view">
-        <field name="name">res.users.form.technician.commission.ratio</field>
-        <field name="model">res.users</field>
-        <field name="inherit_id" ref="base.view_users_form"/>
+    <record id="view_employee_form_technician_commission_ratio" model="ir.ui.view">
+        <field name="name">hr.employee.form.technician.commission.ratio</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='login']" position="after">
+            <xpath expr="//field[@name='work_email']" position="after">
                 <field name="technician_commission_ratio"
                        groups="yousentech_wo_v4.group_wo_manager"
                        help="تستخدم عند اختيار توزيع عمولة المكوّن حسب نسبة الفني."/>

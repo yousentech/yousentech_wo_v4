@@ -866,7 +866,7 @@
       <section class="wof_commission_section">
         <div class="wof_commission_section_copy"><strong>4. توزيع العمولة على الفنيين</strong><small>حدد طريقة توزيع عمولة هذا المكوّن إذا شارك أكثر من فني في تنفيذه.</small></div>
         <field name="technician_distribution_simple" widget="radio" options="{'horizontal': True}" nolabel="1" class="wof_commission_choice_radio is-tech"/>
-        <div class="wof_commission_distribution_hint" invisible="technician_distribution_simple != 'by_technician_ratio'"><i class="fa fa-info-circle" title="نسبة الفني"/> يتم التوزيع حسب نسبة الفني المعرفة في بطاقة المستخدم، وتستخدم كنسبة ترجيح بين الفنيين المشاركين.</div>
+        <div class="wof_commission_distribution_hint" invisible="technician_distribution_simple != 'by_technician_ratio'"><i class="fa fa-info-circle" title="نسبة الفني"/> يتم التوزيع حسب نسبة الفني المعرفة في بطاقة الموظف، وتستخدم كنسبة ترجيح بين الفنيين المشاركين.</div>
       </section>
       <section class="wof_commission_section is-preview">
         <div class="wof_commission_section_copy"><strong>5. معاينة العمولة</strong><small invisible="commission_policy != 'fixed'">القيمة الموحدة ستطبق على جميع الأحجام المذكورة أعلاه.</small><small invisible="commission_policy != 'by_size'">القيم المدخلة أعلاه هي القيم النهائية لكل حجم.</small></div>

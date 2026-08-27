@@ -333,7 +333,7 @@ class FilmPartLine(models.Model):
          ('by_technician_ratio', 'حسب نسبة الفني'),
          ('by_part', 'حسب عمولة الجزء المنفذ')],
         string="طريقة توزيع عمولة الفنيين", default='equal', required=True,
-        help="حسب نسبة الفني تستخدم النسبة المعرفة في بطاقة مستخدم الفني. خيار حسب الجزء مخصص لمناطق الخدمة.",
+        help="حسب نسبة الفني تستخدم النسبة المعرفة في بطاقة الموظف للفني. خيار حسب الجزء مخصص لمناطق الخدمة.",
     )
     price_count = fields.Integer(compute='_compute_counts')
     commission_count = fields.Integer(compute='_compute_counts')
