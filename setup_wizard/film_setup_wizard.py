@@ -1623,6 +1623,14 @@ class WofFilmSetupValueDialog(models.TransientModel):
         obsolete = existing.filtered(lambda line: (bool(line.car_size_id) and line.car_size_id.id not in desired_size_ids) or (not line.car_size_id and not wants_default))
         if obsolete:
             obsolete.unlink()
+
+        # IMPORTANT: ``existing`` may still contain records just removed by
+        # ``obsolete.unlink()``. Reusing that stale recordset can make the next
+        # ``target.write()`` hit a deleted commission/price line and Odoo raises
+        # MissingError ("Record does not exist or has been deleted").
+        # Reload only records that still exist before doing the upsert loop.
+        existing = Model.search([('part_line_id', '=', part_line.id)])
+
         tax = self.wizard_id.film_id.tax_id if self.wizard_id.film_id.tax_enabled else self.env['account.tax']
         for entry in self.entry_ids:
             target = existing.filtered(lambda line: line.car_size_id == entry.car_size_id)[:1] if entry.car_size_id else existing.filtered(lambda line: not line.car_size_id)[:1]
@@ -1637,7 +1645,11 @@ class WofFilmSetupValueDialog(models.TransientModel):
                 })
             else:
                 vals.update({'commission': entry.commission_value})
-            target.write(vals) if target else Model.create(vals)
+            if target:
+                target.write(vals)
+            else:
+                created = Model.create(vals)
+                existing |= created
         if self.mode == 'price': self.commercial_line_id.price_expanded = True
         else: self.commercial_line_id.commission_expanded = True
         self.wizard_id.commercial_line_ids.invalidate_recordset()
