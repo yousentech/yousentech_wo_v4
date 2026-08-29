@@ -8,6 +8,13 @@ access_setup_activity_dialog_settings,setup.activity.dialog.settings,model_wof_s
 access_setup_service_line_settings,setup.service.line.settings,model_wof_setup_service_line,yousentech_wo_v4.group_wo_settings,1,1,1,0
 access_setup_template_settings,setup.template.settings,model_wof_setup_template,yousentech_wo_v4.group_wo_settings,1,0,0,0
 access_setup_template_part_settings,setup.template.part.settings,model_wof_setup_template_part,yousentech_wo_v4.group_wo_settings,1,0,0,0
+access_setup_size_line_manager,setup.size.line.manager,model_wof_setup_size_line,yousentech_wo_v4.group_wo_manager,1,0,0,0
+access_setup_activity_line_manager,setup.activity.line.manager,model_wof_setup_activity_line,yousentech_wo_v4.group_wo_manager,1,0,0,0
+access_setup_service_line_manager,setup.service.line.manager,model_wof_setup_service_line,yousentech_wo_v4.group_wo_manager,1,0,0,0
+access_setup_template_manager,setup.template.manager,model_wof_setup_template,yousentech_wo_v4.group_wo_manager,1,0,0,0
+access_setup_template_part_manager,setup.template.part.manager,model_wof_setup_template_part,yousentech_wo_v4.group_wo_manager,1,0,0,0
+access_setup_tint_shade_line_manager,setup.tint.shade.line.manager,model_wof_setup_tint_shade_line,yousentech_wo_v4.group_wo_manager,1,0,0,0
+access_setup_operation_field_line_manager,setup.operation.field.line.manager,model_wof_setup_operation_field_line,yousentech_wo_v4.group_wo_manager,1,0,0,0
 access_audit_log_manager,audit.log.manager,model_wof_audit_log,yousentech_wo_v4.group_wo_manager,1,0,0,0
 access_product_template_wo_manager,product.template.wo.manager,product.model_product_template,yousentech_wo_v4.group_wo_manager,1,1,1,0
 access_product_product_wo_manager,product.product.wo.manager,product.model_product_product,yousentech_wo_v4.group_wo_manager,1,1,1,0
