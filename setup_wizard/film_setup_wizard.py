@@ -1602,6 +1602,36 @@ class WofFilmSetupValueDialog(models.TransientModel):
                 self.service_technician_distribution if self.part_type == 'service_area'
                 else self.technician_distribution_simple
             )
+
+            # RC56: switching FIXED -> BY SIZE is a real data conversion, not
+            # merely a UI onchange.  Odoo's editable one2many can display the
+            # seeded uniform value in newly-created virtual rows without always
+            # persisting untouched values back to the transient rows before the
+            # object button calls action_save().  In that case the server sees
+            # 0.0 although the user saw the old uniform commission on screen.
+            #
+            # Preserve the fixed commission as the seed for every size at save
+            # time too.  This deliberately runs before the persistent policy is
+            # changed so the transition is deterministic and survives a client
+            # that omits untouched one2many values.
+            converting_fixed_to_by_size = (
+                self.initial_commission_policy == 'fixed'
+                and self.commission_policy == 'by_size'
+            )
+            if converting_fixed_to_by_size:
+                seed = self.source_uniform_commission_value
+                if not seed:
+                    default_line = part_line.commission_line_ids.filtered(lambda line: not line.car_size_id)[:1]
+                    seed = default_line.commission if default_line else 0.0
+                if seed:
+                    # A zero received for a size during this transition means
+                    # the seeded value was not posted by the web client.  Keep
+                    # the inherited value.  Non-zero values explicitly edited
+                    # by the user are preserved as entered.
+                    for entry in self.entry_ids.filtered('car_size_id'):
+                        if not entry.commission_value:
+                            entry.commission_value = seed
+
             part_line.write({
                 'commission_calculation_policy': self.commission_policy or self.wizard_id.commission_calculation_policy or 'fixed',
                 'commission_value_type': self.commission_value_type or 'fixed',

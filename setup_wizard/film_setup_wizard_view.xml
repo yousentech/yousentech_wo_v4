@@ -860,7 +860,7 @@
         </div>
         <div class="wof_commission_size_values" invisible="commission_policy != 'by_size'">
           <div class="wof_commission_size_toolbar"><span>قيم الأحجام المعتمدة</span><div><label for="commission_readonly" string="للقراءة فقط"/><field name="commission_readonly" widget="boolean_toggle" nolabel="1"/></div></div>
-          <field name="entry_ids" nolabel="1" class="wof_commission_entries"><tree editable="bottom" create="0" delete="0"><field name="sequence" column_invisible="1"/><field name="label" string="حجم السيارة" readonly="1"/><field name="commission_value" string="قيمة العمولة" readonly="parent.commission_readonly"/><field name="currency_id" column_invisible="1"/></tree></field>
+          <field name="entry_ids" nolabel="1" class="wof_commission_entries"><tree editable="bottom" create="0" delete="0"><field name="sequence" column_invisible="1"/><field name="label" string="حجم السيارة" readonly="1"/><field name="commission_value" string="قيمة العمولة" readonly="parent.commission_readonly" force_save="1"/><field name="currency_id" column_invisible="1"/></tree></field>
         </div>
       </section>
       <section class="wof_commission_section">
