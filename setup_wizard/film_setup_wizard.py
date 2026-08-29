@@ -1375,6 +1375,8 @@ class WofFilmSetupValueDialog(models.TransientModel):
     mode = fields.Selection([('price', 'التسعير'), ('commission', 'العمولة')], required=True, readonly=True)
     pricing_policy = fields.Selection(related='wizard_id.pricing_policy', readonly=True)
     commission_policy = fields.Selection([('fixed', 'عمولة موحدة'), ('by_size', 'حسب حجم السيارة')], string='طريقة احتساب العمولة', default='fixed', required=True)
+    initial_commission_policy = fields.Selection([('fixed', 'عمولة موحدة'), ('by_size', 'حسب حجم السيارة')], readonly=True)
+    source_uniform_commission_value = fields.Float(readonly=True)
     part_name = fields.Char(related='commercial_line_id.part_name', readonly=True)
     part_type = fields.Selection(related='commercial_line_id.part_type', readonly=True)
     child_names = fields.Char(related='commercial_line_id.child_names', readonly=True)
@@ -1457,6 +1459,9 @@ class WofFilmSetupValueDialog(models.TransientModel):
                 self.pricing_application_mode = 'per_size'
         if self.mode == 'commission':
             self.commission_policy = part_line.commission_calculation_policy or self.wizard_id.commission_calculation_policy or 'fixed'
+            self.initial_commission_policy = self.commission_policy
+            default_commission_line = part_line.commission_line_ids.filtered(lambda line: not line.car_size_id)[:1]
+            self.source_uniform_commission_value = default_commission_line.commission if default_commission_line else 0.0
             self.commission_value_type = part_line.commission_value_type or 'fixed'
             self.commission_readonly = bool(part_line.commission_readonly)
             self.technician_commission_distribution = part_line.technician_commission_distribution or 'equal'
@@ -1499,7 +1504,51 @@ class WofFilmSetupValueDialog(models.TransientModel):
             first = self.entry_ids[:1]
             self.uniform_commission_value = first.commission_value if first else 0.0
 
-    @api.onchange('price_charge_mode', 'service_commission_source', 'pricing_application_mode', 'uniform_price', 'uniform_price_readonly', 'uniform_commission_value', 'commission_value_type', 'commission_policy')
+    @api.onchange('commission_policy')
+    def _onchange_commission_policy(self):
+        """Rebuild commission rows when switching fixed <-> by-size.
+
+        The conversion must preserve the currently saved uniform commission as
+        the initial value for every vehicle size.  Keeping this transition in a
+        dedicated onchange avoids a second generic onchange rebuilding the rows
+        with zero values before the dialog is saved.
+        """
+        if self.mode != 'commission' or not self.commercial_line_id:
+            return
+        existing = self.commercial_line_id.part_line_id.commission_line_ids
+        if self.commission_policy == 'by_size':
+            default_line = existing.filtered(lambda line: not line.car_size_id)[:1]
+            fallback = (default_line.commission if default_line else self.source_uniform_commission_value) or 0.0
+            commands = [(5, 0, 0)]
+            for seq, size in enumerate(self.wizard_id.film_id.car_size_ids, start=1):
+                found = existing.filtered(lambda line: line.car_size_id == size)[:1]
+                commands.append((0, 0, {
+                    'sequence': seq * 10,
+                    'car_size_id': size.id,
+                    'label': size.name,
+                    'commission_value': found.commission if found else fallback,
+                    'amount': 0.0,
+                }))
+            self.entry_ids = commands
+        else:
+            default_line = existing.filtered(lambda line: not line.car_size_id)[:1]
+            if default_line:
+                value = default_line.commission
+            elif self.entry_ids:
+                # When returning from by-size to fixed, use the first current
+                # size value as a predictable starting point; the user can edit it.
+                value = self.entry_ids[:1].commission_value
+            else:
+                value = self.source_uniform_commission_value or 0.0
+            self.uniform_commission_value = value
+            self.entry_ids = [(5, 0, 0), (0, 0, {
+                'sequence': 10,
+                'label': _('العمولة الموحدة'),
+                'commission_value': value,
+                'amount': 0.0,
+            })]
+
+    @api.onchange('price_charge_mode', 'service_commission_source', 'pricing_application_mode', 'uniform_price', 'uniform_price_readonly', 'uniform_commission_value', 'commission_value_type')
     def _onchange_commercial_modes(self):
         if self.mode == 'price':
             if self.pricing_application_mode == 'all_free':
@@ -1521,29 +1570,6 @@ class WofFilmSetupValueDialog(models.TransientModel):
                 for entry in self.entry_ids:
                     entry.is_free = False
                     entry.price_readonly = False
-        if self.mode == 'commission':
-            existing = self.commercial_line_id.part_line_id.commission_line_ids
-            needs_by_size = self.commission_policy == 'by_size' and (not self.entry_ids or any(not entry.car_size_id for entry in self.entry_ids))
-            needs_fixed = self.commission_policy == 'fixed' and (not self.entry_ids or any(entry.car_size_id for entry in self.entry_ids))
-            if needs_by_size:
-                commands = [(5, 0, 0)]
-                for seq, size in enumerate(self.wizard_id.film_id.car_size_ids, start=1):
-                    found = existing.filtered(lambda line: line.car_size_id == size)[:1]
-                    fallback = existing.filtered(lambda line: not line.car_size_id)[:1]
-                    value = found.commission if found else (fallback.commission if fallback else 0.0)
-                    commands.append((0, 0, {
-                        'sequence': seq * 10, 'car_size_id': size.id, 'label': size.name,
-                        'commission_value': value, 'amount': 0.0,
-                    }))
-                self.entry_ids = commands
-            elif needs_fixed:
-                default_line = existing.filtered(lambda line: not line.car_size_id)[:1]
-                current_value = self.entry_ids[:1].commission_value if self.entry_ids else 0.0
-                value = default_line.commission if default_line else current_value
-                self.uniform_commission_value = value
-                self.entry_ids = [(5, 0, 0), (0, 0, {
-                    'sequence': 10, 'label': _('العمولة الموحدة'), 'commission_value': value, 'amount': 0.0,
-                })]
         if self.mode == 'commission' and self.commission_policy == 'fixed' and self.entry_ids:
             self.entry_ids[0].commission_value = self.uniform_commission_value or 0.0
         if self.mode == 'commission' and self.service_commission_source == 'from_parts':
