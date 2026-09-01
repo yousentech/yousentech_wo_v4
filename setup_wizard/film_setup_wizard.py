@@ -1718,6 +1718,46 @@ class WofFilmSetupValueDialog(models.TransientModel):
             raise ValidationError(_('القيمة لا يمكن أن تكون سالبة.'))
         if self.mode == 'commission' and self.commission_value_type == 'percent' and any(entry.commission_value > 100 for entry in self.entry_ids):
             raise ValidationError(_('نسبة العمولة يجب أن تكون بين 0 و100.'))
+
+        # RC59: service-area independent commission / by-size must be saved as
+        # an exact snapshot of the values currently entered in the dialog.
+        # Do not reuse the generic cached upsert path here: service-area rows can
+        # have been rebuilt by source/policy onchanges, which made manually
+        # entered per-size values appear in the UI but later reopen with old/zero
+        # persistent rows.  Flush the transient entries, validate that every
+        # configured vehicle size is represented once, then replace only this
+        # area's commission rows atomically with the posted snapshot.
+        if (
+            self.mode == 'commission'
+            and self.part_type == 'service_area'
+            and self.service_commission_source == 'independent'
+            and self.commission_policy == 'by_size'
+        ):
+            self.entry_ids.flush_recordset(['car_size_id', 'commission_value'])
+            expected_sizes = self.wizard_id.film_id.car_size_ids
+            size_entries = self.entry_ids.filtered('car_size_id')
+            value_by_size = {entry.car_size_id.id: entry.commission_value for entry in size_entries}
+            missing_sizes = expected_sizes.filtered(lambda size: size.id not in value_by_size)
+            if missing_sizes:
+                raise ValidationError(
+                    _('لا توجد قيمة عمولة للأحجام التالية: %s')
+                    % '، '.join(missing_sizes.mapped('name'))
+                )
+            CommissionLine = self.env['wof.film.parts.commission.lines']
+            CommissionLine.search([('part_line_id', '=', part_line.id)]).unlink()
+            CommissionLine.create([
+                {
+                    'part_line_id': part_line.id,
+                    'car_size_id': size.id,
+                    'commission': value_by_size[size.id],
+                }
+                for size in expected_sizes
+            ])
+            part_line.invalidate_recordset(['commission_line_ids'])
+            self.commercial_line_id.commission_expanded = True
+            self.wizard_id.commercial_line_ids.invalidate_recordset()
+            return self.wizard_id._dialog_action()
+
         if self.mode == 'price':
             Model = self.env['wof.film.parts.price.lines']; existing = part_line.price_line_ids
         else:
