@@ -315,7 +315,7 @@ class FilmPartLine(models.Model):
         'wof.film.parts.commission.lines', 'part_line_id', string="العمولات",
     )
     service_commission_source = fields.Selection(
-        [('independent', 'عمولة مستقلة'), ('from_parts', 'حسب عمولات مكونات منطقة الخدمة')],
+        [('independent', 'عمولة منطقة الخدمة'), ('from_parts', 'عمولة من مكونات الخدمة')],
         string="مصدر عمولة منطقة الخدمة", default='independent', required=True,
         help="يستخدم فقط عندما يكون المكوّن منطقة خدمة. في وضع حسب المكونات تُشتق عمولة المنطقة من أجزائها.",
     )

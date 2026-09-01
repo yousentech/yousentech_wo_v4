@@ -1287,7 +1287,15 @@ class WofFilmSetupCommercialLine(models.TransientModel):
             return [], missing_parts.mapped('name')
         values = []
         missing = []
-        if self.wizard_id.commission_calculation_policy == 'by_size':
+        # Inherit the actual commission setup of the child components.  If
+        # any child is configured by vehicle size, materialize the service-area
+        # inherited commission by size too; fixed children naturally fall back
+        # to their uniform row through _commission_value_for_size().
+        derive_by_size = any(
+            (line.commission_calculation_policy or self.wizard_id.commission_calculation_policy) == 'by_size'
+            for line in child_lines
+        )
+        if derive_by_size:
             for size in self.wizard_id.film_id.car_size_ids:
                 total = 0.0
                 ok = True
@@ -1435,7 +1443,7 @@ class WofFilmSetupValueDialog(models.TransientModel):
     uniform_price = fields.Monetary(string='السعر الموحد لجميع الأحجام', currency_field='currency_id')
     uniform_price_readonly = fields.Boolean(string='للقراءة فقط')
     service_commission_source = fields.Selection(
-        [('independent', 'عمولة مستقلة لمنطقة الخدمة'), ('from_parts', 'حسب عمولات مكونات المنطقة')],
+        [('independent', 'عمولة منطقة الخدمة'), ('from_parts', 'عمولة من مكونات الخدمة')],
         string='مصدر عمولة منطقة الخدمة', default='independent', required=True,
     )
     commission_value_type = fields.Selection(
@@ -1456,7 +1464,7 @@ class WofFilmSetupValueDialog(models.TransientModel):
         string='توزيع العمولة على الفنيين', default='equal', required=True,
     )
     service_technician_distribution = fields.Selection(
-        [('equal', 'بالتساوي بين الفنيين'), ('by_part', 'حسب عمولة الجزء المنفذ')],
+        [('equal', 'بالتساوي بين الفنيين'), ('by_technician_ratio', 'حسب نسبة الفني')],
         string='توزيع عمولة منطقة الخدمة', default='equal', required=True,
     )
     derived_commission_details = fields.Char(string='تفاصيل العمولة المحسوبة', readonly=True)
@@ -1513,7 +1521,7 @@ class WofFilmSetupValueDialog(models.TransientModel):
             )
             self.service_technician_distribution = (
                 part_line.technician_commission_distribution
-                if part_line.technician_commission_distribution in ('equal', 'by_part') else 'equal'
+                if part_line.technician_commission_distribution in ('equal', 'by_technician_ratio') else 'equal'
             )
         if self.mode == 'commission' and self.part_type == 'service_area':
             self.service_commission_source = part_line.service_commission_source or 'independent'
@@ -1616,7 +1624,6 @@ class WofFilmSetupValueDialog(models.TransientModel):
             self.entry_ids[0].commission_value = self.uniform_commission_value or 0.0
         if self.mode == 'commission' and self.service_commission_source == 'from_parts':
             self.technician_commission_distribution = 'by_part'
-            self.service_technician_distribution = 'by_part'
             if self.commercial_line_id:
                 values, missing = self.commercial_line_id._derived_commission_values()
                 self.derived_commission_details = (' | '.join((('%s: %.2f' % (s.name, a)) if s else ('الإجمالي: %.2f' % a)) for s, a in values)
@@ -1640,10 +1647,9 @@ class WofFilmSetupValueDialog(models.TransientModel):
         self.ensure_one()
         part_line = self.commercial_line_id.part_line_id
         if self.mode == 'commission':
-            distribution = (
-                self.service_technician_distribution if self.part_type == 'service_area'
-                else self.technician_distribution_simple
-            )
+            distribution = self.technician_distribution_simple
+            if self.part_type == 'service_area' and self.service_commission_source == 'from_parts':
+                distribution = 'by_part'
 
             # RC56: switching FIXED -> BY SIZE is a real data conversion, not
             # merely a UI onchange.  Odoo's editable one2many can display the
@@ -1685,7 +1691,7 @@ class WofFilmSetupValueDialog(models.TransientModel):
         if self.mode == 'commission' and self.part_type == 'service_area':
             part_line.write({
                 'service_commission_source': self.service_commission_source,
-                'technician_commission_distribution': ('by_part' if self.service_commission_source == 'from_parts' else self.service_technician_distribution),
+                'technician_commission_distribution': ('by_part' if self.service_commission_source == 'from_parts' else self.technician_distribution_simple),
             })
             if self.service_commission_source == 'from_parts':
                 self.commercial_line_id._ensure_commission_basis_lines()
