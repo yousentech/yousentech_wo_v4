@@ -801,6 +801,48 @@ class WofFilmSetupWizard(models.TransientModel):
         self._prepare_commercial_lines()
         return self._dialog_action()
 
+    def action_back_commission(self):
+        """Return from the completion screen to commissions without touching saved values."""
+        self.ensure_one()
+        self.current_step = 'commission'
+        self.pricing_tab = 'commission'
+        if not self.commercial_line_ids:
+            self._prepare_commercial_lines()
+        return self._dialog_action()
+
+    def action_activate_service(self):
+        """Final activation: no rebuilding of pricing/commission data at this stage."""
+        self.ensure_one()
+        self._ensure_access()
+        if not self.film_id:
+            raise ValidationError(_('لا يوجد فيلم / خدمة محفوظة لتفعيلها.'))
+
+        # Stage 4 and 5 already validate pricing and commissions before reaching
+        # this screen.  The final action only activates the configured record;
+        # it deliberately does not recalculate or recreate commercial rows.
+        if not self.film_id.active:
+            self.film_id.write({'active': True})
+        if not self.active:
+            self.active = True
+
+        if self.hub_id:
+            self.hub_id._refresh_films()
+            next_action = self.hub_id._reopen_hub()
+        else:
+            next_action = {'type': 'ir.actions.act_window_close'}
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('تم تفعيل الخدمة بنجاح'),
+                'message': _('أصبحت الخدمة الآن جاهزة للاستخدام في العمليات.'),
+                'type': 'success',
+                'sticky': False,
+                'next': next_action,
+            },
+        }
+
     def action_back_components(self):
         self.current_step = 'components'
         if not self.component_line_ids and self.film_id:

@@ -599,7 +599,30 @@
       <div class="wof_summary_note"><i class="fa fa-info-circle" title="معلومة"/> افتح تفاصيل أي مكوّن لتحديد نوع العمولة وقيمتها وطريقة توزيعها على الفنيين.</div>
     </aside></div>
 </div>
-<div class="wof_film_stage_handoff" invisible="current_step != 'review'"><div class="wof_handoff_icon"><i class="fa fa-check-circle" title="المراجعة"/></div><h2>اكتملت التهيئة التجارية</h2><p>الأسعار والعمولات مكتملة. راجع الإعدادات ثم فعّل الفيلم / الخدمة.</p><div class="wof_handoff_badges"><span><field name="name" readonly="1" nolabel="1"/></span><span><field name="selected_component_count" readonly="1" nolabel="1"/> مكونات</span></div><button name="action_back_components" type="object" class="btn btn-secondary">العودة للمكونات</button></div></div>
+<div class="wof_film_stage_handoff wof_completion_stage" invisible="current_step != 'review'">
+    <div class="wof_completion_glow wof_completion_glow_one"/>
+    <div class="wof_completion_glow wof_completion_glow_two"/>
+    <div class="wof_completion_content">
+        <div class="wof_completion_icon_wrap">
+            <div class="wof_completion_icon"><i class="fa fa-check" title="اكتملت التهيئة"/></div>
+        </div>
+        <div class="wof_completion_kicker"><i class="fa fa-sparkles" title="اكتملت"/> اكتملت جميع خطوات التهيئة</div>
+        <h2>أصبحت الخدمة جاهزة للبدء</h2>
+        <p class="wof_completion_lead">أحسنت! تم إكمال إعداد الفيلم / الخدمة بنجاح. يمكنك الآن تفعيلها والبدء باستخدامها في العمليات.</p>
+        <div class="wof_completion_identity">
+            <div class="wof_completion_identity_icon"><i class="fa fa-shield" title="الخدمة"/></div>
+            <div class="wof_completion_identity_text">
+                <span>الفيلم / الخدمة</span>
+                <strong><field name="name" readonly="1" nolabel="1"/></strong>
+                <small>النشاط: <field name="activity_id" readonly="1" nolabel="1"/></small>
+            </div>
+        </div>
+        <div class="wof_completion_ready">
+            <i class="fa fa-check-circle" title="جاهز"/>
+            <div><strong>جميع خطوات التهيئة مكتملة</strong><span>كل شيء جاهز. التفعيل هو الخطوة الأخيرة.</span></div>
+        </div>
+    </div>
+</div></div>
 
                 <footer invisible="current_step != 'basic'" class="wof_film_setup_footer">
                     <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
@@ -624,8 +647,12 @@
                 </footer>
                 <footer invisible="current_step != 'pricing'" class="wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_components" string="السابق: المكونات" type="object" class="btn btn-outline-primary"/><button name="action_continue_pricing" string="التالي: العمولات" type="object" class="btn btn-primary"/></div></footer>
                 <footer invisible="current_step != 'commission'" class="wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_pricing" string="السابق: التسعير" type="object" class="btn btn-outline-primary"/><button name="action_continue_commission" string="التالي: المراجعة والتفعيل" type="object" class="btn btn-primary"/></div></footer>
-                <footer invisible="current_step != 'review'" class="wof_film_setup_footer">
-                    <button name="action_cancel" string="العودة إلى الأفلام والخدمات" type="object" class="btn btn-secondary"/>
+                <footer invisible="current_step != 'review'" class="wof_film_setup_footer wof_completion_footer">
+                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
+                    <div class="wof_film_footer_actions">
+                        <button name="action_back_commission" string="السابق: العمولات" type="object" class="btn btn-outline-primary"/>
+                        <button name="action_activate_service" string="تفعيل الخدمة والبدء" type="object" class="btn btn-primary wof_activate_service_btn"/>
+                    </div>
                 </footer>
             </form>
         </field>

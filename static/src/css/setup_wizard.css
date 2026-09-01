@@ -6344,3 +6344,161 @@ body:has(.modal.show .wof_activity_hub_form),
 @media(max-height:760px){
     .wof_stage4_value_dialog:has(.wof_commission_detail) .modal-body{overflow-y:auto!important;}
 }
+
+/* RC57 — Stage 6: airy completion / activation screen */
+.wof_completion_stage {
+    position: relative;
+    min-height: 470px;
+    margin: 26px 14px 18px;
+    padding: 56px 28px 48px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e9e7f5;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfaff 100%);
+}
+.wof_completion_stage .wof_completion_glow {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(2px);
+}
+.wof_completion_glow_one {
+    width: 330px;
+    height: 330px;
+    top: -175px;
+    inset-inline-start: -120px;
+    background: rgba(105, 92, 205, .055);
+}
+.wof_completion_glow_two {
+    width: 260px;
+    height: 260px;
+    bottom: -150px;
+    inset-inline-end: -90px;
+    background: rgba(143, 163, 105, .055);
+}
+.wof_completion_content {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 720px);
+    margin: 0 auto;
+    text-align: center;
+}
+.wof_completion_icon_wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+.wof_completion_icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #f0edff, #e8e4ff);
+    color: #5c54ad;
+    font-size: 36px;
+    box-shadow: 0 14px 34px rgba(92, 84, 173, .13);
+}
+.wof_completion_kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 30px;
+    padding: 5px 13px;
+    margin-bottom: 14px;
+    border-radius: 999px;
+    background: #f1f7ee;
+    color: #68824d;
+    font-size: 12px;
+    font-weight: 700;
+}
+.wof_completion_stage h2 {
+    margin: 0;
+    color: #24243c;
+    font-size: 27px;
+    font-weight: 800;
+    line-height: 1.45;
+}
+.wof_completion_lead {
+    max-width: 590px;
+    margin: 11px auto 26px !important;
+    color: #7c7f92 !important;
+    font-size: 14px;
+    line-height: 1.9;
+}
+.wof_completion_identity {
+    width: min(100%, 500px);
+    margin: 0 auto 15px;
+    padding: 17px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: start;
+    border: 1px solid #ebe9f5;
+    border-radius: 16px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 8px 25px rgba(42, 39, 85, .035);
+}
+.wof_completion_identity_icon {
+    flex: 0 0 45px;
+    width: 45px;
+    height: 45px;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1effd;
+    color: #6259b7;
+    font-size: 19px;
+}
+.wof_completion_identity_text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.wof_completion_identity_text > span {
+    color: #9395a6;
+    font-size: 10px;
+}
+.wof_completion_identity_text > strong {
+    color: #303047;
+    font-size: 16px;
+    font-weight: 800;
+}
+.wof_completion_identity-text .o_field_widget,
+.wof_completion_identity_text .o_field_widget { display: inline; }
+.wof_completion_identity_text small {
+    color: #7d8091;
+    font-size: 11px;
+}
+.wof_completion_ready {
+    width: min(100%, 500px);
+    margin: 0 auto;
+    padding: 13px 17px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: start;
+    border-radius: 14px;
+    background: #f4f8f1;
+    color: #66804e;
+}
+.wof_completion_ready > i { font-size: 21px; }
+.wof_completion_ready > div { display: flex; flex-direction: column; gap: 2px; }
+.wof_completion_ready strong { font-size: 12px; }
+.wof_completion_ready span { color: #89957e; font-size: 10px; }
+.wof_completion_footer .wof_activate_service_btn {
+    min-width: 185px;
+    font-weight: 700;
+}
+@media (max-height: 760px) {
+    .wof_completion_stage { min-height: 360px; padding-top: 28px; padding-bottom: 28px; margin-top: 14px; }
+    .wof_completion_icon { width: 70px; height: 70px; border-radius: 22px; font-size: 29px; }
+    .wof_completion_stage h2 { font-size: 23px; }
+    .wof_completion_lead { margin-bottom: 17px !important; }
+}
