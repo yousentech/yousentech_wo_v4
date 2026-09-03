@@ -6533,3 +6533,60 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_stage4_value_dialog .wof_commission_size_values{
     padding-top:4px !important;
 }
+
+
+/* RC61 — Service-area commission source visual polish
+   Visual-only override. Keeps the business/save logic unchanged. */
+.wof_stage4_commission .wof_service_area_commission_source,
+.wof_stage4_commission .wof_service_area_source_card,
+.wof_stage4_commission [class*="service-area"][class*="source"] {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 10px 14px !important;
+    margin-bottom: 8px !important;
+}
+
+.wof_stage4_commission .wof_service_area_commission_source .wof_section_title,
+.wof_stage4_commission .wof_service_area_source_card .wof_section_title {
+    margin: 0 0 3px 0 !important;
+    line-height: 1.25 !important;
+}
+
+.wof_stage4_commission .wof_service_area_commission_source .text-muted,
+.wof_stage4_commission .wof_service_area_source_card .text-muted {
+    margin: 0 0 7px 0 !important;
+    line-height: 1.35 !important;
+}
+
+.wof_stage4_commission .wof_service_area_commission_source .o_field_radio,
+.wof_stage4_commission .wof_service_area_source_card .o_field_radio {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.wof_stage4_commission .wof_service_area_commission_source .o_radio_item,
+.wof_stage4_commission .wof_service_area_source_card .o_radio_item {
+    min-height: 42px !important;
+    margin: 0 !important;
+    padding: 8px 12px !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.wof_stage4_commission .wof_service_area_commission_source .o_radio_item label,
+.wof_stage4_commission .wof_service_area_source_card .o_radio_item label {
+    margin: 0 !important;
+    line-height: 1.2 !important;
+}
+
+.wof_stage4_commission .wof_service_area_commission_source .alert,
+.wof_stage4_commission .wof_service_area_source_card .alert {
+    padding: 4px 8px !important;
+    margin: 6px 0 0 0 !important;
+    min-height: 0 !important;
+}
