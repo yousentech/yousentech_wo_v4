@@ -4916,7 +4916,9 @@ body:has(.modal.show .wof_activity_hub_form),
     position:relative !important;
     z-index:1 !important;
 }
-\n\n/* RC31 — Stage 3 tree identity layout hard fix.
+
+
+/* RC31 — Stage 3 tree identity layout hard fix.
    The previous compact grid allowed the standalone-part name cell to collapse in RTL.
    Each row now has a dedicated flexible identity region, so the name always owns real width. */
 .wof_component_tree_row {
@@ -6502,4 +6504,32 @@ body:has(.modal.show .wof_activity_hub_form),
     .wof_completion_stage h2 { font-size: 23px; }
     .wof_completion_lead { margin-bottom: 17px !important; }
 }
-\n\n/* RC59 — compact service-area commission source + cleaner size editor */\n.wof_stage4_value_dialog .wof_service_commission_source{\n    padding:10px 14px !important;\n    min-height:auto !important;\n    margin:8px 0 !important;\n    gap:6px !important;\n}\n.wof_stage4_value_dialog .wof_service_commission_source .wof_dialog_choice_title{\n    margin:0 0 3px !important;\n    font-size:11px !important;\n    line-height:1.25 !important;\n}\n.wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio{\n    margin:0 !important;\n}\n.wof_stage4_value_dialog .wof_service_commission_source small{\n    margin-top:2px !important;\n    line-height:1.35 !important;\n}\n.wof_stage4_value_dialog .wof_commission_size_toolbar{\n    min-height:28px !important;\n    padding:5px 10px !important;\n    justify-content:flex-start !important;\n}\n.wof_stage4_value_dialog .wof_commission_size_values{\n    padding-top:4px !important;\n}\n
+
+
+/* RC59 — compact service-area commission source + cleaner size editor */
+.wof_stage4_value_dialog .wof_service_commission_source{
+    padding:10px 14px !important;
+    min-height:auto !important;
+    margin:8px 0 !important;
+    gap:6px !important;
+}
+.wof_stage4_value_dialog .wof_service_commission_source .wof_dialog_choice_title{
+    margin:0 0 3px !important;
+    font-size:11px !important;
+    line-height:1.25 !important;
+}
+.wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio{
+    margin:0 !important;
+}
+.wof_stage4_value_dialog .wof_service_commission_source small{
+    margin-top:2px !important;
+    line-height:1.35 !important;
+}
+.wof_stage4_value_dialog .wof_commission_size_toolbar{
+    min-height:28px !important;
+    padding:5px 10px !important;
+    justify-content:flex-start !important;
+}
+.wof_stage4_value_dialog .wof_commission_size_values{
+    padding-top:4px !important;
+}
