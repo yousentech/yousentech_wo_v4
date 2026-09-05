@@ -6590,3 +6590,76 @@ body:has(.modal.show .wof_activity_hub_form),
     margin: 6px 0 0 0 !important;
     min-height: 0 !important;
 }
+
+
+/* RC62 — exact service-area commission source layout fix.
+   The source radio is outside .wof_commission_detail, so make the Odoo field
+   and all of its generated wrappers span the complete card width. */
+.wof_stage4_value_dialog .wof_service_commission_source {
+    display: block !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 10px 12px !important;
+    margin: 7px 0 9px !important;
+    box-sizing: border-box !important;
+}
+.wof_stage4_value_dialog .wof_service_commission_source .wof_dialog_choice_title {
+    width: 100% !important;
+    margin: 0 0 6px !important;
+    padding: 0 !important;
+    text-align: start !important;
+    font-size: 10.5px !important;
+    line-height: 1.25 !important;
+}
+.wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio,
+.wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio > div,
+.wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio .o_field_radio,
+.wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio .o_field_radio > div:has(.o_radio_item) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+.wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio .o_radio_item {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    margin: 0 !important;
+    padding: 7px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+.wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio .o_radio_item label {
+    margin: 0 !important;
+    padding-inline-start: 7px !important;
+    white-space: nowrap !important;
+    line-height: 1.2 !important;
+    font-size: 9.5px !important;
+}
+.wof_stage4_value_dialog .wof_service_commission_source > small {
+    display: block !important;
+    width: 100% !important;
+    margin: 5px 0 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
+    text-align: start !important;
+    font-size: 7.7px !important;
+}
+@media (max-width: 700px) {
+    .wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio,
+    .wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio > div,
+    .wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio .o_field_radio,
+    .wof_stage4_value_dialog .wof_service_commission_source .wof_commission_choice_radio .o_field_radio > div:has(.o_radio_item) {
+        grid-template-columns: 1fr !important;
+    }
+}
