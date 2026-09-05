@@ -607,8 +607,8 @@
             <div class="wof_completion_icon"><i class="fa fa-check" title="اكتملت التهيئة"/></div>
         </div>
         <div class="wof_completion_kicker"><i class="fa fa-sparkles" title="اكتملت"/> اكتملت جميع خطوات التهيئة</div>
-        <h2>أصبحت الخدمة جاهزة للبدء</h2>
-        <p class="wof_completion_lead">أحسنت! تم إكمال إعداد الفيلم / الخدمة بنجاح. يمكنك الآن تفعيلها والبدء باستخدامها في العمليات.</p>
+        <h2>اكتملت التهيئة بنجاح</h2>
+        <p class="wof_completion_lead">أصبحت الخدمة جاهزة للتفعيل والبدء باستخدامها في العمليات.</p>
         <div class="wof_completion_identity">
             <div class="wof_completion_identity_icon"><i class="fa fa-shield" title="الخدمة"/></div>
             <div class="wof_completion_identity_text">
