@@ -1733,8 +1733,34 @@ class WofFilmSetupValueDialog(models.TransientModel):
             and self.service_commission_source == 'independent'
             and self.commission_policy == 'by_size'
         ):
-            self.entry_ids.flush_recordset(['car_size_id', 'commission_value'])
+            # RC63: keep the size identity itself in the one2many payload.
+            # Older/onchange-created transient rows may still reach this method
+            # with label/value present but car_size_id empty.  Repair those rows
+            # deterministically from the configured film sizes before validating.
             expected_sizes = self.wizard_id.film_id.car_size_ids
+            entries = self.entry_ids.sorted(lambda e: (e.sequence, e.id))
+            missing_link_entries = entries.filtered(lambda e: not e.car_size_id)
+            if missing_link_entries:
+                size_by_name = {size.name.strip(): size for size in expected_sizes if size.name}
+                used_size_ids = set(entries.filtered('car_size_id').mapped('car_size_id').ids)
+                for entry in missing_link_entries:
+                    matched = size_by_name.get((entry.label or '').strip())
+                    if matched and matched.id not in used_size_ids:
+                        entry.car_size_id = matched
+                        used_size_ids.add(matched.id)
+
+            # Last-resort positional repair is safe here because the dialog rows
+            # are generated from film.car_size_ids in exactly this sequence and
+            # users cannot create/delete/reorder rows in this tree.
+            still_unlinked = entries.filtered(lambda e: not e.car_size_id)
+            remaining_sizes = expected_sizes.filtered(
+                lambda size: size.id not in set(entries.filtered('car_size_id').mapped('car_size_id').ids)
+            )
+            if still_unlinked and len(still_unlinked) == len(remaining_sizes):
+                for entry, size in zip(still_unlinked, remaining_sizes):
+                    entry.car_size_id = size
+
+            self.entry_ids.flush_recordset(['car_size_id', 'commission_value'])
             size_entries = self.entry_ids.filtered('car_size_id')
             value_by_size = {entry.car_size_id.id: entry.commission_value for entry in size_entries}
             missing_sizes = expected_sizes.filtered(lambda size: size.id not in value_by_size)
