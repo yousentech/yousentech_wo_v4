@@ -825,18 +825,33 @@ class WofFilmSetupWizard(models.TransientModel):
         if not self.active:
             self.active = True
 
-        if self.hub_id:
-            self.hub_id._refresh_films()
-            next_action = self.hub_id._reopen_hub()
+        # RC65: after activation always return to the films/services screen
+        # for the current activity.  Do not leave the user inside the setup
+        # wizard and do not fall back to the activities screen.
+        hub = self.hub_id
+        if not hub.exists():
+            hub = self.env['wof.activity.hub'].create({
+                'profile_id': self.profile_id.id,
+                'company_id': self.company_id.id,
+                'view_state': 'films',
+                'selected_activity_id': self.film_id.service_type_id.id,
+            })
         else:
-            next_action = {'type': 'ir.actions.act_window_close'}
+            hub.write({
+                'view_state': 'films',
+                'selected_activity_id': self.film_id.service_type_id.id,
+            })
+
+        hub._refresh_films()
+        next_action = hub._reopen_hub()
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('تم تفعيل الخدمة بنجاح'),
-                'message': _('أصبحت الخدمة الآن جاهزة للاستخدام في العمليات.'),
+                'message': _('%s أصبحت جاهزة للاستخدام، وتم الرجوع إلى شاشة الأفلام والخدمات.')
+                           % self.film_id.name,
                 'type': 'success',
                 'sticky': False,
                 'next': next_action,
