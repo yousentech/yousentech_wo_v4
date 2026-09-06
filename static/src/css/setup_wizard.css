@@ -7032,3 +7032,58 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_stage4_notebook .tab-pane {
     max-height: none !important;
 }
+
+
+/* =========================================================================
+ * RC68 — Main fields table: remove bottom frame + conditional scroll
+ * Visual-only. No field/business logic changed.
+ * ========================================================================= */
+
+/* Keep the list compact and borderless at the bottom. */
+.wof_stage4_fields_table,
+.wof_stage4_fields_table .o_list_renderer,
+.wof_stage4_fields_table .table-responsive,
+.wof_stage4_fields_table .o_content {
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Some Odoo list wrappers draw a rounded bottom border; remove it only here. */
+.wof_stage4_fields_table .o_list_table {
+    border-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.wof_stage4_fields_table .o_list_table tbody tr:last-child td {
+    border-bottom: 0 !important;
+}
+
+/* Use available space, but restore a scrollbar only when extra rows exceed it.
+   Current rows fit without scroll; future extra rows remain accessible. */
+.wof_stage4_fields_table .o_list_renderer {
+    max-height: 330px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Keep header visible while scrolling additional fields. */
+.wof_stage4_fields_table .o_list_table thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2 !important;
+    background: #f7f9fa !important;
+}
+
+/* Avoid an extra nested scrollbar from parent wrappers. */
+.wof_stage4_fields_table .table-responsive,
+.wof_stage4_fields_table .o_content {
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* Remove the empty framed strip sometimes rendered below the list. */
+.wof_stage4_fields_table + .o_list_footer,
+.wof_stage4_fields_table .o_list_footer,
+.wof_stage4_fields_table .o_list_table tfoot:empty {
+    display: none !important;
+}
