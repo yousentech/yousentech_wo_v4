@@ -7218,98 +7218,27 @@ body:has(.modal.show .wof_activity_hub_form),
 
 
 /* =========================================================================
- * RC71 — Footer structural fix based on actual XML hierarchy
- *
- * Actual structure:
- *   stages 1-4:
- *     shell
- *       intro_panel
- *       body_panel
- *         content
- *         footer
- *
- *   stage 5:
- *     shell
- *       intro_panel
- *       review
- *         ...content...
- *         footer
- *
- * No business/navigation logic changed.
+ * RC72 — Safe fixed footer
+ * Based on RC69. Minimal structural flex only.
+ * No grid. No forced height on stage content. No business logic changes.
  * ========================================================================= */
-
 @media (min-width: 901px) {
 
-    /* Keep the unified dialog size from RC69. */
-    .o_dialog .modal-dialog:has(form.wof_setup_form),
-    .modal-dialog:has(form.wof_setup_form),
-    .o_dialog .modal-dialog:has(.wof_setup_form),
-    .modal-dialog:has(.wof_setup_form) {
-        width: min(1240px, calc(100vw - 42px)) !important;
-        max-width: min(1240px, calc(100vw - 42px)) !important;
-        height: calc(100vh - 36px) !important;
-        max-height: calc(100vh - 36px) !important;
-        margin: 18px auto !important;
-    }
-
-    .modal-content:has(.wof_setup_form),
-    .modal-body:has(.wof_setup_form),
-    form.wof_setup_form {
-        min-height: 0 !important;
-    }
-
-    .modal-content:has(.wof_setup_form) {
-        height: 100% !important;
-        overflow: hidden !important;
-    }
-
-    .modal-body:has(.wof_setup_form) {
-        height: 100% !important;
-        overflow: hidden !important;
-    }
-
-    form.wof_setup_form {
-        height: 100% !important;
-        overflow: hidden !important;
-    }
-
-    /* IMPORTANT: no grid here.
-       Shell follows the real XML: intro on top + body/review filling the rest. */
-    .wof_stage1_shell,
-    .wof_stage2_shell,
-    .wof_stage3_shell,
-    .wof_stage4_shell,
-    .wof_stage5_shell {
-        display: flex !important;
-        flex-direction: column !important;
-        height: 100% !important;
-        min-height: 0 !important;
-        max-height: 100% !important;
-        overflow: hidden !important;
-    }
-
-    .wof_stage1_shell > .wof_stage1_intro_panel,
-    .wof_stage2_shell > .wof_stage1_intro_panel,
-    .wof_stage3_shell > .wof_stage1_intro_panel,
-    .wof_stage4_shell > .wof_stage1_intro_panel,
-    .wof_stage5_shell > .wof_stage1_intro_panel {
-        flex: 0 0 auto !important;
-        min-height: 0 !important;
-    }
-
-    /* Stages 1–4: THIS is the real footer parent. */
+    /* Stages 1–4:
+       shell already fills the unified dialog in RC69.
+       Make the REAL body panel consume the remaining height. */
     .wof_stage1_shell > .wof_stage1_body_panel,
     .wof_stage2_shell > .wof_stage1_body_panel,
     .wof_stage3_shell > .wof_stage1_body_panel,
     .wof_stage4_shell > .wof_stage1_body_panel {
         flex: 1 1 0 !important;
         min-height: 0 !important;
-        height: auto !important;
         display: flex !important;
         flex-direction: column !important;
         overflow: hidden !important;
     }
 
+    /* Content grows naturally. If it becomes too tall, ONLY it scrolls. */
     .wof_stage1_body_panel > .wof_stage1_content {
         flex: 1 1 0 !important;
         min-height: 0 !important;
@@ -7319,78 +7248,55 @@ body:has(.modal.show .wof_activity_hub_form),
         scrollbar-gutter: stable !important;
     }
 
-    /* Real footer: always visible and always at bottom of body_panel. */
+    /* Navigation is always visible at the bottom of the body panel. */
     .wof_stage1_body_panel > .wof_stage1_footer {
-        flex: 0 0 56px !important;
-        height: 56px !important;
+        flex: 0 0 auto !important;
         min-height: 56px !important;
-        max-height: 56px !important;
-        width: 100% !important;
-        margin-top: auto !important;
+        max-height: none !important;
+        height: auto !important;
+        margin-top: 0 !important;
         margin-bottom: 0 !important;
         position: relative !important;
-        inset: auto !important;
-        display: flex !important;
         visibility: visible !important;
         opacity: 1 !important;
-        align-items: center !important;
         overflow: visible !important;
-        z-index: 10 !important;
+        z-index: 3 !important;
         background: #fff !important;
     }
 
-    /* Undo RC69 footer assumptions that could fight the real hierarchy. */
-    .wof_stage1_footer,
-    .wof_stage2_footer,
-    .wof_stage3_footer,
-    .wof_stage4_footer {
-        align-self: auto !important;
-        flex-shrink: 0 !important;
-    }
-
-    /* Stage 5 review uses a different real parent. */
+    /* Review step has a different real container. */
     .wof_stage5_shell > .wof_stage5_review {
         flex: 1 1 0 !important;
         min-height: 0 !important;
-        height: auto !important;
         display: flex !important;
         flex-direction: column !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
-        scrollbar-gutter: stable !important;
-    }
-
-    .wof_stage5_review > .wof_stage5_cards,
-    .wof_stage5_review > .wof_stage5_readiness {
-        flex: 0 0 auto !important;
     }
 
     .wof_stage5_review > .wof_stage5_footer {
-        flex: 0 0 56px !important;
-        height: 56px !important;
+        flex: 0 0 auto !important;
         min-height: 56px !important;
-        max-height: 56px !important;
-        width: 100% !important;
+        max-height: none !important;
+        height: auto !important;
         margin-top: auto !important;
         margin-bottom: 0 !important;
         position: sticky !important;
         bottom: 0 !important;
-        display: flex !important;
         visibility: visible !important;
         opacity: 1 !important;
-        align-items: center !important;
-        overflow: visible !important;
-        z-index: 10 !important;
+        z-index: 3 !important;
         background: #fff !important;
     }
 
-    /* Ensure every navigation button is visible and vertically centered. */
-    .wof_stage1_footer > .btn,
-    .wof_stage1_footer .wof_stage2_prev_wrap > .btn,
-    .wof_stage5_footer > .btn,
-    .wof_stage5_footer > .wof_stage5_activate {
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        align-self: center !important;
+    /* Override RC69's generic content/footer sizing only where necessary. */
+    .wof_stage1_body_panel > .wof_stage1_content,
+    .wof_stage5_shell > .wof_stage5_review {
+        max-height: none !important;
+    }
+
+    .wof_stage1_body_panel > .wof_stage1_footer,
+    .wof_stage5_review > .wof_stage5_footer {
+        align-self: stretch !important;
     }
 }
