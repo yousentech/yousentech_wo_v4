@@ -7215,3 +7215,99 @@ body:has(.modal.show .wof_activity_hub_form),
         min-height: 54px !important;
     }
 }
+
+
+/* =========================================================================
+ * RC70 — Pin navigation footer to the bottom edge of the setup dialog
+ * Visual-only. No navigation/business logic changed.
+ * ========================================================================= */
+
+@media (min-width: 901px) {
+
+    /* The form itself becomes the full-height layout container. */
+    form.wof_setup_form {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Each stage must consume the full available form height, not only the
+       natural height of its content. */
+    .wof_stage1_shell,
+    .wof_stage2_shell,
+    .wof_stage3_shell,
+    .wof_stage4_shell,
+    .wof_stage5_shell {
+        flex: 1 1 0 !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        display: grid !important;
+        grid-template-rows: auto minmax(0, 1fr) 56px !important;
+        overflow: hidden !important;
+    }
+
+    /* All middle content belongs to row 2 and stretches to consume empty space.
+       Short screens therefore no longer pull the footer upward. */
+    .wof_stage1_content,
+    .wof_stage2_content,
+    .wof_stage3_content,
+    .wof_stage4_content,
+    .wof_stage5_content,
+    .wof_stage1_body,
+    .wof_stage2_body,
+    .wof_stage3_body,
+    .wof_stage4_body,
+    .wof_stage5_body,
+    .wof_setup_stage_content {
+        min-height: 0 !important;
+        height: 100% !important;
+        align-self: stretch !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Footer always occupies the last grid row at the physical bottom of the
+       stage.  No margin/content height can lift it upward. */
+    .wof_stage1_footer,
+    .wof_stage2_footer,
+    .wof_stage3_footer,
+    .wof_stage4_footer,
+    .wof_stage5_footer,
+    .wof_setup_footer,
+    .wof_wizard_footer {
+        grid-row: 3 !important;
+        align-self: end !important;
+        position: relative !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 56px !important;
+        min-height: 56px !important;
+        max-height: 56px !important;
+        margin: 0 !important;
+        flex: none !important;
+        z-index: 5 !important;
+        background: #fff !important;
+    }
+
+    /* The common stage top/progress area stays in row 1. */
+    .wof_stage1_header,
+    .wof_stage2_header,
+    .wof_stage3_header,
+    .wof_stage4_header,
+    .wof_stage5_header,
+    .wof_setup_header,
+    .wof_stage1_steps,
+    .wof_setup_steps {
+        grid-row: auto !important;
+        align-self: start !important;
+    }
+
+    /* Final review content is especially short: force its main content to
+       stretch so activation controls remain on the common bottom baseline. */
+    .wof_stage5_shell > :not(.wof_stage5_footer):last-of-type {
+        min-height: 0 !important;
+    }
+}
