@@ -7327,3 +7327,125 @@ body:has(.modal.show .wof_activity_hub_form),
         min-height: 1px !important;
     }
 }
+
+/* =========================================================================
+ * RC75 — Unified larger setup dialog + invariant navigation position.
+ * UI-only: no fields, modifiers, actions, or business rules are changed.
+ * All five steps share one desktop frame.  The operation step gets the extra
+ * room it needs by enlarging that shared frame, not by giving it a special
+ * size.  Only the stage content scrolls; navigation stays at the bottom.
+ * ========================================================================= */
+@media (min-width: 901px) {
+    .o_dialog .modal-dialog:has(form.wof_setup_form),
+    .modal-dialog:has(form.wof_setup_form),
+    .o_dialog .modal-dialog:has(.wof_setup_form),
+    .modal-dialog:has(.wof_setup_form) {
+        width: min(1320px, calc(100vw - 24px)) !important;
+        max-width: min(1320px, calc(100vw - 24px)) !important;
+        height: calc(100vh - 24px) !important;
+        max-height: calc(100vh - 24px) !important;
+        margin: 12px auto !important;
+    }
+
+    .modal-content:has(.wof_setup_form) {
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .wof_stage1_shell,
+    .wof_stage2_shell,
+    .wof_stage3_shell,
+    .wof_stage4_shell,
+    .wof_stage5_shell {
+        width: 100% !important;
+        max-width: 1260px !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        margin-inline: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+
+    /* The body owns the remaining height in every stage. */
+    .wof_stage1_shell > .wof_stage1_body_panel,
+    .wof_stage2_shell > .wof_stage1_body_panel,
+    .wof_stage3_shell > .wof_stage1_body_panel,
+    .wof_stage4_shell > .wof_stage1_body_panel {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+
+    /* Scroll belongs to content, never to the navigation bar. */
+    .wof_stage1_body_panel > .wof_stage1_content {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-gutter: stable !important;
+    }
+
+    /* Same physical footer slot on steps 1–4. */
+    .wof_stage1_body_panel > .wof_stage1_footer {
+        flex: 0 0 60px !important;
+        height: 60px !important;
+        min-height: 60px !important;
+        max-height: 60px !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        position: relative !important;
+        bottom: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+        z-index: 4 !important;
+        background: #fff !important;
+    }
+
+    /* Review/activation uses a different wrapper, but the same footer slot. */
+    .wof_stage5_shell > .wof_stage5_review {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    .wof_stage5_review > .wof_stage5_footer {
+        flex: 0 0 60px !important;
+        height: 60px !important;
+        min-height: 60px !important;
+        max-height: 60px !important;
+        margin-top: auto !important;
+        margin-bottom: 0 !important;
+        position: sticky !important;
+        bottom: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 4 !important;
+        background: #fff !important;
+    }
+
+    /* Operations: use the larger shared frame and keep its inner tabs/content
+       scrollable so the Previous/Next controls never drop below the viewport. */
+    .wof_stage4_notebook,
+    .wof_stage4_notebook .tab-content,
+    .wof_stage4_notebook .tab-pane.active {
+        min-height: 0 !important;
+        max-height: none !important;
+    }
+}
