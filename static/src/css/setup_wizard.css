@@ -6824,3 +6824,45 @@ body:has(.modal.show .wof_activity_hub_form),
         flex: none !important;
     }
 }
+
+/* ========================================================================
+ * RC65 — desktop setup wizard body visibility hardening
+ *
+ * RC64 only reset the shared stage shell/body.  In Odoo 17 dialogs the
+ * renderer/sheet ancestors can still keep a constrained flex height and clip
+ * everything after the intro panel.  Reset those ancestors for setup stages
+ * that are meant to flow naturally.  Stage 4 is intentionally excluded
+ * because it owns a dedicated fixed-height/no-scroll layout.
+ * ======================================================================== */
+@media (min-width: 768px) {
+    .modal-content:has(.wof_setup_form):not(:has(.wof_stage4_shell)) .modal-body,
+    .modal-content:has(.wof_setup_form):not(:has(.wof_stage4_shell)) .o_form_renderer,
+    .modal-content:has(.wof_setup_form):not(:has(.wof_stage4_shell)) .o_form_sheet_bg,
+    .modal-content:has(.wof_setup_form):not(:has(.wof_stage4_shell)) .o_form_sheet {
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        flex: none !important;
+    }
+
+    .wof_setup_form .wof_stage1_shell:not(.wof_stage4_shell),
+    .wof_setup_form .wof_stage1_shell:not(.wof_stage4_shell) .wof_stage1_body_panel,
+    .wof_setup_form .wof_stage1_shell:not(.wof_stage4_shell) .wof_stage1_content,
+    .wof_setup_form .wof_stage1_shell:not(.wof_stage4_shell) .wof_stage1_activity_field {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        flex: none !important;
+        visibility: visible !important;
+    }
+
+    /* The body must participate in normal document flow below the stepper. */
+    .wof_setup_form .wof_stage1_shell:not(.wof_stage4_shell) .wof_stage1_body_panel {
+        position: relative !important;
+        display: block !important;
+        clear: both !important;
+    }
+}

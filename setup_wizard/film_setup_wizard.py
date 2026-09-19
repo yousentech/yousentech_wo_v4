@@ -1677,7 +1677,10 @@ class WofFilmSetupValueDialog(models.TransientModel):
                     # the inherited value.  Non-zero values explicitly edited
                     # by the user are preserved as entered.
                     for entry in self.entry_ids.filtered('car_size_id'):
-                        if not entry.commission_value:
+                        # Preserve the seed only for untouched virtual rows. An
+                        # explicit 0 is a valid business value and must never be
+                        # silently replaced by the previous uniform commission.
+                        if not entry.commission_value and not entry.commission_touched:
                             entry.commission_value = seed
 
             part_line.write({
@@ -1838,8 +1841,15 @@ class WofFilmSetupValueEntry(models.TransientModel):
     currency_id = fields.Many2one(related='dialog_id.currency_id', readonly=True)
     amount = fields.Monetary(string='القيمة', currency_field='currency_id', required=True)
     commission_value = fields.Float(string='قيمة العمولة')
+    commission_touched = fields.Boolean(default=False, readonly=True)
     is_free = fields.Boolean(string='مجاني')
     price_readonly = fields.Boolean(string='للقراءة فقط')
+
+    @api.onchange('commission_value')
+    def _onchange_commission_value(self):
+        for entry in self:
+            if entry.dialog_id.mode == 'commission':
+                entry.commission_touched = True
 
     @api.onchange('is_free')
     def _onchange_is_free(self):
