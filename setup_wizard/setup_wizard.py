@@ -193,11 +193,8 @@ class WofCompanyProfile(models.Model):
         domain="[('type_tax_use', '=', 'sale'), ('company_id', '=', company_id)]",
     )
     operation_price_input_mode = fields.Selection(
-        [('excluded', 'سعر البيع غير شامل الضريبة'), ('included', 'سعر البيع شامل الضريبة')],
-        string='طريقة إدخال السعر',
-        compute='_compute_operation_price_input_mode',
-        store=True,
-        readonly=True,
+        [('excluded', 'السعر قبل الضريبة'), ('included', 'السعر شامل الضريبة')],
+        string='طريقة إدخال السعر', default='excluded', required=True,
     )
     operation_pricing_policy = fields.Selection(
         [('fixed', 'سعر موحد'), ('by_size', 'حسب حجم السيارة')],
@@ -230,7 +227,7 @@ class WofCompanyProfile(models.Model):
         default='order', required=True,
     )
     commission_event = fields.Selection(
-        [('delivery', 'عند إنجاز أمر التركيب'), ('invoice', 'عند ترحيل الفاتورة')],
+        [('delivery', 'بعد إنجاز أمر التركيب'), ('invoice', 'بعد ترحيل الفاتورة')],
         default='delivery', required=True,
     )
     required_vehicle_data = fields.Selection(
@@ -447,18 +444,6 @@ class WofCompanyProfile(models.Model):
             if record.operation_auto_invoice:
                 record.operation_invoice_after_full_payment = False
                 record.payment_policy = 'partial'
-
-    @api.depends('operation_tax_enabled', 'operation_tax_id', 'operation_tax_id.price_include')
-    def _compute_operation_price_input_mode(self):
-        """RC66: price entry mode follows the selected sales tax automatically."""
-        for record in self:
-            record.operation_price_input_mode = (
-                'included'
-                if record.operation_tax_enabled
-                and record.operation_tax_id
-                and bool(record.operation_tax_id.price_include)
-                else 'excluded'
-            )
 
     @api.depends(
         'activity_line_ids.selected', 'activity_line_ids.name',
@@ -950,7 +935,7 @@ class WofCompanyProfile(models.Model):
         if self.current_step in ('operations', 'review'):
             self._ensure_default_operation_tax()
         return {
-            'type': 'ir.actions.act_window', 'name': _('تهيئة النظام'),
+            'type': 'ir.actions.act_window', 'name': _('مركز تهيئة النظام'),
             'res_model': 'wof.company.profile', 'res_id': self.id,
             'view_mode': 'form',
             'view_id': self.env.ref('yousentech_wo_v4.view_wof_setup_wizard_form').id,
