@@ -825,18 +825,33 @@ class WofFilmSetupWizard(models.TransientModel):
         if not self.active:
             self.active = True
 
-        if self.hub_id:
-            self.hub_id._refresh_films()
-            next_action = self.hub_id._reopen_hub()
+        # RC65: after activation always return to the films/services screen
+        # for the current activity.  Do not leave the user inside the setup
+        # wizard and do not fall back to the activities screen.
+        hub = self.hub_id
+        if not hub.exists():
+            hub = self.env['wof.activity.hub'].create({
+                'profile_id': self.profile_id.id,
+                'company_id': self.company_id.id,
+                'view_state': 'films',
+                'selected_activity_id': self.film_id.service_type_id.id,
+            })
         else:
-            next_action = {'type': 'ir.actions.act_window_close'}
+            hub.write({
+                'view_state': 'films',
+                'selected_activity_id': self.film_id.service_type_id.id,
+            })
+
+        hub._refresh_films()
+        next_action = hub._reopen_hub()
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('تم تفعيل الخدمة بنجاح'),
-                'message': _('أصبحت الخدمة الآن جاهزة للاستخدام في العمليات.'),
+                'message': _('%s أصبحت جاهزة للاستخدام، وتم الرجوع إلى شاشة الأفلام والخدمات.')
+                           % self.film_id.name,
                 'type': 'success',
                 'sticky': False,
                 'next': next_action,
@@ -1677,9 +1692,6 @@ class WofFilmSetupValueDialog(models.TransientModel):
                     # the inherited value.  Non-zero values explicitly edited
                     # by the user are preserved as entered.
                     for entry in self.entry_ids.filtered('car_size_id'):
-                        # Preserve the seed only for untouched virtual rows. An
-                        # explicit 0 is a valid business value and must never be
-                        # silently replaced by the previous uniform commission.
                         if not entry.commission_value and not entry.commission_touched:
                             entry.commission_value = seed
 
@@ -1841,14 +1853,18 @@ class WofFilmSetupValueEntry(models.TransientModel):
     currency_id = fields.Many2one(related='dialog_id.currency_id', readonly=True)
     amount = fields.Monetary(string='القيمة', currency_field='currency_id', required=True)
     commission_value = fields.Float(string='قيمة العمولة')
+    # RC73: distinguish an intentional 0 entered by the user from a virtual
+    # one2many value omitted by the web client during FIXED -> BY SIZE.
     commission_touched = fields.Boolean(default=False, readonly=True)
     is_free = fields.Boolean(string='مجاني')
     price_readonly = fields.Boolean(string='للقراءة فقط')
 
     @api.onchange('commission_value')
     def _onchange_commission_value(self):
+        # Only client edits of the commission field mark the value as touched.
+        # Rows seeded by the parent dialog keep the default False value.
         for entry in self:
-            if entry.dialog_id.mode == 'commission':
+            if entry.dialog_id and entry.dialog_id.mode == 'commission':
                 entry.commission_touched = True
 
     @api.onchange('is_free')
