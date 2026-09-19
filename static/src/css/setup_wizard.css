@@ -6792,3 +6792,35 @@ body:has(.modal.show .wof_activity_hub_form),
         font-size: 24px !important;
     }
 }
+
+/* ========================================================================
+ * RC64 desktop visibility hotfix
+ *
+ * Root cause verified in Chromium DevTools on the live Odoo 17 wizard:
+ * the shared stage shell was being resolved as a shrinking flex container
+ * with max-height:100%/overflow:hidden on desktop.  That collapsed the
+ * visible stage body to ~2px while the same body rendered normally on mobile.
+ *
+ * Keep this override deliberately narrow: only the setup wizard's shared
+ * stage shell/body on desktop.  No card, field, business logic, or stage
+ * visibility rules are changed.
+ * ======================================================================== */
+@media (min-width: 768px) {
+    .wof_setup_form .wof_stage1_shell {
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        flex: none !important;
+    }
+
+    .wof_setup_form .wof_stage1_body_panel {
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        flex: none !important;
+    }
+}
