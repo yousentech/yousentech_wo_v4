@@ -7087,3 +7087,5 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_stage4_fields_table .o_list_table tfoot:empty {
     display: none !important;
 }
+
+/* RC74 asset-reset: unique bundle path; visual rules intentionally unchanged. */
