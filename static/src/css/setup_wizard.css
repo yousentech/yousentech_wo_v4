@@ -7300,3 +7300,30 @@ body:has(.modal.show .wof_activity_hub_form),
         align-self: stretch !important;
     }
 }
+
+/* =========================================================================
+ * RC74 — FIX: setup stage body collapsed to zero height on desktop.
+ *
+ * RC72 used flex: 1 1 0 on the real body panel/content.  In Odoo 17 the
+ * sheet wrapper does not always provide a definite computed height to its
+ * descendants.  A zero flex-basis can therefore collapse the body to 0px,
+ * leaving only the intro/stepper visible.  Preserve the existing fixed-footer
+ * concept, but let the body participate with its intrinsic size (`auto`).
+ * No business logic, visibility modifiers, fields, or actions are changed.
+ * ========================================================================= */
+@media (min-width: 901px) {
+    .wof_stage1_shell > .wof_stage1_body_panel,
+    .wof_stage2_shell > .wof_stage1_body_panel,
+    .wof_stage3_shell > .wof_stage1_body_panel,
+    .wof_stage4_shell > .wof_stage1_body_panel {
+        flex: 1 1 auto !important;
+        height: auto !important;
+        min-height: 1px !important;
+    }
+
+    .wof_stage1_body_panel > .wof_stage1_content {
+        flex: 1 1 auto !important;
+        height: auto !important;
+        min-height: 1px !important;
+    }
+}
