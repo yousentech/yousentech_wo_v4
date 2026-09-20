@@ -61,6 +61,38 @@
                         <div class="wof_film_step" invisible="current_step == 'review'"><span class="wof_film_step_no">6</span><strong>المراجعة والتفعيل</strong></div>
                         <div class="wof_film_step is-active" invisible="current_step != 'review'"><span class="wof_film_step_no">6</span><strong>المراجعة والتفعيل</strong></div>
                     </div>
+                <div class="wof_film_top_nav_zone">
+                    <div invisible="current_step != 'basic'" class="wof_film_top_nav wof_film_setup_footer">
+                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
+                    <div class="wof_film_footer_actions">
+                        <button name="action_save_draft" string="حفظ كمسودة" type="object" class="btn btn-outline-primary"/>
+                        <button name="action_continue" string="حفظ والمتابعة" type="object" class="btn btn-primary"/>
+                    </div>
+                </div>
+                    <div invisible="current_step != 'tint'" class="wof_film_top_nav wof_film_setup_footer wof_tint_footer">
+                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
+                    <div class="wof_film_footer_actions">
+                        <button name="action_back_basic" string="السابق: البيانات الأساسية" type="object" class="btn btn-outline-primary"/>
+                        <button name="action_continue_tint" string="التالي: المكونات" type="object" class="btn btn-primary"/>
+                    </div>
+                </div>
+                    <div invisible="current_step != 'components'" class="wof_film_top_nav wof_film_setup_footer wof_components_footer">
+                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
+                    <div class="wof_film_footer_actions">
+                        <button name="action_back_tint" string="السابق: درجات اللون" type="object" class="btn btn-outline-primary"/>
+                        <button name="action_continue_components" string="التالي: التسعير" type="object" class="btn btn-primary"/>
+                    </div>
+                </div>
+                    <div invisible="current_step != 'pricing'" class="wof_film_top_nav wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_components" string="السابق: المكونات" type="object" class="btn btn-outline-primary"/><button name="action_continue_pricing" string="التالي: العمولات" type="object" class="btn btn-primary"/></div></div>
+                    <div invisible="current_step != 'commission'" class="wof_film_top_nav wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_pricing" string="السابق: التسعير" type="object" class="btn btn-outline-primary"/><button name="action_continue_commission" string="التالي: المراجعة والتفعيل" type="object" class="btn btn-primary"/></div></div>
+                    <div invisible="current_step != 'review'" class="wof_film_top_nav wof_film_setup_footer wof_completion_footer">
+                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
+                    <div class="wof_film_footer_actions">
+                        <button name="action_back_commission" string="السابق: العمولات" type="object" class="btn btn-outline-primary"/>
+                        <button name="action_activate_service" string="تفعيل الخدمة والبدء" type="object" class="btn btn-primary wof_activate_service_btn"/>
+                    </div>
+                </div>
+                </div>
 
                     <div class="wof_film_setup_intro" invisible="current_step != 'basic'">
                         <i class="fa fa-magic" title="تهيئة"/>
@@ -623,37 +655,6 @@
         </div>
     </div>
 </div></div>
-
-                <footer invisible="current_step != 'basic'" class="wof_film_setup_footer">
-                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
-                    <div class="wof_film_footer_actions">
-                        <button name="action_save_draft" string="حفظ كمسودة" type="object" class="btn btn-outline-primary"/>
-                        <button name="action_continue" string="حفظ والمتابعة" type="object" class="btn btn-primary"/>
-                    </div>
-                </footer>
-                <footer invisible="current_step != 'tint'" class="wof_film_setup_footer wof_tint_footer">
-                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
-                    <div class="wof_film_footer_actions">
-                        <button name="action_back_basic" string="السابق: البيانات الأساسية" type="object" class="btn btn-outline-primary"/>
-                        <button name="action_continue_tint" string="التالي: المكونات" type="object" class="btn btn-primary"/>
-                    </div>
-                </footer>
-                <footer invisible="current_step != 'components'" class="wof_film_setup_footer wof_components_footer">
-                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
-                    <div class="wof_film_footer_actions">
-                        <button name="action_back_tint" string="السابق: درجات اللون" type="object" class="btn btn-outline-primary"/>
-                        <button name="action_continue_components" string="التالي: التسعير" type="object" class="btn btn-primary"/>
-                    </div>
-                </footer>
-                <footer invisible="current_step != 'pricing'" class="wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_components" string="السابق: المكونات" type="object" class="btn btn-outline-primary"/><button name="action_continue_pricing" string="التالي: العمولات" type="object" class="btn btn-primary"/></div></footer>
-                <footer invisible="current_step != 'commission'" class="wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_pricing" string="السابق: التسعير" type="object" class="btn btn-outline-primary"/><button name="action_continue_commission" string="التالي: المراجعة والتفعيل" type="object" class="btn btn-primary"/></div></footer>
-                <footer invisible="current_step != 'review'" class="wof_film_setup_footer wof_completion_footer">
-                    <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
-                    <div class="wof_film_footer_actions">
-                        <button name="action_back_commission" string="السابق: العمولات" type="object" class="btn btn-outline-primary"/>
-                        <button name="action_activate_service" string="تفعيل الخدمة والبدء" type="object" class="btn btn-primary wof_activate_service_btn"/>
-                    </div>
-                </footer>
             </form>
         </field>
     </record>
