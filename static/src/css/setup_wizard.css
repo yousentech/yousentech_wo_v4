@@ -7428,3 +7428,46 @@ body:has(.modal.show .wof_activity_hub_form),
         border-top: 1px solid #e7eef0;
     }
 }
+
+/* =========================================================================
+ * RC80 — FIX review stage visibility.
+ * RC72 gave stage 5 `flex: 1 1 0` but RC74 only repaired stages 1–4.
+ * On Odoo 17 the review container can therefore collapse to zero height,
+ * leaving only the stepper visible. Keep intrinsic sizing for review/success.
+ * No fields, modifiers, actions, or business logic are changed.
+ * ========================================================================= */
+@media (min-width: 901px) {
+    .wof_stage5_shell {
+        display: block !important;
+        height: auto !important;
+        min-height: 1px !important;
+        overflow: visible !important;
+    }
+
+    .wof_stage5_shell > .wof_stage5_review {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 1px !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .wof_stage5_review > .wof_stage5_footer {
+        flex: 0 0 auto !important;
+        height: auto !important;
+        min-height: 56px !important;
+        margin-top: 12px !important;
+        position: relative !important;
+        bottom: auto !important;
+    }
+
+    .wof_stage5_shell > .wof_stage5_success {
+        display: flex !important;
+        flex: 0 0 auto !important;
+        height: auto !important;
+        min-height: 430px !important;
+        overflow: visible !important;
+    }
+}
