@@ -7508,4 +7508,90 @@ body:has(.modal.show .wof_activity_hub_form),
         inset-block-end: auto !important;
     }
 }
-\n\n/* =========================================================================\n * RC77 — top-fixed shared navigation + calmer content rhythm.\n * Navigation is deliberately ordered before the scrollable body so its\n * vertical position never depends on stage content. Creation actions live\n * after their card grids, keeping the title area visually quiet.\n * ========================================================================= */\n@media (min-width: 901px) {\n    .wof_stage1_body_panel {\n        display: flex !important;\n        flex-direction: column !important;\n        min-height: 0 !important;\n        overflow: hidden !important;\n    }\n\n    .wof_stage1_body_panel > .wof_stage1_footer {\n        order: 0 !important;\n        flex: 0 0 58px !important;\n        height: 58px !important;\n        min-height: 58px !important;\n        max-height: 58px !important;\n        margin: 0 !important;\n        padding: 10px 16px !important;\n        border-top: 0 !important;\n        border-bottom: 1px solid #d9e5e8 !important;\n        background: #fff !important;\n        position: relative !important;\n        inset: auto !important;\n        z-index: 6 !important;\n        box-sizing: border-box !important;\n    }\n\n    .wof_stage1_body_panel > .wof_stage1_content {\n        order: 1 !important;\n        flex: 1 1 0 !important;\n        min-height: 0 !important;\n        overflow-y: auto !important;\n        overflow-x: hidden !important;\n        padding-top: 18px !important;\n        padding-bottom: 22px !important;\n        scrollbar-gutter: stable !important;\n    }\n\n    .wof_stage1_create_row {\n        display: flex !important;\n        align-items: center !important;\n        justify-content: flex-start !important;\n        margin-top: 18px !important;\n        padding-top: 14px !important;\n        border-top: 1px solid #e7eef0 !important;\n    }\n\n    [dir="rtl"] .wof_stage1_create_row {\n        justify-content: flex-start !important;\n    }\n\n    .wof_stage1_title_row {\n        align-items: center !important;\n    }\n\n    /* Keep navigation semantics consistent in RTL: previous on the right,\n       next on the left. Informational copy stays in the middle. */\n    .wof_stage1_footer,\n    .wof_stage2_footer,\n    .wof_stage3_footer,\n    .wof_stage4_footer {\n        direction: rtl !important;\n    }\n\n    .wof_stage1_footer .wof_stage1_next {\n        margin-inline-start: auto !important;\n    }\n\n    .wof_stage2_footer .wof_stage2_prev_wrap {\n        margin-inline-end: 0 !important;\n    }\n}\n\n@media (max-width: 900px) {\n    .wof_stage1_create_row {\n        display: flex;\n        margin-top: 14px;\n        padding-top: 12px;\n        border-top: 1px solid #e7eef0;\n    }\n}\n
+
+
+/* =========================================================================
+ * RC77 — top-fixed shared navigation + calmer content rhythm.
+ * Navigation is deliberately ordered before the scrollable body so its
+ * vertical position never depends on stage content. Creation actions live
+ * after their card grids, keeping the title area visually quiet.
+ * ========================================================================= */
+@media (min-width: 901px) {
+    .wof_stage1_body_panel {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .wof_stage1_body_panel > .wof_stage1_footer {
+        order: 0 !important;
+        flex: 0 0 58px !important;
+        height: 58px !important;
+        min-height: 58px !important;
+        max-height: 58px !important;
+        margin: 0 !important;
+        padding: 10px 16px !important;
+        border-top: 0 !important;
+        border-bottom: 1px solid #d9e5e8 !important;
+        background: #fff !important;
+        position: relative !important;
+        inset: auto !important;
+        z-index: 6 !important;
+        box-sizing: border-box !important;
+    }
+
+    .wof_stage1_body_panel > .wof_stage1_content {
+        order: 1 !important;
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding-top: 18px !important;
+        padding-bottom: 22px !important;
+        scrollbar-gutter: stable !important;
+    }
+
+    .wof_stage1_create_row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        margin-top: 18px !important;
+        padding-top: 14px !important;
+        border-top: 1px solid #e7eef0 !important;
+    }
+
+    [dir="rtl"] .wof_stage1_create_row {
+        justify-content: flex-start !important;
+    }
+
+    .wof_stage1_title_row {
+        align-items: center !important;
+    }
+
+    /* Keep navigation semantics consistent in RTL: previous on the right,
+       next on the left. Informational copy stays in the middle. */
+    .wof_stage1_footer,
+    .wof_stage2_footer,
+    .wof_stage3_footer,
+    .wof_stage4_footer {
+        direction: rtl !important;
+    }
+
+    .wof_stage1_footer .wof_stage1_next {
+        margin-inline-start: auto !important;
+    }
+
+    .wof_stage2_footer .wof_stage2_prev_wrap {
+        margin-inline-end: 0 !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .wof_stage1_create_row {
+        display: flex;
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid #e7eef0;
+    }
+}
