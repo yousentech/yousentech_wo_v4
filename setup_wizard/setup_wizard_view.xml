@@ -227,9 +227,6 @@
                                         <h2>اختر الأنشطة التي تعمل بها المنشأة</h2>
                                         <p>فعّل الأنشطة التي تريد استخدامها في النظام. يمكنك تفعيل نشاط واحد أو أكثر.</p>
                                     </div>
-                                    <button name="action_add_general_activity" type="object" class="btn wof_stage1_add_activity">
-                                        <i class="fa fa-plus" title="إضافة"/> إضافة نشاط جديد
-                                    </button>
                                 </div>
 
                             <field name="activity_line_ids" nolabel="1" mode="kanban" class="wof_stage1_activity_field">
@@ -267,6 +264,11 @@
                                     </templates>
                                 </kanban>
                             </field>
+                            <div class="wof_stage1_create_row">
+                                <button name="action_add_general_activity" type="object" class="btn wof_stage1_add_activity">
+                                    <i class="fa fa-plus" title="إضافة"/> إضافة نشاط جديد
+                                </button>
+                            </div>
 
                             </div>
 
@@ -321,9 +323,6 @@
                                         <h2>حدد أحجام السيارات التي تتعامل معها المنشأة</h2>
                                         <p>فعّل الأحجام المستخدمة في المركز. ستُستخدم افتراضيًا عند إعداد الأفلام والخدمات ويمكن تخصيصها لاحقًا لكل فيلم أو خدمة.</p>
                                     </div>
-                                    <button name="action_add_car_size" type="object" class="btn wof_stage1_add_activity">
-                                        <i class="fa fa-plus" title="إضافة"/> إضافة حجم سيارة
-                                    </button>
                                 </div>
 
                                 <field name="size_line_ids" nolabel="1" mode="kanban" class="wof_stage2_size_field">
@@ -364,6 +363,11 @@
                                         </templates>
                                     </kanban>
                                 </field>
+                                <div class="wof_stage1_create_row">
+                                    <button name="action_add_car_size" type="object" class="btn wof_stage1_add_activity">
+                                        <i class="fa fa-plus" title="إضافة"/> إضافة حجم سيارة
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="wof_stage1_footer wof_stage2_footer">
