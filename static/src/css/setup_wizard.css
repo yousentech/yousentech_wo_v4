@@ -7473,166 +7473,196 @@ body:has(.modal.show .wof_activity_hub_form),
 }
 
 /* ============================================================
-   RC81 — unified, breathable UI for film/service setup family
-   UI-only: no workflow, visibility, action, or persistence changes.
+   RC82 — audited unified film/service wizard UI
+   Scope: UI/UX only. Business logic, actions and modifiers unchanged.
+   The main film wizard and its child dialogs use the same desktop
+   footprint as the approved initial setup wizard (1320px / 16px gutter).
+   Footer is outside the scrolling modal body, so navigation never moves.
    ============================================================ */
 :root {
     --wof-ui-accent: #2f8f95;
     --wof-ui-accent-dark: #277b81;
-    --wof-ui-border: #d9e2e5;
+    --wof-ui-border: #d9e5e8;
     --wof-ui-soft: #f5f9fa;
     --wof-ui-text: #26363a;
     --wof-ui-muted: #75878c;
 }
 
-/* Main film/service wizard: same comfortable popup footprint on every step. */
-@media (min-width: 1150px) {
-    .modal:has(.wof_film_setup_form) .modal-dialog {
-        width: 94vw !important;
-        max-width: 1460px !important;
-        height: 94vh !important;
-        margin: 3vh auto !important;
+/* One authoritative desktop geometry for every film/service wizard dialog. */
+@media (min-width: 901px) {
+    .o_dialog .modal-dialog:has(.wof_film_setup_form),
+    .modal-dialog:has(.wof_film_setup_form),
+    .o_dialog .modal-dialog:has(.wof_component_dialog_form),
+    .modal-dialog:has(.wof_component_dialog_form),
+    .o_dialog .modal-dialog:has(.wof_component_create_form),
+    .modal-dialog:has(.wof_component_create_form),
+    .o_dialog .modal-dialog:has(.wof_stage4_value_dialog),
+    .modal-dialog:has(.wof_stage4_value_dialog) {
+        width: min(1320px, calc(100vw - 32px)) !important;
+        max-width: min(1320px, calc(100vw - 32px)) !important;
+        height: calc(100vh - 32px) !important;
+        margin: 16px auto !important;
     }
-    .modal:has(.wof_film_setup_form) .modal-content {
-        height: 94vh !important;
-        max-height: 94vh !important;
+
+    .modal-content:has(.wof_film_setup_form),
+    .modal-content:has(.wof_component_dialog_form),
+    .modal-content:has(.wof_component_create_form),
+    .modal-content:has(.wof_stage4_value_dialog) {
+        height: 100% !important;
+        max-height: 100% !important;
         display: flex !important;
         flex-direction: column !important;
         overflow: hidden !important;
         border-radius: 14px !important;
     }
-    .modal:has(.wof_film_setup_form) .modal-body {
+
+    .modal-content:has(.wof_film_setup_form) > .modal-body,
+    .modal-content:has(.wof_component_dialog_form) > .modal-body,
+    .modal-content:has(.wof_component_create_form) > .modal-body,
+    .modal-content:has(.wof_stage4_value_dialog) > .modal-body {
         flex: 1 1 auto !important;
         min-height: 0 !important;
         max-height: none !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
+    }
+
+    .modal-content:has(.wof_film_setup_form) > .modal-body {
         padding: 0 !important;
+    }
+
+    .modal-content:has(.wof_component_dialog_form) > .modal-body,
+    .modal-content:has(.wof_component_create_form) > .modal-body,
+    .modal-content:has(.wof_stage4_value_dialog) > .modal-body {
+        padding: 20px 24px !important;
     }
 }
 
-/* Typography aligned with the setup-center wizard. */
+/* Keep the six main stages intrinsically sized; only modal-body scrolls. */
+.wof_film_setup_form .wof_film_setup_shell,
+.wof_film_setup_form .wof_film_tint_stage,
+.wof_film_setup_form .wof_film_components_stage,
+.wof_film_setup_form .wof_stage4_shell,
+.wof_film_setup_form .wof_film_stage_handoff {
+    height: auto !important;
+    min-height: 1px !important;
+    max-height: none !important;
+}
+
+/* Typography follows the approved initial-setup visual scale. */
 .wof_film_setup_form,
 .wof_component_dialog_form,
 .wof_component_create_form,
 .wof_stage4_value_dialog {
-    color: var(--wof-ui-text);
+    color: var(--wof-ui-text) !important;
     font-size: 13px !important;
-    line-height: 1.55;
+    line-height: 1.55 !important;
 }
 .wof_film_setup_header h1 { font-size: 24px !important; color: #243438 !important; }
 .wof_film_setup_header p { font-size: 12px !important; color: var(--wof-ui-muted) !important; }
-.wof_film_card_title h2,
-.wof_film_setup_form h2 { font-size: 17px; }
+.wof_film_setup_form h2,
+.wof_film_card_title h2 { font-size: 17px !important; }
 .wof_film_setup_form .o_form_label,
-.wof_film_setup_form label { font-size: 12px; }
+.wof_film_setup_form label,
+.wof_component_dialog_form label,
+.wof_component_create_form label,
+.wof_stage4_value_dialog label { font-size: 12px !important; }
 
-/* Teal visual identity shared with the initial setup wizard. */
+/* Shared teal identity and breathing room. */
 .wof_film_step.is-active { color: var(--wof-ui-accent-dark) !important; border-color: var(--wof-ui-accent) !important; }
 .wof_film_step.is-active .wof_film_step_no {
     background: var(--wof-ui-accent) !important;
+    color: #fff !important;
     box-shadow: 0 4px 10px rgba(47,143,149,.20) !important;
 }
 .wof_film_card_icon { color: var(--wof-ui-accent-dark) !important; background: #e9f5f5 !important; }
 .wof_film_setup_card,
 .wof_film_setup_summary { border-color: var(--wof-ui-border) !important; box-shadow: 0 5px 18px rgba(31,63,68,.05) !important; }
-.wof_film_setup_body { gap: 18px !important; padding: 16px 22px 20px !important; }
-.wof_film_setup_main { gap: 14px !important; }
-.wof_film_setup_card { padding: 18px 20px !important; }
+.wof_film_setup_body { gap: 20px !important; padding: 18px 24px 24px !important; }
+.wof_film_setup_main { gap: 16px !important; }
+.wof_film_setup_card { padding: 20px 22px !important; }
 
-/* All film wizard navigation bars share one placement and button language. */
-.wof_film_setup_footer {
-    min-height: 58px !important;
-    padding: 10px 20px !important;
+/* Real Odoo footer: fixed outside the scrollable body on every stage. */
+.modal-content:has(.wof_film_setup_form) > .modal-footer {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    position: relative !important;
+    inset: auto !important;
+    z-index: 30 !important;
+    min-height: 62px !important;
+    padding: 0 !important;
+    margin: 0 !important;
     border-top: 1px solid var(--wof-ui-border) !important;
     background: #fff !important;
     box-shadow: 0 -5px 16px rgba(31,63,68,.035) !important;
 }
-.wof_film_setup_footer .btn {
-    min-height: 36px !important;
+.modal-content:has(.wof_film_setup_form) > .modal-footer > .wof_film_setup_footer {
+    width: 100% !important;
+    min-height: 61px !important;
+    margin: 0 !important;
+    padding: 11px 22px !important;
+    border: 0 !important;
+    background: #fff !important;
+}
+.wof_film_setup_footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+}
+.wof_film_footer_actions { display: flex !important; align-items: center !important; gap: 9px !important; }
+.wof_film_setup_footer .btn,
+.modal-content:has(.wof_component_dialog_form) > .modal-footer .btn,
+.modal-content:has(.wof_component_create_form) > .modal-footer .btn,
+.modal-content:has(.wof_stage4_value_dialog) > .modal-footer .btn {
+    min-height: 38px !important;
     border-radius: 7px !important;
-    padding: 7px 15px !important;
+    padding: 8px 16px !important;
     font-size: 12px !important;
     font-weight: 700 !important;
 }
-.wof_film_setup_footer .btn-primary {
+.wof_film_setup_footer .btn-primary,
+.modal-content:has(.wof_component_dialog_form) > .modal-footer .btn-primary,
+.modal-content:has(.wof_component_create_form) > .modal-footer .btn-primary,
+.modal-content:has(.wof_stage4_value_dialog) > .modal-footer .btn-primary {
     min-width: 150px !important;
     background: var(--wof-ui-accent) !important;
     border-color: var(--wof-ui-accent) !important;
+    color: #fff !important;
     box-shadow: 0 3px 9px rgba(47,143,149,.15) !important;
 }
-.wof_film_setup_footer .btn-primary:hover { background: var(--wof-ui-accent-dark) !important; border-color: var(--wof-ui-accent-dark) !important; }
-.wof_film_setup_footer .btn-outline-primary {
-    min-width: 135px !important;
-    color: var(--wof-ui-accent-dark) !important;
-    border-color: #b8d7d9 !important;
-    background: #fff !important;
+.wof_film_setup_footer .btn-primary:hover,
+.modal-content:has(.wof_component_dialog_form) > .modal-footer .btn-primary:hover,
+.modal-content:has(.wof_component_create_form) > .modal-footer .btn-primary:hover,
+.modal-content:has(.wof_stage4_value_dialog) > .modal-footer .btn-primary:hover {
+    background: var(--wof-ui-accent-dark) !important;
+    border-color: var(--wof-ui-accent-dark) !important;
 }
-.wof_film_setup_footer .btn-secondary { min-width: 90px !important; }
+.wof_film_setup_footer .btn-outline-primary { min-width: 145px !important; color: var(--wof-ui-accent-dark) !important; border-color: #b8d7d9 !important; background: #fff !important; }
+.wof_film_setup_footer .btn-secondary { min-width: 96px !important; }
+.wof_activate_service_btn { min-width: 170px !important; }
 
-/* Nested film/component/value dialogs: consistent proportions, spacing and footer. */
-@media (min-width: 992px) {
-    .modal:has(.wof_component_dialog_form) .modal-dialog,
-    .modal:has(.wof_component_create_form) .modal-dialog,
-    .modal:has(.wof_stage4_value_dialog) .modal-dialog {
-        width: min(76vw, 1040px) !important;
-        max-width: 1040px !important;
-        margin: 7vh auto !important;
-    }
-    .modal:has(.wof_component_dialog_form) .modal-content,
-    .modal:has(.wof_component_create_form) .modal-content,
-    .modal:has(.wof_stage4_value_dialog) .modal-content {
-        max-height: 86vh !important;
-        border-radius: 14px !important;
-        overflow: hidden !important;
-    }
-    .modal:has(.wof_component_dialog_form) .modal-body,
-    .modal:has(.wof_component_create_form) .modal-body,
-    .modal:has(.wof_stage4_value_dialog) .modal-body {
-        max-height: calc(86vh - 116px) !important;
-        overflow-y: auto !important;
-        padding: 18px 22px !important;
-    }
-}
-.modal:has(.wof_component_dialog_form) .modal-footer,
-.modal:has(.wof_component_create_form) .modal-footer,
-.modal:has(.wof_stage4_value_dialog) .modal-footer {
-    min-height: 58px !important;
-    padding: 10px 20px !important;
-    gap: 8px !important;
+/* Child dialogs use the same footer geometry and never scroll their buttons. */
+.modal-content:has(.wof_component_dialog_form) > .modal-footer,
+.modal-content:has(.wof_component_create_form) > .modal-footer,
+.modal-content:has(.wof_stage4_value_dialog) > .modal-footer {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    gap: 9px !important;
+    min-height: 62px !important;
+    padding: 11px 22px !important;
+    margin: 0 !important;
     border-top: 1px solid var(--wof-ui-border) !important;
     background: #fff !important;
-}
-.modal:has(.wof_component_dialog_form) .modal-footer .btn,
-.modal:has(.wof_component_create_form) .modal-footer .btn,
-.modal:has(.wof_stage4_value_dialog) .modal-footer .btn {
-    min-height: 36px !important;
-    min-width: 105px !important;
-    border-radius: 7px !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-}
-.modal:has(.wof_component_dialog_form) .modal-footer .btn-primary,
-.modal:has(.wof_component_create_form) .modal-footer .btn-primary,
-.modal:has(.wof_stage4_value_dialog) .modal-footer .btn-primary {
-    background: var(--wof-ui-accent) !important;
-    border-color: var(--wof-ui-accent) !important;
+    box-shadow: 0 -5px 16px rgba(31,63,68,.035) !important;
 }
 
-/* Final initial-setup stage: same navigation button sizing as stages 1-4. */
-.wof_stage5_footer .btn,
-.wof_stage1_footer .btn {
-    min-height: 36px !important;
-    border-radius: 6px !important;
-    padding: 7px 14px !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
+/* Responsive: do not force desktop dimensions on small screens. */
+@media (max-width: 900px) {
+    .wof_film_setup_body { grid-template-columns: 1fr !important; padding: 12px !important; gap: 12px !important; }
+    .wof_film_setup_summary { order: -1; }
+    .wof_film_setup_footer { flex-wrap: wrap !important; }
+    .wof_film_footer_actions { flex-wrap: wrap !important; }
+    .wof_film_setup_footer .btn { min-width: 0 !important; }
 }
-.wof_stage5_footer .btn-primary,
-.wof_stage1_footer .btn-primary {
-    min-width: 150px !important;
-    background: var(--wof-ui-accent) !important;
-    border-color: var(--wof-ui-accent) !important;
-}
-.wof_stage5_footer .btn-secondary,
-.wof_stage1_footer .btn-secondary { min-width: 130px !important; }
