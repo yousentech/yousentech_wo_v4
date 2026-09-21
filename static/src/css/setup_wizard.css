@@ -7904,3 +7904,26 @@ body:has(.modal.show .wof_activity_hub_form),
         flex: 0 0 auto !important;
     }
 }
+
+/* =========================================================================
+ * RC87 — Activity Hub outer dialog size ONLY.
+ * The outer Bootstrap .modal-dialog is tagged by activity_hub_dialog.js only
+ * when it contains .wof_hub_shell. This avoids :has() dependency and leaves
+ * every other Odoo dialog untouched.
+ * ========================================================================= */
+@media (min-width: 901px) {
+    .modal-dialog.wof_activity_hub_modal {
+        width: min(1320px, calc(100vw - 32px)) !important;
+        max-width: min(1320px, calc(100vw - 32px)) !important;
+        height: calc(100vh - 36px) !important;
+        max-height: calc(100vh - 36px) !important;
+        margin: 16px auto !important;
+    }
+
+    .modal-dialog.wof_activity_hub_modal > .modal-content {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+    }
+}
