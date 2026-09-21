@@ -7927,3 +7927,189 @@ body:has(.modal.show .wof_activity_hub_form),
         max-height: 100% !important;
     }
 }
+
+/* ============================================================
+   RC88 — Film/service wizard stable footer + Stage 1 visual polish
+   UI/UX only. No fields, object actions or business logic changed.
+   ============================================================ */
+:root {
+    --wof-film-accent: #2f8f95;
+    --wof-film-accent-dark: #26787d;
+    --wof-film-accent-soft: #eaf6f6;
+    --wof-film-success: #39a968;
+    --wof-film-border: #d8e5e7;
+    --wof-film-text: #26383d;
+    --wof-film-muted: #72868b;
+}
+
+@media (min-width: 901px) {
+    /* Keep the approved popup geometry unchanged; only change its internal layout. */
+    .modal-content:has(.wof_film_setup_form) > .modal-body {
+        overflow: hidden !important;
+    }
+    .wof_film_setup_form,
+    .wof_film_setup_form .o_form_renderer,
+    .wof_film_setup_form .o_form_sheet_bg,
+    .wof_film_setup_form .o_form_sheet {
+        height: 100% !important;
+        min-height: 0 !important;
+    }
+    .wof_film_setup_form .o_form_sheet_bg,
+    .wof_film_setup_form .o_form_sheet {
+        overflow: hidden !important;
+    }
+    .wof_film_setup_shell {
+        height: 100% !important;
+        min-height: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding-bottom: 0 !important;
+        overflow: hidden !important;
+        background: #f8fbfb !important;
+    }
+    .wof_film_setup_header,
+    .wof_film_setup_steps {
+        flex: 0 0 auto !important;
+    }
+    /* Every visible stage consumes the remaining body space; only it may scroll if truly necessary. */
+    .wof_film_setup_intro { flex: 0 0 auto !important; }
+    .wof_film_setup_body,
+    .wof_film_tint_stage,
+    .wof_film_components_stage,
+    .wof_film_stage_handoff,
+    .wof_completion_stage {
+        min-height: 0 !important;
+    }
+    .wof_film_setup_body {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+    .wof_film_tint_stage,
+    .wof_film_components_stage {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+    .wof_film_stage_handoff.wof_completion_stage {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        margin-top: 14px !important;
+        margin-bottom: 14px !important;
+    }
+
+    /* Real fixed-position footer in the wizard flow: body grows/shrinks, footer never moves. */
+    .wof_film_top_nav_zone {
+        order: 999 !important;
+        flex: 0 0 62px !important;
+        height: 62px !important;
+        min-height: 62px !important;
+        position: relative !important;
+        inset: auto !important;
+        margin-top: auto !important;
+        z-index: 50 !important;
+        background: #fff !important;
+        border-top: 1px solid var(--wof-film-border) !important;
+        border-bottom: 0 !important;
+        box-shadow: 0 -5px 16px rgba(31,63,68,.045) !important;
+    }
+    .wof_film_top_nav {
+        height: 62px !important;
+        min-height: 62px !important;
+        padding: 10px 22px !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Unify Stage 1 with the approved system-setup teal/green visual language. */
+.wof_film_setup_header h1,
+.wof_film_card_title h2,
+.wof_film_setup_summary h2 { color: var(--wof-film-text) !important; }
+.wof_film_setup_header p,
+.wof_film_card_title p,
+.wof_film_setup_summary > p { color: var(--wof-film-muted) !important; }
+.wof_film_setup_activity_badge {
+    background: var(--wof-film-accent-soft) !important;
+    color: var(--wof-film-accent-dark) !important;
+}
+.wof_film_step.is-active {
+    color: var(--wof-film-accent-dark) !important;
+    border-color: var(--wof-film-accent) !important;
+}
+.wof_film_step.is-active .wof_film_step_no {
+    background: var(--wof-film-accent) !important;
+    box-shadow: 0 4px 10px rgba(47,143,149,.18) !important;
+}
+.wof_film_step.is-done .wof_film_step_no {
+    background: #edf7f7 !important;
+    color: var(--wof-film-accent-dark) !important;
+}
+.wof_film_card_icon,
+.wof_policy_heading > i,
+.wof_compact_icon {
+    color: var(--wof-film-accent-dark) !important;
+    background: var(--wof-film-accent-soft) !important;
+}
+.wof_film_setup_form .o_field_radio .form-check:has(input:checked) {
+    border-color: var(--wof-film-accent) !important;
+    background: #f0f9f9 !important;
+    color: var(--wof-film-accent-dark) !important;
+}
+.wof_film_setup_card,
+.wof_film_setup_summary,
+.wof_compact_section { border-color: var(--wof-film-border) !important; }
+.wof_film_setup_summary {
+    background: linear-gradient(180deg, #fbfefe 0%, #f4fafa 100%) !important;
+}
+.wof_summary_icon {
+    color: var(--wof-film-accent-dark) !important;
+    border-color: #d9eeee !important;
+    box-shadow: 0 5px 16px rgba(47,143,149,.07) !important;
+}
+.wof_summary_stats i,
+.wof_summary_note i { color: var(--wof-film-accent-dark) !important; }
+.wof_summary_note {
+    background: #edf8f8 !important;
+    color: #587277 !important;
+}
+
+/* Stage 1: preserve every field/function, but remove dead space and redundant visual noise. */
+.wof_film_setup_form .wof_film_setup_intro {
+    padding: 6px 22px 5px !important;
+    min-height: 0 !important;
+    font-size: 11px !important;
+}
+.wof_film_setup_form .wof_film_setup_body {
+    gap: 14px !important;
+    padding: 10px 18px 12px !important;
+}
+.wof_film_setup_form .wof_film_setup_main { gap: 9px !important; }
+.wof_film_setup_form .wof_film_setup_card { padding: 12px 15px !important; }
+.wof_film_setup_form .wof_film_card_title { margin-bottom: 9px !important; }
+.wof_film_setup_form .wof_film_fields_grid { gap: 8px 12px !important; }
+.wof_film_setup_form textarea { min-height: 46px !important; }
+.wof_film_setup_form .wof_film_field small { margin-top: 2px !important; line-height: 1.35 !important; }
+.wof_film_setup_form .wof_film_compact_sections { gap: 5px !important; }
+.wof_film_setup_form .wof_compact_section > summary { min-height: 42px !important; padding-top: 7px !important; padding-bottom: 7px !important; }
+.wof_film_setup_form .wof_film_setup_summary { padding: 13px 14px !important; }
+.wof_film_setup_form .wof_summary_icon { width: 54px !important; height: 54px !important; margin: 14px auto 8px !important; font-size: 23px !important; }
+.wof_film_setup_form .wof_summary_stats { margin: 13px 0 10px !important; }
+.wof_film_setup_form .wof_summary_stats > div { padding: 8px 3px !important; }
+.wof_film_setup_form .wof_summary_policy { padding: 6px 3px 8px !important; }
+.wof_film_setup_form .wof_summary_note { padding: 8px !important; line-height: 1.4 !important; }
+
+/* Footer buttons keep the exact object actions, only their presentation is unified. */
+.wof_film_top_nav .btn-primary {
+    background: var(--wof-film-accent) !important;
+    border-color: var(--wof-film-accent) !important;
+}
+.wof_film_top_nav .btn-primary:hover {
+    background: var(--wof-film-accent-dark) !important;
+    border-color: var(--wof-film-accent-dark) !important;
+}
+.wof_film_top_nav .btn-outline-primary {
+    color: var(--wof-film-accent-dark) !important;
+    border-color: #acd2d4 !important;
+    background: #fff !important;
+}
