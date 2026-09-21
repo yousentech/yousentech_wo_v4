@@ -61,11 +61,6 @@
                         <div class="wof_film_step" invisible="current_step == 'review'"><span class="wof_film_step_no">6</span><strong>المراجعة والتفعيل</strong></div>
                         <div class="wof_film_step is-active" invisible="current_step != 'review'"><span class="wof_film_step_no">6</span><strong>المراجعة والتفعيل</strong></div>
                     </div>
-                <div class="wof_film_setup_intro" invisible="current_step != 'basic'">
-                        <i class="fa fa-magic" title="تهيئة"/>
-                        أدخل البيانات الأساسية للفيلم أو الخدمة. يمكنك تعديل جميع الإعدادات قبل التفعيل.
-                    </div>
-
                     <div class="wof_film_setup_body" invisible="current_step != 'basic'">
                         <div class="wof_film_setup_main">
                             <section class="wof_film_setup_card wof_film_basic_card">
@@ -119,21 +114,6 @@
                                         <div class="wof_system_value"><span>أحجام النظام المعتمدة</span><strong><field name="system_size_count" readonly="1" nolabel="1"/> أحجام</strong></div>
                                         <div class="wof_inline_toggle"><field name="use_system_car_sizes" widget="boolean_toggle" nolabel="1"/><span>استخدام جميع أحجام النظام</span></div>
                                         <div class="wof_size_chips"><field name="system_car_size_ids" widget="many2many_tags" readonly="1" nolabel="1" invisible="not use_system_car_sizes"/><field name="car_size_ids" widget="many2many_tags" nolabel="1" invisible="use_system_car_sizes"/></div>
-                                    </div>
-                                </details>
-
-                                <details class="wof_compact_section" name="wof_film_policy_section">
-                                    <summary>
-                                        <span class="wof_compact_icon"><i class="fa fa-tag" title="التسعير"/></span>
-                                        <span class="wof_compact_copy"><strong>التسعير</strong><small>حدد فقط سياسة التسعير الآن؛ القيم في خطوة الأسعار</small></span>
-                                        <span class="wof_compact_state"><i class="fa fa-check-circle" title="جاهز"/> يرث إعدادات النظام</span>
-                                        <i class="fa fa-chevron-down wof_compact_arrow" title="توسيع"/>
-                                    </summary>
-                                    <div class="wof_compact_content">
-                                        <div class="wof_policy_heading"><i class="fa fa-tag" title="سياسة التسعير"/><div><strong>سياسة التسعير</strong><small>سعر موحد أو حسب حجم السيارة.</small></div></div>
-                                        <div class="wof_system_value"><span>الافتراضي من النظام</span><field name="system_pricing_policy" readonly="1" nolabel="1"/></div>
-                                        <div class="wof_inline_toggle"><field name="use_system_pricing_policy" widget="boolean_toggle" nolabel="1"/><span>استخدام سياسة النظام</span></div>
-                                        <div class="wof_override_area" invisible="use_system_pricing_policy"><div class="o_form_label">تخصيص سياسة لهذا الفيلم / الخدمة</div><field name="pricing_policy" widget="radio" options="{'horizontal': True}" nolabel="1"/></div>
                                     </div>
                                 </details>
 
@@ -240,10 +220,6 @@
                                 <div><i class="fa fa-film" title="أفلام وخدمات"/><strong><field name="activity_film_count" readonly="1" nolabel="1"/></strong><span>أفلام / خدمات</span></div>
                                 <div><i class="fa fa-car" title="أحجام السيارات"/><strong><field name="system_size_count" readonly="1" nolabel="1"/></strong><span>أحجام سيارات</span></div>
                                 <div><i class="fa fa-tint" title="درجات اللون"/><strong><field name="system_tint_count" readonly="1" nolabel="1"/></strong><span>درجات لون</span></div>
-                            </div>
-                            <div class="wof_summary_policy">
-                                <span>سياسة التسعير</span>
-                                <strong><field name="system_pricing_policy" readonly="1" nolabel="1"/></strong>
                             </div>
                             <div class="wof_summary_note">
                                 <i class="fa fa-info-circle" title="معلومة"/>
