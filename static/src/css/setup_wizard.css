@@ -7800,3 +7800,36 @@ body:has(.modal.show .wof_activity_hub_form),
     .wof_film_top_nav { padding: 8px 10px !important; flex-wrap: wrap !important; }
     .wof_film_top_nav .btn { min-height: 36px !important; padding: 7px 11px !important; }
 }
+
+
+/* RC84 — Stage 5 actions live directly below the stepper.
+ * UI-only: popup size, stepper, review content and object actions are unchanged. */
+@media (min-width: 901px) {
+    .wof_stage5_shell > .wof_stage5_top_actions {
+        display: flex !important;
+        flex: 0 0 auto !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: auto !important;
+        min-height: 56px !important;
+        height: auto !important;
+        margin: 0 8px 10px !important;
+        padding: 10px 12px !important;
+        position: relative !important;
+        top: auto !important;
+        bottom: auto !important;
+        z-index: 4 !important;
+        background: #fff !important;
+        border: 1px solid #dbe5e8 !important;
+        border-radius: 0 0 8px 8px !important;
+    }
+
+    .wof_stage5_shell > .wof_stage5_top_actions .btn,
+    .wof_stage5_shell > .wof_stage5_top_actions .wof_stage5_activate {
+        margin: 0 !important;
+    }
+
+    .wof_stage5_shell > .wof_stage5_review {
+        margin-top: 0 !important;
+    }
+}

@@ -687,6 +687,12 @@
                             </div>
                         </div>
 
+                        <div class="wof_stage1_footer wof_stage5_footer wof_stage5_top_actions" invisible="state == 'ready'">
+                            <button name="action_previous" type="object" class="btn btn-secondary"><i class="fa fa-arrow-right" title="السابق"/> السابق: التشغيل</button>
+                            <button name="action_activate" type="object" class="btn btn-primary wof_stage5_activate" invisible="not readiness_ok"><i class="fa fa-check" title="تفعيل"/> تفعيل النظام</button>
+                            <span class="btn btn-primary wof_stage5_activate disabled" invisible="readiness_ok"><i class="fa fa-lock" title="غير جاهز"/> تفعيل النظام</span>
+                        </div>
+
                         <div class="wof_stage5_review" invisible="state == 'ready'">
                             <div class="wof_stage5_title">
                                 <h2>راجع إعدادات النظام قبل التفعيل</h2>
@@ -724,11 +730,6 @@
                                 <div class="wof_stage5_error_box" invisible="readiness_ok"><strong>يوجد إعدادات تحتاج إلى مراجعة قبل تفعيل النظام.</strong><field name="readiness_note" nolabel="1" readonly="1"/></div>
                             </div>
 
-                            <div class="wof_stage1_footer wof_stage5_footer">
-                                <button name="action_previous" type="object" class="btn btn-secondary"><i class="fa fa-arrow-right" title="السابق"/> السابق: التشغيل</button>
-                                <button name="action_activate" type="object" class="btn btn-primary wof_stage5_activate" invisible="not readiness_ok"><i class="fa fa-check" title="تفعيل"/> تفعيل النظام</button>
-                                <span class="btn btn-primary wof_stage5_activate disabled" invisible="readiness_ok"><i class="fa fa-lock" title="غير جاهز"/> تفعيل النظام</span>
-                            </div>
                         </div>
 
                         <div class="wof_stage5_success" invisible="state != 'ready'">
