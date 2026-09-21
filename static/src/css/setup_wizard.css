@@ -7833,3 +7833,26 @@ body:has(.modal.show .wof_activity_hub_form),
         margin-top: 0 !important;
     }
 }
+
+/* =========================================================================
+ * RC85 — Activity Hub popup size ONLY.
+ * Match the approved Setup Center popup dimensions. No inner UI changes.
+ * ========================================================================= */
+@media (min-width: 901px) {
+    .o_dialog .modal-dialog:has(form.wof_activity_hub_form),
+    .modal-dialog:has(form.wof_activity_hub_form),
+    .o_dialog .modal-dialog:has(.wof_activity_hub_form),
+    .modal-dialog:has(.wof_activity_hub_form) {
+        width: min(1320px, calc(100vw - 32px)) !important;
+        max-width: min(1320px, calc(100vw - 32px)) !important;
+        height: calc(100vh - 36px) !important;
+        max-height: calc(100vh - 36px) !important;
+        margin: 16px auto !important;
+    }
+
+    .modal-content:has(.wof_activity_hub_form) {
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+    }
+}
