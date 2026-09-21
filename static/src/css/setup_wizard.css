@@ -7856,3 +7856,51 @@ body:has(.modal.show .wof_activity_hub_form),
         max-height: 100% !important;
     }
 }
+
+/* =========================================================================
+ * RC86 — Activity Hub popup dimensions: reliable form-level sizing.
+ * The hub form itself is the stable hook rendered by Odoo 17.  Sizing the
+ * form makes the dialog follow the approved Setup Center footprint even when
+ * parent :has() selectors are not used by the browser/runtime.
+ * UI size only — no card/content/footer/business behavior changes.
+ * ========================================================================= */
+@media (min-width: 901px) {
+    .o_form_view.wof_activity_hub_form,
+    form.wof_activity_hub_form {
+        width: min(1240px, calc(100vw - 42px)) !important;
+        min-width: min(1240px, calc(100vw - 42px)) !important;
+        height: calc(100vh - 112px) !important;
+        min-height: calc(100vh - 112px) !important;
+        max-height: calc(100vh - 112px) !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+
+    .o_form_view.wof_activity_hub_form > .o_form_renderer,
+    form.wof_activity_hub_form > .o_form_renderer {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .wof_activity_hub_form .wof_hub_shell {
+        height: 100% !important;
+        min-height: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .wof_activity_hub_form .wof_hub_content {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    .wof_activity_hub_form .wof_hub_footer,
+    .wof_activity_hub_form footer {
+        flex: 0 0 auto !important;
+    }
+}
