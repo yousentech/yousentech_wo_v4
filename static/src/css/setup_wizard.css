@@ -8381,3 +8381,45 @@ body:has(.modal.show .wof_activity_hub_form),
         margin-bottom: 8px !important;
     }
 }
+
+/* ============================================================
+   RC93 — Films catalogue: remove idle scrollbar + unify palette
+   UI only. Scroll remains available automatically when content overflows.
+   ============================================================ */
+@media (min-width: 901px) {
+    /* The catalogue is short in the normal state, so do not force a scrollbar.
+       `auto` keeps scrolling available when more film cards actually overflow. */
+    .wof_activity_hub_form .wof_hub_content:has(.wof_hub_film_x2many),
+    .wof_activity_hub_form .wof_hub_content:has(.wof_film_catalog_grid) {
+        overflow-y: auto !important;
+        scrollbar-gutter: auto !important;
+    }
+}
+
+/* Use the same approved teal family as the setup wizard. */
+.wof_activity_hub_form .wof_hub_header_icon_film,
+.wof_activity_hub_form .wof_hub_film_type_icon {
+    background: var(--wof-film-accent-soft, #eaf6f6) !important;
+    color: var(--wof-film-accent-dark, #26787d) !important;
+}
+.wof_activity_hub_form .wof_hub_films_toolbar .wof_hub_add_btn,
+.wof_activity_hub_form .wof_hub_content:has(.wof_hub_film_x2many) .wof_hub_add_btn,
+.wof_activity_hub_form .wof_hub_film_card > .wof_hub_film_config_btn {
+    background: var(--wof-film-accent, #2f8f95) !important;
+    border-color: var(--wof-film-accent, #2f8f95) !important;
+    box-shadow: 0 4px 11px rgba(47,143,149,.14) !important;
+}
+.wof_activity_hub_form .wof_hub_films_toolbar .wof_hub_add_btn:hover,
+.wof_activity_hub_form .wof_hub_content:has(.wof_hub_film_x2many) .wof_hub_add_btn:hover,
+.wof_activity_hub_form .wof_hub_film_card > .wof_hub_film_config_btn:hover {
+    background: var(--wof-film-accent-dark, #26787d) !important;
+    border-color: var(--wof-film-accent-dark, #26787d) !important;
+}
+.wof_activity_hub_form .wof_hub_film_card {
+    border-color: #d8e4e7 !important;
+    box-shadow: 0 5px 16px rgba(47,143,149,.07) !important;
+}
+.wof_activity_hub_form .wof_hub_film_card:hover {
+    border-color: #acd2d4 !important;
+    box-shadow: 0 10px 24px rgba(47,143,149,.12) !important;
+}
