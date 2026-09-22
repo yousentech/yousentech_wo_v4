@@ -137,24 +137,27 @@
                                                     <t t-if="record.description.raw_value"><field name="description"/></t>
                                                     <t t-else="">اضبط المكونات والأسعار والسياسات ثم فعّل العنصر للاستخدام.</t>
                                                 </p>
-                                                <div class="wof_hub_film_state">
-                                                    <div t-if="record.configuration_ready.raw_value" class="wof_hub_ready"><i class="fa fa-check-circle" title="جاهز"/> جاهز</div>
-                                                    <div t-else="" class="wof_hub_not_ready"><i class="fa fa-exclamation-triangle" title="يحتاج إلى تهيئة"/> يحتاج إلى تهيئة</div>
-                                                    <small t-if="!record.configuration_ready.raw_value"><field name="configuration_note"/></small>
-                                                </div>
                                                 <div class="wof_hub_film_stats">
                                                     <div class="wof_hub_film_stat">
+                                                        <i class="fa fa-cube wof_hub_stat_icon" title="مكونات"/>
                                                         <strong><field name="parts_count"/></strong>
                                                         <span>مكونات</span>
                                                     </div>
                                                     <div class="wof_hub_film_stat">
+                                                        <i class="fa fa-car wof_hub_stat_icon" title="أحجام سيارات"/>
                                                         <strong><t t-if="record.car_size_count.raw_value"><field name="car_size_count"/></t><t t-else="">—</t></strong>
                                                         <span>أحجام سيارات</span>
                                                     </div>
                                                     <div class="wof_hub_film_stat">
+                                                        <i class="fa fa-tint wof_hub_stat_icon" title="درجات اللون"/>
                                                         <strong><t t-if="record.supports_color_grades.raw_value"><field name="grade_count"/></t><t t-else="">—</t></strong>
                                                         <span>درجات لون</span>
                                                     </div>
+                                                </div>
+                                                <div class="wof_hub_film_state">
+                                                    <div t-if="record.configuration_ready.raw_value" class="wof_hub_ready"><i class="fa fa-check-circle" title="جاهز"/> جاهز</div>
+                                                    <div t-else="" class="wof_hub_not_ready"><i class="fa fa-exclamation-triangle" title="يحتاج إلى تهيئة"/> يحتاج إلى تهيئة</div>
+                                                    <small t-if="!record.configuration_ready.raw_value"><field name="configuration_note"/></small>
                                                 </div>
 
                                             </div>
