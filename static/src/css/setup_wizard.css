@@ -8208,3 +8208,61 @@ body:has(.modal.show .wof_activity_hub_form),
         padding: 8px 20px !important;
     }
 }
+
+/* ============================================================
+   RC90 — Activity Hub / films page only
+   UI-only cleanup approved by user. Keep dialog and film-card size.
+   ============================================================ */
+.wof_activity_hub_form .wof_hub_content:has(.wof_hub_film_x2many) .wof_hub_films_toolbar_compact {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-height: 44px !important;
+    margin: 0 0 12px !important;
+    padding: 0 !important;
+    border: 0 !important;
+}
+.wof_activity_hub_form .wof_hub_content:has(.wof_hub_film_x2many) .wof_hub_add_btn {
+    background: #2f8d91 !important;
+    border-color: #2f8d91 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 10px rgba(47, 141, 145, .16) !important;
+}
+.wof_activity_hub_form .wof_hub_content:has(.wof_hub_film_x2many) .wof_hub_add_btn:hover,
+.wof_activity_hub_form .wof_hub_content:has(.wof_hub_film_x2many) .wof_hub_add_btn:focus {
+    background: #287d81 !important;
+    border-color: #287d81 !important;
+}
+/* Preserve the approved card dimensions; only tidy internal rhythm. */
+.wof_activity_hub_form .wof_hub_film_card .wof_hub_film_head {
+    padding: 12px 14px 9px !important;
+}
+.wof_activity_hub_form .wof_hub_film_card .wof_hub_film_body {
+    padding: 10px 14px 12px !important;
+    gap: 8px !important;
+}
+.wof_activity_hub_form .wof_hub_film_card .wof_hub_film_desc {
+    margin: 0 !important;
+    line-height: 1.55 !important;
+}
+.wof_activity_hub_form .wof_hub_film_card .wof_hub_film_state {
+    margin: 1px 0 2px !important;
+}
+.wof_activity_hub_form .wof_hub_film_card.needs_setup .wof_hub_film_state {
+    padding: 7px 9px !important;
+    border: 1px solid #f0c36b !important;
+    border-radius: 8px !important;
+    background: #fff8e8 !important;
+}
+.wof_activity_hub_form .wof_hub_film_card.needs_setup .wof_hub_not_ready,
+.wof_activity_hub_form .wof_hub_film_card.needs_setup .wof_hub_film_state small {
+    color: #a45b0a !important;
+}
+.wof_activity_hub_form .wof_hub_film_stats {
+    margin-top: auto !important;
+    padding-top: 8px !important;
+    border-top: 1px solid #edf1f1 !important;
+}
+/* Pricing remains functional in its setup step; it is intentionally not
+   repeated as a label/summary in the catalogue card. */
+.wof_activity_hub_form .wof_hub_film_policy { display: none !important; }

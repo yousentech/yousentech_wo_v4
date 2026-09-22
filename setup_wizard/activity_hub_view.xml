@@ -101,11 +101,7 @@
                     </div>
 
                     <div class="wof_hub_content" invisible="view_state != 'films'">
-                        <div class="wof_hub_section_heading wof_hub_films_toolbar">
-                            <div>
-                                <h2>أفلام وخدمات النشاط</h2>
-                                <p>راجع حالة كل عنصر وابدأ تهيئته عند الحاجة.</p>
-                            </div>
+                        <div class="wof_hub_films_toolbar wof_hub_films_toolbar_compact">
                             <button name="action_add_film" type="object" class="btn btn-primary wof_hub_add_btn">
                                 <i class="fa fa-plus" title="إضافة"/> إضافة فيلم / خدمة
                             </button>
@@ -160,10 +156,7 @@
                                                         <span>درجات لون</span>
                                                     </div>
                                                 </div>
-                                                <div class="wof_hub_film_policy">
-                                                    <span>سياسة التسعير</span>
-                                                    <strong><field name="pricing_summary"/></strong>
-                                                </div>
+
                                             </div>
                                             <button name="action_configure" type="object" t-attf-class="btn wof_hub_primary_btn wof_hub_film_config_btn #{record.configuration_ready.raw_value ? 'is-ready' : 'is-needs-setup'}">
                                                 <t t-if="record.configuration_ready.raw_value">عرض / تعديل التهيئة</t>
