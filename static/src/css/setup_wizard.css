@@ -8354,3 +8354,30 @@ body:has(.modal.show .wof_activity_hub_form),
         line-height: 1 !important;
     }
 }
+
+/* ============================================================
+   RC92 — Film catalogue card: slightly taller, all content visible
+   Scope: films catalogue card only. No popup/business-flow changes.
+   ============================================================ */
+@media (min-width: 1121px) {
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer {
+        grid-auto-rows: 208px !important;
+    }
+    .wof_activity_hub_form .wof_film_catalog_grid .o_kanban_renderer > .o_kanban_record,
+    .wof_activity_hub_form .wof_film_catalog_grid .wof_hub_film_card {
+        height: 208px !important;
+        min-height: 208px !important;
+        max-height: 208px !important;
+    }
+    .wof_activity_hub_form .wof_hub_film_card .wof_hub_film_body {
+        padding-bottom: 5px !important;
+        gap: 4px !important;
+    }
+    .wof_activity_hub_form .wof_hub_film_card .wof_hub_film_stats,
+    .wof_activity_hub_form .wof_hub_film_card .wof_hub_film_state {
+        flex: 0 0 auto !important;
+    }
+    .wof_activity_hub_form .wof_hub_film_card > .wof_hub_film_config_btn {
+        margin-bottom: 8px !important;
+    }
+}
