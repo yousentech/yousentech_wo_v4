@@ -8534,3 +8534,69 @@ body:has(.modal.show .wof_activity_hub_form),
         scrollbar-gutter: auto !important;
     }
 }
+
+/* ============================================================
+   RC95 — Film wizard typography matched to system setup
+   Typography only: popup geometry, spacing, colors, fields,
+   actions and business logic are intentionally untouched.
+   ============================================================ */
+.wof_film_setup_form {
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+}
+.wof_film_setup_header h1 {
+    font-size: 20px !important;
+    line-height: 1.35 !important;
+    font-weight: 700 !important;
+}
+.wof_film_setup_header p {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+}
+.wof_film_step strong {
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    font-weight: 600 !important;
+}
+.wof_film_setup_form h2,
+.wof_film_setup_form .wof_film_card_title h2 {
+    font-size: 18px !important;
+    line-height: 1.35 !important;
+    font-weight: 700 !important;
+}
+.wof_film_setup_form h3,
+.wof_film_setup_form h4,
+.wof_film_setup_form .wof_tint_mode_label,
+.wof_film_setup_form .wof_tint_shades_header h3,
+.wof_film_setup_form .wof_components_empty strong {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    font-weight: 700 !important;
+}
+.wof_film_setup_form .o_form_label,
+.wof_film_setup_form label,
+.wof_film_setup_form .wof_tint_mode_card strong,
+.wof_film_setup_form .wof_components_toolbar,
+.wof_film_setup_form .wof_components_summary_bar {
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+}
+.wof_film_setup_form .wof_film_card_title p,
+.wof_film_setup_form .wof_film_setup_intro,
+.wof_film_setup_form .wof_film_field small,
+.wof_film_setup_form .wof_tint_shades_header p,
+.wof_film_setup_form .wof_tint_mode_card small,
+.wof_film_setup_form .wof_components_empty p,
+.wof_film_setup_form .wof_components_definition_note {
+    font-size: 11px !important;
+    line-height: 1.5 !important;
+}
+.wof_film_setup_form .wof_film_tint_card_label,
+.wof_film_setup_form .wof_film_tint_locked_state,
+.wof_film_setup_form .wof_tint_policy_badge,
+.wof_film_setup_form .wof_tint_selected_counter {
+    font-size: 11px !important;
+}
+.wof_film_setup_form .wof_film_tint_card .o_field_widget {
+    line-height: 1.4 !important;
+}
