@@ -8423,3 +8423,114 @@ body:has(.modal.show .wof_activity_hub_form),
     border-color: #acd2d4 !important;
     box-shadow: 0 10px 24px rgba(47,143,149,.12) !important;
 }
+
+/* ============================================================
+   RC94 — Stage 2 tint UI + catalogue scroll polish
+   UI/UX only. No Python, fields, actions or business logic changed.
+   Popup geometry is intentionally untouched.
+   ============================================================ */
+
+/* Stage 2 uses the same typography and teal language as the approved wizard. */
+.wof_film_tint_stage {
+    color: var(--wof-film-text, #26383d) !important;
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+}
+.wof_film_tint_stage .wof_tint_intro {
+    color: var(--wof-film-muted, #72868b) !important;
+    border-color: var(--wof-film-border, #d8e5e7) !important;
+}
+.wof_film_tint_stage .wof_film_card_title h2 {
+    color: var(--wof-film-text, #26383d) !important;
+    font-size: 18px !important;
+    line-height: 1.35 !important;
+    font-weight: 800 !important;
+}
+.wof_film_tint_stage .wof_film_card_title p {
+    color: var(--wof-film-muted, #72868b) !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+}
+.wof_film_tint_stage .wof_tint_mode_label,
+.wof_film_tint_stage .wof_tint_shades_header h3 {
+    color: var(--wof-film-text, #26383d) !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
+.wof_film_tint_stage .wof_tint_shades_header p,
+.wof_film_tint_stage .wof_tint_mode_card small {
+    color: var(--wof-film-muted, #72868b) !important;
+    font-size: 10px !important;
+    line-height: 1.45 !important;
+}
+.wof_film_tint_stage .wof_tint_mode_card strong {
+    color: var(--wof-film-text, #26383d) !important;
+    font-size: 12px !important;
+}
+
+/* Replace the old purple tint accents with the shared teal palette. */
+.wof_film_tint_stage .wof_tint_policy_badge.is-custom {
+    background: var(--wof-film-accent-soft, #eaf6f6) !important;
+    color: var(--wof-film-accent-dark, #26787d) !important;
+}
+.wof_film_tint_stage .wof_tint_mode_card {
+    border-color: var(--wof-film-border, #d8e5e7) !important;
+    color: var(--wof-film-text, #26383d) !important;
+}
+.wof_film_tint_stage .wof_tint_mode_card.is-selected {
+    border-color: var(--wof-film-accent, #2f8f95) !important;
+    background: #f1f9f9 !important;
+    box-shadow: 0 4px 12px rgba(47,143,149,.08) !important;
+}
+.wof_film_tint_stage .wof_tint_mode_card.is-selected .wof_tint_mode_radio {
+    border-color: var(--wof-film-accent, #2f8f95) !important;
+    background: var(--wof-film-accent, #2f8f95) !important;
+}
+.wof_film_tint_stage .wof_tint_shades_panel {
+    border-color: var(--wof-film-border, #d8e5e7) !important;
+}
+.wof_film_tint_stage .wof_tint_selected_counter,
+.wof_film_tint_stage .wof_tint_selected_counter.is-custom {
+    background: var(--wof-film-accent-soft, #eaf6f6) !important;
+    color: var(--wof-film-accent-dark, #26787d) !important;
+}
+.wof_film_tint_stage .wof_film_tint_card {
+    border-color: var(--wof-film-border, #d8e5e7) !important;
+}
+.wof_film_tint_stage .wof_film_tint_card.is-selected {
+    border-color: #b8dadd !important;
+    background: linear-gradient(180deg, #f8fcfc, #eef8f8) !important;
+    box-shadow: 0 4px 10px rgba(47,143,149,.06) !important;
+}
+.wof_film_tint_stage .wof_film_tint_card:not(.is-locked):hover {
+    border-color: #9bcdd0 !important;
+    box-shadow: 0 5px 12px rgba(47,143,149,.10) !important;
+}
+.wof_film_tint_stage .wof_film_tint_card_label {
+    color: var(--wof-film-muted, #72868b) !important;
+    font-size: 9px !important;
+}
+.wof_film_tint_stage .wof_film_tint_card > strong,
+.wof_film_tint_stage .wof_film_tint_card > strong .o_field_widget {
+    color: var(--wof-film-text, #26383d) !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+}
+.wof_film_tint_stage .wof_tint_not_required > i {
+    color: var(--wof-film-accent, #2f8f95) !important;
+}
+
+/* Catalogue: outer modal never owns the scrollbar. The inner content keeps
+   overflow:auto, so scrolling still appears automatically when truly needed. */
+@media (min-width: 901px) {
+    .modal-content:has(.wof_activity_hub_form) > .modal-body,
+    .modal-dialog.wof_activity_hub_modal > .modal-content > .modal-body {
+        overflow: hidden !important;
+    }
+    .wof_activity_hub_form .wof_hub_content:has(.wof_hub_film_x2many),
+    .wof_activity_hub_form .wof_hub_content:has(.wof_film_catalog_grid) {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-gutter: auto !important;
+    }
+}
