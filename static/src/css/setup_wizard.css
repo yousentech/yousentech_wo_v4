@@ -8600,3 +8600,72 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_film_setup_form .wof_film_tint_card .o_field_widget {
     line-height: 1.4 !important;
 }
+
+/* ============================================================
+   RC96 — Film wizard only: pinned navigation + dark-teal open policy
+   UI only. Popup geometry, fields, actions and business logic untouched.
+   ============================================================ */
+@media (min-width: 901px) {
+    /* Pin the wizard navigation inside the already-approved popup. The stage
+       content remains the only scroll owner when an expanded policy needs room. */
+    .wof_film_setup_form .wof_film_setup_shell {
+        position: relative !important;
+        padding-bottom: 58px !important;
+    }
+    .wof_film_setup_form .wof_film_top_nav_zone {
+        position: absolute !important;
+        inset-inline: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 58px !important;
+        min-height: 58px !important;
+        margin: 0 !important;
+        z-index: 80 !important;
+        background: #fff !important;
+        border-top: 1px solid var(--wof-film-border) !important;
+        box-shadow: 0 -5px 16px rgba(31,63,68,.045) !important;
+    }
+    .wof_film_setup_form .wof_film_top_nav {
+        height: 58px !important;
+        min-height: 58px !important;
+    }
+    .wof_film_setup_form .wof_film_setup_body,
+    .wof_film_setup_form .wof_film_tint_stage,
+    .wof_film_setup_form .wof_film_components_stage,
+    .wof_film_setup_form .wof_film_stage_handoff,
+    .wof_film_setup_form .wof_completion_stage {
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+}
+
+/* Open Stage-1 policy: approved dark teal instead of the old purple state. */
+.wof_film_setup_form .wof_compact_section[open] {
+    border-color: #26787d !important;
+    box-shadow: 0 6px 18px rgba(38,120,125,.10) !important;
+}
+.wof_film_setup_form .wof_compact_section[open] > summary {
+    background: #26787d !important;
+    border-bottom-color: #216b70 !important;
+}
+.wof_film_setup_form .wof_compact_section[open] .wof_compact_copy strong {
+    color: #fff !important;
+}
+.wof_film_setup_form .wof_compact_section[open] .wof_compact_copy small {
+    color: #d9eeee !important;
+}
+.wof_film_setup_form .wof_compact_section[open] .wof_compact_icon {
+    background: #eaf6f6 !important;
+    color: #26787d !important;
+}
+.wof_film_setup_form .wof_compact_section[open] .wof_compact_arrow {
+    color: #fff !important;
+}
+.wof_film_setup_form .wof_compact_section[open] .wof_compact_state {
+    background: #eaf6f6 !important;
+    color: #26787d !important;
+}
+.wof_film_setup_form .wof_compact_section[open] > .wof_compact_content {
+    background: #f4fafa !important;
+}
