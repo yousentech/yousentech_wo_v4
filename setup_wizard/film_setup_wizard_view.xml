@@ -380,10 +380,6 @@
                     </div>
 
                     <div class="wof_film_components_stage" invisible="current_step != 'components'">
-                        <div class="wof_film_setup_intro">
-                            <i class="fa fa-info-circle" title="معلومة"/>
-                            حدد المكونات التي يتكوّن منها الفيلم / الخدمة. نوع المكوّن وأجزاء منطقة الخدمة تأتي من تعريف المكوّن الأساسي.
-                        </div>
                         <div class="wof_film_setup_body wof_components_body">
                             <div class="wof_film_setup_main">
                                 <section class="wof_film_setup_card wof_components_main_card">

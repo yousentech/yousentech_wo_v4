@@ -8857,3 +8857,79 @@ body:has(.modal.show .wof_activity_hub_form),
         border-radius: 999px;
     }
 }
+\n\n/* ============================================================
+   RC101 — Components UI cleanup
+   - one scroll owner only
+   - remove redundant components intro note (XML)
+   - unify component screens with approved teal palette + typography
+   ============================================================ */
+@media (min-width: 901px) {
+    /* Components stage is only a layout container. The inner body is the
+       single scroll owner, preventing the double scrollbar. */
+    .wof_film_setup_form .wof_film_components_stage {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+    .wof_film_setup_form .wof_film_components_stage > .wof_components_body {
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: #9dbfc1 transparent !important;
+    }
+}
+
+/* Components stage — same identity as the approved setup wizard. */
+.wof_film_setup_form .wof_components_main_card,
+.wof_film_setup_form .wof_components_summary {
+    border-color: #d9e5e8 !important;
+    background: #fff !important;
+    color: #26363a !important;
+}
+.wof_film_setup_form .wof_components_title h2 { color:#26363a !important; font-size:18px !important; line-height:1.35 !important; }
+.wof_film_setup_form .wof_components_title p { color:#75878c !important; font-size:11px !important; line-height:1.5 !important; }
+.wof_film_setup_form .wof_components_policy_badge { background:#eaf6ef !important; color:#37865a !important; border-color:#d3eadc !important; font-size:11px !important; }
+.wof_film_setup_form .wof_components_toolbar .btn { font-size:12px !important; }
+.wof_film_setup_form .wof_components_view_switch .btn.is-active,
+.wof_film_setup_form .wof_components_add_actions .btn-primary { color:#fff !important; background:#2f8f95 !important; border-color:#2f8f95 !important; }
+.wof_film_setup_form .wof_components_add_actions .btn-outline-primary { color:#277b81 !important; background:#fff !important; border-color:#9fc9cc !important; }
+.wof_film_setup_form .wof_components_definition_note { background:#f2f8f8 !important; border-color:#d9e5e8 !important; color:#60767b !important; }
+.wof_film_setup_form .wof_components_empty_icon { background:#e9f5f5 !important; color:#277b81 !important; }
+.wof_film_setup_form .wof_components_empty strong { color:#26363a !important; font-size:14px !important; }
+.wof_film_setup_form .wof_components_empty p { color:#75878c !important; font-size:11px !important; }
+
+/* Component/service-area dialogs — remove legacy violet identity and match
+   the same teal palette and font scale used by the film wizard. */
+.wof_component_dialog_form,
+.wof_component_create_form { font-size:13px !important; line-height:1.55 !important; color:#26363a !important; }
+.wof_component_dialog_form .o_form_sheet_bg,
+.wof_component_dialog_form .o_form_sheet,
+.wof_component_create_form .o_form_sheet_bg,
+.wof_component_create_form .o_form_sheet { background:#f5f9fa !important; }
+.wof_component_dialog_header,
+.wof_component_create_form .wof_component_dialog_header { border-color:#d9e5e8 !important; background:linear-gradient(135deg,#fff 0%,#f2f8f8 100%) !important; }
+.wof_component_dialog_icon { background:#e9f5f5 !important; color:#277b81 !important; box-shadow:0 4px 10px rgba(47,143,149,.08) !important; }
+.wof_component_dialog_header h2 { color:#26363a !important; font-size:18px !important; line-height:1.35 !important; }
+.wof_component_dialog_header p { color:#75878c !important; font-size:11px !important; line-height:1.5 !important; }
+.wof_component_dialog_type_badge { background:#e9f5f5 !important; color:#277b81 !important; font-size:11px !important; }
+.wof_component_dialog_field { border-color:#d9e5e8 !important; box-shadow:0 3px 10px rgba(31,63,68,.03) !important; }
+.wof_component_dialog_field_head label { color:#26363a !important; font-size:13px !important; }
+.wof_component_dialog_field_head span { color:#75878c !important; font-size:11px !important; }
+.wof_component_dialog_field .o_input { border-color:#d9e5e8 !important; background:#fff !important; font-size:13px !important; }
+.wof_component_dialog_field .o_input:focus { border-color:#2f8f95 !important; box-shadow:0 0 0 3px rgba(47,143,149,.10) !important; }
+.wof_component_create_entry { border-color:#b8d7d9 !important; background:#f2f8f8 !important; }
+.wof_component_create_entry_text strong { color:#26363a !important; font-size:13px !important; }
+.wof_component_create_entry_text span { color:#75878c !important; font-size:11px !important; }
+.wof_component_create_entry .btn { border-color:#9fc9cc !important; color:#277b81 !important; font-size:12px !important; }
+.wof_component_dialog_children { border-color:#d9e5e8 !important; background:#f5f9fa !important; }
+.wof_component_dialog_children_title { color:#277b81 !important; font-size:13px !important; }
+.wof_component_dialog_children .o_tag { border-color:#d9e5e8 !important; color:#26363a !important; font-size:11px !important; }
+.wof_component_dialog_children small { border-color:#d9e5e8 !important; color:#75878c !important; font-size:11px !important; }
+.modal-content:has(.wof_component_dialog_form) > .modal-footer .btn-primary,
+.modal-content:has(.wof_component_create_form) > .modal-footer .btn-primary,
+.wof_component_dialog_form footer .btn-primary { background:#2f8f95 !important; border-color:#2f8f95 !important; color:#fff !important; }
