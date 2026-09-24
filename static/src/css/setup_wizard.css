@@ -8792,3 +8792,68 @@ body:has(.modal.show .wof_activity_hub_form),
         border: 0 !important;
     }
 }
+
+/* ============================================================
+   RC100 — top actions stay visible; stage body scrolls only when needed
+   UI only. Popup geometry, fields, actions and business logic untouched.
+   ============================================================ */
+@media (min-width: 901px) {
+    .modal-content:has(.wof_film_setup_form) > .modal-body {
+        overflow: hidden !important;
+    }
+    .wof_film_setup_form,
+    .wof_film_setup_form .o_form_sheet_bg,
+    .wof_film_setup_form .o_form_sheet,
+    .wof_film_setup_form .wof_film_setup_shell {
+        height: 100% !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+    .wof_film_setup_form .wof_film_setup_shell {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    .wof_film_setup_form .wof_film_setup_header,
+    .wof_film_setup_form .wof_film_setup_steps,
+    .wof_film_setup_form .wof_film_top_nav_zone {
+        flex: 0 0 auto !important;
+    }
+    .wof_film_setup_form .wof_film_top_nav_zone {
+        order: 0 !important;
+        margin-top: 10px !important;
+        margin-bottom: 8px !important;
+    }
+    /* The currently visible stage owns the remaining height.  No scrollbar is
+       shown while it fits; expanding an accordion makes only this area scroll. */
+    .wof_film_setup_form .wof_film_setup_body,
+    .wof_film_setup_form .wof_film_tint_stage,
+    .wof_film_setup_form .wof_film_components_stage,
+    .wof_film_setup_form .wof_stage4_shell,
+    .wof_film_setup_form .wof_film_stage_handoff,
+    .wof_film_setup_form .wof_completion_stage {
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-width: thin;
+        scrollbar-color: #9dbfc1 transparent;
+    }
+    .wof_film_setup_form .wof_film_setup_body::-webkit-scrollbar,
+    .wof_film_setup_form .wof_film_tint_stage::-webkit-scrollbar,
+    .wof_film_setup_form .wof_film_components_stage::-webkit-scrollbar,
+    .wof_film_setup_form .wof_stage4_shell::-webkit-scrollbar,
+    .wof_film_setup_form .wof_film_stage_handoff::-webkit-scrollbar,
+    .wof_film_setup_form .wof_completion_stage::-webkit-scrollbar {
+        width: 6px;
+    }
+    .wof_film_setup_form .wof_film_setup_body::-webkit-scrollbar-thumb,
+    .wof_film_setup_form .wof_film_tint_stage::-webkit-scrollbar-thumb,
+    .wof_film_setup_form .wof_film_components_stage::-webkit-scrollbar-thumb,
+    .wof_film_setup_form .wof_stage4_shell::-webkit-scrollbar-thumb,
+    .wof_film_setup_form .wof_film_stage_handoff::-webkit-scrollbar-thumb,
+    .wof_film_setup_form .wof_completion_stage::-webkit-scrollbar-thumb {
+        background: #9dbfc1;
+        border-radius: 999px;
+    }
+}
