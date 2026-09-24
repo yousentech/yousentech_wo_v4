@@ -8763,3 +8763,32 @@ body:has(.modal.show .wof_activity_hub_form),
 @media (max-width: 900px) {
     .wof_film_setup_form .wof_film_top_nav_zone { margin: 8px 10px 6px !important; }
 }
+
+/* ============================================================
+   RC99 — definitive top action card placement
+   Overrides the legacy RC88 footer ordering only. UI-only.
+   ============================================================ */
+@media (min-width: 901px) {
+    .wof_film_setup_form .wof_film_top_nav_zone {
+        order: 0 !important;
+        flex: 0 0 auto !important;
+        height: auto !important;
+        min-height: 0 !important;
+        position: relative !important;
+        inset: auto !important;
+        margin: 10px 18px 8px !important;
+        z-index: 80 !important;
+        background: #f2f8f8 !important;
+        border: 1px solid #c9dfe0 !important;
+        border-radius: 10px !important;
+        box-shadow: 0 3px 10px rgba(31,63,68,.055) !important;
+        overflow: hidden !important;
+    }
+    .wof_film_setup_form .wof_film_top_nav {
+        height: auto !important;
+        min-height: 52px !important;
+        padding: 7px 12px !important;
+        background: transparent !important;
+        border: 0 !important;
+    }
+}
