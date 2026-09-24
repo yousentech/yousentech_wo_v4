@@ -8669,3 +8669,58 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_film_setup_form .wof_compact_section[open] > .wof_compact_content {
     background: #f4fafa !important;
 }
+
+/* ============================================================
+   RC97 — Film wizard only: keep navigation visible while policies expand
+   UI only. Preserve popup geometry, dark-teal accordion and all logic.
+   ============================================================ */
+@media (min-width: 901px) {
+    .modal-content:has(.wof_film_setup_form) > .modal-body {
+        overflow: hidden !important;
+    }
+    .wof_film_setup_form {
+        height: 100% !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+    .wof_film_setup_form .o_form_sheet_bg,
+    .wof_film_setup_form .o_form_sheet,
+    .wof_film_setup_form .wof_film_setup_shell {
+        height: 100% !important;
+        min-height: 0 !important;
+    }
+    .wof_film_setup_form .wof_film_setup_shell {
+        display: flex !important;
+        flex-direction: column !important;
+        padding-bottom: 0 !important;
+        overflow: hidden !important;
+    }
+    .wof_film_setup_form .wof_film_setup_header,
+    .wof_film_setup_form .wof_film_setup_steps {
+        flex: 0 0 auto !important;
+    }
+    .wof_film_setup_form .wof_film_setup_body,
+    .wof_film_setup_form .wof_film_tint_stage,
+    .wof_film_setup_form .wof_film_components_stage,
+    .wof_film_setup_form .wof_stage4_shell,
+    .wof_film_setup_form .wof_film_stage_handoff,
+    .wof_film_setup_form .wof_completion_stage {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+    .wof_film_setup_form .wof_film_top_nav_zone {
+        position: relative !important;
+        inset: auto !important;
+        flex: 0 0 58px !important;
+        width: 100% !important;
+        height: 58px !important;
+        min-height: 58px !important;
+        margin-top: auto !important;
+        z-index: 80 !important;
+        background: #fff !important;
+        border-top: 1px solid var(--wof-film-border) !important;
+        box-shadow: 0 -5px 16px rgba(31,63,68,.045) !important;
+    }
+}
