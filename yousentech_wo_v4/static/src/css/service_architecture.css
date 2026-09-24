@@ -1,0 +1,235 @@
+.o_form_view.wof_service_architecture {
+    --wof-service-primary: #70445f;
+    --wof-service-primary-dark: #4f2d43;
+    --wof-service-accent: #178c82;
+    --wof-service-soft: #f8f3f7;
+    --wof-service-border: #e7dce4;
+}
+
+.o_form_view.wof_service_architecture .wof_service_hero {
+    align-items: center;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(255, 255, 255, .15), transparent 28%),
+        linear-gradient(135deg, var(--wof-service-primary), var(--wof-service-primary-dark));
+    border-radius: 1.25rem;
+    color: #fff;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: minmax(0, 1fr) minmax(160px, .32fr);
+    margin-block-end: 1.25rem;
+    padding: 1.5rem;
+}
+
+.o_form_view.wof_service_architecture .wof_service_hero h1 {
+    color: inherit;
+    font-size: clamp(1.55rem, 2.7vw, 2.35rem);
+    font-weight: 750;
+    margin: .35rem 0 .55rem;
+}
+
+.o_form_view.wof_service_architecture .wof_service_hero p {
+    margin: 0;
+    max-width: 58rem;
+    opacity: .86;
+}
+
+.o_form_view.wof_service_architecture .wof_service_eyebrow {
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: .78rem;
+    font-weight: 700;
+    padding: .25rem .7rem;
+}
+
+.o_form_view.wof_service_architecture .wof_service_hero_code {
+    background: rgba(255, 255, 255, .1);
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    min-width: 0;
+    padding: 1rem;
+    text-align: center;
+}
+
+.o_form_view.wof_service_architecture .wof_service_hero_code small {
+    opacity: .76;
+}
+
+.o_form_view.wof_service_architecture .wof_service_hero_code strong {
+    font-size: 1.15rem;
+}
+
+.o_form_view.wof_service_architecture .wof_service_summary,
+.o_form_view.wof_service_architecture .wof_service_cards,
+.o_form_view.wof_service_architecture .wof_pricing_actions {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-block: 1rem;
+}
+
+.o_form_view.wof_service_architecture .wof_service_cards,
+.o_form_view.wof_service_architecture .wof_pricing_actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.o_form_view.wof_service_architecture .wof_service_summary_card,
+.o_form_view.wof_service_architecture .wof_service_card {
+    background: var(--o-view-background-color, #fff);
+    border: 1px solid var(--wof-service-border);
+    border-radius: 1rem;
+    box-shadow: 0 .3rem 1rem rgba(65, 36, 56, .06);
+    min-width: 0;
+    padding: 1rem;
+}
+
+.o_form_view.wof_service_architecture .wof_service_summary_card {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+
+.o_form_view.wof_service_architecture .wof_service_summary_card small,
+.o_form_view.wof_service_architecture .wof_service_card p {
+    color: var(--o-gray-600, #6c757d);
+}
+
+.o_form_view.wof_service_architecture .wof_service_summary_card strong,
+.o_form_view.wof_service_architecture .wof_service_card h3 {
+    font-size: 1.05rem;
+    font-weight: 750;
+}
+
+.o_form_view.wof_service_architecture .wof_service_notebook {
+    margin-block-start: 1.25rem;
+}
+
+.o_form_view.wof_service_architecture .wof_section_intro {
+    background: var(--wof-service-soft);
+    border-inline-start: 4px solid var(--wof-service-accent);
+    border-radius: .65rem;
+    margin-block-end: 1rem;
+    padding: .85rem 1rem;
+}
+
+.o_kanban_view.wof_activity_kanban {
+}
+
+.o_kanban_view.wof_activity_kanban .wof_activity_card {
+    background: var(--o-view-background-color, #fff);
+    border: 1px solid #e7dce4;
+    border-radius: 1rem;
+    box-shadow: 0 .3rem 1rem rgba(65, 36, 56, .06);
+    min-height: 170px;
+    padding: 1rem;
+}
+
+.o_kanban_view.wof_activity_kanban .wof_activity_card_header,
+.o_kanban_view.wof_activity_kanban .wof_activity_card_footer {
+    align-items: center;
+    display: flex;
+    gap: .75rem;
+    justify-content: space-between;
+}
+
+.o_kanban_view.wof_activity_kanban .wof_service_icon {
+    align-items: center;
+    background: #f4eaf1;
+    border-radius: .75rem;
+    color: #70445f;
+    display: inline-flex;
+    flex: 0 0 2.5rem;
+    height: 2.5rem;
+    justify-content: center;
+}
+
+.o_kanban_view.wof_activity_kanban .wof_activity_card_title {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.o_kanban_view.wof_activity_kanban .wof_activity_card_title strong {
+    font-size: 1.08rem;
+    font-weight: 750;
+}
+
+.o_kanban_view.wof_activity_kanban .wof_activity_card_title small {
+    color: var(--o-gray-600, #6c757d);
+}
+
+.o_kanban_view.wof_activity_kanban .wof_activity_metrics {
+    display: grid;
+    gap: .5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-block: 1rem;
+}
+
+.o_kanban_view.wof_activity_kanban .wof_activity_metrics span {
+    background: #faf7f9;
+    border-radius: .6rem;
+    padding: .65rem;
+}
+
+@media (max-width: 767px) {
+    .o_form_view.wof_service_architecture .wof_service_hero,
+    .o_form_view.wof_service_architecture .wof_service_summary,
+    .o_form_view.wof_service_architecture .wof_service_cards,
+    .o_form_view.wof_service_architecture .wof_pricing_actions {
+        grid-template-columns: 1fr;
+    }
+
+    .o_form_view.wof_service_architecture .wof_service_hero {
+        border-radius: .9rem;
+        padding: 1rem;
+    }
+
+    .o_form_view.wof_service_architecture .wof_service_hero_code {
+        text-align: start;
+    }
+}
+
+/* Film/service catalog: activity -> films/services -> configuration */
+.o_kanban_view.wof_film_kanban {
+    --wof-film-primary: #4f4b8f;
+    --wof-film-primary-dark: #39356f;
+    --wof-film-teal: #4f8f93;
+    --wof-film-border: #dddde8;
+    align-content: flex-start;
+    gap: 1rem;
+    padding: 1.5rem max(1rem, 6vw);
+}
+.o_kanban_view.wof_film_kanban .o_kanban_record { width: min(360px, 100%); margin: 0; }
+.o_kanban_view.wof_film_kanban .wof_film_card {
+    background: var(--o-view-background-color, #fff); border: 1px solid var(--wof-film-border);
+    border-radius: 1rem; box-shadow: 0 .35rem 1.15rem rgba(42, 40, 79, .07);
+    min-height: 330px; overflow: hidden; padding: 0; display: flex; flex-direction: column;
+    transition: transform .16s ease, box-shadow .16s ease;
+}
+.o_kanban_view.wof_film_kanban .wof_film_card:hover { transform: translateY(-2px); box-shadow: 0 .55rem 1.4rem rgba(42,40,79,.12); }
+.o_kanban_view.wof_film_kanban .wof_film_card_inactive { opacity: .78; }
+.o_kanban_view.wof_film_kanban .wof_film_card_header { display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem; padding:1rem 1rem .85rem; border-bottom:1px solid #ececf2; }
+.o_kanban_view.wof_film_kanban .wof_film_title { min-width:0; flex:1; }
+.o_kanban_view.wof_film_kanban .wof_film_title > strong { display:block; font-size:1.15rem; line-height:1.45; font-weight:750; overflow-wrap:anywhere; }
+.o_kanban_view.wof_film_kanban .wof_film_badges { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.55rem; }
+.o_kanban_view.wof_film_kanban .wof_badge { border-radius:999px; padding:.2rem .55rem; font-size:.78rem; font-weight:650; }
+.o_kanban_view.wof_film_kanban .wof_badge_kind { background:#e4f0f1; color:#315f62; }
+.o_kanban_view.wof_film_kanban .wof_badge_active { background:#e2f2e6; color:#28723d; }
+.o_kanban_view.wof_film_kanban .wof_badge_muted { background:#ededf0; color:#777780; }
+.o_kanban_view.wof_film_kanban .wof_film_edit { border:0; border-radius:.55rem; background:#eeeef3; color:#666575; width:2.15rem; height:2.15rem; flex:0 0 auto; }
+.o_kanban_view.wof_film_kanban .wof_film_card_body { flex:1; padding:1rem; display:flex; flex-direction:column; gap:.8rem; }
+.o_kanban_view.wof_film_kanban .wof_readiness { font-size:1rem; font-weight:750; }
+.o_kanban_view.wof_film_kanban .wof_ready { color:#31814c; }
+.o_kanban_view.wof_film_kanban .wof_needs_setup { color:#9a3d36; }
+.o_kanban_view.wof_film_kanban .wof_configuration_note { color:#9a3d36; }
+.o_kanban_view.wof_film_kanban .wof_film_metrics { display:flex; flex-wrap:wrap; gap:.4rem; }
+.o_kanban_view.wof_film_kanban .wof_film_metrics span { background:#f1f1f5; border-radius:.5rem; padding:.28rem .55rem; font-size:.84rem; }
+.o_kanban_view.wof_film_kanban .wof_pricing_line { margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:.65rem; border-top:1px dashed #e1e1e8; padding-top:.75rem; }
+.o_kanban_view.wof_film_kanban .wof_pricing_line span { color:var(--o-gray-600,#6c757d); font-size:.82rem; }
+.o_kanban_view.wof_film_kanban .wof_film_card_footer { padding:.85rem 1rem 1rem; }
+.o_kanban_view.wof_film_kanban .wof_configure_btn { width:100%; border-color:var(--wof-film-primary); background:linear-gradient(135deg,var(--wof-film-primary),var(--wof-film-primary-dark)); font-weight:700; }
+@media (max-width: 767px) { .o_kanban_view.wof_film_kanban { padding:1rem; } .o_kanban_view.wof_film_kanban .o_kanban_record { width:100%; } }

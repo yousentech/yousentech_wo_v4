@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================
+            TREE VIEW
+    ========================== -->
+
+    <record id="view_car_size_wo_v4_tree" model="ir.ui.view">
+        <field name="name">wof.car.size.tree</field>
+        <field name="model">wof.car.size</field>
+        <field name="arch" type="xml">
+            <tree string="حجم السيارة" decoration-muted="not active">
+
+             
+                <field name="code"/>
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+               
+                <field name="active" column_invisible="1"/>
+
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- =========================
+            FORM VIEW
+    ========================== -->
+
+    <record id="view_car_size_wo_v4_form" model="ir.ui.view">
+        <field name="name">wof.car.size.form</field>
+        <field name="model">wof.car.size</field>
+        <field name="arch" type="xml">
+
+            <form string="حجم السيارة">
+
+                <sheet> 
+                    <widget name="web_ribbon"
+                            title="مؤرشف"
+                            bg_color="bg-danger"
+                            invisible="active"/>
+
+                    <!-- 🔘 Button Box -->
+                    <div class="oe_button_box" name="button_box">
+                    <button name="toggle_active"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-power-off"
+                            invisible="not id"
+                            groups="yousentech_wo_v4.group_wo_manager">
+
+                        <field name="active"
+                            widget="boolean_button"
+                            options="{'terminology': 'archive'}"/>
+                    </button>
+ 
+                    </div>
+
+                  
+                    <group>
+                        <group>
+                       
+                            <field name="code" placeholder="مثال: MEDIUM"/>
+                            <field name="name" placeholder="مثال: متوسطة"/>
+                        </group>
+
+                        <group>
+                         
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
+
+
+    <!-- =========================
+            SEARCH VIEW
+    ========================== -->
+
+     
+
+
+    <record id="view_car_size_wo_v4_search" model="ir.ui.view">
+        <field name="name">wof.car.size.search</field>
+        <field name="model">wof.car.size</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+
+            <search string="بحث حجم السيارة">
+
+                <!-- Search Fields -->
+                <field name="name"/>
+                <field name="code"/>
+              
+                <filter string="مؤرشف"
+                        name="inactive"
+                        domain="[('active','=',False)]"/>
+ 
+                
+ 
+
+                    <filter string="الحالة" name="groupby_state"
+                            context="{'group_by':'active'}"/>
+               
+              
+
+            </search>
+
+        </field>
+    </record>
+
+
+    <!-- =========================
+            ACTION
+    ========================== -->
+
+    <record id="action_car_size_wo_v4" model="ir.actions.act_window">
+        <field name="name">حجم السيارة</field>
+        <field name="res_model">wof.car.size</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_car_size_wo_v4_tree"/>
+  
+    </record>
+
+
+    <!-- =========================
+            MENU ACTION
+    ========================== -->
+
+    <menuitem id="menu_car_size_wo_v4"
+              name="احجام السيارة"
+              parent="menu_wo_v4_configuration"
+              action="action_car_size_wo_v4"
+              sequence="30"
+              groups="yousentech_wo_v4.group_wo_manager"/>
+</odoo>

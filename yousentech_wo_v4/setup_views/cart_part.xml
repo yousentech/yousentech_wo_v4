@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+ 
+
+    <!-- ================= TREE VIEW ================= -->
+    <record id="view_car_part_wo_v4_tree" model="ir.ui.view">
+        <field name="name">wof.car.part_wo_v4.tree</field>
+        <field name="model">wof.car.parts</field>
+        <field name="arch" type="xml">
+
+            <tree  decoration-muted="not active" >
+
+                  <field name="code"/>
+                <field name="name"/>
+                <field name="priority_part"/>
+                <field name="commission"/>
+                <field name="company_id"/>
+           
+              
+                <field name="active" column_invisible="1"/>
+            </tree>
+
+        </field>
+    </record>
+
+
+    <!-- ================= FORM VIEW ================= -->
+    <record id="view_car_part_wo_v4_form" model="ir.ui.view">
+        <field name="name">wof.car.part_wo_v4.form</field>
+        <field name="model">wof.car.parts</field>
+        <field name="arch" type="xml">
+
+            <form string="جزء السيارة">
+
+                <sheet>
+
+                    <!-- Ribbon -->
+                    <widget name="web_ribbon"
+                            title="غير مفعل"
+                            bg_color="bg-danger"
+                            invisible="active"/>
+
+                    <!-- Buttons -->
+                    <div class="oe_button_box" name="button_box">
+
+                        <button name="toggle_active"
+                                type="object"
+                                string="إلغاء التفعيل"
+                                class="btn btn-danger"
+                                invisible="not active"
+                                groups="yousentech_wo_v4.group_wo_manager"/>
+
+                        <button name="toggle_active"
+                                type="object"
+                                string="تفعيل"
+                                class="btn btn-success"
+                                invisible="active"
+                                groups="yousentech_wo_v4.group_wo_manager"/>
+
+                    </div>
+
+                    <!-- Main -->
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="product_id"/>
+
+                        </group>
+
+                        <group>
+                             <field name="priority_part"/>
+                            <field name="commission"/>
+                            <field name="part_options_required"/>
+                            <field name="part_options_ids" widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+
+                             <field name="company_id" readonly="1"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                          <field name="part_type" widget="radio"/>
+                          <field name="service_area_part_ids" widget="many2many_tags"
+                                 invisible="part_type != 'service_area'"
+                                 options="{'no_create': True, 'no_create_edit': True}"/>
+                          <div class="text-muted" invisible="part_type != 'service_area'">
+                              أجزاء المنطقة بنيوية وتشغيلية فقط؛ تسعير وعمولة منطقة الخدمة يتمان كوحدة واحدة.
+                          </div>
+
+                        </group>
+                        
+                    </group>
+
+                     
+                    
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
+
+
+    <!-- ================= SEARCH VIEW ================= -->
+    <record id="view_car_part_wo_v4_search" model="ir.ui.view">
+        <field name="name">wof.car.part_wo_v4.search</field>
+        <field name="model">wof.car.parts</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+
+            <search string="بحث أجزاء السيارة">
+
+                <!-- Fields -->
+                <field name="code"/>
+                <field name="name"/>
+            
+                <field name="company_id"/>
+             
+                <!-- Filters -->
+                
+                <filter string="مؤرشف"
+                        name="inactive"
+                        domain="[('active','=',False)]"/>
+   
+                    <filter string="الشركة" name="groupby_company"
+                            context="{'group_by':'company_id'}"/>
+  
+
+            </search>
+
+        </field>
+    </record>
+
+
+    <!-- ================= ACTION ================= -->
+    <record id="action_car_part_wo_v4" model="ir.actions.act_window">
+        <field name="name">جزء السيارة</field>
+        <field name="res_model">wof.car.parts</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_car_part_wo_v4_tree"/>
+      
+    </record>
+ 
+ 
+
+    <menuitem id="menu_car_part_wo_v4"
+              name="أجزاء السيارات"
+              parent="menu_wo_v4_configuration"
+              action="action_car_part_wo_v4"
+              sequence="40"/>
+ 
+
+</odoo>

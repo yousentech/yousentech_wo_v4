@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================
+            TREE VIEW
+    ========================== -->
+
+    <record id="view_car_agency_wo_v4_tree" model="ir.ui.view">
+        <field name="name">wof.car.agency.tree</field>
+        <field name="model">wof.car.agency</field>
+        <field name="arch" type="xml">
+            <tree string="وكالة السيارة" decoration-muted="not active">
+
+                <field name="code"/>
+                <field name="name"/>
+               
+                <field name="active" column_invisible="1"/>
+
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- =========================
+            FORM VIEW
+    ========================== -->
+
+    <record id="view_car_agency_wo_v4_form" model="ir.ui.view">
+        <field name="name">wof.car.agency.form</field>
+        <field name="model">wof.car.agency</field>
+        <field name="arch" type="xml">
+
+            <form string="وكالة السيارة">
+
+                <sheet> 
+                    <widget name="web_ribbon"
+                            title="مؤرشف"
+                            bg_color="bg-danger"
+                            invisible="active"/>
+
+                    <!-- 🔘 Button Box -->
+                    <div class="oe_button_box" name="button_box">
+                    <button name="toggle_active"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-power-off"
+                            invisible="not id"
+                            groups="yousentech_wo_v4.group_wo_manager">
+
+                        <field name="active"
+                            widget="boolean_button"
+                            options="{'terminology': 'archive'}"/>
+                    </button>
+ 
+                    </div>
+
+                  
+                    <group>
+                        <group>
+                            <field name="code" placeholder="AGENCY-RUH"/>
+                            <field name="name" placeholder="مثال: شركة التموين للسيارة"/>
+                        </group>
+
+                        <group>
+                         
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+
+                </sheet>
+
+            </form>
+
+        </field>
+    </record>
+
+
+    <!-- =========================
+            SEARCH VIEW
+    ========================== -->
+
+     
+
+
+    <record id="view_car_agency_wo_v4_search" model="ir.ui.view">
+        <field name="name">wof.car.agency.search</field>
+        <field name="model">wof.car.agency</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+
+            <search string="بحث عن وكالة السيارة">
+
+                <!-- Search Fields -->
+                <field name="code"/>
+                <field name="name"/>
+              
+                <filter string="مؤرشف"
+                        name="inactive"
+                        domain="[('active','=',False)]"/>
+ 
+                
+ 
+
+                    <filter string="الحالة" name="groupby_state"
+                            context="{'group_by':'active'}"/>
+               
+              
+
+            </search>
+
+        </field>
+    </record>
+
+
+    <!-- =========================
+            ACTION
+    ========================== -->
+
+    <record id="action_car_agency_wo_v4" model="ir.actions.act_window">
+        <field name="name">وكالة السيارة</field>
+        <field name="res_model">wof.car.agency</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_car_agency_wo_v4_tree"/>
+  
+    </record>
+
+
+    <!-- =========================
+            MENU ACTION
+    ========================== -->
+
+    <menuitem id="menu_car_agency_wo_v4"
+              name="وكالات السيارات"
+              parent="menu_wo_v4_configuration"
+              action="action_car_agency_wo_v4"
+              sequence="70"/>
+</odoo>

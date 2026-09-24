@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================
+         Module Category
+    ========================== -->
+    <record model="ir.module.category" id="wo_category_priv">
+        <field name="name">صلاحيات نظام الأفلام</field>
+        <field name="sequence">110</field>
+    </record>
+
+
+    <!-- =========================
+         Groups
+    ========================== -->
+
+    <record id="group_wo_employee" model="res.groups">
+        <field name="name">مستخدم نظام العناية</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_wo_user" model="res.groups">
+        <field name="name">موظف الاستقبال</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[(4, ref('group_wo_employee'))]"/>
+    </record>
+
+    <record id="group_wo_technician" model="res.groups">
+        <field name="name">فني</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[(4, ref('group_wo_employee'))]"/>
+    </record>
+
+    <record id="group_wo_supervisor" model="res.groups">
+        <field name="name">مشرف التشغيل</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[(4, ref('group_wo_employee'))]"/>
+    </record>
+
+    <record id="group_wo_accountant" model="res.groups">
+        <field name="name">محاسب نظام العناية</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[(4, ref('group_wo_employee'))]"/>
+    </record>
+
+    <record id="group_wo_price_override" model="res.groups">
+        <field name="name">اعتماد تجاوز سعر أمر التركيب</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[(4, ref('group_wo_employee'))]"/>
+    </record>
+
+    <record id="group_wo_manager" model="res.groups">
+        <field name="name">مدير مركز العناية</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[
+            (4, ref('group_wo_supervisor')),
+            (4, ref('group_wo_accountant')),
+            (4, ref('group_wo_price_override'))
+        ]"/>
+    </record>
+
+    <record id="group_wo_settings" model="res.groups">
+        <field name="name">مسؤول تهيئة نظام العناية</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[(4, ref('group_wo_manager'))]"/>
+    </record>
+
+    <record id="company_profile_rule" model="ir.rule">
+        <field name="name">ملف تهيئة الشركة الحالية</field>
+        <field name="model_id" ref="model_wof_company_profile"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(5, 0, 0)]"/>
+    </record>
+
+    <record id="audit_log_company_rule" model="ir.rule">
+        <field name="name">سجل تدقيق الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_audit_log"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(5, 0, 0)]"/>
+    </record>
+
+    <record id="setup_size_line_company_rule" model="ir.rule">
+        <field name="name">مسودة أحجام الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_setup_size_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="setup_service_line_company_rule" model="ir.rule">
+        <field name="name">مسودة خدمات الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_setup_service_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="service_type_company_rule" model="ir.rule">
+        <field name="name">خدمات الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_service_type"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="film_category_company_rule" model="ir.rule">
+        <field name="name">أفلام الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_film_category"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="film_category_line_company_rule" model="ir.rule">
+        <field name="name">درجات أفلام الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_film_category_lines"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="film_part_line_company_rule" model="ir.rule">
+        <field name="name">أجزاء أفلام الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_film_parts_lines"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="film_price_line_company_rule" model="ir.rule">
+        <field name="name">أسعار أفلام الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_film_parts_price_lines"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="film_commission_line_company_rule" model="ir.rule">
+        <field name="name">عمولات أفلام الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_film_parts_commission_lines"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="car_size_company_rule" model="ir.rule">
+        <field name="name">أحجام سيارات الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_car_size"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="car_part_company_rule" model="ir.rule">
+        <field name="name">أجزاء سيارات الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_car_parts"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="installation_order_company_rule" model="ir.rule">
+        <field name="name">أوامر تركيب الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_installation_order"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="installation_order_line_company_rule" model="ir.rule">
+        <field name="name">خدمات أوامر تركيب الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_installation_order_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="installation_material_line_company_rule" model="ir.rule">
+        <field name="name">مواد أوامر تركيب الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_installation_material_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="installation_order_event_company_rule" model="ir.rule">
+        <field name="name">أحداث أوامر تركيب الشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_installation_order_event"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="installation_order_technician_assignment_rule" model="ir.rule">
+        <field name="name">الفني يرى أوامر التركيب المسندة إليه</field>
+        <field name="model_id" ref="model_wof_installation_order"/>
+        <field name="domain_force">[('technician_ids', 'in', [user.id])]</field>
+        <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
+    </record>
+
+    <record id="installation_order_line_technician_assignment_rule" model="ir.rule">
+        <field name="name">الفني يرى خدمات أوامره المسندة</field>
+        <field name="model_id" ref="model_wof_installation_order_line"/>
+        <field name="domain_force">[('order_id.technician_ids', 'in', [user.id])]</field>
+        <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
+    </record>
+
+    <record id="installation_material_technician_assignment_rule" model="ir.rule">
+        <field name="name">الفني يرى مواد أوامره المسندة</field>
+        <field name="model_id" ref="model_wof_installation_material_line"/>
+        <field name="domain_force">[('order_id.technician_ids', 'in', [user.id])]</field>
+        <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
+    </record>
+
+    <record id="installation_event_technician_assignment_rule" model="ir.rule">
+        <field name="name">الفني يرى أحداث أوامره المسندة</field>
+        <field name="model_id" ref="model_wof_installation_order_event"/>
+        <field name="domain_force">[('order_id.technician_ids', 'in', [user.id])]</field>
+        <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
+    </record>
+
+    <record id="setup_tint_shade_line_company_rule" model="ir.rule">
+        <field name="name">مسودة درجات اللون للشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_setup_tint_shade_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="tint_degree_company_rule" model="ir.rule">
+        <field name="name">درجات اللون الرسمية للشركات المسموحة</field>
+        <field name="model_id" ref="model_wof_tint_degree"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+</odoo>

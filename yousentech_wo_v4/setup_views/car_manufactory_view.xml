@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_car_manufactory_wo_v4_tree" model="ir.ui.view">
+        <field name="name">wof.car.manufactory.tree</field>
+        <field name="model">wof.car.manufactory</field>
+        <field name="arch" type="xml">
+            <tree string="الشركات المصنعة" decoration-muted="not active">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="active" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_car_manufactory_wo_v4_form" model="ir.ui.view">
+        <field name="name">wof.car.manufactory.form</field>
+        <field name="model">wof.car.manufactory</field>
+        <field name="arch" type="xml">
+            <form string="الشركة المصنعة">
+                <sheet>
+                    <widget name="web_ribbon" title="مؤرشف" bg_color="bg-danger"
+                            invisible="active"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active" type="object"
+                                class="oe_stat_button" icon="fa-power-off"
+                                invisible="not id"
+                                groups="yousentech_wo_v4.group_wo_manager">
+                            <field name="active" widget="boolean_button"
+                                   options="{'terminology': 'archive'}"/>
+                        </button>
+                    </div>
+                    <group>
+                        <field name="code" placeholder="TOYOTA"/>
+                        <field name="name" placeholder="تويوتا"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_car_manufactory_wo_v4_search" model="ir.ui.view">
+        <field name="name">wof.car.manufactory.search</field>
+        <field name="model">wof.car.manufactory</field>
+        <field name="arch" type="xml">
+            <search string="بحث الشركات المصنعة">
+                <field name="code"/>
+                <field name="name"/>
+                <filter string="مؤرشف" name="inactive"
+                        domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_car_manufactory_wo_v4" model="ir.actions.act_window">
+        <field name="name">الشركات المصنعة</field>
+        <field name="res_model">wof.car.manufactory</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_car_manufactory_wo_v4"
+              name="الشركات المصنعة"
+              parent="menu_wo_v4_configuration"
+              action="action_car_manufactory_wo_v4"
+              sequence="45"/>
+</odoo>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_wo_setup_center_server" model="ir.actions.server">
+        <field name="name">مركز الإعدادات</field>
+        <field name="model_id" ref="base.model_res_company"/>
+        <field name="state">code</field>
+        <field name="code">
+profile = env['wof.company.profile'].search([('company_id', '=', env.company.id)], limit=1)
+action = profile.action_open_setup_center() if profile else env['wof.company.profile'].get_or_create_for_company(env.company)._wizard_action()
+        </field>
+    </record>
+
+    <menuitem id="menu_wo_setup_center"
+              name="مركز الإعدادات"
+              action="action_wo_setup_center_server"
+              parent="menu_wo_v4_configuration"
+              sequence="1"
+              groups="yousentech_wo_v4.group_wo_settings"/>
+</odoo>

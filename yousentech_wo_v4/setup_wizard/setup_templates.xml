@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+<data noupdate="1">
+    <record id="setup_template_tint" model="wof.setup.template">
+        <field name="sequence">10</field><field name="service_kind">tint</field>
+        <field name="name">عزل حراري</field><field name="code">TINT</field>
+        <field name="default_film_name">عزل حراري قياسي</field>
+        <field name="default_price">1200</field><field name="default_commission">100</field>
+        <field name="warranty_years">5</field><field name="inventory_enabled">1</field>
+    </record>
+    <record id="setup_template_tint_front" model="wof.setup.template.part">
+        <field name="template_id" ref="setup_template_tint"/><field name="sequence">10</field>
+        <field name="name">الزجاج الأمامي</field><field name="code">TINT-FRONT</field>
+        <field name="price_ratio">0.30</field>
+    </record>
+    <record id="setup_template_tint_sides" model="wof.setup.template.part">
+        <field name="template_id" ref="setup_template_tint"/><field name="sequence">20</field>
+        <field name="name">النوافذ الجانبية</field><field name="code">TINT-SIDES</field>
+        <field name="price_ratio">0.50</field>
+    </record>
+    <record id="setup_template_tint_rear" model="wof.setup.template.part">
+        <field name="template_id" ref="setup_template_tint"/><field name="sequence">30</field>
+        <field name="name">الزجاج الخلفي</field><field name="code">TINT-REAR</field>
+        <field name="price_ratio">0.20</field>
+    </record>
+
+    <record id="setup_template_ppf" model="wof.setup.template">
+        <field name="sequence">20</field><field name="service_kind">ppf</field>
+        <field name="name">حماية PPF</field><field name="code">PPF</field>
+        <field name="default_film_name">حماية PPF قياسية</field>
+        <field name="default_price">2500</field><field name="default_commission">200</field>
+        <field name="warranty_years">5</field><field name="inventory_enabled">1</field>
+    </record>
+    <record id="setup_template_ppf_bumper" model="wof.setup.template.part">
+        <field name="template_id" ref="setup_template_ppf"/><field name="sequence">10</field>
+        <field name="name">الصدام الأمامي</field><field name="code">PPF-BUMPER</field>
+        <field name="price_ratio">0.30</field>
+    </record>
+    <record id="setup_template_ppf_hood" model="wof.setup.template.part">
+        <field name="template_id" ref="setup_template_ppf"/><field name="sequence">20</field>
+        <field name="name">غطاء المحرك</field><field name="code">PPF-HOOD</field>
+        <field name="price_ratio">0.50</field>
+    </record>
+    <record id="setup_template_ppf_mirrors" model="wof.setup.template.part">
+        <field name="template_id" ref="setup_template_ppf"/><field name="sequence">30</field>
+        <field name="name">المرايا</field><field name="code">PPF-MIRRORS</field>
+        <field name="price_ratio">0.20</field>
+    </record>
+
+    <record id="setup_template_nano" model="wof.setup.template">
+        <field name="sequence">30</field><field name="service_kind">nano</field>
+        <field name="name">نانو سيراميك</field><field name="code">NANO</field>
+        <field name="default_film_name">نانو سيراميك قياسي</field>
+        <field name="default_price">1500</field><field name="default_commission">120</field>
+        <field name="warranty_years">3</field>
+    </record>
+    <record id="setup_template_nano_body" model="wof.setup.template.part">
+        <field name="template_id" ref="setup_template_nano"/>
+        <field name="name">هيكل السيارة الخارجي</field><field name="code">NANO-BODY</field>
+    </record>
+
+    <record id="setup_template_upholstery" model="wof.setup.template">
+        <field name="sequence">40</field><field name="service_kind">upholstery</field>
+        <field name="name">تنجيد</field><field name="code">UPH</field>
+        <field name="default_film_name">خامة تنجيد قياسية</field>
+        <field name="default_price">1800</field><field name="default_commission">150</field>
+        <field name="warranty_years">2</field>
+    </record>
+    <record id="setup_template_upholstery_seats" model="wof.setup.template.part">
+        <field name="template_id" ref="setup_template_upholstery"/>
+        <field name="name">المقاعد</field><field name="code">UPH-SEATS</field>
+    </record>
+
+    <record id="setup_template_floor_mats" model="wof.setup.template">
+        <field name="sequence">50</field><field name="service_kind">floor_mats</field>
+        <field name="name">أرضيات</field><field name="code">MAT</field>
+        <field name="default_film_name">أرضيات قياسية</field>
+        <field name="default_price">600</field><field name="default_commission">50</field>
+        <field name="warranty_years">1</field>
+    </record>
+    <record id="setup_template_floor_mats_all" model="wof.setup.template.part">
+        <field name="template_id" ref="setup_template_floor_mats"/>
+        <field name="name">أرضية كاملة</field><field name="code">MAT-FULL</field>
+    </record>
+
+    <record id="setup_template_other" model="wof.setup.template">
+        <field name="sequence">60</field><field name="service_kind">others</field>
+        <field name="name">خدمة أخرى</field><field name="code">OTH</field>
+        <field name="default_film_name">خيار قياسي</field>
+        <field name="default_price">0</field><field name="warranty_years">0</field>
+    </record>
+    <record id="setup_template_other_general" model="wof.setup.template.part">
+        <field name="template_id" ref="setup_template_other"/>
+        <field name="name">خدمة عامة</field><field name="code">OTH-GENERAL</field>
+    </record>
+</data>
+</odoo>
