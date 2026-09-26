@@ -728,7 +728,7 @@
                                 <div class="wof_component_create_section_head"><span class="wof_component_create_section_icon is-product"><i class="fa fa-link" title="الصنف الخدمي"/></span><div><strong>الصنف الخدمي المرتبط</strong><small>اربط المكوّن بصنف خدمة موجود أو أنشئه تلقائيًا بنفس الاسم والكود.</small></div></div>
                                 <div class="wof_component_product_mode wof_component_product_mode_v4">
                                     <div class="wof_component_auto_product_v2"><field name="auto_create_product" widget="boolean_toggle" nolabel="1"/><div><strong>إنشاء صنف خدمي تلقائيًا</strong><span>سيتم إنشاء صنف خدمي بنفس الاسم والكود.</span></div><span class="wof_recommended_badge" invisible="not auto_create_product">موصى به</span></div>
-                                    <div class="wof_component_existing_product_v2" invisible="auto_create_product"><span class="o_form_label">الصنف الخدمي الموجود <b>*</b></span><field name="product_id" options="{'no_create': False, 'no_create_edit': False}"/></div>
+                                    <div class="wof_component_existing_product_v2" invisible="auto_create_product"><div class="wof_component_product_inline"><span class="o_form_label">الصنف الخدمي الموجود <b>*</b></span><div class="wof_component_product_field"><field name="product_id" options="{'no_create': False, 'no_create_edit': False}"/></div></div></div>
                                 </div>
                             </section>
 
