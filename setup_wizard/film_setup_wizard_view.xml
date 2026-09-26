@@ -726,7 +726,7 @@
 
                             <section class="wof_component_create_main_card is-product-card">
                                 <div class="wof_component_create_section_head"><span class="wof_component_create_section_icon is-product"><i class="fa fa-link" title="الصنف الخدمي"/></span><div><strong>الصنف الخدمي المرتبط</strong><small>اربط المكوّن بصنف خدمة موجود أو أنشئه تلقائيًا بنفس الاسم والكود.</small></div></div>
-                                <div class="wof_component_product_mode wof_component_product_mode_v3">
+                                <div class="wof_component_product_mode wof_component_product_mode_v4">
                                     <div class="wof_component_auto_product_v2"><field name="auto_create_product" widget="boolean_toggle" nolabel="1"/><div><strong>إنشاء صنف خدمي تلقائيًا</strong><span>سيتم إنشاء صنف خدمي بنفس الاسم والكود.</span></div><span class="wof_recommended_badge" invisible="not auto_create_product">موصى به</span></div>
                                     <div class="wof_component_existing_product_v2" invisible="auto_create_product"><span class="o_form_label">الصنف الخدمي الموجود <b>*</b></span><field name="product_id" options="{'no_create': False, 'no_create_edit': False}"/></div>
                                 </div>
@@ -743,16 +743,6 @@
                                         <div class="wof_component_create_field"><span class="o_form_label">ملاحظات</span><field name="notes" placeholder="ملاحظة داخلية اختيارية"/></div>
                                         <div class="wof_component_create_field"><span class="o_form_label">رسالة تحذير</span><field name="warning_msg" placeholder="تظهر عند الحاجة أثناء التشغيل"/></div>
                                     </div>
-                                </div>
-                            </section>
-
-                            <section class="wof_component_preview_compact">
-                                <div class="wof_component_preview_compact_title"><span class="wof_component_create_section_icon"><i class="fa fa-eye" title="معاينة المكون"/></span><div><strong>معاينة المكوّن</strong><small>ملخص مباشر للبيانات المدخلة.</small></div></div>
-                                <div class="wof_component_preview_compact_values">
-                                    <span><i class="fa fa-tag" title="الاسم"/> الاسم: <b><field name="name" readonly="1" nolabel="1"/></b></span>
-                                    <span><i class="fa fa-code" title="الكود"/> الكود: <b><field name="code" readonly="1" nolabel="1"/></b></span>
-                                    <span><i class="fa fa-cube" title="النوع"/> النوع: <b invisible="expected_type != 'car_part'">جزء سيارة</b><b invisible="expected_type != 'service_area'">منطقة خدمة</b></span>
-                                    <span><i class="fa fa-sort-numeric-asc" title="الأولوية"/> الأولوية: <b><field name="priority_part" readonly="1" nolabel="1"/></b></span>
                                 </div>
                             </section>
 

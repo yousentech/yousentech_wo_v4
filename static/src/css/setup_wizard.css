@@ -9059,3 +9059,13 @@ body:has(.modal.show .wof_activity_hub_form),
     .wof_component_create_grid.is-notes-grid{grid-template-columns:1fr!important}
     .wof_component_preview_compact{align-items:flex-start!important;flex-direction:column!important}
 }
+
+
+/* RC106 — final component-create cleanup: unified product card, no preview summary. */
+.wof_component_product_mode_v4{display:grid!important;grid-template-columns:minmax(300px,.8fr) minmax(520px,2.2fr)!important;gap:16px!important;align-items:stretch!important}
+.wof_component_product_mode_v4 .wof_component_auto_product_v2{margin:0!important;min-width:0!important;height:100%!important}
+.wof_component_product_mode_v4 .wof_component_existing_product_v2{margin:0!important;min-width:0!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:10px 12px!important;border-style:solid!important;background:#fff!important}
+.wof_component_product_mode_v4 .wof_component_existing_product_v2 .o_field_widget,
+.wof_component_product_mode_v4 .wof_component_existing_product_v2 .o_field_many2one,
+.wof_component_product_mode_v4 .wof_component_existing_product_v2 .o_input{width:100%!important;max-width:none!important}
+@media(max-width:980px){.wof_component_product_mode_v4{grid-template-columns:1fr!important}}
