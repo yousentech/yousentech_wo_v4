@@ -17,5 +17,5 @@ assert 'wof_component_create_options_card' in view, 'visible options card missin
 assert 'RC102' in css and '#27858a' in css, 'approved teal visual override missing'
 print('component create redesign contract: OK')
 assert 'wof_component_preview_compact' not in view, 'component preview summary must be removed'
-assert 'wof_component_product_mode_v4' in view, 'unified service product card layout missing'
+assert 'wof_component_product_mode_v5' in view, 'unified service product card layout missing'
 assert view.index('name="auto_create_product"') < view.index('name="product_id"'), 'auto-create toggle should precede existing product field'
