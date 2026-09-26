@@ -698,124 +698,79 @@
                 <field name="company_id" invisible="1"/>
                 <field name="expected_type" invisible="1"/>
 
-                <div class="wof_component_create_shell wof_component_create_shell_v2">
-                    <div class="wof_component_create_header wof_component_create_header_v2">
-                        <span class="wof_component_create_icon">
-                            <i class="fa fa-cube" invisible="expected_type != 'car_part'" title="جزء سيارة"/>
-                            <i class="fa fa-folder-open" invisible="expected_type != 'service_area'" title="منطقة خدمة"/>
-                        </span>
-                        <div class="wof_component_create_heading">
-                            <h2 invisible="expected_type != 'car_part'">إضافة مكوّن جديد</h2>
-                            <h2 invisible="expected_type != 'service_area'">إضافة منطقة خدمة جديدة</h2>
-                            <p invisible="expected_type != 'car_part'">عرّف الجزء مرة واحدة، ثم استخدمه في هذا الفيلم وفي الأفلام والخدمات الأخرى.</p>
-                            <p invisible="expected_type != 'service_area'">عرّف المنطقة وحدد الأجزاء التابعة لها؛ المنطقة ستبقى وحدة تجارية واحدة في التسعير والعمولة.</p>
-                        </div>
-                        <span class="wof_component_create_type_badge" invisible="expected_type != 'car_part'"><i class="fa fa-cube" title="جزء سيارة"/> جزء سيارة</span>
-                        <span class="wof_component_create_type_badge is-area" invisible="expected_type != 'service_area'"><i class="fa fa-folder-open" title="منطقة خدمة"/> منطقة خدمة</span>
-                    </div>
+                <div class="wof_component_create_shell wof_component_create_shell_v3">
+                    <div class="wof_component_create_workspace">
+                        <aside class="wof_component_preview_panel">
+                            <div class="wof_component_preview_head">
+                                <span class="wof_component_create_section_icon"><i class="fa fa-eye" title="معاينة المكون"/></span>
+                                <div><strong>معاينة المكوّن</strong><small>معاينة مختصرة للبيانات المدخلة.</small></div>
+                            </div>
+                            <div class="wof_component_preview_hero">
+                                <span class="wof_component_preview_cube"><i class="fa fa-cube" title="مكوّن"/></span>
+                                <strong invisible="not name"><field name="name" readonly="1" nolabel="1"/></strong>
+                                <strong class="is-placeholder" invisible="name">معاينة المكوّن</strong>
+                                <small>سيظهر هنا ملخص المكوّن أثناء الإدخال</small>
+                            </div>
+                            <div class="wof_component_preview_rows">
+                                <div><span><i class="fa fa-tag"/> الاسم</span><b><field name="name" readonly="1" nolabel="1"/></b></div>
+                                <div><span><i class="fa fa-code"/> الكود</span><b><field name="code" readonly="1" nolabel="1"/></b></div>
+                                <div><span><i class="fa fa-link"/> الصنف الخدمي</span><b><field name="product_id" readonly="1" nolabel="1"/></b></div>
+                                <div><span><i class="fa fa-cube"/> النوع</span><b invisible="expected_type != 'car_part'">جزء سيارة</b><b invisible="expected_type != 'service_area'">منطقة خدمة</b></div>
+                                <div><span><i class="fa fa-sort-numeric-asc"/> الأولوية</span><b><field name="priority_part" readonly="1" nolabel="1"/></b></div>
+                                <div><span><i class="fa fa-check-circle"/> الحالة</span><b class="wof_component_preview_active">نشط</b></div>
+                            </div>
+                        </aside>
 
-                    <div class="wof_component_create_main_card">
-                        <div class="wof_component_create_section_head">
-                            <span class="wof_component_create_section_icon"><i class="fa fa-pencil-square-o" title="التعريف الأساسي"/></span>
-                            <div>
-                                <strong>التعريف الأساسي</strong>
-                                <small>ابدأ بالاسم؛ بقية البيانات مساعدة ويمكن تعديلها لاحقًا من تعريف المكونات.</small>
-                            </div>
-                        </div>
-                        <div class="wof_component_create_identity_grid">
-                            <div class="wof_component_create_field is-name">
-                                <span class="o_form_label">اسم المكوّن / المنطقة <b>*</b></span>
-                                <field name="name" placeholder="مثال: الزجاج الأمامي"/>
-                            </div>
-                            <div class="wof_component_create_field is-code">
-                                <span class="o_form_label">الكود <em>اختياري</em></span>
-                                <field name="code" placeholder="تلقائي"/>
-                                <small>يُولّد تلقائيًا عند تركه فارغًا.</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="wof_component_create_main_card is-area-card" invisible="expected_type != 'service_area'">
-                        <div class="wof_component_create_section_head">
-                            <span class="wof_component_create_section_icon is-area"><i class="fa fa-sitemap" title="أجزاء المنطقة"/></span>
-                            <div>
-                                <strong>أجزاء منطقة الخدمة <b>*</b></strong>
-                                <small>حدد الأجزاء التشغيلية التي تتكون منها المنطقة. لن تُسعّر هذه الأجزاء منفردة داخل الفيلم.</small>
-                            </div>
-                            <span class="wof_component_create_rule_badge">وحدة تجارية واحدة</span>
-                        </div>
-                        <div class="wof_component_area_parts wof_component_area_parts_v2">
-                            <field name="service_area_part_ids" widget="many2many_tags" nolabel="1" options="{'no_create': True, 'no_create_edit': True}"/>
-                        </div>
-                    </div>
-
-                    <div class="wof_component_create_main_card is-product-card">
-                        <div class="wof_component_create_section_head compact">
-                            <span class="wof_component_create_section_icon is-product"><i class="fa fa-link" title="الصنف الخدمي"/></span>
-                            <div>
-                                <strong>الصنف الخدمي المرتبط</strong>
-                                <small>الأفضل إنشاء صنف خدمة تلقائيًا بنفس الاسم، ويمكنك بدلًا منه ربط صنف موجود.</small>
-                            </div>
-                        </div>
-                        <div class="wof_component_product_mode">
-                            <div class="wof_component_auto_product_v2">
-                                <field name="auto_create_product" widget="boolean_toggle" nolabel="1"/>
-                                <div>
-                                    <strong>إنشاء صنف خدمي تلقائيًا</strong>
-                                    <span>الخيار الموصى به لتعريف سريع ونظيف.</span>
-                                </div>
-                                <span class="wof_recommended_badge" invisible="not auto_create_product">موصى به</span>
-                            </div>
-                            <div class="wof_component_existing_product_v2" invisible="auto_create_product">
-                                <span class="o_form_label">الصنف الخدمي الموجود <b>*</b></span>
-                                <field name="product_id" options="{'no_create': False, 'no_create_edit': False}"/>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="wof_component_create_main_card wof_component_create_options_card">
-                        <div class="wof_component_create_section_head compact">
-                            <span class="wof_component_create_section_icon is-options"><i class="fa fa-sliders" title="إعدادات إضافية"/></span>
-                            <div>
-                                <strong>إعدادات إضافية</strong>
-                                <small>كل الخيارات الحالية ظاهرة أمامك ويمكن تعديلها حسب حاجة المكوّن.</small>
-                            </div>
-                        </div>
-                        <div class="wof_component_create_advanced_body">
-                            <div class="wof_component_create_grid">
-                                <div class="wof_component_create_field">
-                                    <span class="o_form_label">ترتيب الأولوية</span>
-                                    <field name="priority_part"/>
-                                </div>
-                                <div class="wof_component_create_field">
-                                    <span class="o_form_label">خيارات إضافية</span>
-                                    <field name="part_options_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}"/>
+                        <main class="wof_component_create_content">
+                            <div class="wof_component_create_header wof_component_create_header_v3">
+                                <span class="wof_component_create_icon"><i class="fa fa-cube" invisible="expected_type != 'car_part'" title="جزء سيارة"/><i class="fa fa-folder-open" invisible="expected_type != 'service_area'" title="منطقة خدمة"/></span>
+                                <div class="wof_component_create_heading">
+                                    <h2 invisible="expected_type != 'car_part'">إنشاء جزء سيارة جديد</h2>
+                                    <h2 invisible="expected_type != 'service_area'">إنشاء منطقة خدمة جديدة</h2>
+                                    <p>أدخل البيانات الحالية للمكوّن؛ جميع الخيارات الوظيفية الموجودة محفوظة بدون تغيير.</p>
                                 </div>
                             </div>
-                            <div class="wof_component_required_option">
-                                <field name="part_options_required" widget="boolean_toggle" nolabel="1"/>
-                                <span>إلزام المستخدم بالخيارات الإضافية عند التشغيل</span>
-                            </div>
-                            <div class="wof_component_create_grid is-notes-grid">
-                                <div class="wof_component_create_field">
-                                    <span class="o_form_label">ملاحظات</span>
-                                    <field name="notes" placeholder="ملاحظة داخلية اختيارية"/>
-                                </div>
-                                <div class="wof_component_create_field">
-                                    <span class="o_form_label">رسالة تحذير</span>
-                                    <field name="warning_msg" placeholder="تظهر عند الحاجة أثناء التشغيل"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="wof_component_create_hint wof_component_create_hint_v2">
-                        <i class="fa fa-check-circle" title="بعد الحفظ"/>
-                        <span invisible="expected_type != 'car_part'">بعد الحفظ سيُضاف المكوّن مباشرة إلى الفيلم الحالي ويصبح متاحًا للاستخدام لاحقًا.</span>
-                        <span invisible="expected_type != 'service_area'">بعد الحفظ ستُضاف المنطقة للفيلم وتظهر أجزاؤها تلقائيًا داخل العرض الشجري.</span>
+                            <section class="wof_component_create_main_card wof_component_basic_card">
+                                <div class="wof_component_create_section_head"><span class="wof_component_create_section_icon"><i class="fa fa-file-text-o" title="البيانات الأساسية"/></span><div><strong>البيانات الأساسية</strong><small>البيانات الرئيسية التي ستستخدم لتعريف المكوّن في النظام.</small></div></div>
+                                <div class="wof_component_create_identity_grid">
+                                    <div class="wof_component_create_field is-name"><span class="o_form_label">اسم المكوّن / المنطقة <b>*</b></span><field name="name" placeholder="مثال: الزجاج الأمامي"/></div>
+                                    <div class="wof_component_create_field is-code"><span class="o_form_label">الكود <em>اختياري</em></span><field name="code" placeholder="تلقائي"/><small>يُولّد تلقائيًا عند تركه فارغًا.</small></div>
+                                </div>
+                            </section>
+
+                            <section class="wof_component_create_main_card is-area-card" invisible="expected_type != 'service_area'">
+                                <div class="wof_component_create_section_head"><span class="wof_component_create_section_icon is-area"><i class="fa fa-sitemap" title="أجزاء المنطقة"/></span><div><strong>أجزاء منطقة الخدمة <b>*</b></strong><small>حدد الأجزاء التشغيلية التابعة للمنطقة.</small></div><span class="wof_component_create_rule_badge">وحدة تجارية واحدة</span></div>
+                                <div class="wof_component_area_parts wof_component_area_parts_v2"><field name="service_area_part_ids" widget="many2many_tags" nolabel="1" options="{'no_create': True, 'no_create_edit': True}"/></div>
+                            </section>
+
+                            <section class="wof_component_create_main_card is-product-card">
+                                <div class="wof_component_create_section_head"><span class="wof_component_create_section_icon is-product"><i class="fa fa-link" title="الصنف الخدمي"/></span><div><strong>الصنف الخدمي المرتبط</strong><small>اربط المكوّن بصنف خدمة موجود أو أنشئه تلقائيًا بنفس الاسم والكود.</small></div></div>
+                                <div class="wof_component_product_mode wof_component_product_mode_v3">
+                                    <div class="wof_component_auto_product_v2"><field name="auto_create_product" widget="boolean_toggle" nolabel="1"/><div><strong>إنشاء صنف خدمي تلقائيًا</strong><span>سيتم إنشاء صنف خدمي بنفس الاسم والكود.</span></div><span class="wof_recommended_badge" invisible="not auto_create_product">موصى به</span></div>
+                                    <div class="wof_component_existing_product_v2" invisible="auto_create_product"><span class="o_form_label">الصنف الخدمي الموجود <b>*</b></span><field name="product_id" options="{'no_create': False, 'no_create_edit': False}"/></div>
+                                </div>
+                            </section>
+
+                            <section class="wof_component_create_main_card wof_component_create_options_card">
+                                <div class="wof_component_create_section_head"><span class="wof_component_create_section_icon is-options"><i class="fa fa-cog" title="إعدادات إضافية"/></span><div><strong>إعدادات إضافية</strong><small>كل الخيارات الموجودة في الشاشة ظاهرة ويمكن تعديلها حسب الحاجة.</small></div></div>
+                                <div class="wof_component_create_advanced_body">
+                                    <div class="wof_component_create_grid">
+                                        <div class="wof_component_create_field"><span class="o_form_label">ترتيب الأولوية</span><field name="priority_part"/></div>
+                                        <div class="wof_component_create_field"><span class="o_form_label">خيارات إضافية</span><field name="part_options_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}"/></div>
+                                    </div>
+                                    <div class="wof_component_required_option"><field name="part_options_required" widget="boolean_toggle" nolabel="1"/><div><strong>إلزام الخيارات الإضافية</strong><span>إلزام المستخدم بالخيارات الإضافية عند التشغيل.</span></div></div>
+                                    <div class="wof_component_create_grid is-notes-grid">
+                                        <div class="wof_component_create_field"><span class="o_form_label">ملاحظات</span><field name="notes" placeholder="ملاحظة داخلية اختيارية"/></div>
+                                        <div class="wof_component_create_field"><span class="o_form_label">رسالة تحذير</span><field name="warning_msg" placeholder="تظهر عند الحاجة أثناء التشغيل"/></div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <div class="wof_component_create_hint wof_component_create_hint_v2"><i class="fa fa-check-circle" title="بعد الحفظ"/><span invisible="expected_type != 'car_part'">بعد الحفظ سيُضاف المكوّن مباشرة إلى الفيلم الحالي ويصبح متاحًا للاستخدام لاحقًا.</span><span invisible="expected_type != 'service_area'">بعد الحفظ ستُضاف المنطقة للفيلم وتظهر أجزاؤها تلقائيًا داخل العرض الشجري.</span></div>
+                        </main>
                     </div>
                 </div>
-
                 <footer class="wof_component_create_footer_v2">
                     <button name="action_back_to_selection" string="رجوع" type="object" class="btn btn-secondary"/>
                     <button name="action_create_and_add" string="إنشاء وإضافة للفيلم" type="object" class="btn btn-primary"/>
