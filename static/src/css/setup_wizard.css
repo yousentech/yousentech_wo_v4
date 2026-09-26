@@ -8933,3 +8933,27 @@ body:has(.modal.show .wof_activity_hub_form),
 .modal-content:has(.wof_component_dialog_form) > .modal-footer .btn-primary,
 .modal-content:has(.wof_component_create_form) > .modal-footer .btn-primary,
 .wof_component_dialog_form footer .btn-primary { background:#2f8f95 !important; border-color:#2f8f95 !important; color:#fff !important; }
+
+/* RC102 — approved lightweight component-create dialog; visual-only, scoped to this popup. */
+.wof_component_create_form{--wof-create-teal:#27858a;--wof-create-teal-dark:#1f7479;--wof-create-soft:#eef8f8;--wof-create-line:#cfe3e4;--wof-create-text:#27353d;--wof-create-muted:#7c8b92}
+.o_dialog .modal-dialog:has(.wof_component_create_form),.modal-dialog:has(.wof_component_create_form){width:min(1040px,90vw)!important;max-width:min(1040px,90vw)!important}
+.wof_component_create_form .modal-body,.wof_component_create_form .o_form_sheet_bg{background:#f8fbfb!important}
+.wof_component_create_shell_v2{max-width:940px!important;padding:16px 18px 10px!important;color:var(--wof-create-text)!important}
+.wof_component_create_header_v2{min-height:72px!important;border-color:var(--wof-create-line)!important;background:linear-gradient(135deg,#fff 0%,#f0f9f9 100%)!important;box-shadow:0 3px 12px rgba(39,133,138,.06)!important}
+.wof_component_create_header_v2 .wof_component_create_icon,.wof_component_create_section_icon{background:#e8f6f6!important;color:var(--wof-create-teal)!important}
+.wof_component_create_header_v2 .wof_component_create_heading h2{font-size:18px!important;color:#24343b!important;font-weight:800!important}
+.wof_component_create_header_v2 .wof_component_create_heading p{font-size:11px!important;color:var(--wof-create-muted)!important}
+.wof_component_create_header_v2 .wof_component_create_type_badge,.wof_component_create_rule_badge{background:#e8f6f6!important;color:var(--wof-create-teal-dark)!important;border:1px solid #d4ebec!important}
+.wof_component_create_main_card{border-color:var(--wof-create-line)!important;border-radius:12px!important;box-shadow:0 2px 9px rgba(31,116,121,.04)!important;padding:12px 14px!important;margin-bottom:9px!important}
+.wof_component_create_main_card.is-area-card{border-color:#cfe3e4!important;background:#fbfefe!important}
+.wof_component_create_section_head strong{font-size:12px!important;color:#2a3b42!important}.wof_component_create_section_head small{font-size:9.5px!important;color:var(--wof-create-muted)!important}
+.wof_component_create_section_icon.is-area,.wof_component_create_section_icon.is-product,.wof_component_create_section_icon.is-options{background:#e8f6f6!important;color:var(--wof-create-teal)!important}
+.wof_component_create_identity_grid,.wof_component_create_grid{gap:14px!important}.wof_component_create_field .o_form_label{font-size:10px!important;color:#45555c!important;font-weight:700!important}
+.wof_component_create_form .o_input,.wof_component_create_form .o_field_many2one_selection,.wof_component_create_form .o_field_tags{border-color:#d8e5e6!important;border-radius:8px!important}
+.wof_component_create_form .o_input:focus{border-color:var(--wof-create-teal)!important;box-shadow:0 0 0 2px rgba(39,133,138,.08)!important}
+.wof_component_auto_product_v2{border:1px solid #d7e9df!important;background:#f4fbf7!important;border-radius:10px!important}.wof_recommended_badge{background:#e5f6eb!important;color:#2f7a4c!important}
+.wof_component_create_options_card{background:#fff!important}.wof_component_create_options_card .wof_component_create_advanced_body{display:grid!important;gap:10px!important}.wof_component_required_option{border:1px solid #d9e8e8!important;background:#f5fafa!important;border-radius:9px!important;padding:8px 10px!important}.wof_component_create_grid.is-notes-grid{margin-top:0!important}
+.wof_component_create_hint_v2{border-color:#d4e8e0!important;background:#f2faf5!important;color:#397456!important}
+.wof_component_create_footer_v2{position:sticky!important;bottom:0!important;z-index:5!important;background:#fff!important;border-top:1px solid #d9e6e7!important;box-shadow:0 -5px 14px rgba(36,70,73,.05)!important;padding:10px 18px!important}
+.wof_component_create_footer_v2 .btn-primary{background:var(--wof-create-teal)!important;border-color:var(--wof-create-teal)!important}.wof_component_create_footer_v2 .btn-primary:hover{background:var(--wof-create-teal-dark)!important;border-color:var(--wof-create-teal-dark)!important}
+@media(max-width:900px){.wof_component_create_identity_grid,.wof_component_create_grid{grid-template-columns:1fr!important}.wof_component_create_shell_v2{padding-inline:10px!important}}

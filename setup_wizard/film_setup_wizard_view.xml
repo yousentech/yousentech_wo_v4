@@ -773,11 +773,14 @@
                         </div>
                     </div>
 
-                    <details class="wof_component_create_advanced wof_component_create_advanced_v2">
-                        <summary>
-                            <span class="wof_advanced_title"><i class="fa fa-sliders" title="إعدادات إضافية"/> إعدادات إضافية</span>
-                            <span>نادراً ما تحتاج لتعديلها</span>
-                        </summary>
+                    <div class="wof_component_create_main_card wof_component_create_options_card">
+                        <div class="wof_component_create_section_head compact">
+                            <span class="wof_component_create_section_icon is-options"><i class="fa fa-sliders" title="إعدادات إضافية"/></span>
+                            <div>
+                                <strong>إعدادات إضافية</strong>
+                                <small>كل الخيارات الحالية ظاهرة أمامك ويمكن تعديلها حسب حاجة المكوّن.</small>
+                            </div>
+                        </div>
                         <div class="wof_component_create_advanced_body">
                             <div class="wof_component_create_grid">
                                 <div class="wof_component_create_field">
@@ -793,7 +796,7 @@
                                 <field name="part_options_required" widget="boolean_toggle" nolabel="1"/>
                                 <span>إلزام المستخدم بالخيارات الإضافية عند التشغيل</span>
                             </div>
-                            <div class="wof_component_create_grid">
+                            <div class="wof_component_create_grid is-notes-grid">
                                 <div class="wof_component_create_field">
                                     <span class="o_form_label">ملاحظات</span>
                                     <field name="notes" placeholder="ملاحظة داخلية اختيارية"/>
@@ -804,7 +807,7 @@
                                 </div>
                             </div>
                         </div>
-                    </details>
+                    </div>
 
                     <div class="wof_component_create_hint wof_component_create_hint_v2">
                         <i class="fa fa-check-circle" title="بعد الحفظ"/>
