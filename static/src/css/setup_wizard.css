@@ -9332,3 +9332,68 @@ body:has(.modal.show .wof_activity_hub_form),
     box-shadow:none!important;
     background:transparent!important;
 }
+
+
+/* RC115 — service-area parts: readable multi-selection chips.
+   Keep one selector frame, give selected parts room to breathe and wrap cleanly. */
+.wof_component_create_form .wof_component_area_parts_v2{
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+    min-height:0!important;
+}
+.wof_component_create_form .wof_component_area_parts_v2 .o_field_many2many_tags,
+.wof_component_create_form .wof_component_area_parts_v2 .o_field_tags{
+    display:flex!important;
+    align-items:center!important;
+    align-content:flex-start!important;
+    flex-wrap:wrap!important;
+    gap:6px!important;
+    width:100%!important;
+    min-height:48px!important;
+    padding:7px 10px!important;
+    border:1px solid #cfdfe3!important;
+    border-radius:8px!important;
+    background:#fff!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+}
+.wof_component_create_form .wof_component_area_parts_v2 .o_tag,
+.wof_component_create_form .wof_component_area_parts_v2 .o_tag_badge_text,
+.wof_component_create_form .wof_component_area_parts_v2 .badge{
+    max-width:none!important;
+}
+.wof_component_create_form .wof_component_area_parts_v2 .o_tag{
+    display:inline-flex!important;
+    align-items:center!important;
+    min-height:28px!important;
+    margin:0!important;
+    padding:4px 9px!important;
+    border:1px solid #b8d7d9!important;
+    border-radius:999px!important;
+    background:#f2f8f8!important;
+    color:#286f74!important;
+    font-size:11px!important;
+    font-weight:600!important;
+    line-height:1.35!important;
+    white-space:nowrap!important;
+}
+.wof_component_create_form .wof_component_area_parts_v2 .o_tag .o_tag_badge_text{
+    overflow:visible!important;
+    text-overflow:clip!important;
+    white-space:nowrap!important;
+}
+.wof_component_create_form .wof_component_area_parts_v2 .o_tag .o_delete,
+.wof_component_create_form .wof_component_area_parts_v2 .o_tag .fa-times{
+    margin-inline-start:6px!important;
+}
+.wof_component_create_form .wof_component_area_parts_v2 input,
+.wof_component_create_form .wof_component_area_parts_v2 .o_input{
+    flex:1 1 150px!important;
+    min-width:150px!important;
+    min-height:28px!important;
+    border:0!important;
+    outline:0!important;
+    box-shadow:none!important;
+    background:transparent!important;
+}

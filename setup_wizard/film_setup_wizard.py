@@ -945,11 +945,25 @@ class WofFilmSetupComponentLine(models.TransientModel):
         self.ensure_one()
         if self.is_child:
             return self.wizard_id._dialog_action()
-        dialog = self.env['wof.film.setup.component.dialog'].create({
+        # Edit saved components through the same polished create/edit screen.
+        # This keeps service-area parts, product, options and notes in one UI
+        # instead of falling back to the generic component selection/form view.
+        part = self.car_part_id
+        dialog = self.env['wof.film.setup.component.create.dialog'].create({
             'wizard_id': self.wizard_id.id,
             'expected_type': self.part_type,
-            'line_id': self.id,
-            'car_part_id': self.car_part_id.id,
+            'edit_part_id': part.id,
+            'edit_line_id': self.id,
+            'name': part.name,
+            'code': part.code,
+            'auto_create_product': False,
+            'product_id': part.product_id.id,
+            'priority_part': part.priority_part,
+            'service_area_part_ids': [(6, 0, part.service_area_part_ids.ids)],
+            'part_options_required': part.part_options_required,
+            'part_options_ids': [(6, 0, part.part_options_ids.ids)],
+            'notes': part.notes,
+            'warning_msg': part.warning_msg,
         })
         return dialog._dialog_action()
 
@@ -1062,6 +1076,8 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
         'wof.film.setup.component.dialog', string='نافذة الاختيار',
         ondelete='set null', readonly=True,
     )
+    edit_part_id = fields.Many2one('wof.car.parts', string='المكوّن الجاري تعديله', readonly=True)
+    edit_line_id = fields.Many2one('wof.film.setup.component.line', string='سطر المكوّن الجاري تعديله', readonly=True)
     company_id = fields.Many2one(related='wizard_id.company_id', readonly=True)
     expected_type = fields.Selection(
         [('car_part', 'جزء سيارة'), ('service_area', 'منطقة خدمة')],
@@ -1102,7 +1118,10 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
     def _dialog_action(self):
         self.ensure_one()
         view = self.env.ref('yousentech_wo_v4.view_wof_film_setup_component_create_dialog_form')
-        title = _('إنشاء جزء سيارة جديد') if self.expected_type == 'car_part' else _('إنشاء منطقة خدمة جديدة')
+        if self.edit_part_id:
+            title = _('تعديل جزء السيارة') if self.expected_type == 'car_part' else _('تعديل منطقة الخدمة')
+        else:
+            title = _('إنشاء جزء سيارة جديد') if self.expected_type == 'car_part' else _('إنشاء منطقة خدمة جديدة')
         return {
             'type': 'ir.actions.act_window',
             'name': title,
@@ -1155,6 +1174,72 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
             'purchase_ok': False,
         }
         return Product.create(vals)
+
+    def action_save_changes(self):
+        self.ensure_one()
+        self.wizard_id._ensure_access()
+        part = self.edit_part_id
+        if not part:
+            return self.action_create_and_add()
+
+        name = (self.name or '').strip()
+        if not name:
+            raise ValidationError(_('أدخل اسم المكوّن أولاً.'))
+        if self.expected_type == 'service_area' and not self.service_area_part_ids:
+            raise ValidationError(_('حدد جزءًا واحدًا على الأقل داخل منطقة الخدمة.'))
+
+        Master = self.env['wof.car.parts'].with_context(active_test=False)
+        duplicate_name = Master.search([
+            ('company_id', '=', self.company_id.id),
+            ('name', '=ilike', name),
+            ('id', '!=', part.id),
+        ], limit=1)
+        if duplicate_name:
+            raise ValidationError(_('يوجد مكوّن باسم "%s" بالفعل.') % duplicate_name.display_name)
+
+        code = (self.code or '').strip() or part.code or self._generate_component_code()
+        if Master.search_count([
+            ('company_id', '=', self.company_id.id), ('code', '=', code), ('id', '!=', part.id),
+        ]):
+            raise ValidationError(_('كود المكوّن "%s" مستخدم مسبقًا في هذه الشركة.') % code)
+
+        product = self._resolve_service_product()
+        vals = {
+            'name': name,
+            'code': code,
+            'product_id': product.id,
+            'priority_part': self.priority_part,
+            'part_options_required': self.part_options_required,
+            'part_options_ids': [(6, 0, self.part_options_ids.ids)],
+            'notes': self.notes,
+            'warning_msg': self.warning_msg,
+        }
+        if self.expected_type == 'service_area':
+            vals['service_area_part_ids'] = [(6, 0, self.service_area_part_ids.ids)]
+        part.write(vals)
+
+        # Rebuild only the transient visual children so the film tree immediately
+        # reflects additions/removals made to a saved service area.
+        if self.edit_line_id:
+            line = self.edit_line_id
+            self.wizard_id.component_line_ids.filtered(
+                lambda rec: rec.is_child and rec.parent_master_id == part
+            ).unlink()
+            if part.part_type == 'service_area':
+                seq = line.sequence + 1
+                for child in part.service_area_part_ids.sorted(
+                    lambda rec: (rec.priority_part, rec.name or '', rec.id)
+                ):
+                    self.env['wof.film.setup.component.line'].create({
+                        'wizard_id': self.wizard_id.id,
+                        'sequence': seq,
+                        'car_part_id': child.id,
+                        'selected': True,
+                        'is_child': True,
+                        'parent_master_id': part.id,
+                    })
+                    seq += 1
+        return self.wizard_id._dialog_action()
 
     def action_create_and_add(self):
         self.ensure_one()
