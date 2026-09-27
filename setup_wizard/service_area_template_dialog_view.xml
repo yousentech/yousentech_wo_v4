@@ -18,6 +18,14 @@
                     <div class="wof_service_area_templates_editor">
                         <field name="template_line_ids" nolabel="1">
                             <tree editable="bottom" class="wof_service_area_templates_tree">
+                                <!--
+                                    The boolean toggle can save a newly-added editable
+                                    one2many row immediately, before the parent form is
+                                    saved again.  Keep the inverse field in the client
+                                    payload so creation of that transient row never loses
+                                    its required parent dialog_id.
+                                -->
+                                <field name="dialog_id" column_invisible="1" force_save="1"/>
                                 <field name="company_id" column_invisible="1"/>
                                 <field name="sequence" widget="handle"/>
                                 <field name="name" string="اسم النموذج" required="1" placeholder="مثال: النموذج الأساسي"/>
