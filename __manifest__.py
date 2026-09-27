@@ -1,6 +1,6 @@
 {
     'name': 'Yousentech Car Care',
-    'version': '17.0.4.0.90',
+    'version': '17.0.4.0.91',
     'summary': 'Self-service setup and installation orders for car care centers',
     'description': 'Foundation, self-service setup and installation order workflow for car care operations.',
     'category': 'Services',
@@ -22,6 +22,7 @@
         'setup_wizard/main_menu_action.xml',
         'setup_wizard/activity_hub_view.xml',
         'setup_wizard/film_setup_wizard_view.xml',
+        'setup_wizard/film_setup_component_edit_fix.xml',
         'setup_wizard/setup_wizard_view.xml',
         'setup_views/service_type_view.xml',
         'setup_views/film_parts_lines_view.xml',
