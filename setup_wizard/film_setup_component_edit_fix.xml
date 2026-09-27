@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Keep component editing inside the film setup workflow.
+
+        The explicit pencil button already calls action_edit() on
+        wof.film.setup.component.line and opens the polished create/edit dialog.
+        The Many2one shown in list mode was still clickable, however, so clicking
+        the component name bypassed that workflow and opened the generic
+        wof.car.parts form. Disable that implicit Many2one navigation; editing is
+        intentionally done only through the dedicated action_edit button.
+    -->
+    <record id="view_wof_film_setup_wizard_component_edit_fix" model="ir.ui.view">
+        <field name="name">wof.film.setup.wizard.component.edit.fix</field>
+        <field name="model">wof.film.setup.wizard</field>
+        <field name="inherit_id" ref="yousentech_wo_v4.view_wof_film_setup_wizard_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='component_top_line_ids']/tree/field[@name='car_part_id']" position="attributes">
+                <attribute name="options">{'no_open': True, 'no_create': True, 'no_create_edit': True}</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
