@@ -18,6 +18,7 @@
                     <div class="wof_service_area_templates_editor">
                         <field name="template_line_ids" nolabel="1">
                             <tree editable="bottom" class="wof_service_area_templates_tree">
+                                <field name="company_id" column_invisible="1"/>
                                 <field name="sequence" widget="handle"/>
                                 <field name="name" string="اسم النموذج" required="1" placeholder="مثال: النموذج الأساسي"/>
                                 <field name="is_default" string="افتراضي" widget="boolean_toggle"/>
