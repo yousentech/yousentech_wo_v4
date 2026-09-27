@@ -208,7 +208,6 @@ class WofFilmSetupComponentLineTemplateTree(models.TransientModel):
     parent_template_id = fields.Many2one('wof.service.area.template', string='النموذج الأب', readonly=True)
     template_name = fields.Char(related='template_id.name', readonly=True)
     template_is_default = fields.Boolean(related='template_id.is_default', readonly=True)
-    template_component_count = fields.Integer(related='template_id.component_ids', readonly=True)
     template_expanded = fields.Boolean(string='إظهار مكونات النموذج', default=False)
     parent_template_expanded = fields.Boolean(compute='_compute_parent_template_expanded')
 
