@@ -741,9 +741,17 @@
                             <section class="wof_component_create_main_card wof_component_create_options_card">
                                 <div class="wof_component_create_section_head"><span class="wof_component_create_section_icon is-options"><i class="fa fa-cog" title="إعدادات إضافية"/></span><div><strong>إعدادات إضافية</strong><small>كل الخيارات الموجودة في الشاشة ظاهرة ويمكن تعديلها حسب الحاجة.</small></div></div>
                                 <div class="wof_component_create_advanced_body">
-                                    <div class="wof_component_options_row">
-                                        <div class="wof_component_create_field is-options-field"><span class="o_form_label">خيارات إضافية</span><field name="part_options_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}"/></div>
-                                        <div class="wof_component_required_option"><field name="part_options_required" widget="boolean_toggle" nolabel="1"/><div><strong>إلزام الخيارات الإضافية</strong><span>إلزام المستخدم بالخيارات الإضافية عند التشغيل.</span></div></div>
+                                    <div class="wof_component_options_row wof_component_options_row_v2">
+                                        <div class="wof_component_create_field is-options-field">
+                                            <div class="wof_component_options_label_row">
+                                                <span class="o_form_label">خيارات إضافية</span>
+                                                <div class="wof_component_required_inline">
+                                                    <field name="part_options_required" widget="boolean_toggle" nolabel="1"/>
+                                                    <strong>إلزام الاختيار</strong>
+                                                </div>
+                                            </div>
+                                            <field name="part_options_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        </div>
                                     </div>
                                     <div class="wof_component_create_grid is-notes-grid">
                                         <div class="wof_component_create_field"><span class="o_form_label">ملاحظات</span><field name="notes" placeholder="ملاحظة داخلية اختيارية"/></div>

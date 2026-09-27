@@ -9199,3 +9199,46 @@ body:has(.modal.show .wof_activity_hub_form),
     .wof_component_existing_product_v4{flex-wrap:wrap!important}
     .wof_component_existing_product_v4 .wof_component_product_field{flex-basis:100%!important}
 }
+
+/* RC110 — compact required-options flag beside the options label */
+.wof_component_options_row_v2{
+    display:block!important;
+}
+.wof_component_options_row_v2 .is-options-field{
+    width:100%!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:7px!important;
+}
+.wof_component_options_label_row{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:14px!important;
+    min-height:24px!important;
+}
+.wof_component_options_label_row > .o_form_label{
+    margin:0!important;
+}
+.wof_component_required_inline{
+    display:inline-flex!important;
+    align-items:center!important;
+    gap:7px!important;
+    flex:0 0 auto!important;
+    padding:3px 8px!important;
+    border:1px solid #d9e8e8!important;
+    border-radius:8px!important;
+    background:#f5fafa!important;
+    color:#33484e!important;
+    white-space:nowrap!important;
+}
+.wof_component_required_inline strong{
+    font-size:9.5px!important;
+    font-weight:600!important;
+    margin:0!important;
+}
+.wof_component_options_row_v2 .is-options-field > .o_field_widget,
+.wof_component_options_row_v2 .is-options-field > .o_field_tags{
+    width:100%!important;
+    max-width:none!important;
+}
