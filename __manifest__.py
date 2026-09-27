@@ -9,7 +9,6 @@
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
-        'security/service_area_template_wizard_access.csv',
         'setup_wizard/setup_templates.xml',
         'data/installation_order_sequence.xml',
         'setup_wizard/main_menu_action.xml',
