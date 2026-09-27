@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wof_film_setup_component_create_dialog_templates" model="ir.ui.view">
+        <field name="name">wof.film.setup.component.create.dialog.templates</field>
+        <field name="model">wof.film.setup.component.create.dialog</field>
+        <field name="inherit_id" ref="yousentech_wo_v4.view_wof_film_setup_component_create_dialog_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//section[contains(@class, 'is-area-card')]" position="replace">
+                <section class="wof_component_create_main_card is-area-card" invisible="expected_type != 'service_area'">
+                    <div class="wof_component_create_section_head">
+                        <span class="wof_component_create_section_icon is-area"><i class="fa fa-sitemap" title="نماذج المنطقة"/></span>
+                        <div>
+                            <strong>نماذج مكونات منطقة الخدمة <b>*</b></strong>
+                            <small>أنشئ نموذجًا أو أكثر، وحدد نموذجًا افتراضيًا واحدًا. كل نموذج يملك مكوناته الخاصة.</small>
+                        </div>
+                        <span class="wof_component_create_rule_badge">منطقة ← نموذج ← مكونات</span>
+                    </div>
+                    <div class="wof_service_area_templates_editor">
+                        <field name="template_line_ids" nolabel="1">
+                            <tree editable="bottom" class="wof_service_area_templates_tree">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name" string="اسم النموذج" required="1" placeholder="مثال: النموذج الأساسي"/>
+                                <field name="is_default" string="افتراضي" widget="boolean_toggle"/>
+                                <field name="component_ids" string="المكونات" widget="many2many_tags"
+                                       options="{'no_create': True, 'no_create_edit': True}"/>
+                            </tree>
+                        </field>
+                        <div class="wof_service_area_templates_hint">
+                            <i class="fa fa-info-circle" title="معلومة"/>
+                            <span>إذا كان هناك نموذج واحد فقط فهو الافتراضي. عند تعدد النماذج اختر الافتراضي الذي سيُستخدم لاحقًا تلقائيًا في أمر التركيب.</span>
+                        </div>
+                    </div>
+                    <field name="service_area_part_ids" invisible="1"/>
+                </section>
+            </xpath>
+        </field>
+    </record>
+</odoo>
