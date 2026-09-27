@@ -29,19 +29,15 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
             templates = part.template_ids.filtered('active').sorted(lambda rec: (rec.sequence, rec.id))
             for template in templates:
                 self.env['wof.film.setup.service.area.template.line'].create({
-                    'dialog_id': self.id,
-                    'template_id': template.id,
-                    'name': template.name,
-                    'sequence': template.sequence,
+                    'dialog_id': self.id, 'template_id': template.id,
+                    'name': template.name, 'sequence': template.sequence,
                     'is_default': template.is_default,
                     'component_ids': [(6, 0, template.component_ids.ids)],
                 })
         if not self.template_line_ids:
             self.env['wof.film.setup.service.area.template.line'].create({
-                'dialog_id': self.id,
-                'name': _('النموذج الأساسي'),
-                'sequence': 10,
-                'is_default': True,
+                'dialog_id': self.id, 'name': _('النموذج الأساسي'),
+                'sequence': 10, 'is_default': True,
                 'component_ids': [(6, 0, self.service_area_part_ids.ids)],
             })
 
@@ -67,8 +63,6 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
         )
         if wrong:
             raise ValidationError(_('مكونات النماذج يجب أن تكون أجزاء سيارة من نفس الشركة.'))
-        # Keep the legacy relation synchronized with the default template so all
-        # existing pricing/commission/runtime code continues unchanged.
         self.service_area_part_ids = [(6, 0, defaults.component_ids.ids)]
 
     def _sync_persistent_templates(self, part):
@@ -80,12 +74,10 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
         default_line = self.template_line_ids.filtered('is_default')[:1]
         for line in self.template_line_ids.sorted(lambda rec: (rec.sequence, rec.id)):
             vals = {
-                'name': (line.name or '').strip(),
-                'sequence': line.sequence,
+                'name': (line.name or '').strip(), 'sequence': line.sequence,
                 'service_area_id': part.id,
                 'component_ids': [(6, 0, line.component_ids.ids)],
-                'active': True,
-                'is_default': line == default_line,
+                'active': True, 'is_default': line == default_line,
             }
             template = line.template_id
             if template and template.service_area_id == part:
@@ -94,19 +86,16 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
                 template = Template.create(vals)
             keep_ids.append(template.id)
         obsolete = Template.search([
-            ('service_area_id', '=', part.id),
-            ('id', 'not in', keep_ids),
-            ('active', '=', True),
+            ('service_area_id', '=', part.id), ('id', 'not in', keep_ids), ('active', '=', True),
         ])
         if obsolete:
             obsolete.write({'active': False, 'is_default': False})
-        # Legacy compatibility: direct children always mirror the selected default.
         part.service_area_part_ids = [(6, 0, default_line.component_ids.ids)]
 
-    def action_update_existing(self):
+    def action_save_changes(self):
         self._validate_template_lines()
         part = self.edit_part_id
-        result = super().action_update_existing()
+        result = super().action_save_changes()
         if part and self.expected_type == 'service_area':
             self._sync_persistent_templates(part)
         return result
@@ -130,10 +119,7 @@ class WofFilmSetupServiceAreaTemplateLine(models.TransientModel):
     _description = 'نموذج مكونات منطقة خدمة داخل معالج الفيلم'
     _order = 'sequence, id'
 
-    dialog_id = fields.Many2one(
-        'wof.film.setup.component.create.dialog', required=True,
-        ondelete='cascade', index=True,
-    )
+    dialog_id = fields.Many2one('wof.film.setup.component.create.dialog', required=True, ondelete='cascade', index=True)
     company_id = fields.Many2one(related='dialog_id.company_id', readonly=True)
     template_id = fields.Many2one('wof.service.area.template', readonly=True, ondelete='set null')
     sequence = fields.Integer(string='الترتيب', default=10)
