@@ -1,4 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_service_area_template_settings,service.area.template.settings,model_wof_service_area_template,yousentech_wo_v4.group_wo_settings,1,1,1,1
+access_service_area_template_manager,service.area.template.manager,model_wof_service_area_template,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_service_area_template_employee,service.area.template.employee,model_wof_service_area_template,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_company_profile_settings,company.profile.settings,model_wof_company_profile,yousentech_wo_v4.group_wo_settings,1,1,1,0
 access_company_profile_manager,company.profile.manager,model_wof_company_profile,yousentech_wo_v4.group_wo_manager,1,0,0,0
 access_company_profile_employee,company.profile.employee,model_wof_company_profile,yousentech_wo_v4.group_wo_employee,1,0,0,0
