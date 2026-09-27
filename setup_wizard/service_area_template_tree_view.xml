@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wof_film_setup_wizard_template_tree" model="ir.ui.view">
+        <field name="name">wof.film.setup.wizard.template.tree</field>
+        <field name="model">wof.film.setup.wizard</field>
+        <field name="inherit_id" ref="yousentech_wo_v4.view_wof_film_setup_wizard_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='component_line_ids']/kanban/field[@name='child_count']" position="after">
+                <field name="node_type"/>
+                <field name="template_id"/>
+                <field name="template_name"/>
+                <field name="template_is_default"/>
+                <field name="template_expanded"/>
+                <field name="parent_template_id"/>
+                <field name="parent_template_expanded"/>
+            </xpath>
+            <xpath expr="//div[contains(@class, 'wof_service_area_row')]//div[contains(@class, 'wof_component_meta')]/span" position="replace">
+                <span><field name="child_count"/> نماذج</span>
+            </xpath>
+            <xpath expr="//div[@t-attf-class][contains(@t-attf-class, 'wof_component_tree_row')]" position="before">
+                <div class="wof_component_tree_row is-template" t-if="record.node_type.raw_value === 'template' &amp;&amp; record.parent_selected.raw_value &amp;&amp; record.parent_expanded.raw_value">
+                    <div class="wof_component_identity">
+                        <div class="wof_component_drag is-child-spacer"/>
+                        <div class="wof_component_expand">
+                            <button name="action_toggle_template" type="object" class="btn" title="فتح / طي مكونات النموذج">
+                                <i t-if="!record.template_expanded.raw_value" class="fa fa-chevron-down" title="فتح المكونات"/>
+                                <i t-if="record.template_expanded.raw_value" class="fa fa-chevron-up" title="طي المكونات"/>
+                            </button>
+                        </div>
+                        <div class="wof_component_kind_icon is-template"><i class="fa fa-clone" title="نموذج"/></div>
+                        <div class="wof_component_label_block">
+                            <strong class="wof_component_name_text"><field name="template_name"/></strong>
+                            <div class="wof_component_label_meta">
+                                <span class="wof_component_type_badge is-template">نموذج مكونات</span>
+                                <span class="wof_template_default_badge" t-if="record.template_is_default.raw_value"><i class="fa fa-star" title="افتراضي"/> افتراضي</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wof_component_meta"><span><field name="child_count"/> مكونات</span></div>
+                </div>
+            </xpath>
+            <xpath expr="//div[@t-attf-class][contains(@t-attf-class, 'wof_component_tree_row')]" position="attributes">
+                <attribute name="t-if">record.part_type.raw_value !== 'service_area' &amp;&amp; (!record.is_child.raw_value || (record.parent_selected.raw_value &amp;&amp; record.parent_expanded.raw_value &amp;&amp; (record.node_type.raw_value !== 'template_part' || record.parent_template_expanded.raw_value)))</attribute>
+            </xpath>
+            <xpath expr="//span[contains(@class, 'wof_component_child_hint')]" position="replace">
+                <span t-if="record.node_type.raw_value === 'template_part'" class="wof_component_child_hint">مكوّن داخل النموذج</span>
+                <span t-else="" class="wof_component_child_hint">جزء داخل منطقة الخدمة</span>
+            </xpath>
+        </field>
+    </record>
+</odoo>
