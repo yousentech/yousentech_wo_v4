@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_film_setup_area_template_line_settings,film.setup.area.template.line.settings,model_wof_film_setup_service_area_template_line,yousentech_wo_v4.group_wo_settings,1,1,1,1
-access_film_setup_area_template_line_manager,film.setup.area.template.line.manager,model_wof_film_setup_service_area_template_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
