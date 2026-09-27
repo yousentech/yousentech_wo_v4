@@ -5,9 +5,7 @@
     'description': 'Foundation, self-service setup and installation order workflow for car care operations.',
     'category': 'Services',
     'author': 'Yousentech Team',
-    'depends': [
-        'base', 'mail', 'product', 'account', 'sale', 'stock', 'hr',
-    ],
+    'depends': ['base', 'mail', 'product', 'account', 'sale', 'stock', 'hr'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
@@ -18,6 +16,7 @@
         'setup_wizard/activity_hub_view.xml',
         'setup_wizard/film_setup_wizard_view.xml',
         'setup_wizard/service_area_template_dialog_view.xml',
+        'setup_wizard/service_area_template_tree_view.xml',
         'setup_wizard/film_setup_component_edit_fix.xml',
         'setup_wizard/setup_wizard_view.xml',
         'setup_views/service_type_view.xml',
@@ -35,14 +34,12 @@
         'views/hr_employee_views.xml',
         'setup_wizard/setup_center_menu.xml',
     ],
-    'assets': {
-        'web.assets_backend': [
-            'yousentech_wo_v4/static/src/css/setup_wizard.css',
-            'yousentech_wo_v4/static/src/js/activity_hub_dialog.js',
-            'yousentech_wo_v4/static/src/css/service_architecture.css',
-            'yousentech_wo_v4/static/src/css/installation_order.css',
-        ],
-    },
+    'assets': {'web.assets_backend': [
+        'yousentech_wo_v4/static/src/css/setup_wizard.css',
+        'yousentech_wo_v4/static/src/js/activity_hub_dialog.js',
+        'yousentech_wo_v4/static/src/css/service_architecture.css',
+        'yousentech_wo_v4/static/src/css/installation_order.css',
+    ]},
     'pre_init_hook': 'pre_init_hook',
     'installable': True,
     'application': True,
