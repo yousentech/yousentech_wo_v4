@@ -44,7 +44,7 @@
             </xpath>
             <xpath expr="//span[contains(@class, 'wof_component_child_hint')]" position="replace">
                 <span t-if="record.node_type.raw_value === 'template_part'" class="wof_component_child_hint">مكوّن داخل النموذج</span>
-                <span t-else="" class="wof_component_child_hint">جزء داخل منطقة الخدمة</span>
+                <span t-if="record.node_type.raw_value !== 'template_part'" class="wof_component_child_hint">جزء داخل منطقة الخدمة</span>
             </xpath>
         </field>
     </record>
