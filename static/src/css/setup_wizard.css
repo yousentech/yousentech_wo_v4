@@ -9242,3 +9242,23 @@ body:has(.modal.show .wof_activity_hub_form),
     width:100%!important;
     max-width:none!important;
 }
+
+/* RC111 — single-border relational fields.
+   Keep the native Odoo field container as the only visible frame. */
+.wof_component_existing_product_v4{
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    padding-inline:0!important;
+}
+
+/* many2many/tag selectors already provide their own outer field frame.
+   Do not draw a second frame around the inner text entry. This applies to
+   the component-create flow for both car parts and service areas. */
+.wof_component_create_form .o_field_many2many_tags .o_input,
+.wof_component_create_form .o_field_tags .o_input{
+    border:0!important;
+    outline:0!important;
+    box-shadow:none!important;
+    background:transparent!important;
+}
