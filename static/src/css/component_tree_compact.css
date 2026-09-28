@@ -9,7 +9,7 @@
 }
 
 .wof_film_setup_form .wof_component_tree_kanban .o_kanban_record {
-    margin: 0 0 4px !important;
+    margin: 0 0 2px !important;
     padding: 0 !important;
     min-height: 0 !important;
     box-shadow: none !important;
@@ -31,17 +31,19 @@
 }
 
 .wof_film_setup_form .wof_component_tree_row {
-    min-height: 38px !important;
-    padding: 5px 9px !important;
+    min-height: 34px !important;
+    padding: 3px 8px !important;
     border-radius: 8px !important;
     margin: 0 !important;
     box-sizing: border-box !important;
 }
 
-/* Level 1 — commercial component / service area. */
+/* RC116 — compact top-level component/service-area cards.
+   Preserve the same visual hierarchy while fitting more records in the wizard. */
 .wof_film_setup_form .wof_component_tree_row.is-area,
 .wof_film_setup_form .wof_component_tree_row.is-part {
-    min-height: 40px !important;
+    min-height: 34px !important;
+    padding-block: 3px !important;
 }
 
 /* A service area's template block must collapse to its real content height.
@@ -49,7 +51,7 @@
 .wof_film_setup_form .wof_component_tree_kanban .o_kanban_record:has(.wof_component_tree_row.is-template) {
     min-height: 0 !important;
     height: auto !important;
-    margin-block: 2px !important;
+    margin-block: 1px !important;
 }
 
 /* Level 2 — service-area template. Indentation + connector makes hierarchy explicit. */
@@ -58,9 +60,9 @@
     width: calc(100% - 28px) !important;
     margin-inline-start: 28px !important;
     margin-block: 0 !important;
-    min-height: 34px !important;
+    min-height: 30px !important;
     height: auto !important;
-    padding-block: 3px !important;
+    padding-block: 2px !important;
     background: #fbfcff !important;
     border-color: #dce3f2 !important;
 }
@@ -92,9 +94,9 @@
     position: relative !important;
     width: calc(100% - 58px) !important;
     margin-inline-start: 58px !important;
-    margin-block: 2px !important;
-    min-height: 32px !important;
-    padding: 3px 8px !important;
+    margin-block: 1px !important;
+    min-height: 28px !important;
+    padding: 2px 7px !important;
     background: #fff !important;
     border-style: dashed !important;
 }
@@ -115,20 +117,20 @@
 .wof_film_setup_form .wof_component_tree_row .wof_component_drag,
 .wof_film_setup_form .wof_component_tree_row .wof_component_expand,
 .wof_film_setup_form .wof_component_tree_row .wof_component_kind_icon {
-    min-width: 26px !important;
-    width: 26px !important;
-    height: 26px !important;
+    min-width: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
 }
 .wof_film_setup_form .wof_component_tree_row .wof_component_expand .btn,
 .wof_film_setup_form .wof_component_tree_row .wof_component_actions .btn {
-    min-width: 26px !important;
-    width: 26px !important;
-    height: 26px !important;
-    padding: 2px !important;
+    min-width: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+    padding: 1px !important;
 }
 .wof_film_setup_form .wof_component_tree_row .wof_component_name_text {
     font-size: 11px !important;
-    line-height: 1.25 !important;
+    line-height: 1.2 !important;
 }
 .wof_film_setup_form .wof_component_tree_row .wof_component_label_meta,
 .wof_film_setup_form .wof_component_tree_row .wof_component_meta,
@@ -136,10 +138,10 @@
 .wof_film_setup_form .wof_component_tree_row .wof_component_child_hint,
 .wof_film_setup_form .wof_component_tree_row .wof_template_default_badge {
     font-size: 8.5px !important;
-    line-height: 1.15 !important;
+    line-height: 1.1 !important;
 }
 .wof_film_setup_form .wof_component_tree_row .wof_component_label_block {
-    gap: 1px !important;
+    gap: 0 !important;
 }
 
 /* The inherited summary bar is removed from the view; this is defensive for cached/inherited views. */
