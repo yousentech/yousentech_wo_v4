@@ -46,6 +46,9 @@
                 <span t-if="record.node_type.raw_value === 'template_part'" class="wof_component_child_hint">مكوّن داخل النموذج</span>
                 <span t-if="record.node_type.raw_value !== 'template_part'" class="wof_component_child_hint">جزء داخل منطقة الخدمة</span>
             </xpath>
+            <!-- The counts are already available in the left summary card. Removing this
+                 repeated footer gives the tree substantially more vertical room. -->
+            <xpath expr="//div[contains(@class, 'wof_components_summary_bar')]" position="replace"/>
         </field>
     </record>
 </odoo>
