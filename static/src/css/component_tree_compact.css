@@ -16,6 +16,20 @@
     background: transparent !important;
 }
 
+/* Odoo creates one .o_kanban_record wrapper for every transient tree line.
+   Collapsed template_part lines intentionally render no tree row, but their
+   empty wrappers still participate in the kanban layout and were reserving a
+   full blank slot between the service area and the next visible component.
+   Remove only wrappers that contain no visible tree row; when a template is
+   expanded its template_part rows contain .wof_component_tree_row and remain. */
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record:not(:has(.wof_component_tree_row)) {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 .wof_film_setup_form .wof_component_tree_row {
     min-height: 38px !important;
     padding: 5px 9px !important;
