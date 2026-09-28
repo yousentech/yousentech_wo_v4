@@ -38,11 +38,7 @@
     box-sizing: border-box !important;
 }
 
-/* Level 1 only — commercial component / service-area cards.
-   The previous rule changed min-height, but the original wizard layout can
-   still grow the row from its grid/content sizing. Pin both the top-level row
-   and its Odoo kanban wrapper to the compact height. Template and template-part
-   levels are deliberately excluded and keep their existing dimensions. */
+/* Level 1 only — commercial component / service-area cards. */
 .wof_film_setup_form .wof_component_tree_kanban .o_kanban_record:has(> .wof_component_tree_row.is-area),
 .wof_film_setup_form .wof_component_tree_kanban .o_kanban_record:has(> .wof_component_tree_row.is-part) {
     min-height: 30px !important;
@@ -91,15 +87,14 @@
     min-height: 0 !important;
 }
 
-/* A service area's template block must collapse to its real content height.
-   Odoo's kanban/grid wrappers can otherwise preserve empty vertical space. */
+/* A service area's template block must collapse to its real content height. */
 .wof_film_setup_form .wof_component_tree_kanban .o_kanban_record:has(.wof_component_tree_row.is-template) {
     min-height: 0 !important;
     height: auto !important;
     margin-block: 1px !important;
 }
 
-/* Level 2 — service-area template. Indentation + connector makes hierarchy explicit. */
+/* Level 2 — service-area template. */
 .wof_film_setup_form .wof_component_tree_row.is-template {
     position: relative !important;
     width: calc(100% - 28px) !important;
@@ -124,7 +119,6 @@
     pointer-events: none;
 }
 
-/* Remove reserved space from collapsed template children. */
 .wof_film_setup_form .wof_component_tree_row.is-template + .wof_component_tree_children:empty,
 .wof_film_setup_form .wof_component_tree_children:empty {
     display: none !important;
@@ -158,7 +152,6 @@
     pointer-events: none;
 }
 
-/* Keep controls compact so names remain the visual focus. */
 .wof_film_setup_form .wof_component_tree_row .wof_component_drag,
 .wof_film_setup_form .wof_component_tree_row .wof_component_expand,
 .wof_film_setup_form .wof_component_tree_row .wof_component_kind_icon {
@@ -173,7 +166,6 @@
     height: 24px !important;
     padding: 1px !important;
 }
-/* Re-apply smaller controls only to level 1 after generic control rules. */
 .wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-area .wof_component_drag,
 .wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-area .wof_component_expand,
 .wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-area .wof_component_kind_icon,
@@ -203,7 +195,44 @@
     gap: 0 !important;
 }
 
-/* The inherited summary bar is removed from the view; this is defensive for cached/inherited views. */
+/* List mode — match the compact density of the top-level tree rows.
+   Scope this only to Stage 3 component list so no other Odoo list is affected. */
+.wof_film_setup_form .wof_components_list_area .wof_component_list_tree .o_list_table thead > tr > th {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+    vertical-align: middle !important;
+}
+.wof_film_setup_form .wof_components_list_area .wof_component_list_tree .o_list_table tbody > tr {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+}
+.wof_film_setup_form .wof_components_list_area .wof_component_list_tree .o_list_table tbody > tr > td {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    vertical-align: middle !important;
+    line-height: 1.15 !important;
+}
+.wof_film_setup_form .wof_components_list_area .wof_component_list_tree .o_list_table tbody > tr > td .o_field_widget,
+.wof_film_setup_form .wof_components_list_area .wof_component_list_tree .o_list_table tbody > tr > td .o_field_badge {
+    margin-block: 0 !important;
+    line-height: 1.15 !important;
+}
+.wof_film_setup_form .wof_components_list_area .wof_component_list_tree .o_list_table tbody > tr > td .btn,
+.wof_film_setup_form .wof_components_list_area .wof_component_list_tree .o_list_table tbody > tr > td button {
+    min-height: 22px !important;
+    height: 22px !important;
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
+    margin-block: 0 !important;
+    line-height: 1 !important;
+}
+
 .wof_film_setup_form .wof_components_summary_bar {
     display: none !important;
 }
