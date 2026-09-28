@@ -1,0 +1,124 @@
+/* Component tree compact hierarchy — visual only.
+   Keeps the existing business actions and three-level service-area/template/component model. */
+.wof_film_setup_form .wof_components_main_card {
+    padding-bottom: 10px !important;
+}
+
+.wof_film_setup_form .wof_components_tree_area {
+    margin-top: 8px !important;
+}
+
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record {
+    margin: 0 0 5px !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.wof_film_setup_form .wof_component_tree_row {
+    min-height: 38px !important;
+    padding: 5px 9px !important;
+    border-radius: 8px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Level 1 — commercial component / service area. */
+.wof_film_setup_form .wof_component_tree_row.is-area,
+.wof_film_setup_form .wof_component_tree_row.is-part {
+    min-height: 40px !important;
+}
+
+/* Level 2 — service-area template. Indentation + connector makes hierarchy explicit. */
+.wof_film_setup_form .wof_component_tree_row.is-template {
+    position: relative !important;
+    width: calc(100% - 28px) !important;
+    margin-inline-start: 28px !important;
+    min-height: 36px !important;
+    padding-block: 4px !important;
+    background: #fbfcff !important;
+    border-color: #dce3f2 !important;
+}
+.wof_film_setup_form .wof_component_tree_row.is-template::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -18px;
+    top: -6px;
+    width: 14px;
+    height: calc(50% + 6px);
+    border-inline-start: 1px solid #c9d6dc;
+    border-bottom: 1px solid #c9d6dc;
+    border-end-start-radius: 7px;
+    pointer-events: none;
+}
+
+/* Level 3 — component inside a template. */
+.wof_film_setup_form .wof_component_tree_row.is-child {
+    position: relative !important;
+    width: calc(100% - 58px) !important;
+    margin-inline-start: 58px !important;
+    min-height: 32px !important;
+    padding: 3px 8px !important;
+    background: #fff !important;
+    border-style: dashed !important;
+}
+.wof_film_setup_form .wof_component_tree_row.is-child::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -20px;
+    top: -6px;
+    width: 15px;
+    height: calc(50% + 6px);
+    border-inline-start: 1px solid #d3dde1;
+    border-bottom: 1px solid #d3dde1;
+    border-end-start-radius: 7px;
+    pointer-events: none;
+}
+
+/* Keep controls compact so names remain the visual focus. */
+.wof_film_setup_form .wof_component_tree_row .wof_component_drag,
+.wof_film_setup_form .wof_component_tree_row .wof_component_expand,
+.wof_film_setup_form .wof_component_tree_row .wof_component_kind_icon {
+    min-width: 26px !important;
+    width: 26px !important;
+    height: 26px !important;
+}
+.wof_film_setup_form .wof_component_tree_row .wof_component_expand .btn,
+.wof_film_setup_form .wof_component_tree_row .wof_component_actions .btn {
+    min-width: 26px !important;
+    width: 26px !important;
+    height: 26px !important;
+    padding: 2px !important;
+}
+.wof_film_setup_form .wof_component_tree_row .wof_component_name_text {
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+}
+.wof_film_setup_form .wof_component_tree_row .wof_component_label_meta,
+.wof_film_setup_form .wof_component_tree_row .wof_component_meta,
+.wof_film_setup_form .wof_component_tree_row .wof_component_type_badge,
+.wof_film_setup_form .wof_component_tree_row .wof_component_child_hint,
+.wof_film_setup_form .wof_component_tree_row .wof_template_default_badge {
+    font-size: 8.5px !important;
+    line-height: 1.15 !important;
+}
+.wof_film_setup_form .wof_component_tree_row .wof_component_label_block {
+    gap: 1px !important;
+}
+
+/* The inherited summary bar is removed from the view; this is defensive for cached/inherited views. */
+.wof_film_setup_form .wof_components_summary_bar {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    .wof_film_setup_form .wof_component_tree_row.is-template {
+        width: calc(100% - 18px) !important;
+        margin-inline-start: 18px !important;
+    }
+    .wof_film_setup_form .wof_component_tree_row.is-child {
+        width: calc(100% - 36px) !important;
+        margin-inline-start: 36px !important;
+    }
+}
