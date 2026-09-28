@@ -38,12 +38,28 @@
     box-sizing: border-box !important;
 }
 
-/* RC116 — compact top-level component/service-area cards.
-   Preserve the same visual hierarchy while fitting more records in the wizard. */
-.wof_film_setup_form .wof_component_tree_row.is-area,
-.wof_film_setup_form .wof_component_tree_row.is-part {
-    min-height: 34px !important;
-    padding-block: 3px !important;
+/* Level 1 — compact commercial component / service-area cards.
+   Override the generic tree-row dimensions explicitly so the main cards,
+   not only their template children, become visibly shorter. */
+.wof_film_setup_form .wof_component_tree_kanban .wof_component_tree_row.is-area,
+.wof_film_setup_form .wof_component_tree_kanban .wof_component_tree_row.is-part {
+    min-height: 28px !important;
+    height: auto !important;
+    padding: 1px 7px !important;
+    margin-block: 0 !important;
+}
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_drag,
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_expand,
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_kind_icon,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_drag,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_expand,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_kind_icon,
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_actions .btn,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_actions .btn {
+    min-width: 22px !important;
+    width: 22px !important;
+    height: 22px !important;
+    padding: 1px !important;
 }
 
 /* A service area's template block must collapse to its real content height.
@@ -127,6 +143,19 @@
     width: 24px !important;
     height: 24px !important;
     padding: 1px !important;
+}
+/* Re-apply the smaller level-1 controls after the generic control rules above. */
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_drag,
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_expand,
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_kind_icon,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_drag,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_expand,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_kind_icon,
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_actions .btn,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_actions .btn {
+    min-width: 22px !important;
+    width: 22px !important;
+    height: 22px !important;
 }
 .wof_film_setup_form .wof_component_tree_row .wof_component_name_text {
     font-size: 11px !important;
