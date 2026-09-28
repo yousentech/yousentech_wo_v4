@@ -40,7 +40,7 @@
                 </div>
             </xpath>
             <xpath expr="//div[@t-attf-class][contains(@t-attf-class, 'wof_component_tree_row')]" position="attributes">
-                <attribute name="t-if">record.part_type.raw_value !== 'service_area' &amp;&amp; (!record.is_child.raw_value || (record.parent_selected.raw_value &amp;&amp; record.parent_expanded.raw_value &amp;&amp; (record.node_type.raw_value !== 'template_part' || record.parent_template_expanded.raw_value)))</attribute>
+                <attribute name="t-if">record.node_type.raw_value !== 'template' &amp;&amp; record.part_type.raw_value !== 'service_area' &amp;&amp; (!record.is_child.raw_value || (record.parent_selected.raw_value &amp;&amp; record.parent_expanded.raw_value &amp;&amp; (record.node_type.raw_value !== 'template_part' || record.parent_template_expanded.raw_value)))</attribute>
             </xpath>
             <xpath expr="//span[contains(@class, 'wof_component_child_hint')]" position="replace">
                 <span t-if="record.node_type.raw_value === 'template_part'" class="wof_component_child_hint">مكوّن داخل النموذج</span>
