@@ -38,16 +38,31 @@
     box-sizing: border-box !important;
 }
 
-/* Level 1 — compact commercial component / service-area cards.
-   Override the generic tree-row dimensions explicitly so the main cards,
-   not only their template children, become visibly shorter. */
-.wof_film_setup_form .wof_component_tree_kanban .wof_component_tree_row.is-area,
-.wof_film_setup_form .wof_component_tree_kanban .wof_component_tree_row.is-part {
-    min-height: 28px !important;
-    height: auto !important;
-    padding: 1px 7px !important;
-    margin-block: 0 !important;
+/* Level 1 only — commercial component / service-area cards.
+   The previous rule changed min-height, but the original wizard layout can
+   still grow the row from its grid/content sizing. Pin both the top-level row
+   and its Odoo kanban wrapper to the compact height. Template and template-part
+   levels are deliberately excluded and keep their existing dimensions. */
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record:has(> .wof_component_tree_row.is-area),
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record:has(> .wof_component_tree_row.is-part) {
+    min-height: 30px !important;
+    height: 30px !important;
+    max-height: 30px !important;
+    margin: 0 0 2px !important;
+    padding: 0 !important;
 }
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-area,
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-part {
+    min-height: 30px !important;
+    height: 30px !important;
+    max-height: 30px !important;
+    padding: 2px 7px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    align-items: center !important;
+}
+
+/* Top-level controls must fit inside the fixed 30px row. */
 .wof_film_setup_form .wof_component_tree_row.is-area .wof_component_drag,
 .wof_film_setup_form .wof_component_tree_row.is-area .wof_component_expand,
 .wof_film_setup_form .wof_component_tree_row.is-area .wof_component_kind_icon,
@@ -59,7 +74,21 @@
     min-width: 22px !important;
     width: 22px !important;
     height: 22px !important;
+    min-height: 22px !important;
     padding: 1px !important;
+    margin-block: 0 !important;
+}
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_name,
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_identity,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_name,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_identity,
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_meta,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_meta,
+.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_actions,
+.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_actions {
+    margin-block: 0 !important;
+    padding-block: 0 !important;
+    min-height: 0 !important;
 }
 
 /* A service area's template block must collapse to its real content height.
@@ -144,18 +173,19 @@
     height: 24px !important;
     padding: 1px !important;
 }
-/* Re-apply the smaller level-1 controls after the generic control rules above. */
-.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_drag,
-.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_expand,
-.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_kind_icon,
-.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_drag,
-.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_expand,
-.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_kind_icon,
-.wof_film_setup_form .wof_component_tree_row.is-area .wof_component_actions .btn,
-.wof_film_setup_form .wof_component_tree_row.is-part .wof_component_actions .btn {
+/* Re-apply smaller controls only to level 1 after generic control rules. */
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-area .wof_component_drag,
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-area .wof_component_expand,
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-area .wof_component_kind_icon,
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-part .wof_component_drag,
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-part .wof_component_expand,
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-part .wof_component_kind_icon,
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-area .wof_component_actions .btn,
+.wof_film_setup_form .wof_component_tree_kanban .o_kanban_record > .wof_component_tree_row.is-part .wof_component_actions .btn {
     min-width: 22px !important;
     width: 22px !important;
     height: 22px !important;
+    min-height: 22px !important;
 }
 .wof_film_setup_form .wof_component_tree_row .wof_component_name_text {
     font-size: 11px !important;
