@@ -24,7 +24,7 @@
                            options="{'no_create': True, 'no_create_edit': True}"/>
                 </div>
             </xpath>
-            <xpath expr="//footer/button[@name='action_confirm' and @string='إضافة']" position="attributes">
+            <xpath expr="//footer/button[@name='action_confirm'][not(@invisible)]" position="attributes">
                 <attribute name="string">إضافة المحدد</attribute>
             </xpath>
         </field>
