@@ -24,9 +24,6 @@
                            options="{'no_create': True, 'no_create_edit': True}"/>
                 </div>
             </xpath>
-            <xpath expr="//div[contains(@class, 'wof_component_dialog_children')]" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
             <xpath expr="//footer/button[@name='action_confirm' and @string='إضافة']" position="attributes">
                 <attribute name="string">إضافة المحدد</attribute>
             </xpath>
