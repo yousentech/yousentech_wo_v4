@@ -9,3 +9,4 @@ from . import activity_hub
 from . import film_setup_wizard
 from . import service_area_template_dialog
 from . import service_area_template_tree_fix
+from . import component_bulk_picker
