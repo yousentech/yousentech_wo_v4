@@ -6,26 +6,74 @@
         <field name="inherit_id" ref="yousentech_wo_v4.view_wof_film_setup_component_dialog_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[contains(@class, 'wof_component_dialog_field')]" position="replace">
-                <div class="wof_component_dialog_field">
-                    <div class="wof_component_dialog_field_head">
-                        <label for="selected_part_ids" string="المكونات المتاحة" invisible="line_id"/>
-                        <label for="car_part_id" string="المكوّن" invisible="not line_id"/>
-                        <span invisible="line_id or expected_type != 'car_part'">حدد جزءًا واحدًا أو عدة أجزاء لإضافتها دفعة واحدة</span>
-                        <span invisible="line_id or expected_type != 'service_area'">حدد منطقة خدمة واحدة أو عدة مناطق لإضافتها دفعة واحدة</span>
-                        <span invisible="not line_id">اختر المكوّن البديل للسجل الحالي</span>
+                <div class="wof_bulk_picker" invisible="line_id">
+                    <div class="wof_bulk_create_strip">
+                        <div class="wof_bulk_create_copy">
+                            <strong invisible="expected_type != 'car_part'">الجزء غير موجود؟</strong>
+                            <strong invisible="expected_type != 'service_area'">منطقة الخدمة غير موجودة؟</strong>
+                            <span invisible="expected_type != 'car_part'">يمكنك إنشاء مكوّن جديد أولاً ثم اختياره من القائمة.</span>
+                            <span invisible="expected_type != 'service_area'">يمكنك إنشاء منطقة خدمة جديدة أولاً ثم اختيارها من القائمة.</span>
+                        </div>
+                        <button name="action_create_new" type="object" class="btn btn-outline-primary wof_bulk_create_btn">
+                            <i class="fa fa-plus" title="إنشاء جديد"/>
+                            <span invisible="expected_type != 'car_part'">إنشاء مكوّن جديد</span>
+                            <span invisible="expected_type != 'service_area'">إنشاء منطقة خدمة جديدة</span>
+                        </button>
                     </div>
-                    <field name="selected_part_ids"
-                           widget="many2many_checkboxes"
-                           nolabel="1"
-                           invisible="line_id"
-                           options="{'no_create': True, 'no_create_edit': True}"/>
-                    <field name="car_part_id"
-                           invisible="not line_id"
-                           options="{'no_create': True, 'no_create_edit': True}"/>
+
+                    <div class="wof_bulk_hint">
+                        <i class="fa fa-info-circle" title="معلومة"/>
+                        <span invisible="expected_type != 'car_part'">حدد مكوّنًا واحدًا أو أكثر من القائمة أدناه ثم اضغط على إضافة المحدد.</span>
+                        <span invisible="expected_type != 'service_area'">حدد منطقة خدمة واحدة أو أكثر من القائمة أدناه ثم اضغط على إضافة المحدد.</span>
+                    </div>
+
+                    <div class="wof_bulk_list_card">
+                        <div class="wof_bulk_toolbar">
+                            <div class="wof_bulk_actions">
+                                <button name="action_select_all" type="object" class="btn btn-primary wof_bulk_select_all">
+                                    <i class="fa fa-check" title="تحديد الكل"/> تحديد الكل
+                                </button>
+                                <button name="action_clear_selection" type="object" class="btn btn-outline-secondary wof_bulk_clear_all">
+                                    <i class="fa fa-times" title="إلغاء التحديد"/> إلغاء التحديد
+                                </button>
+                                <span class="wof_bulk_counter">تم تحديد <field name="selected_count" readonly="1" nolabel="1"/> من <field name="available_count" readonly="1" nolabel="1"/></span>
+                            </div>
+                            <div class="wof_bulk_search">
+                                <i class="fa fa-search" title="بحث"/>
+                                <field name="search_text" nolabel="1" placeholder="بحث بالاسم أو الكود..."/>
+                            </div>
+                        </div>
+                        <div class="wof_bulk_list_head">
+                            <span class="wof_bulk_head_check"></span>
+                            <strong>المكوّن</strong>
+                            <strong>الكود</strong>
+                        </div>
+                        <div class="wof_bulk_choices">
+                            <field name="selected_part_ids"
+                                   widget="many2many_checkboxes"
+                                   nolabel="1"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wof_component_dialog_field" invisible="not line_id">
+                    <div class="wof_component_dialog_field_head">
+                        <label for="car_part_id" string="المكوّن"/>
+                        <span>اختر المكوّن البديل للسجل الحالي</span>
+                    </div>
+                    <field name="car_part_id" options="{'no_create': True, 'no_create_edit': True}"/>
                 </div>
             </xpath>
-            <xpath expr="//footer/button[@name='action_confirm' and @invisible='line_id']" position="attributes">
-                <attribute name="string">إضافة المحدد</attribute>
+
+            <xpath expr="//div[contains(@class, 'wof_component_create_entry')]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//footer/button[@name='action_confirm' and @invisible='line_id']" position="replace">
+                <button name="action_confirm" type="object" class="btn btn-primary wof_bulk_footer_add" invisible="line_id">
+                    <i class="fa fa-plus" title="إضافة"/> إضافة المحدد
+                </button>
             </xpath>
         </field>
     </record>
