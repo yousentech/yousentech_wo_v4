@@ -13,7 +13,11 @@ class WofFilmSetupComponentDialogBulk(models.TransientModel):
         'wof_film_setup_component_dialog_bulk_rel',
         'dialog_id', 'part_id',
         string='المكونات المحددة',
-        domain="[('company_id', '=', company_id), ('active', '=', True), ('part_type', '=', expected_type), '|', ('name', 'ilike', search_text or ''), ('code', 'ilike', search_text or '')]",
+        # Keep the model-level domain limited to fields that already exist in
+        # the base dialog view.  The base view is validated before the inherited
+        # bulk-picker view is applied, so referencing search_text here makes
+        # Odoo reject the base view during module upgrade.
+        domain="[('company_id', '=', company_id), ('active', '=', True), ('part_type', '=', expected_type)]",
     )
     selected_count = fields.Integer(string='عدد المحدد', compute='_compute_bulk_counts')
     available_count = fields.Integer(string='عدد المتاح', compute='_compute_bulk_counts')
