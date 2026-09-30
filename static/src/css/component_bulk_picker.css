@@ -1,0 +1,56 @@
+/* Bulk component/service-area picker — approved compact RTL layout. */
+.wof_component_dialog_form:has(.wof_bulk_picker){direction:rtl;}
+.wof_component_dialog_form:has(.wof_bulk_picker) .o_form_sheet_bg{background:#f8fafb!important;}
+.wof_component_dialog_form:has(.wof_bulk_picker) .wof_component_dialog_shell{max-width:none!important;width:100%!important;padding:20px 24px 16px!important;}
+
+.wof_bulk_picker{display:flex;flex-direction:column;gap:12px;width:100%;margin-top:10px;}
+.wof_bulk_create_strip{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 18px;border:1px solid #dcebed;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(26,71,77,.035);}
+.wof_bulk_create_copy{display:flex;flex-direction:column;gap:4px;color:#596d73;font-size:11px;line-height:1.55;}
+.wof_bulk_create_copy strong{color:#263d43;font-size:12px;font-weight:800;}
+.wof_bulk_create_btn{min-width:170px;min-height:38px;border-radius:8px!important;border-color:#2e969d!important;color:#21878e!important;background:#fff!important;font-weight:800!important;}
+.wof_bulk_create_btn:hover{background:#f0fbfb!important;}
+
+.wof_bulk_hint{display:flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid #d8ecee;border-radius:9px;background:#eff9fa;color:#3b7f86;font-size:10.5px;}
+.wof_bulk_hint i{font-size:15px;color:#29929a;}
+
+.wof_bulk_list_card{border:1px solid #d8e6e9;border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 3px 12px rgba(26,71,77,.04);}
+.wof_bulk_toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border-bottom:1px solid #e4edef;background:#fff;}
+.wof_bulk_actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.wof_bulk_actions .btn{min-height:36px;border-radius:8px!important;padding:6px 16px!important;font-size:10.5px!important;font-weight:800!important;}
+.wof_bulk_select_all{background:#2c979e!important;border-color:#2c979e!important;color:#fff!important;}
+.wof_bulk_clear_all{border-color:#cddcdf!important;color:#4f656a!important;background:#fff!important;}
+.wof_bulk_counter{display:inline-flex;align-items:center;gap:3px;min-height:30px;padding:4px 10px;border-radius:7px;background:#f5f7f8;color:#52666b;font-size:10px;font-weight:700;white-space:nowrap;}
+.wof_bulk_counter .o_field_widget{width:auto!important;min-width:12px!important;margin:0!important;font-weight:800!important;color:#263f44!important;}
+.wof_bulk_search{display:flex;align-items:center;gap:7px;width:min(310px,35%);min-width:220px;min-height:36px;padding:0 10px;border:1px solid #d8e4e7;border-radius:8px;background:#fff;}
+.wof_bulk_search i{color:#7b9297;font-size:13px;}
+.wof_bulk_search .o_field_widget{flex:1;margin:0!important;}
+.wof_bulk_search .o_input{border:0!important;box-shadow:none!important;background:transparent!important;min-height:32px!important;font-size:10.5px!important;padding:4px!important;}
+
+.wof_bulk_list_head{display:grid;grid-template-columns:34px minmax(220px,1fr) 170px;align-items:center;min-height:38px;padding:0 14px;background:#f7fafb;border-bottom:1px solid #e1e9eb;color:#4b6166;font-size:10px;}
+.wof_bulk_list_head strong{font-weight:800;}
+.wof_bulk_choices{max-height:430px;overflow:auto;padding:0 14px;background:#fff;}
+.wof_bulk_choices .o_field_many2many_checkboxes{width:100%!important;}
+.wof_bulk_choices .o_field_many2many_checkboxes>div{width:100%!important;display:block!important;}
+.wof_bulk_choices .form-check{display:grid!important;grid-template-columns:34px minmax(220px,1fr);align-items:center;min-height:38px;margin:0!important;padding:0!important;border-bottom:1px solid #edf1f2;position:relative;}
+.wof_bulk_choices .form-check:last-child{border-bottom:0;}
+.wof_bulk_choices .form-check:hover{background:#f8fcfc;}
+.wof_bulk_choices .form-check-input{grid-column:1;margin:0!important;justify-self:center;float:none!important;width:15px;height:15px;border-color:#b8cbd0;cursor:pointer;}
+.wof_bulk_choices .form-check-input:checked{background-color:#2d979e!important;border-color:#2d979e!important;}
+.wof_bulk_choices .form-check-label{grid-column:2;margin:0!important;padding:0 8px!important;color:#2d4146;font-size:10.5px;font-weight:700;cursor:pointer;line-height:38px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* Codes are part of display_name today; keep a visual third-column guide without changing data semantics. */
+.wof_bulk_choices .form-check:after{content:"";position:absolute;inset-inline-start:calc(100% - 170px);top:0;bottom:0;border-inline-start:1px solid #f0f3f4;pointer-events:none;}
+
+.wof_component_dialog_form:has(.wof_bulk_picker) .modal-footer,.modal-content:has(.wof_bulk_picker)>.modal-footer{padding:10px 18px!important;border-top:1px solid #dfe8ea!important;background:#fff!important;}
+.wof_bulk_footer_add{min-width:165px!important;min-height:38px!important;border-radius:8px!important;background:#2c979e!important;border-color:#2c979e!important;color:#fff!important;font-weight:800!important;}
+
+@media(max-width:900px){
+    .wof_bulk_toolbar{align-items:stretch;flex-direction:column;}
+    .wof_bulk_search{width:100%;min-width:0;}
+    .wof_bulk_create_strip{align-items:stretch;flex-direction:column;}
+    .wof_bulk_create_btn{width:100%;}
+    .wof_bulk_list_head{grid-template-columns:32px 1fr;}
+    .wof_bulk_list_head strong:last-child{display:none;}
+    .wof_bulk_choices .form-check{grid-template-columns:32px 1fr;}
+    .wof_bulk_choices .form-check:after{display:none;}
+}
