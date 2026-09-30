@@ -1,19 +1,51 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models, _
+from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
 
 class WofFilmSetupComponentDialogBulk(models.TransientModel):
     _inherit = 'wof.film.setup.component.dialog'
 
+    search_text = fields.Char(string='بحث')
     selected_part_ids = fields.Many2many(
         'wof.car.parts',
         'wof_film_setup_component_dialog_bulk_rel',
         'dialog_id', 'part_id',
         string='المكونات المحددة',
-        domain="[('company_id', '=', company_id), ('active', '=', True), ('part_type', '=', expected_type)]",
+        domain="[('company_id', '=', company_id), ('active', '=', True), ('part_type', '=', expected_type), '|', ('name', 'ilike', search_text or ''), ('code', 'ilike', search_text or '')]",
     )
+    selected_count = fields.Integer(string='عدد المحدد', compute='_compute_bulk_counts')
+    available_count = fields.Integer(string='عدد المتاح', compute='_compute_bulk_counts')
+
+    def _available_parts_domain(self):
+        self.ensure_one()
+        domain = [
+            ('company_id', '=', self.company_id.id),
+            ('active', '=', True),
+            ('part_type', '=', self.expected_type),
+        ]
+        search = (self.search_text or '').strip()
+        if search:
+            domain += ['|', ('name', 'ilike', search), ('code', 'ilike', search)]
+        return domain
+
+    @api.depends('selected_part_ids', 'search_text', 'company_id', 'expected_type')
+    def _compute_bulk_counts(self):
+        Master = self.env['wof.car.parts']
+        for dialog in self:
+            dialog.selected_count = len(dialog.selected_part_ids)
+            dialog.available_count = Master.search_count(dialog._available_parts_domain()) if dialog.company_id else 0
+
+    def action_select_all(self):
+        self.ensure_one()
+        self.selected_part_ids = [(6, 0, self.env['wof.car.parts'].search(self._available_parts_domain()).ids)]
+        return self._dialog_action()
+
+    def action_clear_selection(self):
+        self.ensure_one()
+        self.selected_part_ids = [(5, 0, 0)]
+        return self._dialog_action()
 
     def action_confirm(self):
         self.ensure_one()
