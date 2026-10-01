@@ -1,0 +1,43 @@
+/* Component create/edit dialog: visual field frames only.
+ * Keep layout, widgets and business logic untouched.
+ * Scoped deliberately to this dialog so the rest of the setup wizard is unaffected.
+ */
+.wof_component_create_form .wof_component_create_field > .o_field_widget:not(.o_field_boolean),
+.wof_component_create_form .wof_component_create_field > .o_field_many2one,
+.wof_component_create_form .wof_component_create_field > .o_field_many2many_tags,
+.wof_component_create_form .wof_component_area_parts > .o_field_widget,
+.wof_component_create_form .wof_component_tint_field > .o_field_widget {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid #cfdde0;
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+/* Let the native Odoo control fill the single outer frame instead of drawing
+ * a second nested border. This mirrors the existing stored/service product field. */
+.wof_component_create_form .wof_component_create_field > .o_field_widget:not(.o_field_boolean) .o_input,
+.wof_component_create_form .wof_component_create_field > .o_field_many2one .o_input,
+.wof_component_create_form .wof_component_create_field > .o_field_many2many_tags .o_input,
+.wof_component_create_form .wof_component_area_parts > .o_field_widget .o_input,
+.wof_component_create_form .wof_component_tint_field > .o_field_widget .o_input {
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.wof_component_create_form .wof_component_create_field > .o_field_widget:not(.o_field_boolean):focus-within,
+.wof_component_create_form .wof_component_area_parts > .o_field_widget:focus-within,
+.wof_component_create_form .wof_component_tint_field > .o_field_widget:focus-within {
+    border-color: #2f959c;
+    box-shadow: 0 0 0 1px rgba(47, 149, 156, .10);
+}
+
+/* Boolean switches are controls, not data-entry boxes; preserve their current UI. */
+.wof_component_create_form .wof_component_required_inline > .o_field_boolean,
+.wof_component_create_form .wof_component_auto_product_title_row > .o_field_boolean {
+    border: 0;
+    min-height: auto;
+    background: transparent;
+}
