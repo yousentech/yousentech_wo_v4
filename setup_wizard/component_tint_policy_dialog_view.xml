@@ -10,22 +10,33 @@
                 <field name="show_tint_policy" invisible="1"/>
             </xpath>
 
-            <!-- Keep the generated-code hint beside the label instead of below the input. -->
-            <xpath expr="//div[contains(@class, 'wof_component_create_field') and contains(@class, 'is-code')]" position="replace">
-                <div class="wof_component_create_field is-code">
-                    <span class="o_form_label">الكود <em>اختياري</em> <small>(يُولّد تلقائيًا عند تركه فارغًا)</small></span>
-                    <field name="code" placeholder="تلقائي"/>
-                </div>
-            </xpath>
-
-            <!-- Default grade belongs to Basic Data and uses the same single-field frame pattern. -->
-            <xpath expr="//div[contains(@class, 'wof_component_create_identity_grid')]" position="inside">
-                <div class="wof_component_create_field is-default-tint" invisible="not show_tint_policy">
-                    <span class="o_form_label">درجة اللون الافتراضية</span>
-                    <div class="wof_component_product_field">
-                        <field name="default_tint_grade_id"
-                               options="{'no_create': True, 'no_create_edit': True}"
-                               placeholder="اختر درجة اللون الافتراضية"/>
+            <!--
+                Keep all Basic Data fields in one grid.  The default tint field is
+                conditionally hidden for non-thermal/service-area records, so the
+                original three-field layout remains intact there.  For thermal car
+                parts it becomes the fourth field instead of creating a second row.
+            -->
+            <xpath expr="//div[contains(@class, 'wof_component_create_identity_grid')]" position="replace">
+                <div class="wof_component_create_identity_grid">
+                    <div class="wof_component_create_field is-name">
+                        <span class="o_form_label">اسم المكوّن / المنطقة <b>*</b></span>
+                        <field name="name" placeholder="مثال: الزجاج الأمامي"/>
+                    </div>
+                    <div class="wof_component_create_field is-default-tint" invisible="not show_tint_policy">
+                        <span class="o_form_label">درجة اللون الافتراضية</span>
+                        <div class="wof_component_product_field">
+                            <field name="default_tint_grade_id"
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   placeholder="اختر درجة اللون الافتراضية"/>
+                        </div>
+                    </div>
+                    <div class="wof_component_create_field is-code">
+                        <span class="o_form_label">الكود <em>اختياري</em> <small>(يُولّد تلقائيًا عند تركه فارغًا)</small></span>
+                        <field name="code" placeholder="تلقائي"/>
+                    </div>
+                    <div class="wof_component_create_field is-priority">
+                        <span class="o_form_label">ترتيب الأولوية</span>
+                        <field name="priority_part"/>
                     </div>
                 </div>
             </xpath>
