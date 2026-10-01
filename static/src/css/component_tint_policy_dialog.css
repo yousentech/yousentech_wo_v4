@@ -1,0 +1,83 @@
+/* Thermal-film component dialog: compact one-row basic data layout. */
+@media (min-width: 901px) {
+    .wof_component_create_form .wof_component_create_identity_grid.wof_tint_identity_grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 2.05fr) minmax(0, 1.25fr) minmax(0, 1.15fr) minmax(120px, .72fr) !important;
+        gap: 14px !important;
+        align-items: end !important;
+    }
+
+    .wof_component_create_form .wof_tint_identity_grid .wof_component_create_field {
+        min-width: 0 !important;
+        margin: 0 !important;
+        align-self: end !important;
+    }
+
+    .wof_component_create_form .wof_tint_identity_grid .wof_component_create_field > .o_form_label {
+        min-height: 22px !important;
+        margin: 0 0 5px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        white-space: nowrap !important;
+    }
+
+    .wof_component_create_form .wof_tint_identity_grid .wof_code_label {
+        justify-content: flex-start !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .wof_component_create_form .wof_tint_identity_grid .wof_code_label > span {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        flex: 0 0 auto !important;
+    }
+
+    .wof_component_create_form .wof_tint_identity_grid .wof_code_label small {
+        display: inline !important;
+        margin: 0 !important;
+        font-size: 10px !important;
+        line-height: 1 !important;
+        font-weight: 400 !important;
+        color: #7a8a8f !important;
+        white-space: nowrap !important;
+    }
+
+    .wof_component_create_form .wof_tint_identity_grid .wof_code_label em {
+        font-style: normal !important;
+        font-weight: 400 !important;
+        color: #7a8a8f !important;
+    }
+
+    .wof_component_create_form .wof_tint_identity_grid .o_field_widget,
+    .wof_component_create_form .wof_tint_identity_grid .wof_component_product_field {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .wof_component_create_form .wof_tint_identity_grid input,
+    .wof_component_create_form .wof_tint_identity_grid .o_input,
+    .wof_component_create_form .wof_tint_identity_grid .o_field_many2one_selection {
+        min-height: 38px !important;
+    }
+
+    .wof_component_create_form .wof_tint_policy_row {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 14px !important;
+        align-items: end !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .wof_component_create_form .wof_component_create_identity_grid.wof_tint_identity_grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .wof_component_create_form .wof_tint_identity_grid .wof_code_label {
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        flex-wrap: wrap !important;
+    }
+}
