@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_installation_order_line_tint_policy_form" model="ir.ui.view">
+        <field name="name">wof.installation.order.line.tint.policy.form</field>
+        <field name="model">wof.installation.order.line</field>
+        <field name="inherit_id" ref="yousentech_wo_v4.view_wof_installation_order_line_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='film_category_line_id']" position="after">
+                <field name="has_tint_warning" invisible="1"/>
+                <field name="tint_warning"
+                       readonly="1"
+                       invisible="not has_tint_warning"
+                       class="text-danger"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_installation_order_line_tint_policy_tree" model="ir.ui.view">
+        <field name="name">wof.installation.order.line.tint.policy.tree</field>
+        <field name="model">wof.installation.order.line</field>
+        <field name="inherit_id" ref="yousentech_wo_v4.view_wof_installation_order_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='film_category_line_id']" position="after">
+                <field name="has_tint_warning" column_invisible="True"/>
+                <field name="tint_warning"
+                       string="تحذير الدرجة"
+                       readonly="1"
+                       optional="show"
+                       invisible="not has_tint_warning"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
