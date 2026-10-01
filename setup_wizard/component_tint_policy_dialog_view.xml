@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_wof_component_create_dialog_tint_policy" model="ir.ui.view">
+        <field name="name">wof.film.setup.component.create.dialog.tint.policy</field>
+        <field name="model">wof.film.setup.component.create.dialog</field>
+        <field name="inherit_id" ref="yousentech_wo_v4.view_wof_film_setup_component_create_dialog_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='edit_line_id']" position="after">
+                <field name="film_id" invisible="1"/>
+                <field name="show_tint_policy" invisible="1"/>
+            </xpath>
+
+            <!-- Default grade is part of the Basic Data card, as requested. -->
+            <xpath expr="//div[contains(@class, 'wof_component_create_identity_grid')]" position="inside">
+                <div class="wof_component_create_field is-default-tint" invisible="not show_tint_policy">
+                    <span class="o_form_label">درجة اللون الافتراضية</span>
+                    <field name="default_tint_grade_id"
+                           options="{'no_create': True, 'no_create_edit': True}"
+                           placeholder="اختر درجة اللون الافتراضية"/>
+                </div>
+            </xpath>
+
+            <!-- Allowed grades stay next to the existing warning message. -->
+            <xpath expr="//field[@name='warning_msg']/ancestor::div[contains(@class, 'wof_component_create_field')][1]" position="before">
+                <div class="wof_component_create_field is-allowed-tints" invisible="not show_tint_policy">
+                    <span class="o_form_label">درجات اللون المسموحة</span>
+                    <field name="allowed_tint_grade_ids"
+                           widget="many2many_tags"
+                           options="{'no_create': True, 'no_create_edit': True}"
+                           placeholder="حدد الدرجات المسموحة لهذا المكوّن"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
