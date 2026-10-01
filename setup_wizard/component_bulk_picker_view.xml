@@ -52,6 +52,7 @@
                             <field name="selected_part_ids"
                                    widget="many2many_checkboxes"
                                    nolabel="1"
+                                   domain="[('company_id', '=', company_id), ('active', '=', True), ('part_type', '=', expected_type), '|', ('name', 'ilike', search_text or ''), ('code', 'ilike', search_text or '')]"
                                    options="{'no_create': True, 'no_create_edit': True}"/>
                         </div>
                     </div>
