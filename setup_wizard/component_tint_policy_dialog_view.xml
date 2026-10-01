@@ -10,24 +10,54 @@
                 <field name="show_tint_policy" invisible="1"/>
             </xpath>
 
-            <!-- Default grade is part of the Basic Data card, as requested. -->
-            <xpath expr="//div[contains(@class, 'wof_component_create_identity_grid')]" position="inside">
-                <div class="wof_component_create_field is-default-tint" invisible="not show_tint_policy">
-                    <span class="o_form_label">درجة اللون الافتراضية</span>
-                    <field name="default_tint_grade_id"
-                           options="{'no_create': True, 'no_create_edit': True}"
-                           placeholder="اختر درجة اللون الافتراضية"/>
+            <!-- Keep the generated-code hint beside the label instead of below the input. -->
+            <xpath expr="//div[contains(@class, 'wof_component_create_field') and contains(@class, 'is-code')]" position="replace">
+                <div class="wof_component_create_field is-code">
+                    <span class="o_form_label">الكود <em>اختياري</em> <small>(يُولّد تلقائيًا عند تركه فارغًا)</small></span>
+                    <field name="code" placeholder="تلقائي"/>
                 </div>
             </xpath>
 
-            <!-- Allowed grades stay next to the existing warning message. -->
-            <xpath expr="//field[@name='warning_msg']/ancestor::div[contains(@class, 'wof_component_create_field')][1]" position="before">
-                <div class="wof_component_create_field is-allowed-tints" invisible="not show_tint_policy">
-                    <span class="o_form_label">درجات اللون المسموحة</span>
-                    <field name="allowed_tint_grade_ids"
-                           widget="many2many_tags"
-                           options="{'no_create': True, 'no_create_edit': True}"
-                           placeholder="حدد الدرجات المسموحة لهذا المكوّن"/>
+            <!-- Default grade belongs to Basic Data and uses the same single-field frame pattern. -->
+            <xpath expr="//div[contains(@class, 'wof_component_create_identity_grid')]" position="inside">
+                <div class="wof_component_create_field is-default-tint" invisible="not show_tint_policy">
+                    <span class="o_form_label">درجة اللون الافتراضية</span>
+                    <div class="wof_component_product_field">
+                        <field name="default_tint_grade_id"
+                               options="{'no_create': True, 'no_create_edit': True}"
+                               placeholder="اختر درجة اللون الافتراضية"/>
+                    </div>
+                </div>
+            </xpath>
+
+            <!-- Thermal-film component layout: remove notes and align allowed grades with warning message. -->
+            <xpath expr="//div[contains(@class, 'wof_component_create_grid') and contains(@class, 'is-notes-grid')]" position="replace">
+                <div class="wof_component_create_grid is-notes-grid" invisible="show_tint_policy">
+                    <div class="wof_component_create_field">
+                        <span class="o_form_label">ملاحظات</span>
+                        <field name="notes" placeholder="ملاحظة داخلية اختيارية"/>
+                    </div>
+                    <div class="wof_component_create_field">
+                        <span class="o_form_label">رسالة تحذير</span>
+                        <field name="warning_msg" placeholder="تظهر عند الحاجة أثناء التشغيل"/>
+                    </div>
+                </div>
+                <div class="wof_component_create_grid is-notes-grid wof_tint_policy_row" invisible="not show_tint_policy">
+                    <div class="wof_component_create_field is-allowed-tints">
+                        <span class="o_form_label">درجات اللون المسموحة</span>
+                        <div class="wof_component_product_field">
+                            <field name="allowed_tint_grade_ids"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True, 'no_create_edit': True}"
+                                   placeholder="حدد الدرجات المسموحة لهذا المكوّن"/>
+                        </div>
+                    </div>
+                    <div class="wof_component_create_field is-warning-message">
+                        <span class="o_form_label">رسالة تحذير</span>
+                        <div class="wof_component_product_field">
+                            <field name="warning_msg" placeholder="تظهر عند الحاجة أثناء التشغيل"/>
+                        </div>
+                    </div>
                 </div>
             </xpath>
         </field>
