@@ -43,6 +43,7 @@
         'yousentech_wo_v4/static/src/css/component_tree_compact.css',
         'yousentech_wo_v4/static/src/css/component_bulk_picker.css',
         'yousentech_wo_v4/static/src/css/component_create_field_frames.css',
+        'yousentech_wo_v4/static/src/css/film_setup_field_frames.css',
         'yousentech_wo_v4/static/src/js/activity_hub_dialog.js',
         'yousentech_wo_v4/static/src/css/service_architecture.css',
         'yousentech_wo_v4/static/src/css/installation_order.css',
