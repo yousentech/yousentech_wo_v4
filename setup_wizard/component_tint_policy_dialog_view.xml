@@ -36,9 +36,9 @@
                 </div>
             </xpath>
 
-            <!-- Thermal-film component layout: remove notes and align allowed grades with warning message. -->
+            <!-- Service areas do not use notes/warnings. Thermal-film components use tint policy instead. -->
             <xpath expr="//div[contains(@class, 'wof_component_create_grid') and contains(@class, 'is-notes-grid')]" position="replace">
-                <div class="wof_component_create_grid is-notes-grid" invisible="show_tint_policy">
+                <div class="wof_component_create_grid is-notes-grid" invisible="show_tint_policy or expected_type == 'service_area'">
                     <div class="wof_component_create_field">
                         <span class="o_form_label">ملاحظات</span>
                         <field name="notes" placeholder="ملاحظة داخلية اختيارية"/>
