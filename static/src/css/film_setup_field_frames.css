@@ -1,0 +1,75 @@
+/* Film setup wizard — field frames only.
+ * Scope: the six-step main wizard (.wof_film_setup_form).
+ * No layout, spacing, sizing, visibility or business-logic changes.
+ */
+
+/* Standard editable inputs/selects/textareas inside the wizard. */
+.wof_film_setup_form .o_field_widget:not(.o_field_boolean):not(.o_field_radio):not(.o_field_x2many_list_row_add):not(.o_field_one2many):not(.o_field_many2many) > .o_input,
+.wof_film_setup_form input.o_input,
+.wof_film_setup_form textarea.o_input,
+.wof_film_setup_form select.o_input {
+    border: 1px solid #cfdde0 !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+}
+
+/* Many2one controls: keep Odoo's dropdown button inside one clean frame. */
+.wof_film_setup_form .o_field_many2one_selection,
+.wof_film_setup_form .o_field_many2one .o_input_dropdown {
+    border: 1px solid #cfdde0;
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.wof_film_setup_form .o_field_many2one_selection .o_input,
+.wof_film_setup_form .o_field_many2one .o_input_dropdown .o_input {
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Tag selectors (tints, sizes and similar) receive one outer frame only. */
+.wof_film_setup_form .o_field_many2many_tags:not(.o_readonly_modifier) {
+    border: 1px solid #cfdde0;
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+    min-height: 36px;
+}
+
+.wof_film_setup_form .o_field_many2many_tags:not(.o_readonly_modifier) .o_input {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Consistent focus feedback, matching the existing wizard teal accent. */
+.wof_film_setup_form .o_field_many2one_selection:focus-within,
+.wof_film_setup_form .o_field_many2one .o_input_dropdown:focus-within,
+.wof_film_setup_form .o_field_many2many_tags:not(.o_readonly_modifier):focus-within,
+.wof_film_setup_form input.o_input:focus,
+.wof_film_setup_form textarea.o_input:focus,
+.wof_film_setup_form select.o_input:focus {
+    border-color: #2f959c !important;
+    box-shadow: 0 0 0 1px rgba(47, 149, 156, .10) !important;
+    outline: 0;
+}
+
+/* Explicitly preserve controls that are not text/data-entry boxes. */
+.wof_film_setup_form .o_field_boolean,
+.wof_film_setup_form .o_field_radio,
+.wof_film_setup_form .o_radio_item,
+.wof_film_setup_form .form-check,
+.wof_film_setup_form button,
+.wof_film_setup_form .btn {
+    border-radius: revert-layer;
+}
+
+/* Read-only summary values remain visually unchanged; framing is for editable fields. */
+.wof_film_setup_form .o_readonly_modifier.o_field_widget,
+.wof_film_setup_form .o_field_widget.o_readonly_modifier > .o_input {
+    box-shadow: none;
+}
