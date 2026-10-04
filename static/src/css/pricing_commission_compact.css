@@ -36,7 +36,6 @@
 }
 .wof_film_setup_form .wof_stage4_intro i { margin-inline-end: 5px !important; }
 
-/* Header becomes one compact line, like Components. */
 .wof_film_setup_form .wof_stage4_head {
     display: flex !important;
     align-items: center !important;
@@ -59,7 +58,7 @@
 .wof_film_setup_form .wof_stage4_head p {
     margin: 0 !important;
     line-height: 1.25 !important;
-    font-size: 9px !important;
+    font-size: 11px !important;
     color: #8a8b9b !important;
 }
 .wof_film_setup_form .wof_stage4_counters {
@@ -78,9 +77,9 @@
     border-radius: 7px !important;
     line-height: 1 !important;
     white-space: nowrap !important;
-    font-size: 8.5px !important;
+    font-size: 10.5px !important;
 }
-.wof_film_setup_form .wof_stage4_counters > span strong { font-size: 10px !important; }
+.wof_film_setup_form .wof_stage4_counters > span strong { font-size: 11px !important; }
 
 .wof_film_setup_form .wof_stage4_policy_strip {
     display: flex !important;
@@ -91,13 +90,9 @@
     border-radius: 7px !important;
     gap: 5px !important;
     line-height: 1.15 !important;
-    font-size: 8.5px !important;
+    font-size: 10.5px !important;
 }
 
-/* ---------- Pricing / commission records ----------
- * Override both Odoo kanban chrome and old stage4 sizing. This is the part
- * that was keeping the rows visually tall despite earlier CSS overrides.
- */
 .wof_film_setup_form .wof_stage4_cards,
 .wof_film_setup_form .wof_stage4_cards .o_field_widget,
 .wof_film_setup_form .wof_stage4_cards .o_kanban_view,
@@ -146,7 +141,6 @@
 .wof_film_setup_form .wof_stage4_component_card.is-missing { border-color: #e6e0ec !important; }
 .wof_film_setup_form .wof_stage4_component_card.is-complete { border-color: #dce9df !important; }
 
-/* 38px closed row: name/type/status/arrow remain on one level. */
 .wof_film_setup_form .wof_stage4_component_head {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) auto 27px !important;
@@ -172,7 +166,7 @@
     display: block !important;
     margin: 0 !important;
     line-height: 1.15 !important;
-    font-size: 10.5px !important;
+    font-size: 12.5px !important;
     font-weight: 800 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -182,7 +176,7 @@
     display: block !important;
     margin: 1px 0 0 !important;
     line-height: 1.05 !important;
-    font-size: 7.5px !important;
+    font-size: 10px !important;
 }
 .wof_film_setup_form .wof_stage4_kind {
     display: inline-flex !important;
@@ -195,7 +189,7 @@
     min-height: 24px !important;
     padding: 0 !important;
     border-radius: 6px !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
 }
 .wof_film_setup_form .wof_stage4_type,
 .wof_film_setup_form .wof_stage4_status {
@@ -205,7 +199,7 @@
     padding: 2px 6px !important;
     border-radius: 999px !important;
     line-height: 1 !important;
-    font-size: 7.8px !important;
+    font-size: 10px !important;
     white-space: nowrap !important;
 }
 .wof_film_setup_form .wof_stage4_type { margin-inline-start: 2px !important; }
@@ -220,10 +214,9 @@
     padding: 0 !important;
     margin: 0 !important;
     border-radius: 6px !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
 }
 
-/* Open row details: no reserved empty height. */
 .wof_film_setup_form .wof_stage4_component_body {
     display: flex !important;
     align-items: center !important;
@@ -243,13 +236,13 @@
     margin: 0 !important;
     border-radius: 6px !important;
     line-height: 1.15 !important;
-    font-size: 8.5px !important;
+    font-size: 11px !important;
 }
 .wof_film_setup_form .wof_stage4_saved_summary small {
     display: block !important;
     margin: 1px 0 0 !important;
     line-height: 1.15 !important;
-    font-size: 7.5px !important;
+    font-size: 10px !important;
 }
 .wof_film_setup_form .wof_stage4_component_body .btn {
     flex: 0 0 auto !important;
@@ -258,10 +251,9 @@
     margin: 0 !important;
     border-radius: 6px !important;
     line-height: 1.1 !important;
-    font-size: 8.5px !important;
+    font-size: 10.5px !important;
 }
 
-/* ---------- Right summary: keep same footprint as Components ---------- */
 .wof_film_setup_form .wof_pricing_summary {
     width: 270px !important;
     min-width: 270px !important;
@@ -275,7 +267,6 @@
 .wof_film_setup_form .wof_pricing_summary .wof_summary_policy,
 .wof_film_setup_form .wof_pricing_summary .wof_summary_note { margin-top: 5px !important; }
 
-/* ---------- Price / commission popup ---------- */
 .modal-dialog:has(.wof_stage4_value_dialog) {
     width: min(1040px, 92vw) !important;
     max-width: min(1040px, 92vw) !important;
@@ -302,16 +293,16 @@
     height: 31px !important;
     flex: 0 0 31px !important;
     border-radius: 8px !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
 }
 .wof_stage4_value_dialog .wof_stage4_dialog_header h2 {
     margin: 0 !important;
-    font-size: 13px !important;
+    font-size: 16px !important;
     line-height: 1.2 !important;
 }
 .wof_stage4_value_dialog .wof_stage4_dialog_header p {
     margin: 2px 0 0 !important;
-    font-size: 8px !important;
+    font-size: 11px !important;
     line-height: 1.25 !important;
 }
 .wof_stage4_value_dialog .wof_stage4_dialog_policy,
@@ -325,13 +316,15 @@
     min-height: 0 !important;
 }
 .wof_stage4_value_dialog .wof_price_mode_title { margin-bottom: 5px !important; }
-.wof_stage4_value_dialog .wof_price_mode_title strong { font-size: 10px !important; }
-.wof_stage4_value_dialog .wof_price_mode_title small { font-size: 7.5px !important; }
+.wof_stage4_value_dialog .wof_price_mode-title strong,
+.wof_stage4_value_dialog .wof_price_mode_title strong { font-size: 12px !important; }
+.wof_stage4_value_dialog .wof_price_mode_title small { font-size: 10.5px !important; }
 .wof_stage4_value_dialog .wof_price_mode_radio .o_radio_item {
     min-height: 34px !important;
     padding: 5px 9px !important;
     margin: 0 3px !important;
     border-radius: 8px !important;
+    font-size: 12px !important;
 }
 .wof_stage4_value_dialog .wof_uniform_price_fields { gap: 8px !important; }
 .wof_stage4_value_dialog .wof_uniform_price_value,
@@ -340,13 +333,14 @@
 .wof_stage4_value_dialog .wof_price_entries .o_list_table,
 .wof_stage4_value_dialog .wof_commission_entries .o_list_table {
     margin: 0 !important;
-    font-size: 9px !important;
+    font-size: 12px !important;
 }
 .wof_stage4_value_dialog .wof_price_entries .o_list_table thead th,
 .wof_stage4_value_dialog .wof_commission_entries .o_list_table thead th {
     height: 30px !important;
     padding: 5px 8px !important;
     vertical-align: middle !important;
+    font-size: 11.5px !important;
 }
 .wof_stage4_value_dialog .wof_price_entries .o_list_table tbody tr,
 .wof_stage4_value_dialog .wof_commission_entries .o_list_table tbody tr {
@@ -356,12 +350,13 @@
 .wof_stage4_value_dialog .wof_commission_entries .o_list_table tbody td {
     padding: 5px 8px !important;
     vertical-align: middle !important;
+    font-size: 12px !important;
 }
 .wof_stage4_value_dialog .wof_price_entry_hint {
     margin-top: 6px !important;
     padding: 6px 8px !important;
     border-radius: 7px !important;
-    font-size: 8px !important;
+    font-size: 10.5px !important;
     line-height: 1.3 !important;
 }
 .modal:has(.wof_stage4_value_dialog) .modal-footer {
@@ -372,10 +367,17 @@
     min-height: 31px !important;
     padding: 5px 15px !important;
     border-radius: 7px !important;
-    font-size: 10px !important;
+    font-size: 12px !important;
 }
 
-/* Commission uses exactly the same compact row language. */
+/* Keep native Odoo fields readable without increasing the compact layout height. */
+.wof_stage4_value_dialog .o_field_widget,
+.wof_stage4_value_dialog .o_input,
+.wof_stage4_value_dialog label,
+.wof_stage4_value_dialog .form-label {
+    font-size: 12px !important;
+}
+
 .wof_film_setup_form .wof_stage5_commission .wof_stage4_component_head {
     min-height: 38px !important;
     height: 38px !important;
