@@ -1,0 +1,50 @@
+/* Pricing card inline action only.
+ * Preserve the approved stage-4 layout; this file only positions the existing
+ * pricing action beside the component/service-area identity. */
+.wof_film_setup_form .wof_stage4_component_identity .wof_stage4_inline_price_btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 auto !important;
+    gap: 4px !important;
+    min-height: 23px !important;
+    height: 23px !important;
+    padding: 2px 7px !important;
+    margin-inline-start: 4px !important;
+    border: 1px solid #d8ecef !important;
+    border-radius: 7px !important;
+    background: #f1fafb !important;
+    color: #278f98 !important;
+    box-shadow: none !important;
+    font-size: 10.5px !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+
+.wof_film_setup_form .wof_stage4_component_identity .wof_stage4_inline_price_btn:hover,
+.wof_film_setup_form .wof_stage4_component_identity .wof_stage4_inline_price_btn:focus {
+    background: #e9f7f8 !important;
+    border-color: #bcdfe3 !important;
+    color: #197e87 !important;
+}
+
+.wof_film_setup_form .wof_stage4_component_identity .wof_stage4_inline_price_btn i {
+    font-size: 10px !important;
+    margin: 0 !important;
+}
+
+/* The same action already exists in the expanded detail body. Hide only that
+ * duplicate in pricing; the summary/detail area and expand/collapse behavior
+ * stay exactly as before. */
+.wof_film_setup_form .wof_stage4_shell:not(.wof_stage5_commission)
+.wof_stage4_component_body > button[name="action_edit_price"] {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    .wof_film_setup_form .wof_stage4_component_identity .wof_stage4_inline_price_btn {
+        padding-inline: 5px !important;
+        font-size: 10px !important;
+    }
+}
