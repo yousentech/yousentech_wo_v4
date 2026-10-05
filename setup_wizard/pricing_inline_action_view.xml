@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Visual-only extension of the pricing step.
+         Keep the approved compact card structure and expose the existing
+         pricing action beside the component/service-area name. -->
+    <record id="view_wof_film_setup_wizard_pricing_inline_action" model="ir.ui.view">
+        <field name="name">wof.film.setup.wizard.pricing.inline.action</field>
+        <field name="model">wof.film.setup.wizard</field>
+        <field name="inherit_id" ref="yousentech_wo_v4.view_wof_film_setup_wizard_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[contains(@class, 'wof_stage4_shell') and @invisible=&quot;current_step != 'pricing'&quot;]//div[contains(@class, 'wof_stage4_component_identity')]/span[contains(@class, 'wof_stage4_type')]" position="after">
+                <button name="action_edit_price" type="object" class="btn wof_stage4_inline_price_btn" title="تعديل التسعير">
+                    <i class="fa fa-pencil" title="تعديل التسعير"/>
+                    <t t-if="record.price_complete.raw_value">تعديل التسعير</t>
+                    <t t-else="">تحديد التسعير</t>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>
