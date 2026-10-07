@@ -11,3 +11,6 @@ from . import service_area_template_dialog
 from . import service_area_template_tree_fix
 from . import component_bulk_picker
 from . import component_tint_policy_dialog
+
+# Loaded here because it extends wof.company.profile, which is defined in setup_wizard.
+from ..setup import discount_policy
