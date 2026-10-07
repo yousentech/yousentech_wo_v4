@@ -75,12 +75,17 @@ class WofFilmCategoryDiscountPolicy(models.Model):
                 source = 'component'
 
             if car_size:
-                size_rule = part_line.discount_size_rule_ids.filtered(
-                    lambda rule: rule.car_size_id == car_size
+                size = (
+                    car_size
+                    if getattr(car_size, '_name', False) == 'wof.car.size'
+                    else self.env['wof.car.size'].browse(car_size)
+                )
+                price_line = part_line.price_line_ids.filtered(
+                    lambda line: line.car_size_id == size
                 )[:1]
-                if size_rule:
-                    enabled = size_rule.discount_policy == 'allow'
-                    limit = size_rule.discount_limit if enabled else 0.0
+                if price_line and price_line.discount_exceed_limit:
+                    enabled = True
+                    limit = price_line.discount_exceed_limit
                     source = 'size'
 
         return {
@@ -105,10 +110,6 @@ class WofFilmPartDiscountPolicy(models.Model):
         string='سياسة الخصم', default='inherit', required=True,
     )
     discount_limit = fields.Float(string='الحد الأقصى للخصم %', default=0.0)
-    discount_size_rule_ids = fields.One2many(
-        'wof.film.parts.discount.rule', 'part_line_id',
-        string='حدود الخصم حسب حجم السيارة',
-    )
 
     @api.constrains('discount_limit')
     def _check_discount_limit(self):
@@ -119,40 +120,3 @@ class WofFilmPartDiscountPolicy(models.Model):
     def get_discount_policy(self, car_size=None):
         self.ensure_one()
         return self.header_id.get_discount_policy(self, car_size)
-
-
-class WofFilmPartDiscountRule(models.Model):
-    _name = 'wof.film.parts.discount.rule'
-    _description = 'سياسة خصم المكوّن حسب حجم السيارة'
-    _order = 'part_line_id, car_size_id'
-    _check_company_auto = True
-
-    part_line_id = fields.Many2one(
-        'wof.film.parts.lines', string='مكوّن الخدمة', required=True,
-        ondelete='cascade', check_company=True, index=True,
-    )
-    company_id = fields.Many2one(
-        related='part_line_id.company_id', store=True, readonly=True, index=True,
-    )
-    car_size_id = fields.Many2one(
-        'wof.car.size', string='حجم السيارة', required=True,
-        ondelete='restrict', check_company=True, index=True,
-    )
-    discount_policy = fields.Selection(
-        [('allow', 'يسمح بالخصم'), ('deny', 'يمنع الخصم')],
-        string='سياسة الخصم', default='allow', required=True,
-    )
-    discount_limit = fields.Float(string='الحد الأقصى للخصم %', default=0.0)
-
-    _sql_constraints = [
-        ('part_size_discount_unique', 'unique(part_line_id, car_size_id)',
-         'توجد سياسة خصم لهذا المكوّن وحجم السيارة مسبقًا.'),
-        ('discount_limit_range', 'check(discount_limit >= 0 AND discount_limit <= 100)',
-         'حد الخصم يجب أن يكون بين 0 و100.'),
-    ]
-
-    @api.constrains('part_line_id', 'car_size_id')
-    def _check_same_company(self):
-        for record in self:
-            if record.car_size_id.company_id != record.company_id:
-                raise ValidationError('حجم السيارة وسياسة المكوّن يجب أن يتبعا نفس الشركة.')
