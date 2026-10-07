@@ -625,6 +625,66 @@
                                         </div>
                                     </page>
 
+                                    <page string="الخصومات" name="discounts">
+                                        <div class="wof_stage4_tab_panel wof_stage4_tab_card wof_discount_policy_panel">
+                                            <p class="wof_stage4_tab_intro">ضع سياسة موحدة وآمنة للخصومات. يمكن لاحقًا تخصيص الحد لكل خدمة أو مكوّن أو حجم سيارة.</p>
+                                            <div class="wof_stage4_cards_grid two">
+                                                <div class="wof_stage4_feature_card wof_discount_master_card">
+                                                    <div class="wof_stage4_feature_title wof_stage4_feature_toggle_title">
+                                                        <div><h4>تفعيل الخصومات</h4><p>مفتاح التحكم الرئيسي للخصومات في الشركة.</p></div>
+                                                        <field name="discount_enabled" widget="boolean_toggle" nolabel="1"/>
+                                                    </div>
+                                                    <div class="wof_discount_status" invisible="not discount_enabled">
+                                                        <i class="fa fa-check-circle" title="مفعلة"/> سياسة الخصومات مفعلة
+                                                    </div>
+                                                    <div class="wof_discount_status is-off" invisible="discount_enabled">
+                                                        <i class="fa fa-lock" title="معطلة"/> الخصومات معطلة على مستوى الشركة
+                                                    </div>
+                                                </div>
+                                                <div class="wof_stage4_feature_card" invisible="not discount_enabled">
+                                                    <div class="wof_stage4_feature_title">
+                                                        <div><h4>الحد الافتراضي</h4><p>السقف الأعلى الموروث للخدمات التي لا تملك سياسة خاصة.</p></div>
+                                                        <span class="wof_stage4_mini_icon"><i class="fa fa-percent" title="حد الخصم"/></span>
+                                                    </div>
+                                                    <div class="wof_discount_percent_field">
+                                                        <field name="discount_default_limit" nolabel="1"/>
+                                                        <span>%</span>
+                                                    </div>
+                                                </div>
+                                                <div class="wof_stage4_feature_card" invisible="not discount_enabled">
+                                                    <div class="wof_stage4_feature_title">
+                                                        <div><h4>نطاق تطبيق الخصم</h4><p>حدد هل الخصم يطبق على إجمالي الأمر أو على كل خدمة بشكل مستقل.</p></div>
+                                                        <span class="wof_stage4_mini_icon"><i class="fa fa-sitemap" title="نطاق الخصم"/></span>
+                                                    </div>
+                                                    <div class="wof_stage4_radio_block wof_stage4_radio_cards">
+                                                        <field name="discount_scope" widget="radio" nolabel="1"/>
+                                                    </div>
+                                                </div>
+                                                <div class="wof_stage4_feature_card" invisible="not discount_enabled">
+                                                    <div class="wof_stage4_feature_title">
+                                                        <div><h4>التجاوز والمبررات</h4><p>تحكم في طلبات تجاوز الحد ومتى يصبح سبب الخصم إلزاميًا.</p></div>
+                                                        <span class="wof_stage4_mini_icon"><i class="fa fa-shield" title="ضوابط الخصم"/></span>
+                                                    </div>
+                                                    <div class="wof_stage4_setting_row compact-row">
+                                                        <span class="o_form_label">السماح بطلب تجاوز الحد</span>
+                                                        <field name="discount_allow_override_request" widget="boolean_toggle" nolabel="1"/>
+                                                    </div>
+                                                    <div class="wof_stage4_setting_block compact-block">
+                                                        <span class="o_form_label">إلزام سبب الخصم ابتداءً من</span>
+                                                        <div class="wof_discount_percent_field compact">
+                                                            <field name="discount_reason_required_from" nolabel="1"/>
+                                                            <span>%</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="wof_stage4_policy_note" invisible="not discount_enabled">
+                                                <i class="fa fa-info-circle" title="معلومة"/>
+                                                هذه هي سياسة الشركة الأساسية. تخصيص الخدمة والمكوّن والحجم سيرثها افتراضيًا ولا يغيّر إعدادات التسعير الحالية.
+                                            </div>
+                                        </div>
+                                    </page>
+
                                     <page string="الفنيون والعمولات" name="technicians">
                                         <div class="wof_stage4_tab_panel wof_stage4_tab_card">
                                             <p class="wof_stage4_tab_intro">حدد طريقة إسناد الفني ووقت استحقاق العمولة في أوامر التركيب.</p>
@@ -792,7 +852,7 @@
                             <group col="2">
                                 <group>
                                     <field name="payment_policy"/>
-                                    <field name="discount_scope"/>
+
                                     <field name="required_vehicle_data"/>
                                 </group>
                                 <group>
@@ -801,6 +861,44 @@
                                     <field name="use_appointments"/>
                                 </group>
                             </group>
+                        </page>
+                        <page string="سياسة الخصومات">
+                            <div class="wof_discount_center">
+                                <div class="wof_discount_center_head">
+                                    <div>
+                                        <span class="wof_setup_badge">سياسة تجارية</span>
+                                        <h2>سياسة الخصومات</h2>
+                                        <p>إدارة الحد الافتراضي ونطاق الخصم وضوابط التجاوز من مكان واحد.</p>
+                                    </div>
+                                    <field name="discount_enabled" widget="boolean_toggle" nolabel="1"/>
+                                </div>
+                                <div class="wof_discount_center_disabled" invisible="discount_enabled">
+                                    <i class="fa fa-lock" title="معطلة"/>
+                                    <div><strong>الخصومات معطلة حاليًا</strong><small>فعّل السياسة لعرض إعدادات الحدود والتجاوز.</small></div>
+                                </div>
+                                <div class="wof_discount_center_grid" invisible="not discount_enabled">
+                                    <div class="wof_discount_center_card">
+                                        <span class="wof_stage4_mini_icon"><i class="fa fa-percent" title="الحد"/></span>
+                                        <div><strong>الحد الافتراضي للخصم</strong><small>يرثه أي فيلم أو خدمة بدون تخصيص.</small></div>
+                                        <div class="wof_discount_percent_field"><field name="discount_default_limit" nolabel="1"/><span>%</span></div>
+                                    </div>
+                                    <div class="wof_discount_center_card">
+                                        <span class="wof_stage4_mini_icon"><i class="fa fa-sitemap" title="النطاق"/></span>
+                                        <div><strong>نطاق تطبيق الخصم</strong><small>على إجمالي الأمر أو كل خدمة.</small></div>
+                                        <field name="discount_scope" widget="radio" nolabel="1"/>
+                                    </div>
+                                    <div class="wof_discount_center_card">
+                                        <span class="wof_stage4_mini_icon"><i class="fa fa-shield" title="التجاوز"/></span>
+                                        <div><strong>طلبات تجاوز الحد</strong><small>السماح برفع طلب موافقة عند تجاوز الحد.</small></div>
+                                        <field name="discount_allow_override_request" widget="boolean_toggle" nolabel="1"/>
+                                    </div>
+                                    <div class="wof_discount_center_card">
+                                        <span class="wof_stage4_mini_icon"><i class="fa fa-commenting-o" title="السبب"/></span>
+                                        <div><strong>سبب الخصم الإلزامي</strong><small>ابتداءً من هذه النسبة سيطلب النظام سببًا.</small></div>
+                                        <div class="wof_discount_percent_field"><field name="discount_reason_required_from" nolabel="1"/><span>%</span></div>
+                                    </div>
+                                </div>
+                            </div>
                         </page>
                         <page string="خيارات متقدمة">
                             <group>
