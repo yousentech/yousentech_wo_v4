@@ -15,6 +15,7 @@
         'setup_wizard/activity_hub_view.xml',
         'setup_wizard/film_setup_wizard_view.xml',
         'setup_wizard/pricing_inline_action_view.xml',
+        'setup_wizard/pricing_warning_view.xml',
         'setup_wizard/component_bulk_picker_view.xml',
         'setup_wizard/service_area_template_dialog_view.xml',
         'setup_wizard/service_area_template_tree_view.xml',
