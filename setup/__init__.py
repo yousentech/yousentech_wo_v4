@@ -5,6 +5,7 @@ from . import car_size
 from . import car_parts
 from . import service_area_template
 from . import film_category
+from . import discount_policy
 from . import component_tint_policy
 from . import car_types
 from . import car_manufactory_year
