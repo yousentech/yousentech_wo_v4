@@ -23,7 +23,7 @@ class WofFilmSetupWizard(models.TransientModel):
     current_step = fields.Selection(
         [('basic', 'البيانات الأساسية'), ('tint', 'درجات اللون'),
          ('components', 'المكونات'), ('pricing', 'التسعير'),
-         ('commission', 'العمولات'), ('review', 'المراجعة والتفعيل')],
+         ('discount', 'الخصومات'), ('commission', 'العمولات'), ('review', 'المراجعة والتفعيل')],
         default='basic', required=True, readonly=True,
     )
 
@@ -155,6 +155,30 @@ class WofFilmSetupWizard(models.TransientModel):
     )
 
 
+    # Stage 5 — discount policy. Company policy is inherited by default.
+    use_system_discount_policy = fields.Boolean(string='استخدام سياسة خصم النظام', default=True)
+    discount_enabled = fields.Boolean(string='السماح بالخصم', default=False)
+    discount_limit = fields.Float(string='الحد الأقصى للخصم %', default=0.0)
+    system_discount_enabled = fields.Boolean(string='الخصومات مفعلة في النظام', readonly=True)
+    system_discount_limit = fields.Float(string='حد الخصم من النظام %', readonly=True)
+    system_discount_scope = fields.Selection(
+        [('order', 'على إجمالي الأمر'), ('service', 'على كل خدمة')],
+        string='نطاق الخصم من النظام', readonly=True,
+    )
+    system_discount_allow_override = fields.Boolean(string='طلبات التجاوز متاحة', readonly=True)
+
+    @api.constrains('discount_limit')
+    def _check_wizard_discount_limit(self):
+        for wizard in self:
+            if wizard.discount_limit < 0 or wizard.discount_limit > 100:
+                raise ValidationError(_('حد الخصم يجب أن يكون بين 0 و100.'))
+
+    @api.onchange('use_system_discount_policy')
+    def _onchange_use_system_discount_policy(self):
+        if self.use_system_discount_policy:
+            self.discount_enabled = self.system_discount_enabled
+            self.discount_limit = self.system_discount_limit
+
     # Stage 4 — commercial pricing and commissions.  The persistent film-part
     # line remains the commercial unit; service-area children never receive
     # independent price/commission rows.
@@ -258,6 +282,10 @@ class WofFilmSetupWizard(models.TransientModel):
             'system_size_count': len(active_sizes),
             'system_tint_count': len(selected_shades),
             'system_tint_numbering_method': profile.tint_numbering_method,
+            'system_discount_enabled': profile.discount_enabled,
+            'system_discount_limit': profile.discount_default_limit,
+            'system_discount_scope': profile.discount_scope,
+            'system_discount_allow_override': profile.discount_allow_override_request,
         }
         if film:
             price_lines = film.film_part_line_ids.price_line_ids
@@ -299,6 +327,9 @@ class WofFilmSetupWizard(models.TransientModel):
                 'tax_enabled': film.tax_enabled if not film.use_system_tax_policy else profile.operation_tax_enabled,
                 'tax_id': (film.tax_id.id if film.tax_id else False) if not film.use_system_tax_policy else (profile.operation_tax_id.id if profile.operation_tax_id else False),
                 'price_input_mode': film.price_input_mode if not film.use_system_tax_policy else profile.operation_price_input_mode,
+                'use_system_discount_policy': film.use_system_discount_policy,
+                'discount_enabled': profile.discount_enabled if film.use_system_discount_policy else film.discount_enabled,
+                'discount_limit': profile.discount_default_limit if film.use_system_discount_policy else film.discount_limit,
             })
         else:
             vals.update({
@@ -316,6 +347,9 @@ class WofFilmSetupWizard(models.TransientModel):
                 'tax_enabled': profile.operation_tax_enabled,
                 'tax_id': profile.operation_tax_id.id if profile.operation_tax_id else False,
                 'price_input_mode': profile.operation_price_input_mode,
+                'use_system_discount_policy': True,
+                'discount_enabled': profile.discount_enabled,
+                'discount_limit': profile.discount_default_limit,
             })
         # Infer the Stage-2 mode from existing data for backward-compatible upgrades.
         if film and activity.supports_color_grades and film.item_type == 'film':
@@ -482,6 +516,9 @@ class WofFilmSetupWizard(models.TransientModel):
             'tax_enabled': tax_enabled,
             'tax_id': tax_id.id if tax_id else False,
             'price_input_mode': price_input_mode,
+            'use_system_discount_policy': self.use_system_discount_policy,
+            'discount_enabled': self.system_discount_enabled if self.use_system_discount_policy else self.discount_enabled,
+            'discount_limit': self.system_discount_limit if self.use_system_discount_policy else self.discount_limit,
         }
         if self.film_id:
             self.film_id.write(vals)
@@ -757,8 +794,16 @@ class WofFilmSetupWizard(models.TransientModel):
         self.pricing_tab = 'commission'
         return self._dialog_action()
 
+    def _continue_to_discount(self):
+        """Move to discounts without changing pricing data."""
+        self.ensure_one()
+        self.current_step = 'discount'
+        self.pricing_tab = 'price'
+        self._prepare_commercial_lines()
+        return self._dialog_action()
+
     def _continue_to_commission(self):
-        """Move to commissions without changing the pricing data."""
+        """Move from discounts to commissions without changing pricing data."""
         self.ensure_one()
         self.current_step = 'commission'
         self.pricing_tab = 'commission'
@@ -790,7 +835,27 @@ class WofFilmSetupWizard(models.TransientModel):
                 'view_mode': 'form',
                 'target': 'new',
             }
+        return self._continue_to_discount()
+
+    def action_continue_discount(self):
+        self.ensure_one()
+        if not self.film_id:
+            self._save_basic()
+        self.film_id.write({
+            'use_system_discount_policy': self.use_system_discount_policy,
+            'discount_enabled': self.system_discount_enabled if self.use_system_discount_policy else self.discount_enabled,
+            'discount_limit': self.system_discount_limit if self.use_system_discount_policy else self.discount_limit,
+        })
         return self._continue_to_commission()
+
+    def action_back_discount(self):
+        self.ensure_one()
+        self.current_step = 'discount'
+        self.pricing_tab = 'price'
+        if not self.commercial_line_ids:
+            self._prepare_commercial_lines()
+        return self._dialog_action()
+
     def action_continue_commission(self):
         """Stage 5 validates commissions and materializes derived service-area totals."""
         self.ensure_one()
@@ -907,7 +972,7 @@ class WofFilmSetupPricingWarning(models.TransientModel):
     def action_continue_commission(self):
         """Explicit user choice to continue despite incomplete pricing."""
         self.ensure_one()
-        return self.wizard_id._continue_to_commission()
+        return self.wizard_id._continue_to_discount()
 
 
 class WofFilmSetupComponentLine(models.TransientModel):
