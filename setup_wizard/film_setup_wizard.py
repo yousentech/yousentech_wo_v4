@@ -757,16 +757,9 @@ class WofFilmSetupWizard(models.TransientModel):
         self.pricing_tab = 'commission'
         return self._dialog_action()
 
-    def action_continue_pricing(self):
-        """Stage 4 validates pricing only, then hands off to commissions."""
+    def _continue_to_commission(self):
+        """Move to commissions without changing the pricing data."""
         self.ensure_one()
-        if not self.commercial_line_ids:
-            self._prepare_commercial_lines()
-        missing_prices = self.commercial_line_ids.filtered(lambda rec: not rec.price_complete)
-        if missing_prices:
-            raise ValidationError(_(
-                'أكمل تسعير جميع المكونات أو حددها كمجانية قبل المتابعة. المكونات الناقصة: %s'
-            ) % '، '.join(missing_prices.mapped('part_name')))
         self.current_step = 'commission'
         self.pricing_tab = 'commission'
         # Rebuild the transient commercial list, then expose structural child
@@ -775,6 +768,49 @@ class WofFilmSetupWizard(models.TransientModel):
         for area in self.commercial_line_ids.filtered(lambda rec: rec.part_type == 'service_area' and rec.part_line_id.service_commission_source == 'from_parts'):
             area._ensure_commission_basis_lines()
         return self._dialog_action()
+
+    def action_continue_pricing(self):
+        """Warn about incomplete prices, but allow the user to continue."""
+        self.ensure_one()
+        if not self.commercial_line_ids:
+            self._prepare_commercial_lines()
+        missing_prices = self.commercial_line_ids.filtered(
+            lambda rec: not rec.commission_basis_only and not rec.price_complete
+        )
+        if missing_prices:
+            warning = self.env['wof.film.setup.pricing.warning'].create({
+                'wizard_id': self.id,
+                'missing_names': '، '.join(missing_prices.mapped('part_name')),
+            })
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('تنبيه: التسعير غير مكتمل'),
+                'res_model': 'wof.film.setup.pricing.warning',
+                'res_id': warning.id,
+                'view_mode': 'form',
+                'target': 'new',
+            }
+        return self._continue_to_commission()
+
+
+class WofFilmSetupPricingWarning(models.TransientModel):
+    _name = 'wof.film.setup.pricing.warning'
+    _description = 'تنبيه التسعير غير المكتمل'
+
+    wizard_id = fields.Many2one(
+        'wof.film.setup.wizard', required=True, readonly=True, ondelete='cascade',
+    )
+    missing_names = fields.Text(string='المكونات غير المكتملة', readonly=True)
+
+    def action_complete_pricing(self):
+        """Close this warning and return to the unchanged pricing step."""
+        self.ensure_one()
+        return self.wizard_id._dialog_action()
+
+    def action_continue_commission(self):
+        """Explicit user choice to continue despite incomplete pricing."""
+        self.ensure_one()
+        return self.wizard_id._continue_to_commission()
 
     def action_continue_commission(self):
         """Stage 5 validates commissions and materializes derived service-area totals."""
