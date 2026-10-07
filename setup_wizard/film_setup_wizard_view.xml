@@ -557,8 +557,7 @@
           <templates><t t-name="kanban-box"><div class="wof_stage4_component_card" t-att-class="record.price_complete.raw_value ? 'is-complete' : 'is-missing'">
             <div class="wof_stage4_component_head"><div class="wof_stage4_component_identity"><span class="wof_stage4_kind"><i t-att-class="record.part_type.raw_value == 'service_area' ? 'fa fa-folder' : 'fa fa-cube'" title="النوع"/></span><div><strong><field name="part_name"/></strong></div><span class="wof_stage4_type"><t t-if="record.part_type.raw_value == 'service_area'">منطقة خدمة</t><t t-else="">جزء سيارة</t></span></div>
             <div><span class="wof_stage4_status is-free" t-if="record.price_is_free.raw_value"><i class="fa fa-gift" title="مجاني"/> مجاني</span><span class="wof_stage4_status" t-elif="record.price_complete.raw_value"><i class="fa fa-check-circle" title="مكتمل"/> مكتمل</span><span class="wof_stage4_status is-warn" t-else=""><i class="fa fa-exclamation-triangle" title="ناقص"/> يحتاج تسعير</span></div>
-            <button name="action_toggle_price" type="object" class="btn wof_stage4_toggle"><i t-att-class="record.price_expanded.raw_value ? 'fa fa-chevron-up' : 'fa fa-chevron-down'" title="فتح/طي"/></button></div>
-            <div class="wof_stage4_component_body" t-if="record.price_expanded.raw_value"><div class="wof_stage4_saved_summary"><span><field name="price_summary"/></span><small t-if="record.part_type.raw_value == 'service_area'">منطقة الخدمة تُباع كوحدة واحدة، وأجزاؤها لا تُسعّر منفردة هنا.</small><small t-else="">يمكن تعديل التسعير في أي وقت قبل التفعيل.</small></div><button name="action_edit_price" type="object" class="btn btn-outline-primary"><i class="fa fa-pencil" title="إجراء"/> <t t-if="record.price_complete.raw_value">تعديل التسعير</t><t t-else="">تحديد التسعير</t></button></div>
+            </div>
           </div></t></templates></kanban>
       </field>
     </section>
