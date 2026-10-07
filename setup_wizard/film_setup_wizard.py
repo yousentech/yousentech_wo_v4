@@ -791,27 +791,6 @@ class WofFilmSetupWizard(models.TransientModel):
                 'target': 'new',
             }
         return self._continue_to_commission()
-
-
-class WofFilmSetupPricingWarning(models.TransientModel):
-    _name = 'wof.film.setup.pricing.warning'
-    _description = 'تنبيه التسعير غير المكتمل'
-
-    wizard_id = fields.Many2one(
-        'wof.film.setup.wizard', required=True, readonly=True, ondelete='cascade',
-    )
-    missing_names = fields.Text(string='المكونات غير المكتملة', readonly=True)
-
-    def action_complete_pricing(self):
-        """Close this warning and return to the unchanged pricing step."""
-        self.ensure_one()
-        return self.wizard_id._dialog_action()
-
-    def action_continue_commission(self):
-        """Explicit user choice to continue despite incomplete pricing."""
-        self.ensure_one()
-        return self.wizard_id._continue_to_commission()
-
     def action_continue_commission(self):
         """Stage 5 validates commissions and materializes derived service-area totals."""
         self.ensure_one()
@@ -909,6 +888,26 @@ class WofFilmSetupPricingWarning(models.TransientModel):
             self.hub_id._refresh_films()
             return self.hub_id._reopen_hub()
         return {'type': 'ir.actions.act_window_close'}
+
+
+class WofFilmSetupPricingWarning(models.TransientModel):
+    _name = 'wof.film.setup.pricing.warning'
+    _description = 'تنبيه التسعير غير المكتمل'
+
+    wizard_id = fields.Many2one(
+        'wof.film.setup.wizard', required=True, readonly=True, ondelete='cascade',
+    )
+    missing_names = fields.Text(string='المكونات غير المكتملة', readonly=True)
+
+    def action_complete_pricing(self):
+        """Close this warning and return to the unchanged pricing step."""
+        self.ensure_one()
+        return self.wizard_id._dialog_action()
+
+    def action_continue_commission(self):
+        """Explicit user choice to continue despite incomplete pricing."""
+        self.ensure_one()
+        return self.wizard_id._continue_to_commission()
 
 
 class WofFilmSetupComponentLine(models.TransientModel):
