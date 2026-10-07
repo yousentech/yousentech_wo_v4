@@ -95,3 +95,5 @@ access_wof_film_setup_value_entry_settings,wof.film.setup.value.entry.settings,m
 access_wof_film_setup_value_entry_manager,wof.film.setup.value.entry.manager,model_wof_film_setup_value_entry,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_film_setup_area_template_line_settings,film.setup.area.template.line.settings,model_wof_film_setup_service_area_template_line,yousentech_wo_v4.group_wo_settings,1,1,1,1
 access_film_setup_area_template_line_manager,film.setup.area.template.line.manager,model_wof_film_setup_service_area_template_line,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_film_setup_pricing_warning_settings,wof.film.setup.pricing.warning.settings,model_wof_film_setup_pricing_warning,yousentech_wo_v4.group_wo_settings,1,1,1,1
+access_wof_film_setup_pricing_warning_manager,wof.film.setup.pricing.warning.manager,model_wof_film_setup_pricing_warning,yousentech_wo_v4.group_wo_manager,1,1,1,1
