@@ -32,6 +32,10 @@
                 <field name="selected_tint_count" invisible="1"/>
                 <field name="tint_required" invisible="1"/>
                 <field name="component_view_mode" invisible="1"/>
+                <field name="system_discount_enabled" invisible="1"/>
+                <field name="system_discount_limit" invisible="1"/>
+                <field name="system_discount_scope" invisible="1"/>
+                <field name="system_discount_allow_override" invisible="1"/>
 
                 <field name="pricing_tab" invisible="1"/><div class="wof_film_setup_shell">
                     <div class="wof_film_setup_header">
@@ -43,23 +47,14 @@
                         </div>
                     </div>
 
-                    <div class="wof_film_setup_steps wof_six_steps">
-                        <div class="wof_film_step is-active" invisible="current_step != 'basic'"><span class="wof_film_step_no">1</span><strong>البيانات الأساسية</strong></div>
-                        <div class="wof_film_step is-done" invisible="current_step == 'basic'"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>البيانات الأساسية</strong></div>
-                        <div class="wof_film_step" invisible="current_step in ('tint','components','pricing','commission','review')"><span class="wof_film_step_no">2</span><strong>درجات اللون</strong></div>
-                        <div class="wof_film_step is-active" invisible="current_step != 'tint'"><span class="wof_film_step_no">2</span><strong>درجات اللون</strong></div>
-                        <div class="wof_film_step is-done" invisible="current_step not in ('components','pricing','commission','review')"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>درجات اللون</strong></div>
-                        <div class="wof_film_step" invisible="current_step in ('components','pricing','commission','review')"><span class="wof_film_step_no">3</span><strong>المكونات</strong></div>
-                        <div class="wof_film_step is-active" invisible="current_step != 'components'"><span class="wof_film_step_no">3</span><strong>المكونات</strong></div>
-                        <div class="wof_film_step is-done" invisible="current_step not in ('pricing','commission','review')"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>المكونات</strong></div>
-                        <div class="wof_film_step" invisible="current_step in ('pricing','commission','review')"><span class="wof_film_step_no">4</span><strong>التسعير</strong></div>
-                        <div class="wof_film_step is-active" invisible="current_step != 'pricing'"><span class="wof_film_step_no">4</span><strong>التسعير</strong></div>
-                        <div class="wof_film_step is-done" invisible="current_step not in ('commission','review')"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>التسعير</strong></div>
-                        <div class="wof_film_step" invisible="current_step in ('commission','review')"><span class="wof_film_step_no">5</span><strong>العمولات</strong></div>
-                        <div class="wof_film_step is-active" invisible="current_step != 'commission'"><span class="wof_film_step_no">5</span><strong>العمولات</strong></div>
-                        <div class="wof_film_step is-done" invisible="current_step != 'review'"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>العمولات</strong></div>
-                        <div class="wof_film_step" invisible="current_step == 'review'"><span class="wof_film_step_no">6</span><strong>المراجعة والتفعيل</strong></div>
-                        <div class="wof_film_step is-active" invisible="current_step != 'review'"><span class="wof_film_step_no">6</span><strong>المراجعة والتفعيل</strong></div>
+                    <div class="wof_film_setup_steps wof_seven_steps">
+                        <div class="wof_film_step is-active" invisible="current_step != 'basic'"><span class="wof_film_step_no">1</span><strong>البيانات الأساسية</strong></div><div class="wof_film_step is-done" invisible="current_step == 'basic'"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>البيانات الأساسية</strong></div>
+                        <div class="wof_film_step" invisible="current_step in ('tint','components','pricing','discount','commission','review')"><span class="wof_film_step_no">2</span><strong>درجات اللون</strong></div><div class="wof_film_step is-active" invisible="current_step != 'tint'"><span class="wof_film_step_no">2</span><strong>درجات اللون</strong></div><div class="wof_film_step is-done" invisible="current_step not in ('components','pricing','discount','commission','review')"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>درجات اللون</strong></div>
+                        <div class="wof_film_step" invisible="current_step in ('components','pricing','discount','commission','review')"><span class="wof_film_step_no">3</span><strong>المكونات</strong></div><div class="wof_film_step is-active" invisible="current_step != 'components'"><span class="wof_film_step_no">3</span><strong>المكونات</strong></div><div class="wof_film_step is-done" invisible="current_step not in ('pricing','discount','commission','review')"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>المكونات</strong></div>
+                        <div class="wof_film_step" invisible="current_step in ('pricing','discount','commission','review')"><span class="wof_film_step_no">4</span><strong>التسعير</strong></div><div class="wof_film_step is-active" invisible="current_step != 'pricing'"><span class="wof_film_step_no">4</span><strong>التسعير</strong></div><div class="wof_film_step is-done" invisible="current_step not in ('discount','commission','review')"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>التسعير</strong></div>
+                        <div class="wof_film_step" invisible="current_step in ('discount','commission','review')"><span class="wof_film_step_no">5</span><strong>الخصومات</strong></div><div class="wof_film_step is-active" invisible="current_step != 'discount'"><span class="wof_film_step_no">5</span><strong>الخصومات</strong></div><div class="wof_film_step is-done" invisible="current_step not in ('commission','review')"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>الخصومات</strong></div>
+                        <div class="wof_film_step" invisible="current_step in ('commission','review')"><span class="wof_film_step_no">6</span><strong>العمولات</strong></div><div class="wof_film_step is-active" invisible="current_step != 'commission'"><span class="wof_film_step_no">6</span><strong>العمولات</strong></div><div class="wof_film_step is-done" invisible="current_step != 'review'"><span class="wof_film_step_no"><i class="fa fa-check" title="مكتمل"/></span><strong>العمولات</strong></div>
+                        <div class="wof_film_step" invisible="current_step == 'review'"><span class="wof_film_step_no">7</span><strong>المراجعة والتفعيل</strong></div><div class="wof_film_step is-active" invisible="current_step != 'review'"><span class="wof_film_step_no">7</span><strong>المراجعة والتفعيل</strong></div>
                     </div>
                     <div class="wof_film_top_nav_zone">
                     <div invisible="current_step != 'basic'" class="wof_film_top_nav wof_film_setup_footer">
@@ -83,8 +78,9 @@
                         <button name="action_continue_components" string="التالي: التسعير" type="object" class="btn btn-primary"/>
                     </div>
                 </div>
-                    <div invisible="current_step != 'pricing'" class="wof_film_top_nav wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_components" string="السابق: المكونات" type="object" class="btn btn-outline-primary"/><button name="action_continue_pricing" string="التالي: العمولات" type="object" class="btn btn-primary"/></div></div>
-                    <div invisible="current_step != 'commission'" class="wof_film_top_nav wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_pricing" string="السابق: التسعير" type="object" class="btn btn-outline-primary"/><button name="action_continue_commission" string="التالي: المراجعة والتفعيل" type="object" class="btn btn-primary"/></div></div>
+                    <div invisible="current_step != 'pricing'" class="wof_film_top_nav wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_components" string="السابق: المكونات" type="object" class="btn btn-outline-primary"/><button name="action_continue_pricing" string="التالي: الخصومات" type="object" class="btn btn-primary"/></div></div>
+                    <div invisible="current_step != 'discount'" class="wof_film_top_nav wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_pricing" string="السابق: التسعير" type="object" class="btn btn-outline-primary"/><button name="action_continue_discount" string="التالي: العمولات" type="object" class="btn btn-primary"/></div></div>
+                    <div invisible="current_step != 'commission'" class="wof_film_top_nav wof_film_setup_footer wof_stage4_footer"><button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/><div class="wof_film_footer_actions"><button name="action_back_discount" string="السابق: الخصومات" type="object" class="btn btn-outline-primary"/><button name="action_continue_commission" string="التالي: المراجعة والتفعيل" type="object" class="btn btn-primary"/></div></div>
                     <div invisible="current_step != 'review'" class="wof_film_top_nav wof_film_setup_footer wof_completion_footer">
                     <button name="action_cancel" string="إلغاء" type="object" class="btn btn-secondary"/>
                     <div class="wof_film_footer_actions">
@@ -574,6 +570,35 @@
       </div>
       <div class="wof_summary_policy"><span>سياسة التسعير</span><strong><field name="pricing_policy" readonly="1" nolabel="1"/></strong></div>
       <div class="wof_summary_note"><i class="fa fa-info-circle" title="معلومة"/> يمكن جعل حجم سيارة مجانيًا بشكل مستقل، ويُحفظ المجاني بسعر صفر وبدون ضريبة.</div>
+    </aside>
+  </div>
+</div>
+<div class="wof_stage4_shell wof_discount_stage" invisible="current_step != 'discount'">
+  <div class="wof_stage4_intro"><i class="fa fa-percent" title="الخصومات"/> حدد سياسة الخصم لهذه الخدمة. ترث سياسة الشركة افتراضيًا، ويمكن تخصيصها دون تغيير التسعير الأساسي.</div>
+  <div class="wof_stage4_body">
+    <section class="wof_stage4_main">
+      <div class="wof_stage4_head"><div><h2>سياسة الخصومات</h2><p>سياسة واضحة وموروثة افتراضيًا، مع إمكانية تخصيص هذه الخدمة فقط.</p></div><span class="wof_stage4_status" invisible="not use_system_discount_policy"><i class="fa fa-link" title="موروث"/> موروثة من النظام</span><span class="wof_stage4_status is-warn" invisible="use_system_discount_policy"><i class="fa fa-pencil" title="مخصص"/> سياسة مخصصة</span></div>
+      <div class="wof_discount_wizard_grid">
+        <div class="wof_discount_wizard_card is-primary">
+          <div class="wof_stage4_component_identity"><span class="wof_stage4_kind"><i class="fa fa-building" title="سياسة النظام"/></span><div><strong>سياسة الشركة</strong><small>المصدر الأساسي لهذه الخدمة.</small></div></div>
+          <div class="wof_discount_policy_facts"><span><b invisible="not system_discount_enabled">مفعلة</b><b invisible="system_discount_enabled">معطلة</b></span><span>الحد <b><field name="system_discount_limit" readonly="1" nolabel="1"/>%</b></span><span><field name="system_discount_scope" readonly="1" nolabel="1"/></span></div>
+        </div>
+        <div class="wof_discount_wizard_card">
+          <div class="wof_discount_switch_row"><div><strong>استخدام سياسة النظام</strong><small>موصى به للحفاظ على سياسة موحدة. أوقفه فقط إذا كانت لهذه الخدمة سياسة مختلفة.</small></div><field name="use_system_discount_policy" widget="boolean_toggle" nolabel="1"/></div>
+        </div>
+        <div class="wof_discount_wizard_card is-full" invisible="use_system_discount_policy">
+          <div class="wof_stage4_component_identity"><span class="wof_stage4_kind"><i class="fa fa-sliders" title="تخصيص"/></span><div><strong>سياسة خاصة بهذه الخدمة</strong><small>هذا التخصيص لا يغير سياسة الشركة ولا أسعار الخدمة.</small></div></div>
+          <div class="wof_discount_override_grid"><div><span class="o_form_label">السماح بالخصم</span><field name="discount_enabled" widget="boolean_toggle" nolabel="1"/></div><div invisible="not discount_enabled"><span class="o_form_label">الحد الأقصى للخصم</span><div class="wof_discount_percent_field"><field name="discount_limit" nolabel="1"/><span>%</span></div></div></div>
+        </div>
+      </div>
+      <div class="wof_stage4_policy_note"><i class="fa fa-info-circle" title="معلومة"/> حدود المكوّن وحجم السيارة تستخدم نفس محرك السياسة. حد الحجم محفوظ على سطر التسعير نفسه لتجنب ازدواج البيانات.</div>
+    </section>
+    <aside class="wof_film_setup_summary wof_components_summary wof_pricing_summary">
+      <div class="wof_summary_topline"><span>سياسة الخصم</span><span class="wof_summary_status"><i class="fa fa-shield" title="محكومة"/> محكومة</span></div><div class="wof_summary_icon"><i class="fa fa-percent" title="الخصومات"/></div><h2><field name="activity_id" readonly="1" nolabel="1"/></h2>
+      <div class="wof_summary_policy"><span>مصدر السياسة</span><strong invisible="not use_system_discount_policy">سياسة النظام</strong><strong invisible="use_system_discount_policy">سياسة الخدمة</strong></div>
+      <div class="wof_summary_policy"><span>حالة الخصم</span><strong invisible="not use_system_discount_policy"><span invisible="not system_discount_enabled">مفعّل</span><span invisible="system_discount_enabled">معطّل</span></strong><strong invisible="use_system_discount_policy"><span invisible="not discount_enabled">مفعّل</span><span invisible="discount_enabled">معطّل</span></strong></div>
+      <div class="wof_summary_policy"><span>الحد</span><strong invisible="not use_system_discount_policy"><field name="system_discount_limit" readonly="1" nolabel="1"/>%</strong><strong invisible="use_system_discount_policy"><field name="discount_limit" readonly="1" nolabel="1"/>%</strong></div>
+      <div class="wof_summary_note"><i class="fa fa-shield" title="التجاوز"/> طلب تجاوز الحد <span invisible="not system_discount_allow_override">متاح حسب سياسة الشركة.</span><span invisible="system_discount_allow_override">غير متاح.</span></div>
     </aside>
   </div>
 </div>
