@@ -9397,3 +9397,144 @@ body:has(.modal.show .wof_activity_hub_form),
     box-shadow:none!important;
     background:transparent!important;
 }
+
+
+/* Discount policy — reuses the approved setup-wizard visual language. */
+.wof_discount_policy_panel,
+.wof_discount_center {
+    --wof-discount-teal: #2f858b;
+    --wof-discount-soft: #eef8f8;
+    --wof-discount-line: #d7e5e6;
+}
+.wof_discount_status {
+    align-items: center;
+    background: #e8f6ee;
+    border-radius: 7px;
+    color: #2f7046;
+    display: flex;
+    font-size: 12px;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 7px 9px;
+}
+.wof_discount_status.is-off {
+    background: #f3f4f5;
+    color: #6f7a80;
+}
+.wof_discount_percent_field {
+    align-items: center;
+    display: flex;
+    gap: 7px;
+    max-width: 190px;
+}
+.wof_discount_percent_field .o_field_widget {
+    flex: 1 1 auto;
+}
+.wof_discount_percent_field input {
+    border: 1px solid #c8d3d5 !important;
+    border-radius: 7px !important;
+    min-height: 36px;
+    text-align: center;
+}
+.wof_discount_percent_field input:focus {
+    border-color: var(--wof-discount-teal) !important;
+    box-shadow: 0 0 0 2px rgba(47, 133, 139, .10);
+}
+.wof_discount_percent_field > span {
+    color: #486064;
+    font-weight: 700;
+}
+.wof_discount_percent_field.compact {
+    max-width: 145px;
+}
+.wof_discount_center {
+    background: #fff;
+    border: 1px solid var(--wof-discount-line);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.wof_discount_center_head {
+    align-items: center;
+    background: linear-gradient(90deg, #f5fbfb 0%, #edf7f7 100%);
+    border-bottom: 1px solid var(--wof-discount-line);
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    padding: 18px 22px;
+}
+.wof_discount_center_head h2 {
+    color: #263b3d;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 7px 0 3px;
+}
+.wof_discount_center_head p {
+    color: #68777c;
+    font-size: 13px;
+    margin: 0;
+}
+.wof_discount_center_grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 16px;
+}
+.wof_discount_center_card {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #d9e1e2;
+    border-radius: 9px;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: auto minmax(0, 1fr) minmax(120px, auto);
+    min-height: 92px;
+    padding: 13px 14px;
+}
+.wof_discount_center_card strong,
+.wof_discount_center_card small {
+    display: block;
+}
+.wof_discount_center_card strong {
+    color: #29383e;
+    font-size: 13px;
+}
+.wof_discount_center_card small {
+    color: #758187;
+    font-size: 11px;
+    margin-top: 3px;
+}
+.wof_discount_center_disabled {
+    align-items: center;
+    color: #69767c;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    min-height: 120px;
+    padding: 20px;
+    text-align: start;
+}
+.wof_discount_center_disabled > i {
+    background: #f0f3f3;
+    border-radius: 50%;
+    font-size: 18px;
+    padding: 12px;
+}
+.wof_discount_center_disabled strong,
+.wof_discount_center_disabled small {
+    display: block;
+}
+.wof_discount_center_disabled small {
+    margin-top: 3px;
+}
+@media (max-width: 850px) {
+    .wof_discount_center_grid {
+        grid-template-columns: 1fr;
+    }
+    .wof_discount_center_card {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+    .wof_discount_center_card > .o_field_widget,
+    .wof_discount_center_card > .wof_discount_percent_field {
+        grid-column: 2;
+    }
+}
