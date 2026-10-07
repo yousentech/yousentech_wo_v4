@@ -308,7 +308,8 @@ class WofCompanyProfile(models.Model):
             'operation_price_input_mode', 'operation_pricing_policy',
             'operation_auto_invoice', 'operation_allow_multiple_technicians',
             'operation_technician_required',
-            'payment_policy', 'discount_scope', 'commission_event',
+            'payment_policy', 'discount_scope', 'discount_enabled', 'discount_default_limit',
+            'discount_allow_override_request', 'discount_reason_required_from', 'commission_event',
             'required_vehicle_data', 'use_inventory', 'use_appointments',
             'advanced_pricing', 'advanced_commission',
         }
