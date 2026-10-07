@@ -9538,3 +9538,17 @@ body:has(.modal.show .wof_activity_hub_form),
         grid-column: 2;
     }
 }
+
+.wof_discount_wizard_grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.wof_discount_wizard_card{background:#fff;border:1px solid #d9e1e2;border-radius:9px;padding:14px;min-height:92px}
+.wof_discount_wizard_card.is-primary{background:#f5fbfb;border-color:#cfe4e5}
+.wof_discount_wizard_card.is-full{grid-column:1/-1}
+.wof_discount_switch_row{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.wof_discount_switch_row strong,.wof_discount_switch_row small{display:block}
+.wof_discount_switch_row small{color:#758187;font-size:11px;margin-top:4px}
+.wof_discount_policy_facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.wof_discount_policy_facts>span{background:#eef6f6;border:1px solid #d9e7e8;border-radius:7px;color:#52666a;font-size:12px;padding:6px 9px}
+.wof_discount_override_grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+.wof_discount_override_grid>div{background:#f8fafb;border:1px solid #e1e7e8;border-radius:8px;padding:11px}
+.wof_seven_steps .wof_film_step{min-width:0}
+@media(max-width:850px){.wof_discount_wizard_grid,.wof_discount_override_grid{grid-template-columns:1fr}.wof_discount_wizard_card.is-full{grid-column:auto}}
