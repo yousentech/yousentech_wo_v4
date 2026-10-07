@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_wof_film_setup_pricing_warning_form" model="ir.ui.view">
+        <field name="name">wof.film.setup.pricing.warning.form</field>
+        <field name="model">wof.film.setup.pricing.warning</field>
+        <field name="arch" type="xml">
+            <form string="تنبيه: التسعير غير مكتمل" create="0" edit="0" delete="0">
+                <field name="wizard_id" invisible="1"/>
+                <div class="alert alert-warning mb-3" role="alert">
+                    <strong>التسعير غير مكتمل.</strong>
+                    <div class="mt-1">بعض المكونات ما زالت تحتاج تسعيراً. يمكنك إكمال التسعيرات الآن أو المتابعة إلى العمولات والعودة للتسعير لاحقاً.</div>
+                </div>
+                <group>
+                    <field name="missing_names" nolabel="1" readonly="1"/>
+                </group>
+                <footer>
+                    <button name="action_complete_pricing" string="إكمال التسعيرات" type="object" class="btn btn-primary"/>
+                    <button name="action_continue_commission" string="المتابعة إلى العمولات" type="object" class="btn btn-outline-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
