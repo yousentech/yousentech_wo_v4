@@ -12,6 +12,7 @@
                 <field name="film_id" invisible="1"/>
                 <field name="mode" invisible="1"/>
                 <field name="current_step" invisible="1"/>
+                <field name="commission_warning_open" invisible="1"/>
                 <field name="supports_color_grades" invisible="1"/>
                 <field name="use_system_tax_policy" invisible="1"/>
                 <field name="tax_enabled" invisible="1"/>
@@ -37,7 +38,16 @@
                 <field name="system_discount_scope" invisible="1"/>
                 <field name="system_discount_allow_override" invisible="1"/>
 
-                <field name="pricing_tab" invisible="1"/><div class="wof_film_setup_shell">
+                <field name="pricing_tab" invisible="1"/><div class="wof_commission_inline_overlay" invisible="not commission_warning_open or current_step != 'commission'">
+                    <div class="wof_commission_inline_backdrop"/>
+                    <div class="wof_commission_inline_dialog">
+                        <div class="wof_commission_inline_title"><i class="fa fa-exclamation-triangle" title="تنبيه"/> <strong>العمولات غير مكتملة</strong></div>
+                        <p>بعض المكونات لم تُحدد عمولتها بعد. يمكنك إكمالها الآن أو المتابعة إلى المراجعة دون تغيير القيم الناقصة.</p>
+                        <div class="wof_commission_inline_missing"><strong>المكونات التي تحتاج إكمال العمولة</strong><field name="commission_warning_names" readonly="1" nolabel="1"/></div>
+                        <div class="wof_commission_inline_actions"><button name="action_dismiss_commission_warning" string="إكمال العمولات" type="object" class="btn btn-secondary"/><button name="action_confirm_incomplete_commissions" string="المتابعة إلى المراجعة" type="object" class="btn btn-primary"/></div>
+                    </div>
+                </div>
+                <div class="wof_film_setup_shell">
                     <div class="wof_film_setup_header">
                         <h1>إضافة فيلم / خدمة جديدة</h1>
                         <p>أدخل البيانات الأساسية أولاً، ثم أكمل درجات اللون والمكونات والأسعار في الخطوات التالية.</p>
