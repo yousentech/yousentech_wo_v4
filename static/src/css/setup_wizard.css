@@ -9552,3 +9552,22 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_discount_override_grid>div{background:#f8fafb;border:1px solid #e1e7e8;border-radius:8px;padding:11px}
 .wof_seven_steps .wof_film_step{min-width:0}
 @media(max-width:850px){.wof_discount_wizard_grid,.wof_discount_override_grid{grid-template-columns:1fr}.wof_discount_wizard_card.is-full{grid-column:auto}}
+
+/* Compact commission completion confirmation: isolate from the full-size setup wizard. */
+.modal-dialog:has(.wof_commission_warning_form){max-width:560px!important;width:calc(100% - 32px)!important;margin:1.75rem auto!important}
+.modal:has(.wof_commission_warning_form) .modal-content{height:auto!important;min-height:0!important;max-height:calc(100vh - 48px)!important}
+.modal:has(.wof_commission_warning_form) .modal-body{height:auto!important;min-height:0!important;overflow-y:auto!important}
+.wof_commission_warning_form{min-height:0!important;height:auto!important}
+.wof_commission_warning_form .o_form_sheet_bg,.wof_commission_warning_form .o_form_sheet{min-height:0!important;height:auto!important;max-width:100%!important;padding:0!important;margin:0!important;box-shadow:none!important}
+.wof_commission_warning_form .o_form_renderer{min-height:0!important}
+.wof_commission_warning_content{padding:18px 20px 10px}
+.wof_commission_warning_heading{display:flex;align-items:flex-start;gap:12px}
+.wof_commission_warning_icon{display:flex;align-items:center;justify-content:center;flex:none;width:38px;height:38px;border-radius:10px;background:#fff1d5;color:#9b6818;font-size:17px}
+.wof_commission_warning_heading h3{font-size:16px;font-weight:750;color:#253b3f;margin:1px 0 6px}
+.wof_commission_warning_heading p{font-size:12px;line-height:1.8;color:#62757b;margin:0}
+.wof_commission_warning_missing{margin-top:14px;padding:10px 12px;background:#f5fafb;border:1px solid #dbe9ea;border-radius:8px}
+.wof_commission_warning_missing>strong{display:block;font-size:12px;color:#2f858b;margin-bottom:5px}
+.wof_commission_warning_missing .o_field_widget{display:block;width:100%}
+.wof_commission_warning_missing textarea,.wof_commission_warning_missing .o_field_text{min-height:0!important;max-height:90px!important;overflow-y:auto!important;font-size:12px!important;line-height:1.6!important;border:0!important;background:transparent!important;box-shadow:none!important;resize:none!important}
+.wof_commission_warning_form footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px!important}
+.wof_commission_warning_form footer .btn-primary{background:#2f858b!important;border-color:#2f858b!important}
