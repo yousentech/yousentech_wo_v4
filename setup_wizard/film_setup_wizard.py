@@ -856,23 +856,38 @@ class WofFilmSetupWizard(models.TransientModel):
             self._prepare_commercial_lines()
         return self._dialog_action()
 
+    def _continue_to_review(self):
+        """Preserve all entered commission values and open final review."""
+        self.ensure_one()
+        self.current_step = 'review'
+        return self._dialog_action()
+
     def action_continue_commission(self):
-        """Stage 5 validates commissions and materializes derived service-area totals."""
+        """Warn for missing commissions, with an explicit choice to continue."""
         self.ensure_one()
         if not self.commercial_line_ids:
             self._prepare_commercial_lines()
-        # Derived service-area commission rows are snapshots used by the current
-        # runtime pricing resolver. Their source remains the child components.
+        # Preserve the existing calculation for service areas derived from parts.
         for line in self.commercial_line_ids.filtered(lambda rec: rec.part_type == 'service_area'):
             if line.part_line_id.service_commission_source == 'from_parts':
                 line._sync_commission_from_children()
-        missing_commissions = self.commercial_line_ids.filtered(lambda rec: not rec.commission_complete)
+        missing_commissions = self.commercial_line_ids.filtered(
+            lambda rec: not rec.commission_complete
+        )
         if missing_commissions:
-            raise ValidationError(_(
-                'أكمل إعداد عمولة جميع المكونات قبل المتابعة. المكونات الناقصة: %s'
-            ) % '، '.join(missing_commissions.mapped('part_name')))
-        self.current_step = 'review'
-        return self._dialog_action()
+            warning = self.env['wof.film.setup.commission.warning'].create({
+                'wizard_id': self.id,
+                'missing_names': '، '.join(missing_commissions.mapped('part_name')),
+            })
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('تنبيه: العمولات غير مكتملة'),
+                'res_model': 'wof.film.setup.commission.warning',
+                'res_id': warning.id,
+                'view_mode': 'form',
+                'target': 'new',
+            }
+        return self._continue_to_review()
 
     def action_back_pricing(self):
         self.ensure_one()
@@ -973,6 +988,24 @@ class WofFilmSetupPricingWarning(models.TransientModel):
         """Explicit user choice to continue despite incomplete pricing."""
         self.ensure_one()
         return self.wizard_id._continue_to_discount()
+
+
+class WofFilmSetupCommissionWarning(models.TransientModel):
+    _name = 'wof.film.setup.commission.warning'
+    _description = 'تنبيه العمولات غير المكتملة'
+
+    wizard_id = fields.Many2one(
+        'wof.film.setup.wizard', required=True, readonly=True, ondelete='cascade',
+    )
+    missing_names = fields.Text(string='المكونات غير المكتملة', readonly=True)
+
+    def action_complete_commission(self):
+        self.ensure_one()
+        return self.wizard_id._dialog_action()
+
+    def action_continue_review(self):
+        self.ensure_one()
+        return self.wizard_id._continue_to_review()
 
 
 class WofFilmSetupComponentLine(models.TransientModel):
