@@ -9571,3 +9571,17 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_commission_warning_missing textarea,.wof_commission_warning_missing .o_field_text{min-height:0!important;max-height:90px!important;overflow-y:auto!important;font-size:12px!important;line-height:1.6!important;border:0!important;background:transparent!important;box-shadow:none!important;resize:none!important}
 .wof_commission_warning_form footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px!important}
 .wof_commission_warning_form footer .btn-primary{background:#2f858b!important;border-color:#2f858b!important}
+
+/* Confirmation is rendered within the film wizard: never replace its dialog. */
+.wof_film_setup_form .wof_commission_inline_overlay:not(.d-none){position:absolute;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px}
+.wof_film_setup_form .wof_commission_inline_overlay .wof_commission_inline_backdrop{position:absolute;inset:0;background:rgba(21,38,42,.42);border-radius:8px}
+.wof_film_setup_form .wof_commission_inline_dialog{position:relative;z-index:1;width:min(100%,480px);background:#fff;border-radius:10px;box-shadow:0 16px 55px rgba(20,35,40,.23);padding:22px;color:#34474c}
+.wof_commission_inline_title{display:flex;align-items:center;gap:9px;font-size:16px;color:#263f43}
+.wof_commission_inline_title i{color:#b77b22;background:#fff2d9;padding:11px;border-radius:9px}
+.wof_commission_inline_dialog p{font-size:12px;line-height:1.8;margin:12px 0;color:#61767b}
+.wof_commission_inline_missing{background:#f4fafb;border:1px solid #d7e9eb;border-radius:8px;padding:12px;font-size:12px}
+.wof_commission_inline_missing strong{display:block;color:#2f858b;margin-bottom:7px}
+.wof_commission_inline_missing .o_field_widget{display:block;max-height:85px;overflow:auto;white-space:pre-wrap}
+.wof_commission_inline_actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:20px}
+.wof_commission_inline_actions .btn-primary{background:#2f858b!important;border-color:#2f858b!important}
+.wof_film_setup_form .o_form_sheet_bg:has(.wof_commission_inline_overlay){position:relative}
