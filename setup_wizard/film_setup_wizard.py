@@ -27,6 +27,9 @@ class WofFilmSetupWizard(models.TransientModel):
         default='basic', required=True, readonly=True,
     )
 
+    commission_warning_open = fields.Boolean(default=False, readonly=True)
+    commission_warning_names = fields.Text(readonly=True)
+
     # Stage 1 — basic information.
     item_type = fields.Selection(
         [('film', 'فيلم'), ('service', 'خدمة')], string='نوع العنصر', default='film', required=True,
@@ -875,18 +878,24 @@ class WofFilmSetupWizard(models.TransientModel):
             lambda rec: not rec.commission_complete
         )
         if missing_commissions:
-            warning = self.env['wof.film.setup.commission.warning'].create({
-                'wizard_id': self.id,
-                'missing_names': '، '.join(missing_commissions.mapped('part_name')),
+            self.write({
+                'commission_warning_open': True,
+                'commission_warning_names': '، '.join(missing_commissions.mapped('part_name')),
             })
-            return {
-                'type': 'ir.actions.act_window',
-                'name': _('تنبيه: العمولات غير مكتملة'),
-                'res_model': 'wof.film.setup.commission.warning',
-                'res_id': warning.id,
-                'view_mode': 'form',
-                'target': 'new',
-            }
+            return self._dialog_action()
+        self.commission_warning_open = False
+        return self._continue_to_review()
+
+    def action_dismiss_commission_warning(self):
+        self.ensure_one()
+        self.commission_warning_open = False
+        return self._dialog_action()
+
+    def action_confirm_incomplete_commissions(self):
+        self.ensure_one()
+        if not self.commission_warning_open or self.current_step != 'commission':
+            raise ValidationError(_('لا يوجد تنبيه عمولات قيد التأكيد.'))
+        self.commission_warning_open = False
         return self._continue_to_review()
 
     def action_back_pricing(self):
