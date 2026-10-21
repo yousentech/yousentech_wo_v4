@@ -9606,3 +9606,35 @@ body:has(.modal.show .wof_activity_hub_form),
     filter:grayscale(.65);
     pointer-events:none!important;
 }
+
+/* Seven-stage film wizard: keep all steps on one compact horizontal row. */
+.wof_film_setup_form .wof_film_setup_steps.wof_seven_steps{
+    display:grid!important;
+    grid-template-columns:repeat(7,minmax(0,1fr))!important;
+    gap:4px!important;
+    padding-inline:14px!important;
+    min-height:54px!important;
+    overflow-x:auto!important;
+}
+.wof_film_setup_form .wof_seven_steps .wof_film_step{
+    min-width:0!important;
+    gap:4px!important;
+    min-height:34px!important;
+    white-space:nowrap!important;
+}
+.wof_film_setup_form .wof_seven_steps .wof_film_step strong{
+    font-size:10px!important;
+    line-height:1.2!important;
+    white-space:nowrap!important;
+}
+.wof_film_setup_form .wof_seven_steps .wof_film_step_no{
+    flex:0 0 auto!important;
+    width:21px!important;
+    height:21px!important;
+    font-size:10px!important;
+}
+@media(max-width:780px){
+    .wof_film_setup_form .wof_film_setup_steps.wof_seven_steps{
+        grid-template-columns:repeat(7,minmax(104px,1fr))!important;
+    }
+}
