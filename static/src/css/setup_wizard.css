@@ -9585,3 +9585,17 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_commission_inline_actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:20px}
 .wof_commission_inline_actions .btn-primary{background:#2f858b!important;border-color:#2f858b!important}
 .wof_film_setup_form .o_form_sheet_bg:has(.wof_commission_inline_overlay){position:relative}
+
+/* Disable every underlying wizard control while the inline confirmation is visible.
+   Odoo uses o_invisible_modifier for invisible expressions; keep the selector scoped
+   to this exact overlay so normal wizard interactions remain unchanged. */
+.wof_film_setup_form:has(.wof_commission_inline_overlay:not(.o_invisible_modifier):not(.d-none)) .wof_film_setup_shell{
+    pointer-events:none!important;
+    user-select:none;
+}
+.wof_film_setup_form .wof_commission_inline_overlay:not(.o_invisible_modifier):not(.d-none){
+    pointer-events:auto!important;
+}
+.wof_film_setup_form .wof_commission_inline_overlay:not(.o_invisible_modifier):not(.d-none) .wof_commission_inline_dialog{
+    pointer-events:auto!important;
+}
