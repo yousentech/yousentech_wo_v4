@@ -9763,3 +9763,26 @@ body:has(.modal.show .wof_activity_hub_form),
         scrollbar-width: thin;
     }
 }
+
+
+/* Wizard navigation follows Odoo's document language direction.
+   Default LTR: start at the left; RTL locales: start at the right.
+   Do not force direction or reverse the DOM order. */
+.wof_setup_form .wof_wizard_nav_start,
+.wof_film_setup_form .wof_wizard_nav_start {
+    justify-content: flex-start !important;
+}
+.wof_film_setup_form .wof_wizard_nav_buttons {
+    justify-content: flex-start !important;
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+}
+.wof_setup_form .wof_wizard_nav_start > .wof_stage2_prev_wrap {
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+}
+@media (max-width: 600px) {
+    .wof_film_setup_form .wof_wizard_nav_buttons {
+        justify-content: flex-start !important;
+    }
+}
