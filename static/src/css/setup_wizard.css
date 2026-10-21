@@ -9638,3 +9638,128 @@ body:has(.modal.show .wof_activity_hub_form),
         grid-template-columns:repeat(7,minmax(104px,1fr))!important;
     }
 }
+
+
+/* Unified setup/film wizard navigation and safe responsive scrolling.
+   Scoped to these two forms; no changes to business actions or field logic. */
+.wof_setup_form .wof_stage1_footer,
+.wof_film_setup_form .wof_film_top_nav {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+}
+.wof_setup_form .wof_stage1_footer > button,
+.wof_film_setup_form .wof_film_top_nav button {
+    min-height: 36px;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.wof_setup_form .wof_stage1_footer > p {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+.wof_film_setup_form .wof_film_footer_actions {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+}
+.wof_setup_form .wof_stage1_shell,
+.wof_setup_form .wof_stage5_shell,
+.wof_film_setup_form .wof_film_setup_shell {
+    min-width: 0 !important;
+}
+.wof_setup_form .wof_stage1_body_panel,
+.wof_setup_form .wof_stage4_tab_panel {
+    min-height: 0;
+}
+@media (min-width: 901px) {
+    /* Allow the existing stage body to scroll without clipping long tables. */
+    .wof_setup_form .wof_stage4_tab_panel {
+        overflow-y: auto !important;
+        overflow-x: auto !important;
+    }
+    .wof_setup_form .wof_stage4_notebook .tab-content,
+    .wof_setup_form .wof_stage4_notebook .o_notebook_content {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+}
+@media (max-width: 900px) {
+    .modal-dialog:has(.wof_setup_form),
+    .modal-dialog:has(.wof_film_setup_form) {
+        width: calc(100vw - 16px) !important;
+        max-width: calc(100vw - 16px) !important;
+        margin: 8px auto !important;
+    }
+    .modal-content:has(.wof_setup_form),
+    .modal-content:has(.wof_film_setup_form) {
+        max-height: calc(100dvh - 16px) !important;
+    }
+    .modal-content:has(.wof_setup_form) > .modal-body,
+    .modal-content:has(.wof_film_setup_form) > .modal-body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        min-height: 0 !important;
+        overscroll-behavior: contain;
+    }
+    .wof_setup_form .wof_stage1_shell,
+    .wof_setup_form .wof_stage5_shell,
+    .wof_film_setup_form .wof_film_setup_shell {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+    }
+    .wof_film_setup_form .wof_film_setup_body,
+    .wof_film_setup_form .wof_film_tint_stage,
+    .wof_film_setup_form .wof_film_components_stage,
+    .wof_film_setup_form .wof_stage4_shell,
+    .wof_film_setup_form .wof_film_stage_handoff,
+    .wof_film_setup_form .wof_completion_stage {
+        max-height: none !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+    }
+    .wof_film_setup_form .wof_film_top_nav_zone {
+        position: sticky !important;
+        top: 0 !important;
+        bottom: auto !important;
+        z-index: 25 !important;
+        margin-inline: 8px !important;
+    }
+    .wof_setup_form .wof_stage1_footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 20;
+        background: #fff;
+        padding: 10px !important;
+        border-top: 1px solid #d7e6e7;
+    }
+}
+@media (max-width: 600px) {
+    .wof_film_setup_form .wof_film_top_nav {
+        padding: 9px !important;
+    }
+    .wof_film_setup_form .wof_film_footer_actions {
+        flex: 1 1 100%;
+        justify-content: stretch;
+    }
+    .wof_film_setup_form .wof_film_footer_actions > button {
+        flex: 1 1 140px;
+    }
+    .wof_setup_form .wof_stage1_footer > button {
+        flex: 1 1 145px;
+    }
+    .wof_film_setup_form .wof_film_setup_steps.wof_seven_steps {
+        overscroll-behavior-x: contain;
+        scrollbar-width: thin;
+    }
+}
