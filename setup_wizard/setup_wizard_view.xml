@@ -272,7 +272,7 @@
 
                             </div>
 
-                            <div class="wof_stage1_footer">
+                            <div class="wof_stage1_footer wof_wizard_nav_start">
                             <button name="action_open_setup_center" type="object" class="btn btn-secondary wof_setup_back_center"><i class="fa fa-arrow-right" title="رجوع"/> رجوع إلى مركز التهيئة</button>
                             <p><i class="fa fa-info-circle" title="معلومة"/> يمكنك تفعيل أو تعطيل الأنشطة لاحقًا من مركز التهيئة.</p>
                             <button name="action_next" type="object" class="btn btn-primary wof_stage1_next">
@@ -371,7 +371,7 @@
                                 </div>
                             </div>
 
-                            <div class="wof_stage1_footer wof_stage2_footer">
+                            <div class="wof_stage1_footer wof_wizard_nav_start wof_stage2_footer">
                                 <div class="wof_stage2_prev_wrap">
                                     <button name="action_previous" type="object" class="btn btn-secondary wof_stage2_prev">
                                         <i class="fa fa-arrow-right" title="السابق"/> السابق: الأنشطة
@@ -501,7 +501,7 @@
                                 </div>
                             </div>
 
-                            <div class="wof_stage1_footer wof_stage2_footer wof_stage3_footer">
+                            <div class="wof_stage1_footer wof_wizard_nav_start wof_stage2_footer wof_stage3_footer">
                                 <div class="wof_stage2_prev_wrap">
                                     <button name="action_previous" type="object" class="btn btn-secondary wof_stage2_prev">
                                         <i class="fa fa-arrow-right" title="السابق"/> السابق: أحجام السيارات
@@ -719,7 +719,7 @@
                                 </notebook>
                             </div>
 
-                            <div class="wof_stage1_footer wof_stage2_footer wof_stage4_footer">
+                            <div class="wof_stage1_footer wof_wizard_nav_start wof_stage2_footer wof_stage4_footer">
                                 <div class="wof_stage2_prev_wrap">
                                     <button name="action_previous" type="object" class="btn btn-secondary wof_stage2_prev"><i class="fa fa-arrow-right" title="السابق"/> السابق: درجات اللون</button>
                                     
@@ -748,7 +748,7 @@
                             </div>
                         </div>
 
-                        <div class="wof_stage1_footer wof_stage5_footer wof_stage5_top_actions" invisible="state == 'ready'">
+                        <div class="wof_stage1_footer wof_wizard_nav_start wof_stage5_footer wof_stage5_top_actions" invisible="state == 'ready'">
                             <button name="action_previous" type="object" class="btn btn-secondary"><i class="fa fa-arrow-right" title="السابق"/> السابق: التشغيل</button>
                             <button name="action_activate" type="object" class="btn btn-primary wof_stage5_activate" invisible="not readiness_ok"><i class="fa fa-check" title="تفعيل"/> تفعيل النظام</button>
                             <span class="btn btn-primary wof_stage5_activate disabled" invisible="readiness_ok"><i class="fa fa-lock" title="غير جاهز"/> تفعيل النظام</span>
