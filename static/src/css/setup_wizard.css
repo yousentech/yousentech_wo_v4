@@ -9599,3 +9599,10 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_film_setup_form .wof_commission_inline_overlay:not(.o_invisible_modifier):not(.d-none) .wof_commission_inline_dialog{
     pointer-events:auto!important;
 }
+
+/* Keep the top navigation visually subdued while commission confirmation is open. */
+.wof_film_setup_form:has(.wof_commission_inline_overlay:not(.o_invisible_modifier):not(.d-none)) .wof_film_top_nav_zone{
+    opacity:.42!important;
+    filter:grayscale(.65);
+    pointer-events:none!important;
+}
