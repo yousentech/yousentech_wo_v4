@@ -273,6 +273,7 @@
                             </div>
 
                             <div class="wof_stage1_footer">
+                            <button name="action_open_setup_center" type="object" class="btn btn-secondary wof_setup_back_center"><i class="fa fa-arrow-right" title="رجوع"/> رجوع إلى مركز التهيئة</button>
                             <p><i class="fa fa-info-circle" title="معلومة"/> يمكنك تفعيل أو تعطيل الأنشطة لاحقًا من مركز التهيئة.</p>
                             <button name="action_next" type="object" class="btn btn-primary wof_stage1_next">
                                 التالي: أحجام السيارات <i class="fa fa-arrow-left" title="التالي"/>
