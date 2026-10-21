@@ -9765,24 +9765,66 @@ body:has(.modal.show .wof_activity_hub_form),
 }
 
 
-/* Wizard navigation follows Odoo's document language direction.
-   Default LTR: start at the left; RTL locales: start at the right.
-   Do not force direction or reverse the DOM order. */
+
+/* Unified navigation: Odoo controls writing direction; no forced direction. */
 .wof_setup_form .wof_wizard_nav_start,
 .wof_film_setup_form .wof_wizard_nav_start {
-    justify-content: flex-start !important;
+    display:flex!important;
+    justify-content:space-between!important;
+    align-items:center!important;
+    flex-wrap:wrap!important;
+    gap:8px 12px!important;
 }
-.wof_film_setup_form .wof_wizard_nav_buttons {
-    justify-content: flex-start !important;
-    margin-inline-start: 0 !important;
-    margin-inline-end: 0 !important;
+.wof_setup_form .wof_wizard_nav_start > button[name="action_next"],
+.wof_setup_form .wof_wizard_nav_start > button[name="action_activate"],
+.wof_setup_form .wof_wizard_nav_start > .wof_stage5_activate.disabled {
+    order:-1!important;
+    margin-inline:0!important;
 }
-.wof_setup_form .wof_wizard_nav_start > .wof_stage2_prev_wrap {
-    margin-inline-start: 0 !important;
-    margin-inline-end: 0 !important;
+.wof_setup_form .wof_wizard_nav_start > .wof_stage2_prev_wrap,
+.wof_setup_form .wof_wizard_nav_start > button[name="action_previous"],
+.wof_setup_form .wof_wizard_nav_start > button[name="action_open_setup_center"] {
+    order:1!important;
+    margin-inline:0!important;
 }
-@media (max-width: 600px) {
-    .wof_film_setup_form .wof_wizard_nav_buttons {
-        justify-content: flex-start !important;
+.wof_setup_form .wof_wizard_nav_start > p {
+    order:0!important;
+    flex:1 1 160px;
+    margin-inline:0!important;
+}
+.wof_film_setup_form .wof_wizard_nav_start:has(> button[name="action_cancel"]) > .wof_wizard_nav_buttons {
+    order:-1!important;
+    display:flex!important;
+    flex:0 1 auto!important;
+    justify-content:flex-start!important;
+    flex-wrap:wrap!important;
+    gap:8px!important;
+    margin-inline:0!important;
+}
+.wof_film_setup_form .wof_wizard_nav_start > button[name="action_cancel"] {
+    order:1!important;
+    margin-inline:0!important;
+}
+.wof_film_setup_form .wof_wizard_nav_start .wof_wizard_nav_buttons > button[name="action_continue"] {
+    order:-1!important;
+}
+.wof_film_setup_form .wof_wizard_nav_start:not(:has(> button[name="action_cancel"])) > .wof_wizard_nav_buttons {
+    display:contents!important;
+}
+.wof_film_setup_form .wof_wizard_nav_start .wof_wizard_nav_buttons > button[name^="action_continue"],
+.wof_film_setup_form .wof_wizard_nav_start .wof_wizard_nav_buttons > button[name="action_activate_service"] {
+    order:-1!important;
+    margin-inline:0!important;
+}
+.wof_film_setup_form .wof_wizard_nav_start .wof_wizard_nav_buttons > button[name^="action_back"] {
+    order:1!important;
+    margin-inline:0!important;
+}
+@media(max-width:600px) {
+    .wof_film_setup_form .wof_wizard_nav_start:not(:has(> button[name="action_cancel"])) > .wof_wizard_nav_buttons {
+        display:contents!important;
+    }
+    .wof_film_setup_form .wof_wizard_nav_start .wof_wizard_nav_buttons > button {
+        flex:0 1 auto!important;
     }
 }
