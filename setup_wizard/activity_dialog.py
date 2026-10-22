@@ -74,9 +74,7 @@ class WofSetupActivityDialog(models.TransientModel):
         return self.profile_id._wizard_action()
 
     def action_cancel(self):
-        """Return explicitly to Stage 1 instead of falling back to the caller screen."""
+        """Dismiss this child dialog without saving or navigating the parent."""
         self.ensure_one()
-        if not self.profile_id:
-            return {'type': 'ir.actions.act_window_close'}
-        return self.profile_id._wizard_action()
+        return {'type': 'ir.actions.act_window_close'}
 
