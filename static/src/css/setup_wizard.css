@@ -9859,3 +9859,31 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_film_setup_form .wof_components_footer > button[name="action_back_tint"] {
     order:1!important;
 }
+
+
+/* Final film review: compact content, no inner scrollbar. */
+.wof_film_setup_form .wof_review_redesign.wof_completion_stage{display:block;width:100%;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:10px auto!important;padding:0 10px 12px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.wof_film_setup_form .wof_review_redesign::before,.wof_film_setup_form .wof_review_redesign::after{display:none!important}
+.wof_film_setup_form .wof_review_panel{max-width:920px;margin-inline:auto;padding:22px;border:1px solid #dbe6e7;border-radius:14px;background:#fff;box-shadow:0 7px 25px rgba(27,73,78,.045)}
+.wof_film_setup_form .wof_review_heading{display:flex;align-items:center;gap:15px;padding-bottom:20px;border-bottom:1px solid #e5eeee}
+.wof_film_setup_form .wof_review_heading>div{flex:1;min-width:0}
+.wof_film_setup_form .wof_review_heading_icon{display:grid;place-items:center;width:52px;height:52px;flex:0 0 52px;border-radius:14px;background:#e5f5ef;color:#248866;font-size:27px}
+.wof_film_setup_form .wof_review_eyebrow{display:block;color:#658b8d;font-size:11px;font-weight:700}
+.wof_film_setup_form .wof_review_heading h2{margin:4px 0!important;color:#203d42;font-size:21px!important;font-weight:800}
+.wof_film_setup_form .wof_review_heading p{margin:0;color:#73858b;font-size:12px;line-height:1.7}
+.wof_film_setup_form .wof_review_status{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;border-radius:100px;padding:7px 11px;background:#eaf7ef;color:#2b8455;font-size:11px;font-weight:700}
+.wof_film_setup_form .wof_review_details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.wof_film_setup_form .wof_review_detail{display:flex;align-items:center;gap:12px;min-width:0;padding:16px;border:1px solid #e0e9ea;border-radius:11px;background:#fbfdfd}
+.wof_film_setup_form .wof_review_detail_icon{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:10px;background:#e7f4f5;color:#2f858b}
+.wof_film_setup_form .wof_review_detail>div{min-width:0}
+.wof_film_setup_form .wof_review_detail small{display:block;margin-bottom:5px;color:#7d8f92;font-size:11px}
+.wof_film_setup_form .wof_review_detail strong{display:block;color:#263e42;font-size:14px;overflow-wrap:anywhere}
+.wof_film_setup_form .wof_review_confirmation{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:10px;background:#eef8f6;color:#387c78}
+.wof_film_setup_form .wof_review_confirmation>i{font-size:18px;margin-top:2px}
+.wof_film_setup_form .wof_review_confirmation>div{display:flex;flex-direction:column;gap:4px}
+.wof_film_setup_form .wof_review_confirmation strong{font-size:12px}
+.wof_film_setup_form .wof_review_confirmation span{font-size:11px;line-height:1.6}
+.wof_film_setup_form .wof_completion_footer.wof_wizard_nav_start{justify-content:space-between!important;gap:12px!important}
+.wof_film_setup_form .wof_completion_footer>button[name="action_back_commission"]{order:-1!important;margin-inline:0!important}
+.wof_film_setup_form .wof_completion_footer>button[name="action_activate_service"]{order:1!important;margin-inline:0!important;min-height:38px}
+@media(max-width:700px){.wof_film_setup_form .wof_review_panel{padding:15px}.wof_film_setup_form .wof_review_heading{align-items:flex-start;flex-wrap:wrap}.wof_film_setup_form .wof_review_details{grid-template-columns:minmax(0,1fr)}}
