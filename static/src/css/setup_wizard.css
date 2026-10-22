@@ -9778,13 +9778,13 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_setup_form .wof_wizard_nav_start > button[name="action_next"],
 .wof_setup_form .wof_wizard_nav_start > button[name="action_activate"],
 .wof_setup_form .wof_wizard_nav_start > .wof_stage5_activate.disabled {
-    order:-1!important;
+    order:1!important;
     margin-inline:0!important;
 }
 .wof_setup_form .wof_wizard_nav_start > .wof_stage2_prev_wrap,
 .wof_setup_form .wof_wizard_nav_start > button[name="action_previous"],
 .wof_setup_form .wof_wizard_nav_start > button[name="action_open_setup_center"] {
-    order:1!important;
+    order:-1!important;
     margin-inline:0!important;
 }
 .wof_setup_form .wof_wizard_nav_start > p {
@@ -9793,7 +9793,7 @@ body:has(.modal.show .wof_activity_hub_form),
     margin-inline:0!important;
 }
 .wof_film_setup_form .wof_wizard_nav_start:has(> button[name="action_cancel"]) > .wof_wizard_nav_buttons {
-    order:-1!important;
+    order:1!important;
     display:flex!important;
     flex:0 1 auto!important;
     justify-content:flex-start!important;
@@ -9802,22 +9802,22 @@ body:has(.modal.show .wof_activity_hub_form),
     margin-inline:0!important;
 }
 .wof_film_setup_form .wof_wizard_nav_start > button[name="action_cancel"] {
-    order:1!important;
+    order:-1!important;
     margin-inline:0!important;
 }
 .wof_film_setup_form .wof_wizard_nav_start .wof_wizard_nav_buttons > button[name="action_continue"] {
-    order:-1!important;
+    order:1!important;
 }
 .wof_film_setup_form .wof_wizard_nav_start:not(:has(> button[name="action_cancel"])) > .wof_wizard_nav_buttons {
     display:contents!important;
 }
 .wof_film_setup_form .wof_wizard_nav_start .wof_wizard_nav_buttons > button[name^="action_continue"],
 .wof_film_setup_form .wof_wizard_nav_start .wof_wizard_nav_buttons > button[name="action_activate_service"] {
-    order:-1!important;
+    order:1!important;
     margin-inline:0!important;
 }
 .wof_film_setup_form .wof_wizard_nav_start .wof_wizard_nav_buttons > button[name^="action_back"] {
-    order:1!important;
+    order:-1!important;
     margin-inline:0!important;
 }
 @media(max-width:600px) {
