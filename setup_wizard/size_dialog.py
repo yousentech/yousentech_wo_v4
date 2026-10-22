@@ -79,7 +79,6 @@ class WofSetupSizeDialog(models.TransientModel):
         return self.profile_id._wizard_action()
 
     def action_cancel(self):
+        """Dismiss this child dialog without changing the setup stage."""
         self.ensure_one()
-        if not self.profile_id:
-            return {'type': 'ir.actions.act_window_close'}
-        return self.profile_id._wizard_action()
+        return {'type': 'ir.actions.act_window_close'}
