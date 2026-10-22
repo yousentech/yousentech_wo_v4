@@ -9828,3 +9828,16 @@ body:has(.modal.show .wof_activity_hub_form),
         flex:0 1 auto!important;
     }
 }
+
+
+/* Film navigation: buttons are direct flex children, just like setup wizard.
+   Primary on the left in Arabic, back on the right; Odoo supplies direction. */
+.wof_film_setup_form .wof_wizard_nav_start > button[name^="action_continue"],
+.wof_film_setup_form .wof_wizard_nav_start > button[name="action_activate_service"] {
+    order:1!important;
+    margin-inline:0!important;
+}
+.wof_film_setup_form .wof_wizard_nav_start > button[name^="action_back"] {
+    order:-1!important;
+    margin-inline:0!important;
+}
