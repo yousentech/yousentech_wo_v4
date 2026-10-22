@@ -9841,3 +9841,21 @@ body:has(.modal.show .wof_activity_hub_form),
     order:-1!important;
     margin-inline:0!important;
 }
+
+
+/* Film wizard ONLY: basic, tint and components match the approved later stages.
+   Do not touch general setup, pricing, discount, commission or review. */
+.wof_film_setup_form .wof_wizard_nav_start:has(> button[name="action_cancel"]) > .wof_wizard_nav_buttons {
+    order:-1!important;
+}
+.wof_film_setup_form .wof_wizard_nav_start > button[name="action_cancel"] {
+    order:1!important;
+}
+.wof_film_setup_form .wof_tint_footer > button[name="action_continue_tint"],
+.wof_film_setup_form .wof_components_footer > button[name="action_continue_components"] {
+    order:-1!important;
+}
+.wof_film_setup_form .wof_tint_footer > button[name="action_back_basic"],
+.wof_film_setup_form .wof_components_footer > button[name="action_back_tint"] {
+    order:1!important;
+}
