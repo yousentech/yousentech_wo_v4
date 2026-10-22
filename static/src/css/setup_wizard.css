@@ -9887,3 +9887,61 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_film_setup_form .wof_completion_footer>button[name="action_back_commission"]{order:1!important;margin-inline:0!important}
 .wof_film_setup_form .wof_completion_footer>button[name="action_activate_service"]{order:-1!important;margin-inline:0!important;min-height:38px}
 @media(max-width:700px){.wof_film_setup_form .wof_review_panel{padding:15px}.wof_film_setup_form .wof_review_heading{align-items:flex-start;flex-wrap:wrap}.wof_film_setup_form .wof_review_details{grid-template-columns:minmax(0,1fr)}}
+
+
+/* Film wizard after removing redundant sidebars: full-width, responsive work area.
+   Scoped to film setup; setup wizard and business actions are unchanged. */
+.wof_film_setup_form .wof_film_setup_body,
+.wof_film_setup_form .wof_stage4_body,
+.wof_film_setup_form .wof_stage5_body,
+.wof_film_setup_form .wof_stage6_body {
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    grid-template-columns:minmax(0,1fr)!important;
+}
+.wof_film_setup_form .wof_film_setup_main,
+.wof_film_setup_form .wof_stage4_main,
+.wof_film_setup_form .wof_stage5_main,
+.wof_film_setup_form .wof_stage6_main {
+    display:block;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    flex:1 1 100%!important;
+    grid-column:1/-1!important;
+    margin-inline:0!important;
+}
+.wof_film_setup_form .wof_film_setup_card,
+.wof_film_setup_form .wof_components_main_card,
+.wof_film_setup_form .wof_tint_main_card,
+.wof_film_setup_form .wof_stage4_main,
+.wof_film_setup_form .wof_stage5_main,
+.wof_film_setup_form .wof_stage6_main {
+    max-width:100%!important;
+    min-width:0!important;
+}
+.wof_film_setup_form .wof_film_compact_sections {
+    width:100%;
+    min-width:0;
+}
+.wof_film_setup_form .wof_components_toolbar,
+.wof_film_setup_form .wof_stage4_head,
+.wof_film_setup_form .wof_stage5_head,
+.wof_film_setup_form .wof_stage6_head {
+    flex-wrap:wrap;
+    gap:10px;
+}
+@media(max-width:760px) {
+    .wof_film_setup_form .wof_film_setup_main,
+    .wof_film_setup_form .wof_stage4_main,
+    .wof_film_setup_form .wof_stage5_main,
+    .wof_film_setup_form .wof_stage6_main {
+        overflow-x:auto;
+        max-width:100%!important;
+    }
+    .wof_film_setup_form .wof_film_fields_grid {
+        grid-template-columns:minmax(0,1fr)!important;
+    }
+}
