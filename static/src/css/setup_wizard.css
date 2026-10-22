@@ -9884,6 +9884,6 @@ body:has(.modal.show .wof_activity_hub_form),
 .wof_film_setup_form .wof_review_confirmation strong{font-size:12px}
 .wof_film_setup_form .wof_review_confirmation span{font-size:11px;line-height:1.6}
 .wof_film_setup_form .wof_completion_footer.wof_wizard_nav_start{justify-content:space-between!important;gap:12px!important}
-.wof_film_setup_form .wof_completion_footer>button[name="action_back_commission"]{order:-1!important;margin-inline:0!important}
-.wof_film_setup_form .wof_completion_footer>button[name="action_activate_service"]{order:1!important;margin-inline:0!important;min-height:38px}
+.wof_film_setup_form .wof_completion_footer>button[name="action_back_commission"]{order:1!important;margin-inline:0!important}
+.wof_film_setup_form .wof_completion_footer>button[name="action_activate_service"]{order:-1!important;margin-inline:0!important;min-height:38px}
 @media(max-width:700px){.wof_film_setup_form .wof_review_panel{padding:15px}.wof_film_setup_form .wof_review_heading{align-items:flex-start;flex-wrap:wrap}.wof_film_setup_form .wof_review_details{grid-template-columns:minmax(0,1fr)}}
