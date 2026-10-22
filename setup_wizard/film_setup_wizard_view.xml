@@ -635,27 +635,30 @@
       <div class="wof_summary_note"><i class="fa fa-info-circle" title="معلومة"/> افتح تفاصيل أي مكوّن لتحديد نوع العمولة وقيمتها وطريقة توزيعها على الفنيين.</div>
     </aside></div>
 </div>
-<div class="wof_film_stage_handoff wof_completion_stage" invisible="current_step != 'review'">
-    <div class="wof_completion_glow wof_completion_glow_one"/>
-    <div class="wof_completion_glow wof_completion_glow_two"/>
-    <div class="wof_completion_content">
-        <div class="wof_completion_icon_wrap">
-            <div class="wof_completion_icon"><i class="fa fa-check" title="اكتملت التهيئة"/></div>
+<div class="wof_film_stage_handoff wof_completion_stage wof_review_redesign" invisible="current_step != 'review'">
+    <div class="wof_review_panel">
+        <div class="wof_review_heading">
+            <span class="wof_review_heading_icon"><i class="fa fa-check-circle" title="مكتمل"/></span>
+            <div>
+                <span class="wof_review_eyebrow">المرحلة 7 من 7 · المراجعة النهائية</span>
+                <h2>مراجعة الخدمة قبل التفعيل</h2>
+                <p>اكتملت خطوات الإعداد. راجع بيانات الفيلم أو الخدمة، ثم فعّلها عندما تكون جاهزًا.</p>
+            </div>
+            <span class="wof_review_status"><i class="fa fa-check-circle" title="جاهز"/> جاهز للتفعيل</span>
         </div>
-        <div class="wof_completion_kicker"><i class="fa fa-sparkles" title="اكتملت"/> اكتملت جميع خطوات التهيئة</div>
-        <h2>اكتملت التهيئة بنجاح</h2>
-        <p class="wof_completion_lead">أصبحت الخدمة جاهزة للتفعيل والبدء باستخدامها في العمليات.</p>
-        <div class="wof_completion_identity">
-            <div class="wof_completion_identity_icon"><i class="fa fa-shield" title="الخدمة"/></div>
-            <div class="wof_completion_identity_text">
-                <span>الفيلم / الخدمة</span>
-                <strong><field name="name" readonly="1" nolabel="1"/></strong>
-                <small>النشاط: <field name="activity_id" readonly="1" nolabel="1"/></small>
+        <div class="wof_review_details">
+            <div class="wof_review_detail">
+                <span class="wof_review_detail_icon"><i class="fa fa-film" title="الفيلم أو الخدمة"/></span>
+                <div><small>الفيلم / الخدمة</small><strong><field name="name" readonly="1" nolabel="1"/></strong></div>
+            </div>
+            <div class="wof_review_detail">
+                <span class="wof_review_detail_icon"><i class="fa fa-th-large" title="النشاط"/></span>
+                <div><small>النشاط المرتبط</small><strong><field name="activity_id" readonly="1" nolabel="1"/></strong></div>
             </div>
         </div>
-        <div class="wof_completion_ready">
-            <i class="fa fa-check-circle" title="جاهز"/>
-            <div><strong>جميع خطوات التهيئة مكتملة</strong><span>كل شيء جاهز. التفعيل هو الخطوة الأخيرة.</span></div>
+        <div class="wof_review_confirmation">
+            <i class="fa fa-info-circle" title="معلومة"/>
+            <div><strong>خطوتك الأخيرة: تفعيل الخدمة</strong><span>بعد التفعيل تصبح الخدمة متاحة للاستخدام في العمليات. يمكنك الرجوع إلى العمولات للمراجعة قبل التفعيل.</span></div>
         </div>
     </div>
 </div>
