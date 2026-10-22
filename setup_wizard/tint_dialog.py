@@ -54,5 +54,6 @@ class WofSetupTintDialog(models.TransientModel):
         return self.profile_id._wizard_action()
 
     def action_cancel(self):
+        """Dismiss this child dialog without changing the setup stage."""
         self.ensure_one()
-        return self.profile_id._wizard_action() if self.profile_id else {'type': 'ir.actions.act_window_close'}
+        return {'type': 'ir.actions.act_window_close'}
