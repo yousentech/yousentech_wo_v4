@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="yousentech_wo_v4.PricingMatrix">
+        <div class="o_action wof_pm" dir="rtl">
+            <div t-if="state.loading" class="wof_pm_loading">جارٍ تحميل الأسعار والعمولات…</div>
+            <div t-else="" class="wof_pm_wrap">
+
+                <!-- Header -->
+                <header class="wof_pm_head">
+                    <button type="button" class="btn btn-light wof_pm_back" t-on-click="back">
+                        <i class="fa fa-arrow-right" aria-hidden="true"/>
+                        <span>رجوع</span>
+                    </button>
+                    <div class="wof_pm_title">
+                        <div class="wof_pm_kicker"><t t-esc="data.film.activity"/> · <t t-esc="data.film.code"/></div>
+                        <h1 t-esc="data.film.name"/>
+                    </div>
+                    <div class="wof_pm_head_actions">
+                        <span t-if="state.dirty" class="wof_pm_dirty">تغييرات غير محفوظة</span>
+                        <button type="button" class="btn btn-primary wof_pm_save" t-att-disabled="!state.dirty or state.saving" t-on-click="save">
+                            <t t-if="state.saving">جارٍ الحفظ</t>
+                            <t t-else="">حفظ</t>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Readiness -->
+                <section class="wof_pm_stats" aria-label="جاهزية التسعير والعمولة">
+                    <t t-set="ready" t-value="readiness"/>
+                    <div class="wof_pm_stat">
+                        <span class="wof_pm_stat_value" t-esc="ready.total"/>
+                        <span class="wof_pm_stat_label">مكوّنات تجارية</span>
+                    </div>
+                    <div t-attf-class="wof_pm_stat {{ ready.priced === ready.total ? 'is-ok' : 'is-warn' }}">
+                        <span class="wof_pm_stat_value"><t t-esc="ready.priced"/> / <t t-esc="ready.total"/></span>
+                        <span class="wof_pm_stat_label">الأسعار المكتملة</span>
+                    </div>
+                    <div t-attf-class="wof_pm_stat {{ ready.commissioned === ready.total ? 'is-ok' : 'is-soft' }}">
+                        <span class="wof_pm_stat_value"><t t-esc="ready.commissioned"/> / <t t-esc="ready.total"/></span>
+                        <span class="wof_pm_stat_label">العمولات المكتملة</span>
+                    </div>
+                </section>
+
+                <!-- Toolbar -->
+                <section class="wof_pm_card wof_pm_toolbar">
+                    <div class="wof_pm_tabs" role="tablist" aria-label="القيم المعروضة">
+                        <button type="button" role="tab" t-att-aria-selected="state.dim === 'price' ? 'true' : 'false'" t-attf-class="wof_pm_tab {{ state.dim === 'price' ? 'is-active' : '' }}" t-on-click="() => this.setDim('price')">سعر البيع</button>
+                        <button type="button" role="tab" t-att-aria-selected="state.dim === 'commission' ? 'true' : 'false'" t-attf-class="wof_pm_tab {{ state.dim === 'commission' ? 'is-active' : '' }}" t-on-click="() => this.setDim('commission')">عمولة الفني</button>
+                    </div>
+                    <div t-if="state.dim === 'price'" class="wof_pm_policy">
+                        <span class="wof_pm_label">سياسة التسعير</span>
+                        <div class="wof_pm_seg" role="radiogroup" aria-label="سياسة التسعير">
+                            <button type="button" role="radio" t-att-aria-checked="!isBySize ? 'true' : 'false'" t-attf-class="{{ !isBySize ? 'is-on' : '' }}" t-on-click="() => this.setPolicy('fixed')">سعر موحد</button>
+                            <button type="button" role="radio" t-att-aria-checked="isBySize ? 'true' : 'false'" t-attf-class="{{ isBySize ? 'is-on' : '' }}" t-on-click="() => this.setPolicy('by_size')">حسب حجم السيارة</button>
+                        </div>
+                    </div>
+                    <div t-else="" class="wof_pm_policy">
+                        <span class="wof_pm_note">
+                            الاستحقاق:
+                            <strong t-if="data.film.commission_event === 'invoice'">بعد ترحيل الفاتورة</strong>
+                            <strong t-else="">بعد إنجاز أمر التركيب</strong>
+                        </span>
+                    </div>
+                </section>
+
+                <!-- Matrix -->
+                <section class="wof_pm_card wof_pm_table_card">
+                    <div class="wof_pm_scroll">
+                        <table class="wof_pm_table">
+                            <thead>
+                                <tr>
+                                    <th class="wof_pm_col_name">المكوّن</th>
+                                    <th class="wof_pm_col_method">الطريقة</th>
+                                    <th t-if="state.dim === 'price' and !isBySize" class="wof_pm_col_value">السعر</th>
+                                    <t t-else="">
+                                        <th t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_col_value" t-esc="size.name"/>
+                                    </t>
+                                    <th class="wof_pm_col_state">الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="data.lines" t-as="line" t-key="line.id">
+
+                                    <!-- PRICE ROW -->
+                                    <tr t-if="state.dim === 'price'" t-attf-class="wof_pm_row {{ isSelected(line) ? 'is-selected' : '' }}" t-on-click="() => this.select(line)">
+                                        <td class="wof_pm_name">
+                                            <span t-attf-class="wof_pm_tag {{ isArea(line) ? 'is-area' : 'is-part' }}"><t t-if="isArea(line)">منطقة خدمة</t><t t-else="">جزء سيارة</t></span>
+                                            <span class="wof_pm_name_text">
+                                                <strong t-esc="line.name"/>
+                                                <small t-if="isArea(line)">تُسعَّر كوحدة واحدة<t t-if="line.template_name"> · <t t-esc="line.template_name"/></t></small>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <select class="form-select wof_pm_select" t-att-aria-label="'طريقة تسعير ' + line.name" t-on-change="(ev) => this.onPriceMode(line, ev)">
+                                                <option t-foreach="priceModeOptions()" t-as="opt" t-key="opt[0]" t-att-value="opt[0]" t-att-selected="opt[0] === priceMode(line)" t-esc="opt[1]"/>
+                                            </select>
+                                        </td>
+                                        <t t-set="mode" t-value="priceMode(line)"/>
+                                        <t t-if="mode === 'size'"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell">
+                                            <t t-set="cell" t-value="priceCell(line, size)"/>
+                                            <span t-if="cell.free" class="wof_pm_free">مجاني</span>
+                                            <input t-else="" type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ cell.amount === null or cell.amount === undefined ? 'is-missing' : '' }}" t-att-value="cell.amount === null or cell.amount === undefined ? '' : cell.amount" t-att-disabled="cell.readonly" t-att-aria-label="'سعر ' + line.name + ' ' + size.name" t-on-change="(ev) => this.onPriceCell(line, size, ev)"/>
+                                            <small t-if="cell.readonly and !cell.free" class="wof_pm_hint">للقراءة فقط</small>
+                                        </td></t>
+                                        <t t-else=""><td t-att-colspan="isBySize ? sizes.length : 1" class="wof_pm_cell wof_pm_merged">
+                                            <span t-if="mode === 'free'" class="wof_pm_free">مجاني <t t-if="isBySize">لكل الأحجام</t></span>
+                                            <span t-else="" class="wof_pm_merged_inner">
+                                                <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ line.price.general.amount === null or line.price.general.amount === undefined ? 'is-missing' : '' }}" t-att-value="line.price.general.amount === null or line.price.general.amount === undefined ? '' : line.price.general.amount" t-att-aria-label="'سعر ' + line.name" t-on-change="(ev) => this.onPriceGeneral(line, ev)"/>
+                                                <small class="wof_pm_hint"><t t-esc="currency"/><t t-if="isBySize"> · لكل الأحجام</t><t t-if="line.price.general.readonly"> · للقراءة فقط</t></small>
+                                            </span>
+                                        </td></t>
+                                        <td class="wof_pm_state">
+                                            <span t-if="priceComplete(line)" class="wof_pm_pill is-ok">مكتمل</span>
+                                            <span t-else="" class="wof_pm_pill is-warn">ينقصه سعر</span>
+                                        </td>
+                                    </tr>
+
+                                    <!-- COMMISSION ROW -->
+                                    <t t-if="state.dim === 'commission'">
+                                        <tr t-attf-class="wof_pm_row {{ isSelected(line) ? 'is-selected' : '' }}" t-on-click="() => this.select(line)">
+                                            <td class="wof_pm_name">
+                                                <span t-attf-class="wof_pm_tag {{ isArea(line) ? 'is-area' : 'is-part' }}"><t t-if="isArea(line)">منطقة خدمة</t><t t-else="">جزء سيارة</t></span>
+                                                <span class="wof_pm_name_text">
+                                                    <strong t-esc="line.name"/>
+                                                    <small t-if="fromParts(line)">مجموع أجزاء <t t-esc="line.template_name or 'النموذج الافتراضي'"/></small>
+                                                    <small t-elif="line.commission.type === 'percent'">نسبة من السعر</small>
+                                                    <small t-else="">مبلغ ثابت</small>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <select class="form-select wof_pm_select" t-att-aria-label="'طريقة عمولة ' + line.name" t-on-change="(ev) => this.onCommMethod(line, null, ev)">
+                                                    <option t-foreach="commMethodOptions(line)" t-as="opt" t-key="opt[0]" t-att-value="opt[0]" t-att-selected="opt[0] === commMethod(line)" t-esc="opt[1]"/>
+                                                </select>
+                                            </td>
+                                            <t t-set="cm" t-value="commMethod(line)"/>
+                                            <t t-if="cm === 'parts'">
+                                                <t t-if="derivedBySize(line)"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell wof_pm_derived">
+                                                    <strong t-esc="fmt(commAt(line, size.id))"/>
+                                                    <small class="wof_pm_hint">مجموع الأجزاء</small>
+                                                </td></t>
+                                                <t t-else=""><td t-att-colspan="sizes.length" class="wof_pm_cell wof_pm_merged wof_pm_derived">
+                                                    <strong t-esc="fmt(commAt(line, sizes.length ? sizes[0].id : 0))"/>
+                                                    <small class="wof_pm_hint"><t t-esc="currency"/> · مجموع الأجزاء لكل الأحجام</small>
+                                                </td></t>
+                                            </t>
+                                            <t t-elif="cm === 'by_size'"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell">
+                                                <t t-set="cv" t-value="line.commission.sizes[size.id]"/>
+                                                <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ cv === null or cv === undefined ? 'is-missing' : '' }}" t-att-value="cv === null or cv === undefined ? '' : cv" t-att-aria-label="'عمولة ' + line.name + ' ' + size.name" t-on-change="(ev) => this.onCommCell(line.commission, size, ev)"/>
+                                                <small t-if="line.commission.type === 'percent' and cv !== null and cv !== undefined" class="wof_pm_hint">= <t t-esc="fmt(commAt(line, size.id))"/></small>
+                                            </td></t>
+                                            <t t-else=""><td t-att-colspan="sizes.length" class="wof_pm_cell wof_pm_merged">
+                                                <span class="wof_pm_merged_inner">
+                                                    <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ line.commission.general === null or line.commission.general === undefined ? 'is-missing' : '' }}" t-att-value="line.commission.general === null or line.commission.general === undefined ? '' : line.commission.general" t-att-aria-label="'عمولة ' + line.name" t-on-change="(ev) => this.onCommGeneral(line.commission, ev)"/>
+                                                    <small class="wof_pm_hint"><t t-if="line.commission.type === 'percent'">% من السعر</t><t t-else="" t-esc="currency"/> · لكل الأحجام</small>
+                                                </span>
+                                            </td></t>
+                                            <td class="wof_pm_state">
+                                                <span t-if="commComplete(line) and fromParts(line)" class="wof_pm_pill is-area">محسوبة</span>
+                                                <span t-elif="commComplete(line)" class="wof_pm_pill is-ok">مكتمل</span>
+                                                <span t-else="" class="wof_pm_pill is-soft">ناقصة</span>
+                                            </td>
+                                        </tr>
+                                        <t t-if="fromParts(line)">
+                                            <tr t-foreach="line.children" t-as="child" t-key="child.part_id" t-attf-class="wof_pm_row wof_pm_child {{ isSelected(line, child) ? 'is-selected' : '' }}" t-on-click="() => this.select(line, child)">
+                                                <td class="wof_pm_name">
+                                                    <span class="wof_pm_tag is-basis">أساس</span>
+                                                    <span class="wof_pm_name_text"><strong t-esc="child.name"/><small>لا يُسعَّر للعميل</small></span>
+                                                </td>
+                                                <td>
+                                                    <select class="form-select wof_pm_select" t-att-aria-label="'طريقة عمولة ' + child.name" t-on-change="(ev) => this.onCommMethod(line, child, ev)">
+                                                        <option t-foreach="commMethodOptions(line, child)" t-as="opt" t-key="opt[0]" t-att-value="opt[0]" t-att-selected="opt[0] === commMethod(line, child)" t-esc="opt[1]"/>
+                                                    </select>
+                                                </td>
+                                                <t t-if="child.commission.policy === 'by_size'"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell">
+                                                    <t t-set="kv" t-value="child.commission.sizes[size.id]"/>
+                                                    <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ kv === null or kv === undefined ? 'is-missing' : '' }}" t-att-value="kv === null or kv === undefined ? '' : kv" t-att-aria-label="'عمولة ' + child.name + ' ' + size.name" t-on-change="(ev) => this.onCommCell(child.commission, size, ev)"/>
+                                                </td></t>
+                                                <t t-else=""><td t-att-colspan="sizes.length" class="wof_pm_cell wof_pm_merged">
+                                                    <span class="wof_pm_merged_inner">
+                                                        <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ child.commission.general === null or child.commission.general === undefined ? 'is-missing' : '' }}" t-att-value="child.commission.general === null or child.commission.general === undefined ? '' : child.commission.general" t-att-aria-label="'عمولة ' + child.name" t-on-change="(ev) => this.onCommGeneral(child.commission, ev)"/>
+                                                        <small class="wof_pm_hint"><t t-esc="currency"/> · لكل الأحجام</small>
+                                                    </span>
+                                                </td></t>
+                                                <td class="wof_pm_state"/>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div t-if="!data.lines.length" class="wof_pm_empty">لا توجد مكوّنات مختارة لهذا الفيلم بعد. أضف المكوّنات أولاً من محرر الفيلم.</div>
+                </section>
+
+                <!-- Details + receipt -->
+                <section t-if="data.lines.length" class="wof_pm_bottom">
+                    <t t-set="sel" t-value="selected"/>
+                    <div class="wof_pm_card wof_pm_props">
+                        <div class="wof_pm_props_head">
+                            <div>
+                                <div class="wof_pm_kicker">خصائص السطر · <t t-if="state.dim === 'price'">السعر</t><t t-else="">العمولة</t></div>
+                                <h2 t-esc="sel.child ? sel.child.name : sel.line.name"/>
+                            </div>
+                            <span t-if="sel.child" class="wof_pm_tag is-basis">أساس عمولة</span>
+                            <span t-elif="isArea(sel.line)" class="wof_pm_tag is-area">منطقة خدمة</span>
+                            <span t-else="" class="wof_pm_tag is-part">جزء سيارة</span>
+                        </div>
+
+                        <!-- price properties -->
+                        <t t-if="state.dim === 'price'">
+                            <t t-set="pm" t-value="priceMode(sel.line)"/>
+                            <p class="wof_pm_help" t-if="isArea(sel.line)">منطقة الخدمة تُسعَّر كوحدة واحدة، وأجزاؤها لا تُسعَّر منفردة.</p>
+                            <p class="wof_pm_help" t-else="">المجاني يجعل السعر صفرًا ويلغي «للقراءة فقط». «للقراءة فقط» تمنع تعديل السعر في أمر التركيب.</p>
+                            <div t-if="pm === 'size'" class="wof_pm_flags">
+                                <div class="wof_pm_flags_head"><span>الحجم</span><span>مجاني</span><span>للقراءة فقط</span></div>
+                                <div t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_flags_row">
+                                    <t t-set="fc" t-value="priceCell(sel.line, size)"/>
+                                    <span t-esc="size.name"/>
+                                    <span><input type="checkbox" class="form-check-input" t-att-checked="fc.free" t-att-aria-label="size.name + ' مجاني'" t-on-change="() => this.toggleFree(sel.line, size)"/></span>
+                                    <span><input type="checkbox" class="form-check-input" t-att-checked="fc.readonly and !fc.free" t-att-disabled="fc.free" t-att-aria-label="size.name + ' للقراءة فقط'" t-on-change="() => this.toggleReadonly(sel.line, size)"/></span>
+                                </div>
+                            </div>
+                            <label t-if="pm === 'uniform'" class="wof_pm_check">
+                                <input type="checkbox" class="form-check-input" t-att-checked="sel.line.price.general.readonly" t-on-change="() => this.toggleGeneralReadonly(sel.line)"/>
+                                <span>السعر للقراءة فقط في أمر التركيب</span>
+                            </label>
+                            <div class="wof_pm_field">
+                                <span class="wof_pm_label">سياسة الخصم للمكوّن</span>
+                                <div class="wof_pm_seg" role="radiogroup" aria-label="سياسة الخصم">
+                                    <button type="button" role="radio" t-att-aria-checked="sel.line.discount_policy === 'inherit' ? 'true' : 'false'" t-attf-class="{{ sel.line.discount_policy === 'inherit' ? 'is-on' : '' }}" t-on-click="() => this.setDiscount(sel.line, 'inherit')">يرث سياسة الخدمة</button>
+                                    <button type="button" role="radio" t-att-aria-checked="sel.line.discount_policy === 'allow' ? 'true' : 'false'" t-attf-class="{{ sel.line.discount_policy === 'allow' ? 'is-on' : '' }}" t-on-click="() => this.setDiscount(sel.line, 'allow')">يسمح</button>
+                                    <button type="button" role="radio" t-att-aria-checked="sel.line.discount_policy === 'deny' ? 'true' : 'false'" t-attf-class="{{ sel.line.discount_policy === 'deny' ? 'is-on' : '' }}" t-on-click="() => this.setDiscount(sel.line, 'deny')">يمنع</button>
+                                </div>
+                                <label t-if="sel.line.discount_policy === 'allow'" class="wof_pm_inline">
+                                    <span>الحد الأقصى %</span>
+                                    <input type="text" inputmode="decimal" class="wof_pm_input wof_pm_small" t-att-value="sel.line.discount_limit" t-on-change="(ev) => this.onDiscountLimit(sel.line, ev)"/>
+                                </label>
+                            </div>
+                        </t>
+
+                        <!-- commission properties -->
+                        <t t-else="">
+                            <t t-set="comm" t-value="sel.child ? sel.child.commission : sel.line.commission"/>
+                            <p t-if="sel.child" class="wof_pm_help">جزء أساس للعمولة: لا يُسعَّر للعميل، وتُجمع عمولته في عمولة «<t t-esc="sel.line.name"/>».</p>
+                            <div t-if="!sel.child and isArea(sel.line)" class="wof_pm_field">
+                                <span class="wof_pm_label">مصدر عمولة المنطقة</span>
+                                <div class="wof_pm_seg" role="radiogroup" aria-label="مصدر عمولة المنطقة">
+                                    <button type="button" role="radio" t-att-aria-checked="!fromParts(sel.line) ? 'true' : 'false'" t-attf-class="{{ !fromParts(sel.line) ? 'is-on' : '' }}" t-on-click="() => this.setSource(sel.line, 'independent')">مستقلة للمنطقة</button>
+                                    <button type="button" role="radio" t-att-aria-checked="fromParts(sel.line) ? 'true' : 'false'" t-attf-class="{{ fromParts(sel.line) ? 'is-on' : '' }}" t-on-click="() => this.setSource(sel.line, 'from_parts')">من أجزاء النموذج الافتراضي</button>
+                                </div>
+                                <p class="wof_pm_help" t-if="fromParts(sel.line)">مجموع عمولات الأجزاء. إذا كان أي جزء «لكل حجم» تصبح عمولة المنطقة لكل حجم تلقائيًا.</p>
+                            </div>
+                            <t t-if="sel.child or !fromParts(sel.line)">
+                                <div class="wof_pm_field">
+                                    <span class="wof_pm_label">نوع العمولة</span>
+                                    <div class="wof_pm_seg" role="radiogroup" aria-label="نوع العمولة">
+                                        <button type="button" role="radio" t-att-aria-checked="comm.type !== 'percent' ? 'true' : 'false'" t-attf-class="{{ comm.type !== 'percent' ? 'is-on' : '' }}" t-on-click="() => this.setCommType(comm, 'fixed')">مبلغ ثابت</button>
+                                        <button type="button" role="radio" t-att-aria-checked="comm.type === 'percent' ? 'true' : 'false'" t-attf-class="{{ comm.type === 'percent' ? 'is-on' : '' }}" t-on-click="() => this.setCommType(comm, 'percent')">نسبة من السعر</button>
+                                    </div>
+                                </div>
+                                <label t-if="!sel.child" class="wof_pm_check">
+                                    <input type="checkbox" class="form-check-input" t-att-checked="comm.readonly" t-on-change="() => this.toggleCommReadonly(comm)"/>
+                                    <span>العمولة للقراءة فقط · لا يُسمح بتجاوزها</span>
+                                </label>
+                            </t>
+                            <div t-if="!sel.child" class="wof_pm_field">
+                                <span class="wof_pm_label">التوزيع بين الفنيين</span>
+                                <div class="wof_pm_seg" role="radiogroup" aria-label="التوزيع بين الفنيين">
+                                    <button t-foreach="distributionOptions(sel.line)" t-as="opt" t-key="opt[0]" type="button" role="radio" t-att-aria-checked="comm.distribution === opt[0] ? 'true' : 'false'" t-attf-class="{{ comm.distribution === opt[0] ? 'is-on' : '' }}" t-on-click="() => this.setDistribution(comm, opt[0])" t-esc="opt[1]"/>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <div class="wof_pm_card wof_pm_receipt">
+                        <t t-set="rc" t-value="receipt"/>
+                        <div class="wof_pm_kicker">معاينة فاتورة العميل</div>
+                        <div class="wof_pm_sizes" role="radiogroup" aria-label="حجم السيارة">
+                            <button t-foreach="sizes" t-as="size" t-key="size.id" type="button" role="radio" t-att-aria-checked="state.sizeId === size.id ? 'true' : 'false'" t-attf-class="{{ state.sizeId === size.id ? 'is-on' : '' }}" t-on-click="() => this.setReceiptSize(size)" t-esc="size.name"/>
+                        </div>
+                        <div class="wof_pm_receipt_lines">
+                            <div t-foreach="rc.rows" t-as="row" t-key="row.id" class="wof_pm_receipt_line">
+                                <span t-esc="row.name"/>
+                                <strong t-if="row.price === null" class="is-missing">ناقص</strong>
+                                <strong t-elif="row.price === 0" class="is-free">مجاني</strong>
+                                <strong t-else=""><t t-esc="fmt(row.price)"/> <t t-esc="currency"/></strong>
+                            </div>
+                        </div>
+                        <div class="wof_pm_receipt_tax"><span>الضريبة <t t-if="data.film.tax_rate"><t t-esc="fmt(data.film.tax_rate * 100)"/>%</t></span><span><t t-esc="fmt(rc.vat)"/> <t t-esc="currency"/></span></div>
+                        <div class="wof_pm_receipt_total"><span>الإجمالي</span><span><t t-esc="fmt(rc.total)"/> <t t-esc="currency"/></span></div>
+                        <div class="wof_pm_receipt_comm"><span>عمولة الفنيين</span><strong><t t-esc="fmt(rc.commission)"/> <t t-esc="currency"/></strong></div>
+                        <p t-if="rc.gaps.length" class="wof_pm_gaps">بلا سعر لهذا الحجم: <t t-esc="rc.gaps.join('، ')"/></p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </t>
+
+</templates>

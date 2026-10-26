@@ -78,6 +78,10 @@
                             string="إضافة مكوّن" class="btn-primary"
                             icon="fa-plus"
                             groups="yousentech_wo_v4.group_wo_manager"/>
+                    <button name="action_open_pricing_matrix" type="object"
+                            string="التسعير والعمولة" class="btn-secondary"
+                            icon="fa-table"
+                            groups="yousentech_wo_v4.group_wo_manager"/>
                 </header>
                 <sheet>
                     <field name="company_id" invisible="1"/>

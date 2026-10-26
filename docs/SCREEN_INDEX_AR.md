@@ -12,6 +12,7 @@
 | أنشطة المركز | `service-types` | UX معتمد منفذ | `screens/service_types_AR.md` |
 | محرر الخدمة/الفيلم ومكوّناته | `film-configuration` | UX معتمد منفذ | `screens/film_configuration_AR.md` |
 | أسعار وعمولات المكوّنات | `advanced-pricing` | UX معتمد منفذ | `screens/advanced_pricing_AR.md` |
+| مصفوفة التسعير والعمولة | `pricing-matrix` | منفذ (بانتظار اختبار التشغيل) | `screens/pricing_matrix_AR.md` |
 | أحجام السيارات | `car-sizes` | محسن | `screens/car_sizes_AR.md` |
 | أجزاء السيارات | `car-parts` | محسن | `screens/car_parts_AR.md` |
 | خيارات أجزاء السيارات | `car-part-options` | منفذ | `screens/car_part_options_AR.md` |

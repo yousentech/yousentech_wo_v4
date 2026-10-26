@@ -486,6 +486,7 @@
                     </div>
                     <div class="wof_stage4_shell" invisible="current_step != 'pricing'">
   <div class="wof_stage4_intro"><i class="fa fa-tag" title="التسعير"/> أكمل تسعير المكونات فقط. إذا كانت الخدمة مجانية حددها بوضوح ولن يطلب النظام أي أسعار.</div>
+  <div class="wof_matrix_banner"><div class="wof_matrix_banner_text"><strong>مصفوفة التسعير والعمولة</strong><span>كل المكونات والأحجام في جدول واحد، مع معاينة فاتورة العميل لكل حجم.</span></div><button name="action_open_pricing_matrix" type="object" string="فتح المصفوفة" class="btn btn-primary" icon="fa-table"/></div>
   <div class="wof_stage4_body">
     <section class="wof_stage4_main">
       <div class="wof_stage4_head"><div><h2>التسعير</h2><p>شاشة واحدة واضحة: المكونات المكتملة تُطوى، والناقص يبقى ظاهرًا أمامك.</p></div><div class="wof_stage4_counters"><span><strong><field name="selected_component_count" readonly="1" nolabel="1"/></strong> مكونات</span><span class="is-ok"><strong><field name="price_complete_count" readonly="1" nolabel="1"/></strong> مكتملة</span><span class="is-warn"><strong><field name="price_missing_count" readonly="1" nolabel="1"/></strong> تحتاج تسعير</span></div></div>
@@ -527,6 +528,7 @@
 </div>
 <div class="wof_stage4_shell wof_stage5_commission" invisible="current_step != 'commission'">
   <div class="wof_stage4_intro"><i class="fa fa-percent" title="العمولات"/> التسعير مكتمل. الآن حدد عمولات الفنيين فقط، مع فصل واضح بين عمولة الجزء وعمولة منطقة الخدمة.</div>
+  <div class="wof_matrix_banner"><div class="wof_matrix_banner_text"><strong>مصفوفة التسعير والعمولة</strong><span>عمولات الأجزاء ومناطق الخدمة وأجزاء النموذج في جدول واحد.</span></div><button name="action_open_pricing_matrix" type="object" string="فتح المصفوفة" class="btn btn-primary" icon="fa-table"/></div>
   <div class="wof_stage4_body"><section class="wof_stage4_main">
     <div class="wof_stage4_head"><div><h2>العمولات</h2><p>أكمل العمولات الناقصة. منطقة الخدمة يمكن أن تكون مستقلة أو تعتمد تلقائيًا على عمولات أجزائها.</p></div><div class="wof_stage4_counters"><span><strong><field name="selected_component_count" readonly="1" nolabel="1"/></strong> مكونات</span><span class="is-ok"><strong><field name="commission_complete_count" readonly="1" nolabel="1"/></strong> مكتملة</span><span class="is-warn"><strong><field name="commission_missing_count" readonly="1" nolabel="1"/></strong> تحتاج استكمال</span></div></div>
     <div class="wof_stage4_policy_strip"><span>سياسة العمولة</span><strong><field name="commission_calculation_policy" readonly="1" nolabel="1"/></strong><span>الاستحقاق:</span><strong><field name="commission_event" readonly="1" nolabel="1"/></strong></div>
