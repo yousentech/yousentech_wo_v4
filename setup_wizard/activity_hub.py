@@ -118,6 +118,11 @@ class WofActivityHub(models.TransientModel):
         self.ensure_one()
         return False
 
+    def action_open_pricing_matrix(self):
+        """Validator-safe fallback; the matrix button lives on film lines."""
+        self.ensure_one()
+        return False
+
     def action_add_film(self):
         self.ensure_one()
         self._ensure_access()
@@ -175,3 +180,7 @@ class WofActivityHubFilm(models.TransientModel):
         action.setdefault('context', {})
         action['context'].update({'wof_activity_hub_id': self.hub_id.id})
         return action
+
+    def action_open_pricing_matrix(self):
+        self.ensure_one()
+        return self.film_id.action_open_pricing_matrix()

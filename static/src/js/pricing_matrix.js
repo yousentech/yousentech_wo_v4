@@ -501,6 +501,10 @@ export class WofPricingMatrix extends Component {
             const action = await this.orm.call("wof.film.setup.wizard", "action_return_from_matrix", [[this.wizardId]], { step });
             return this.action.doAction(action);
         }
+        const config = this.env.config || {};
+        if (config.breadcrumbs && config.breadcrumbs.length > 1 && config.historyBack) {
+            return config.historyBack();
+        }
         return this.action.doAction({
             type: "ir.actions.act_window",
             res_model: "wof.film.category",

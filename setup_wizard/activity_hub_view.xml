@@ -166,6 +166,9 @@
                                                 <t t-else="">بدء التهيئة</t>
                                                 <i class="fa fa-arrow-left" title="فتح"/>
                                             </button>
+                                            <button t-if="record.parts_count.raw_value" name="action_open_pricing_matrix" type="object" class="btn btn-outline-secondary wof_hub_matrix_btn">
+                                                <i class="fa fa-table" title="مصفوفة التسعير"/> التسعير والعمولة
+                                            </button>
                                         </div>
                                     </t>
                                 </templates>
