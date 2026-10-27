@@ -106,12 +106,12 @@
 /* info / preview */
 .wof_sf_info { background: var(--sf-blue-soft); color: var(--sf-blue-ink); border-radius: 14px; padding: 16px 20px; display: flex; gap: 12px; align-items: flex-start; }
 .wof_sf_info > .fa { font-size: 18px; padding-top: 3px; }
-.wof_sf_info > div { display: flex; flex-direction: column; gap: 6px; line-height: 1.7; }
+.wof_sf_info > div:not([class]) { display: flex; flex-direction: column; gap: 6px; line-height: 1.7; }
 .wof_sf_info.is-column { flex-direction: column; gap: 12px; }
 .wof_sf_info_title { display: flex; gap: 10px; align-items: center; }
-.wof_sf_cols { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
-.wof_sf_cols > span { flex: 0 0 110px; background: #FFFFFF; border-radius: 8px; padding: 10px 12px; font-weight: 700; color: var(--sf-ink); text-align: center; }
-.wof_sf_cols > span.is-first { flex-basis: 150px; text-align: start; }
+.wof_sf_info > .wof_sf_cols, .wof_sf_cols { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; align-items: center; }
+.wof_sf_cols > span { flex: 0 0 auto; min-width: 84px; background: #FFFFFF; border-radius: 8px; padding: 6px 14px; font-size: 13.5px; font-weight: 700; color: var(--sf-ink); text-align: center; }
+.wof_sf_cols > span.is-first { min-width: 120px; text-align: start; background: transparent; border: 1.5px dashed #B7C6E8; }
 .wof_sf_info > .wof_sf_flow, .wof_sf_flow { display: flex; flex-direction: row; gap: 10px; flex-wrap: wrap; }
 .wof_sf_flow > span { background: #FFFFFF; border-radius: 10px; padding: 10px 14px; display: flex; flex-direction: column; min-width: 130px; }
 .wof_sf_flow small { font-size: 12.5px; font-weight: 600; }

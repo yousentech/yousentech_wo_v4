@@ -404,7 +404,8 @@ export class WofSetupFlow extends Component {
 
     shadeStyle(method, value, index) {
         const t = method === "percentage" ? parseInt(value, 10) / 100 : index / 4;
-        const light = Math.round(14 + (Number.isFinite(t) ? t : 0.5) * 76);
+        // 00 is clear (light), higher numbers are darker film.
+        const light = Math.round(92 - (Number.isFinite(t) ? t : 0.5) * 78);
         return `background: hsl(190, 8%, ${light}%)`;
     }
 
