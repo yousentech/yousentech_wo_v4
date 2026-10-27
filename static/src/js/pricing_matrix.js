@@ -44,6 +44,9 @@ export class WofPricingMatrix extends Component {
             sel: null,
             sizeId: null,
             dirty: false,
+            query: "",
+            onlyMissing: false,
+            side: "props",
         });
         this.fmt = fmt;
         onWillStart(() => this.load());
@@ -114,10 +117,6 @@ export class WofPricingMatrix extends Component {
 
     get selected() {
         return this.findRow(this.state.sel) || (this.data && this.data.lines.length ? { line: this.data.lines[0], child: null } : null);
-    }
-
-    select(line, child = null) {
-        this.state.sel = this.rowKey(line, child);
     }
 
     isSelected(line, child = null) {
@@ -424,6 +423,33 @@ export class WofPricingMatrix extends Component {
     }
 
     // -------------------------------------------------------------- summary
+    // Long films: filter rows by name/code and by what is still missing.
+    get visibleLines() {
+        const lines = this.data ? this.data.lines : [];
+        const q = (this.state.query || "").trim().toLowerCase();
+        return lines.filter((line) => {
+            if (q && !`${line.name} ${line.code || ""}`.toLowerCase().includes(q)) {
+                return false;
+            }
+            if (this.state.onlyMissing) {
+                return this.state.dim === "price" ? !this.priceComplete(line) : !this.commComplete(line);
+            }
+            return true;
+        });
+    }
+
+    get missingCount() {
+        const lines = this.data ? this.data.lines : [];
+        return lines.filter((line) => (this.state.dim === "price" ? !this.priceComplete(line) : !this.commComplete(line))).length;
+    }
+
+    select(line, child = null, side = null) {
+        this.state.sel = this.rowKey(line, child);
+        if (side) {
+            this.state.side = side;
+        }
+    }
+
     get readiness() {
         const lines = this.data ? this.data.lines : [];
         const priced = lines.filter((line) => this.priceComplete(line)).length;

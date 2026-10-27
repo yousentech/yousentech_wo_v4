@@ -6,47 +6,34 @@
             <div t-if="state.loading" class="wof_pm_loading">جارٍ تحميل الأسعار والعمولات…</div>
             <div t-else="" class="wof_pm_wrap">
 
-                <!-- Header -->
+                <!-- Top bar: film, progress, save -->
                 <header class="wof_pm_head">
                     <button type="button" class="btn btn-light wof_pm_back" t-on-click="back">
                         <i class="fa fa-arrow-right" aria-hidden="true"/>
                         <span>رجوع</span>
                     </button>
                     <div class="wof_pm_title">
-                        <div class="wof_pm_kicker"><t t-esc="data.film.activity"/> · <t t-esc="data.film.code"/></div>
                         <h1 t-esc="data.film.name"/>
+                        <span class="wof_pm_kicker"><t t-esc="data.film.activity"/> · <t t-esc="data.film.code"/></span>
+                    </div>
+                    <t t-set="ready" t-value="readiness"/>
+                    <div class="wof_pm_progress" aria-label="جاهزية التسعير والعمولة">
+                        <span t-attf-class="wof_pm_pill {{ ready.priced === ready.total ? 'is-ok' : 'is-warn' }}">الأسعار <b><t t-esc="ready.priced"/> / <t t-esc="ready.total"/></b></span>
+                        <span t-attf-class="wof_pm_pill {{ ready.commissioned === ready.total ? 'is-ok' : 'is-soft' }}">العمولات <b><t t-esc="ready.commissioned"/> / <t t-esc="ready.total"/></b></span>
                     </div>
                     <div class="wof_pm_head_actions">
-                        <span t-if="state.dirty" class="wof_pm_dirty">تغييرات غير محفوظة</span>
+                        <span t-if="state.dirty" class="wof_pm_dirty"><i class="fa fa-circle" aria-hidden="true"/> تغييرات غير محفوظة</span>
                         <button type="button" class="btn btn-primary wof_pm_save" t-att-disabled="!state.dirty or state.saving" t-on-click="save">
-                            <t t-if="state.saving">جارٍ الحفظ</t>
-                            <t t-else="">حفظ</t>
+                            <i class="fa fa-check" aria-hidden="true"/> <t t-if="state.saving">جارٍ الحفظ</t><t t-else="">حفظ</t>
                         </button>
                     </div>
                 </header>
 
-                <!-- Readiness -->
-                <section class="wof_pm_stats" aria-label="جاهزية التسعير والعمولة">
-                    <t t-set="ready" t-value="readiness"/>
-                    <div class="wof_pm_stat">
-                        <span class="wof_pm_stat_value" t-esc="ready.total"/>
-                        <span class="wof_pm_stat_label">مكوّنات تجارية</span>
-                    </div>
-                    <div t-attf-class="wof_pm_stat {{ ready.priced === ready.total ? 'is-ok' : 'is-warn' }}">
-                        <span class="wof_pm_stat_value"><t t-esc="ready.priced"/> / <t t-esc="ready.total"/></span>
-                        <span class="wof_pm_stat_label">الأسعار المكتملة</span>
-                    </div>
-                    <div t-attf-class="wof_pm_stat {{ ready.commissioned === ready.total ? 'is-ok' : 'is-soft' }}">
-                        <span class="wof_pm_stat_value"><t t-esc="ready.commissioned"/> / <t t-esc="ready.total"/></span>
-                        <span class="wof_pm_stat_label">العمولات المكتملة</span>
-                    </div>
-                </section>
-
-                <!-- Toolbar -->
-                <section class="wof_pm_card wof_pm_toolbar">
+                <!-- Toolbar: what you edit, policy, search, filter -->
+                <section class="wof_pm_toolbar">
                     <div class="wof_pm_tabs" role="tablist" aria-label="القيم المعروضة">
-                        <button type="button" role="tab" t-att-aria-selected="state.dim === 'price' ? 'true' : 'false'" t-attf-class="wof_pm_tab {{ state.dim === 'price' ? 'is-active' : '' }}" t-on-click="() => this.setDim('price')">سعر البيع</button>
-                        <button type="button" role="tab" t-att-aria-selected="state.dim === 'commission' ? 'true' : 'false'" t-attf-class="wof_pm_tab {{ state.dim === 'commission' ? 'is-active' : '' }}" t-on-click="() => this.setDim('commission')">عمولة الفني</button>
+                        <button type="button" role="tab" t-att-aria-selected="state.dim === 'price' ? 'true' : 'false'" t-attf-class="wof_pm_tab {{ state.dim === 'price' ? 'is-active' : '' }}" t-on-click="() => this.setDim('price')"><i class="fa fa-tag" aria-hidden="true"/> سعر البيع</button>
+                        <button type="button" role="tab" t-att-aria-selected="state.dim === 'commission' ? 'true' : 'false'" t-attf-class="wof_pm_tab {{ state.dim === 'commission' ? 'is-active' : '' }}" t-on-click="() => this.setDim('commission')"><i class="fa fa-user" aria-hidden="true"/> عمولة الفني</button>
                     </div>
                     <div t-if="state.dim === 'price'" class="wof_pm_policy">
                         <span class="wof_pm_label">سياسة التسعير</span>
@@ -56,16 +43,23 @@
                         </div>
                     </div>
                     <div t-else="" class="wof_pm_policy">
-                        <span class="wof_pm_note">
-                            الاستحقاق:
-                            <strong t-if="data.film.commission_event === 'invoice'">بعد ترحيل الفاتورة</strong>
-                            <strong t-else="">بعد إنجاز أمر التركيب</strong>
-                        </span>
+                        <span class="wof_pm_label">الاستحقاق</span>
+                        <strong t-if="data.film.commission_event === 'invoice'">بعد ترحيل الفاتورة</strong>
+                        <strong t-else="">بعد إنجاز أمر التركيب</strong>
+                    </div>
+                    <div class="wof_pm_filters">
+                        <label class="wof_pm_search"><i class="fa fa-search" aria-hidden="true"/>
+                            <input type="text" placeholder="ابحث عن مكوّن" aria-label="بحث عن مكوّن" t-att-value="state.query" t-on-input="(ev) => state.query = ev.target.value"/>
+                        </label>
+                        <button type="button" t-attf-class="wof_pm_filter {{ state.onlyMissing ? 'is-on' : '' }}" t-att-aria-pressed="state.onlyMissing ? 'true' : 'false'" t-on-click="() => state.onlyMissing = !state.onlyMissing">
+                            الناقص فقط <b t-esc="missingCount"/>
+                        </button>
                     </div>
                 </section>
 
+                <div class="wof_pm_body">
                 <!-- Matrix -->
-                <section class="wof_pm_card wof_pm_table_card">
+                <section class="wof_pm_table_card">
                     <div class="wof_pm_scroll">
                         <table class="wof_pm_table">
                             <thead>
@@ -80,7 +74,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-foreach="data.lines" t-as="line" t-key="line.id">
+                                <t t-foreach="visibleLines" t-as="line" t-key="line.id">
 
                                     <!-- PRICE ROW -->
                                     <tr t-if="state.dim === 'price'" t-attf-class="wof_pm_row {{ isSelected(line) ? 'is-selected' : '' }}" t-on-click="() => this.select(line)">
@@ -191,12 +185,17 @@
                         </table>
                     </div>
                     <div t-if="!data.lines.length" class="wof_pm_empty">لا توجد مكوّنات مختارة لهذا الفيلم بعد. أضف المكوّنات أولاً من محرر الفيلم.</div>
+                    <div t-elif="!visibleLines.length" class="wof_pm_empty">لا توجد مكوّنات مطابقة<t t-if="state.onlyMissing">، كل المكوّنات مكتملة</t>.</div>
                 </section>
 
-                <!-- Details + receipt -->
-                <section t-if="data.lines.length" class="wof_pm_bottom">
+                <!-- Side panel: selected row properties, invoice preview -->
+                <aside t-if="data.lines.length" class="wof_pm_side">
                     <t t-set="sel" t-value="selected"/>
-                    <div class="wof_pm_card wof_pm_props">
+                    <div class="wof_pm_side_tabs" role="tablist" aria-label="اللوحة الجانبية">
+                        <button type="button" role="tab" t-att-aria-selected="state.side === 'props' ? 'true' : 'false'" t-attf-class="{{ state.side === 'props' ? 'is-on' : '' }}" t-on-click="() => state.side = 'props'">خصائص السطر</button>
+                        <button type="button" role="tab" t-att-aria-selected="state.side === 'receipt' ? 'true' : 'false'" t-attf-class="{{ state.side === 'receipt' ? 'is-on' : '' }}" t-on-click="() => state.side = 'receipt'">معاينة الفاتورة</button>
+                    </div>
+                    <div t-if="state.side === 'props'" class="wof_pm_props">
                         <div class="wof_pm_props_head">
                             <div>
                                 <div class="wof_pm_kicker">خصائص السطر · <t t-if="state.dim === 'price'">السعر</t><t t-else="">العمولة</t></div>
@@ -273,9 +272,9 @@
                         </t>
                     </div>
 
-                    <div class="wof_pm_card wof_pm_receipt">
+                    <div t-if="state.side === 'receipt'" class="wof_pm_receipt">
                         <t t-set="rc" t-value="receipt"/>
-                        <div class="wof_pm_kicker">معاينة فاتورة العميل</div>
+                        <div class="wof_pm_kicker">ما يدفعه العميل لحجم</div>
                         <div class="wof_pm_sizes" role="radiogroup" aria-label="حجم السيارة">
                             <button t-foreach="sizes" t-as="size" t-key="size.id" type="button" role="radio" t-att-aria-checked="state.sizeId === size.id ? 'true' : 'false'" t-attf-class="{{ state.sizeId === size.id ? 'is-on' : '' }}" t-on-click="() => this.setReceiptSize(size)" t-esc="size.name"/>
                         </div>
@@ -292,7 +291,8 @@
                         <div class="wof_pm_receipt_comm"><span>عمولة الفنيين</span><strong><t t-esc="fmt(rc.commission)"/> <t t-esc="currency"/></strong></div>
                         <p t-if="rc.gaps.length" class="wof_pm_gaps">بلا سعر لهذا الحجم: <t t-esc="rc.gaps.join('، ')"/></p>
                     </div>
-                </section>
+                </aside>
+                </div>
             </div>
         </div>
     </t>
