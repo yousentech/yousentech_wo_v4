@@ -29,7 +29,7 @@ export class WofFilmsHub extends Component {
         this.action = useService("action");
         this.notification = useService("notification");
         this.state = useState({
-            data: null, tab: null, query: "", busy: false,
+            data: null, tab: null, query: "", filter: "all", busy: false,
             dialog: null,
         });
         this.copyParts = COPY_PARTS;
@@ -47,7 +47,28 @@ export class WofFilmsHub extends Component {
     // --------------------------------------------------------------- tabs
     get tabs() {
         const films = this.state.data.films;
-        return this.state.data.activities.map((a) => ({ ...a, count: films.filter((f) => f.activity_id === a.id).length }));
+        return this.state.data.activities.map((a) => {
+            const list = films.filter((f) => f.activity_id === a.id);
+            const ready = list.filter((f) => f.active && f.ready).length;
+            const pending = list.filter((f) => !f.ready).length;
+            const pct = (n) => (list.length ? Math.round((n / list.length) * 100) : 0);
+            return { ...a, count: list.length, ready, pending, readyPct: pct(ready), pendingPct: pct(pending) };
+        });
+    }
+
+    selectTab(id) {
+        this.state.tab = id;
+        this.state.filter = "all";
+    }
+
+    get filters() {
+        const c = this.counts;
+        return [
+            { key: "all", name: _t("الكل"), count: c.total },
+            { key: "ready", name: _t("جاهزة"), count: c.ready },
+            { key: "pending", name: _t("تحتاج إكمال"), count: c.pending },
+            { key: "off", name: _t("موقوفة"), count: c.off },
+        ].filter((f) => f.key === "all" || f.count);
     }
 
     get activity() {
@@ -64,7 +85,9 @@ export class WofFilmsHub extends Component {
                 // Incomplete wins over inactive: new drafts are inactive but need finishing.
                 state: !f.ready ? "pending" : (f.active ? "ready" : "off"),
                 missingText: f.missing.map((m) => MISSING[m]).join("، "),
-            }));
+                pricePct: f.components ? Math.round((f.price_done / f.components) * 100) : 0,
+            }))
+            .filter((f) => this.state.filter === "all" || f.state === this.state.filter);
     }
 
     get counts() {

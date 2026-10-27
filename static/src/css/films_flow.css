@@ -4,7 +4,7 @@
 
 /* ---------------------------------------------------------------- hub page */
 .wof_sf.wof_fh { height: auto; min-height: 100%; background: var(--sf-ground); position: relative; overflow-y: auto; }
-.wof_fh_inner { max-width: 1240px; width: 100%; margin: 0 auto; padding: 32px 28px 56px; display: flex; flex-direction: column; gap: 22px; }
+.wof_fh_inner { width: 100%; padding: 28px 32px 48px; display: flex; flex-direction: column; gap: 24px; }
 .wof_fh_head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
 .wof_fh_head .wof_sf_head h2 { font-size: 27px; }
 .wof_fh_search { position: relative; margin: 0; width: 280px; max-width: 100%; }
@@ -50,6 +50,45 @@
 .wof_fh_parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
 .wof_fh_parts label { display: flex; gap: 10px; align-items: center; min-height: 44px; padding: 0 12px; margin: 0; border-radius: 10px; background: #F7F9F9; font-weight: 600; cursor: pointer; }
 .wof_fh_parts input, .wof_fe_check input { width: 19px; height: 19px; accent-color: var(--sf-teal); }
+
+/* layout: activities column + films list */
+.wof_fh_layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 24px; align-items: start; }
+.wof_fh_side { background: #FFFFFF; border: 1px solid var(--sf-line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 6px; position: sticky; top: 16px; }
+.wof_fh_side_title { font-size: 13px; font-weight: 700; color: var(--sf-muted); padding: 4px 10px 6px; }
+.wof_fh_act { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 0; border-radius: 12px; background: transparent; text-align: start; color: var(--sf-ink); }
+.wof_fh_act:hover { background: var(--sf-ground); }
+.wof_fh_act.is-on { background: var(--sf-teal-tint); box-shadow: inset -4px 0 0 var(--sf-teal); }
+.wof_fh_act_head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 15px; }
+.wof_fh_act_head b { font-size: 12.5px; min-width: 26px; text-align: center; border-radius: 99px; padding: 1px 8px; background: #F1F4F4; color: var(--sf-ink-2); }
+.wof_fh_act.is-on .wof_fh_act_head b { background: var(--sf-teal); color: #FFFFFF; }
+.wof_fh_act_bar { height: 5px; border-radius: 99px; background: var(--sf-line); display: flex; overflow: hidden; }
+.wof_fh_act_bar .is-ready { background: var(--sf-teal); }
+.wof_fh_act_bar .is-pending { background: var(--sf-amber-line); }
+.wof_fh_act_note { font-size: 12.5px; font-weight: 600; color: var(--sf-muted); }
+.wof_fh_main { container-type: inline-size; background: #FFFFFF; border: 1px solid var(--sf-line); border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; min-height: 360px; }
+.wof_fh_main_head { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.wof_fh_main_title { display: flex; align-items: baseline; gap: 12px; }
+.wof_fh_main_title h3 { margin: 0; font-size: 20px; font-weight: 800; }
+.wof_fh_count { font-size: 12px; opacity: .75; }
+.wof_fh_list { display: flex; flex-direction: column; }
+.wof_fh_row { display: grid; grid-template-columns: minmax(240px, 2.2fr) 110px minmax(140px, 1fr) minmax(170px, 1.3fr) auto; gap: 18px; align-items: center; padding: 16px 8px; border-bottom: 1px solid var(--sf-line-2); }
+.wof_fh_row:last-child { border-bottom: 0; }
+.wof_fh_row.is-head { padding: 0 8px 10px; font-size: 12.5px; font-weight: 700; color: var(--sf-muted); border-bottom: 1px solid var(--sf-line); }
+.wof_fh_row:not(.is-head):hover { background: #FBFCFC; }
+.wof_fh_row.is-off .wof_sf_icon { background: #F1F4F4; color: #8A989C; }
+.wof_fh_cell_name { display: flex; gap: 14px; align-items: center; min-width: 0; }
+.wof_fh_desc { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wof_fh_cell_stat { display: flex; flex-direction: column; gap: 2px; }
+.wof_fh_cell_stat > span { display: flex; align-items: baseline; gap: 6px; }
+.wof_fh_cell_stat b, .wof_fh_price_text b { font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.wof_fh_cell_stat small, .wof_fh_price_text small { font-size: 12.5px; color: var(--sf-muted); font-weight: 600; }
+.wof_fh_cell_price { display: flex; flex-direction: column; gap: 6px; }
+.wof_fh_price_text { display: flex; align-items: baseline; gap: 6px; }
+.wof_fh_cell_state { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.wof_fh_state_note { color: var(--sf-muted); }
+.wof_fh_row.is-pending .wof_fh_state_note { color: #92400E; }
+.wof_fh_cell_actions { display: flex; gap: 4px; align-items: center; justify-content: flex-end; }
+.wof_fh_cell_actions .btn { min-width: 116px; justify-content: center; }
 
 /* ------------------------------------------------------------------ editor */
 .wof_fe_ready { background: #FFFFFF; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 3px rgba(15, 25, 35, .06); }
@@ -107,9 +146,28 @@
 .is-soft > .wof_fe_check_dot { background: #FFFFFF; color: var(--sf-blue); }
 .wof_fe_check_row .btn-link { color: inherit; font-weight: 700; }
 
+/* rows adapt to the list width (the Odoo side menu changes it) */
+@container (max-width: 960px) {
+    .wof_fh_row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; grid-template-areas: "name name actions" "stat price state"; row-gap: 12px; }
+    .wof_fh_row.is-head { display: none; }
+    .wof_fh_cell_name { grid-area: name; }
+    .wof_fh_cell_stat { grid-area: stat; }
+    .wof_fh_cell_price { grid-area: price; }
+    .wof_fh_cell_state { grid-area: state; }
+    .wof_fh_cell_actions { grid-area: actions; }
+}
+@container (max-width: 560px) {
+    .wof_fh_row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "name name" "stat state" "price price" "actions actions"; }
+    .wof_fh_cell_actions { justify-content: flex-start; }
+}
 @media (max-width: 860px) {
     .wof_fh_inner { padding: 22px 16px 40px; }
     .wof_fh_grid { grid-template-columns: 1fr; }
+    .wof_fh_layout { grid-template-columns: 1fr; }
+    .wof_fh_side { position: static; flex-direction: row; overflow-x: auto; }
+    .wof_fh_side_title { display: none; }
+    .wof_fh_act { min-width: 180px; }
+    .wof_fh_main { padding: 16px; }
     .wof_fe_kids, .wof_fe_tintedit { padding-right: 0; margin-right: 0; }
     .wof_fe_tr { grid-template-columns: minmax(0, 1fr) 90px 90px; }
 }

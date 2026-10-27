@@ -18,61 +18,90 @@
                 <t t-if="!state.data.activities.length">
                     <div class="wof_fh_empty"><strong>لا توجد أنشطة مفعّلة</strong><span class="wof_sf_muted">فعّل الأنشطة من تهيئة النظام أولًا.</span></div>
                 </t>
-                <t t-else="">
-                    <div class="wof_fh_tabs" role="tablist" aria-label="الأنشطة">
+                <div t-else="" class="wof_fh_layout">
+                    <!-- activities -->
+                    <nav class="wof_fh_side" aria-label="الأنشطة">
+                        <span class="wof_fh_side_title">الأنشطة</span>
                         <t t-foreach="tabs" t-as="t" t-key="t.id">
-                            <button type="button" role="tab" t-att-aria-selected="t.id === state.tab ? 'true' : 'false'"
-                                    t-att-class="'wof_fh_tab' + (t.id === state.tab ? ' is-on' : '')" t-on-click="() => state.tab = t.id">
-                                <t t-esc="t.name"/><span t-esc="t.count"/>
+                            <button type="button" t-att-aria-current="t.id === state.tab ? 'true' : 'false'"
+                                    t-att-class="'wof_fh_act' + (t.id === state.tab ? ' is-on' : '')" t-on-click="() => this.selectTab(t.id)">
+                                <span class="wof_fh_act_head"><strong t-esc="t.name"/><b t-esc="t.count"/></span>
+                                <span t-if="t.count" class="wof_fh_act_bar">
+                                    <span class="is-ready" t-attf-style="width: {{ t.readyPct }}%"/>
+                                    <span class="is-pending" t-attf-style="width: {{ t.pendingPct }}%"/>
+                                </span>
+                                <span class="wof_fh_act_note">
+                                    <t t-if="!t.count">لا توجد أفلام بعد</t>
+                                    <t t-else=""><t t-esc="t.ready"/> جاهزة<t t-if="t.pending"> · <t t-esc="t.pending"/> تحتاج إكمال</t></t>
+                                </span>
                             </button>
                         </t>
-                    </div>
+                    </nav>
 
-                    <t t-set="c" t-value="counts"/>
-                    <div t-if="c.total" class="wof_sf_inline">
-                        <span class="wof_sf_chip is-on"><t t-esc="c.ready"/> جاهزة</span>
-                        <span t-if="c.pending" class="wof_sf_chip is-warn"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> <t t-esc="c.pending"/> تحتاج إكمال</span>
-                        <span t-if="c.off" class="wof_sf_chip is-gray"><t t-esc="c.off"/> موقوفة</span>
-                    </div>
-
-                    <div t-if="c.total" class="wof_fh_grid">
-                        <t t-foreach="films" t-as="f" t-key="f.id">
-                            <article t-att-class="'wof_fh_card is-' + f.state">
-                                <div class="wof_fh_card_head">
-                                    <span class="wof_sf_icon is-on"><i t-att-class="'fa ' + (f.item_type === 'film' ? 'fa-film' : 'fa-wrench')" aria-hidden="true"/></span>
-                                    <span class="wof_sf_row_text">
-                                        <span class="wof_sf_row_title"><strong class="wof_sf_name" t-esc="f.name"/><span class="wof_sf_chip is-gray" t-esc="f.item_type === 'film' ? 'فيلم' : 'خدمة'"/></span>
-                                        <span class="wof_sf_muted wof_fh_desc" t-esc="f.description"/>
-                                    </span>
-                                    <button t-if="state.data.can_edit" type="button" class="wof_sf_icon_btn" t-att-aria-label="'نسخ ' + f.name" title="نسخ لفيلم جديد" t-on-click="() => this.openNew(f)"><i class="fa fa-clone" aria-hidden="true"/></button>
-                                </div>
-                                <div class="wof_fh_stats">
-                                    <span><b t-esc="f.components"/><small>مكوّنات</small></span>
-                                    <span t-if="f.needs_tint"><b t-esc="f.grades"/><small>درجات لون</small></span>
-                                    <span><b><t t-esc="f.price_done"/>/<t t-esc="f.components"/></b><small>أسعار</small></span>
-                                </div>
-                                <div t-att-class="'wof_fh_state is-' + f.state">
-                                    <t t-if="f.state === 'ready'"><strong>جاهز للاستخدام</strong><span>يظهر في أوامر التركيب.</span></t>
-                                    <t t-elif="f.state === 'pending'"><strong>يحتاج إكمال</strong><span>ينقص: <t t-esc="f.missingText"/>. <t t-if="f.active">مفعّل لكنه غير مكتمل.</t><t t-else="">لا يظهر في أوامر التركيب حتى يكتمل ويُفعَّل.</t></span></t>
-                                    <t t-else=""><strong>موقوف</strong><span>جاهز، فعّله من المحرر ليظهر في أوامر التركيب.</span></t>
-                                </div>
-                                <div class="wof_sf_inline wof_fh_actions">
-                                    <button type="button" t-att-class="'btn ' + (f.state === 'pending' ? 'btn-warning' : 'btn-primary')" t-on-click="() => this.openEditor(f)">
-                                        <t t-if="f.state === 'pending'">إكمال الإعداد</t><t t-else="">فتح وتعديل</t>
+                    <!-- films -->
+                    <section class="wof_fh_main">
+                        <t t-set="c" t-value="counts"/>
+                        <div class="wof_fh_main_head">
+                            <div class="wof_fh_main_title"><h3 t-esc="activity and activity.name"/><span class="wof_sf_muted" t-if="activity and activity.supports_grades">أفلام بدرجات لون</span></div>
+                            <span t-if="c.total" class="wof_sf_seg" role="radiogroup" aria-label="تصفية حسب الحالة">
+                                <t t-foreach="filters" t-as="flt" t-key="flt.key">
+                                    <button type="button" role="radio" t-att-aria-checked="flt.key === state.filter ? 'true' : 'false'" t-att-class="flt.key === state.filter ? 'is-opt' : ''" t-on-click="() => state.filter = flt.key">
+                                        <t t-esc="flt.name"/> <span class="wof_fh_count" t-esc="flt.count"/>
                                     </button>
-                                    <button t-if="f.components" type="button" class="btn btn-light" t-on-click="() => this.openMatrix(f)"><i class="fa fa-table" aria-hidden="true"/> التسعير والعمولة</button>
-                                </div>
-                            </article>
-                        </t>
-                    </div>
-                    <div t-if="c.total and !films.length" class="wof_fh_empty"><span class="wof_sf_muted">لا توجد نتائج مطابقة للبحث.</span></div>
-                    <div t-if="!c.total" class="wof_fh_empty">
-                        <span class="wof_sf_icon"><i class="fa fa-film" aria-hidden="true"/></span>
-                        <strong>لا توجد أفلام أو خدمات في «<t t-esc="activity and activity.name"/>» بعد</strong>
-                        <span class="wof_sf_muted">ابدأ من الصفر، أو انسخ فيلمًا جاهزًا ثم عدّل ما يختلف.</span>
-                        <button t-if="state.data.can_edit" type="button" class="btn btn-primary" t-on-click="() => this.openNew()"><i class="fa fa-plus" aria-hidden="true"/> إضافة أول فيلم أو خدمة</button>
-                    </div>
-                </t>
+                                </t>
+                            </span>
+                        </div>
+
+                        <div t-if="c.total and films.length" class="wof_fh_list">
+                            <div class="wof_fh_row is-head" aria-hidden="true">
+                                <span>الفيلم / الخدمة</span><span>المكوّنات</span><span>الأسعار</span><span>الحالة</span><span/>
+                            </div>
+                            <t t-foreach="films" t-as="f" t-key="f.id">
+                                <article t-att-class="'wof_fh_row is-' + f.state">
+                                    <div class="wof_fh_cell_name">
+                                        <span class="wof_sf_icon is-on"><i t-att-class="'fa ' + (f.item_type === 'film' ? 'fa-film' : 'fa-wrench')" aria-hidden="true"/></span>
+                                        <span class="wof_sf_row_text">
+                                            <span class="wof_sf_row_title"><strong class="wof_sf_name" t-esc="f.name"/><span class="wof_sf_chip is-gray" t-esc="f.item_type === 'film' ? 'فيلم' : 'خدمة'"/></span>
+                                            <span class="wof_sf_muted wof_fh_desc"><t t-esc="f.code"/><t t-if="f.description"> · <t t-esc="f.description"/></t></span>
+                                        </span>
+                                    </div>
+                                    <div class="wof_fh_cell_stat">
+                                        <span><b t-esc="f.components"/><small>مكوّنات</small></span>
+                                        <span t-if="f.needs_tint"><b t-esc="f.grades"/><small>درجات لون</small></span>
+                                    </div>
+                                    <div class="wof_fh_cell_price">
+                                        <span class="wof_fh_price_text"><b><t t-esc="f.price_done"/> / <t t-esc="f.components"/></b><small>مكتملة</small></span>
+                                        <span class="wof_fe_bar"><span t-att-class="f.components and f.price_done === f.components ? 'is-ok' : 'is-warn'" t-attf-style="width: {{ f.pricePct }}%"/></span>
+                                    </div>
+                                    <div class="wof_fh_cell_state">
+                                        <span t-att-class="'wof_sf_chip ' + (f.state === 'ready' ? 'is-on' : (f.state === 'pending' ? 'is-warn' : 'is-gray'))">
+                                            <t t-if="f.state === 'ready'">جاهز للاستخدام</t><t t-elif="f.state === 'pending'">يحتاج إكمال</t><t t-else="">موقوف</t>
+                                        </span>
+                                        <span class="wof_sf_small wof_fh_state_note">
+                                            <t t-if="f.state === 'pending'">ينقص: <t t-esc="f.missingText"/><t t-if="f.active"> · مفعّل</t></t>
+                                            <t t-elif="f.state === 'off'">جاهز، فعّله من المحرر</t>
+                                            <t t-else="">يظهر في أوامر التركيب</t>
+                                        </span>
+                                    </div>
+                                    <div class="wof_fh_cell_actions">
+                                        <button type="button" t-att-class="'btn ' + (f.state === 'pending' ? 'btn-warning' : 'btn-primary')" t-on-click="() => this.openEditor(f)">
+                                            <t t-if="f.state === 'pending'">إكمال الإعداد</t><t t-else="">فتح</t>
+                                        </button>
+                                        <button t-if="f.components" type="button" class="wof_sf_icon_btn" t-att-aria-label="'التسعير والعمولة لـ ' + f.name" title="التسعير والعمولة" t-on-click="() => this.openMatrix(f)"><i class="fa fa-table" aria-hidden="true"/></button>
+                                        <button t-if="state.data.can_edit" type="button" class="wof_sf_icon_btn" t-att-aria-label="'نسخ ' + f.name" title="نسخ لفيلم جديد" t-on-click="() => this.openNew(f)"><i class="fa fa-clone" aria-hidden="true"/></button>
+                                    </div>
+                                </article>
+                            </t>
+                        </div>
+                        <div t-if="c.total and !films.length" class="wof_fh_empty is-small"><span class="wof_sf_muted">لا توجد نتائج مطابقة.</span></div>
+                        <div t-if="!c.total" class="wof_fh_empty">
+                            <span class="wof_sf_icon"><i class="fa fa-film" aria-hidden="true"/></span>
+                            <strong>لا توجد أفلام أو خدمات في «<t t-esc="activity and activity.name"/>» بعد</strong>
+                            <span class="wof_sf_muted">ابدأ من الصفر، أو انسخ فيلمًا جاهزًا ثم عدّل ما يختلف.</span>
+                            <button t-if="state.data.can_edit" type="button" class="btn btn-primary" t-on-click="() => this.openNew()"><i class="fa fa-plus" aria-hidden="true"/> إضافة أول فيلم أو خدمة</button>
+                        </div>
+                    </section>
+                </div>
             </div>
 
             <!-- new / copy dialog -->
