@@ -371,16 +371,39 @@ export class WofFilmEditor extends Component {
 
     startTint(c) {
         this.state.picker.open = false;
-        this.state.tintEdit = { line_id: c.line_id, default_grade_id: c.default_grade_id || false, allowed_ids: [...c.allowed_ids] };
+        const all = this.state.data.grades.map((g) => g.id);
+        // No restriction is stored as an empty list: show it as every grade selected.
+        const allowed = c.allowed_ids.length ? c.allowed_ids.filter((id) => all.includes(id)) : all;
+        this.state.tintEdit = { line_id: c.line_id, default_grade_id: c.default_grade_id || false, allowed_ids: allowed };
+    }
+
+    onDefaultGrade(ev) {
+        const id = parseInt(ev.target.value, 10);
+        this.state.tintEdit.default_grade_id = Number.isFinite(id) ? id : false;
     }
 
     toggleAllowed(id) {
         const edit = this.state.tintEdit;
-        edit.allowed_ids = edit.allowed_ids.includes(id) ? edit.allowed_ids.filter((x) => x !== id) : [...edit.allowed_ids, id];
+        if (edit.allowed_ids.includes(id)) {
+            if (edit.allowed_ids.length === 1) {
+                this.notification.add(_t("اترك درجة واحدة مسموحة على الأقل."), { type: "warning" });
+                return;
+            }
+            edit.allowed_ids = edit.allowed_ids.filter((x) => x !== id);
+            if (edit.default_grade_id === id) {
+                edit.default_grade_id = false;
+            }
+        } else {
+            edit.allowed_ids = [...edit.allowed_ids, id];
+        }
     }
 
     async saveTint() {
-        if (await this.apply("comp_tint", this.state.tintEdit)) {
+        const edit = this.state.tintEdit;
+        const all = this.state.data.grades.map((g) => g.id);
+        const restricted = all.some((id) => !edit.allowed_ids.includes(id));
+        const payload = { ...edit, allowed_ids: restricted ? edit.allowed_ids : [] };
+        if (await this.apply("comp_tint", payload)) {
             this.state.tintEdit = null;
         }
     }

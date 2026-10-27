@@ -276,13 +276,13 @@
                                     <div t-if="c.type === 'service_area' and c.kids.length" class="wof_fe_kids"><t t-foreach="c.kids" t-as="k" t-key="k_index"><span class="wof_sf_chip is-gray" t-esc="k"/></t></div>
                                     <div t-if="state.tintEdit and state.tintEdit.line_id === c.line_id" class="wof_fe_tintedit">
                                         <label class="wof_sf_label is-narrow">الدرجة الافتراضية
-                                            <select class="wof_sf_input" t-on-change="(ev) => state.tintEdit.default_grade_id = parseInt(ev.target.value, 10) || false">
+                                            <select class="wof_sf_input" t-on-change="onDefaultGrade">
                                                 <option value="" t-att-selected="!state.tintEdit.default_grade_id">بدون</option>
-                                                <t t-foreach="d.grades" t-as="g" t-key="g.id"><option t-att-value="g.id" t-att-selected="g.id === state.tintEdit.default_grade_id" t-esc="g.name"/></t>
+                                                <t t-foreach="d.grades" t-as="g" t-key="g.id"><option t-if="state.tintEdit.allowed_ids.includes(g.id)" t-att-value="g.id" t-att-selected="g.id === state.tintEdit.default_grade_id" t-esc="g.name"/></t>
                                             </select>
                                         </label>
                                         <div class="wof_sf_section">
-                                            <span class="wof_sf_card_title">الدرجات المسموحة <span class="wof_sf_hint">(بدون اختيار = كل الدرجات)</span></span>
+                                            <span class="wof_sf_card_title">الدرجات المسموحة <span class="wof_sf_hint">ألغِ الدرجة التي لا تُركَّب على هذا الجزء.</span></span>
                                             <div class="wof_sf_inline"><t t-foreach="d.grades" t-as="g" t-key="g.id">
                                                 <button type="button" t-att-aria-pressed="state.tintEdit.allowed_ids.includes(g.id) ? 'true' : 'false'" t-att-class="'wof_fe_gchip' + (state.tintEdit.allowed_ids.includes(g.id) ? ' is-on' : '')" t-on-click="() => this.toggleAllowed(g.id)" t-esc="g.name"/>
                                             </t></div>
