@@ -114,9 +114,32 @@
 .wof_fe_gchip { display: inline-flex; align-items: center; gap: 6px; }
 .wof_sf_hint.is-warn { color: var(--sf-amber); font-weight: 700; }
 .wof_fe_expand { white-space: nowrap; font-weight: 700; }
-.wof_fe_tree { margin-right: 58px; display: flex; flex-direction: column; gap: 8px; border-right: 2px solid var(--sf-violet-soft); padding-right: 14px; }
-.wof_fe_tree_tpl { display: flex; flex-direction: column; gap: 6px; }
-.wof_fe_tree_tpl .fa { color: var(--sf-violet); }
+/* drag handle and drop indicator */
+.wof_fe_handle { width: 32px; height: 44px; flex: 0 0 32px; border: 0; border-radius: 8px; background: transparent; color: #9AA7AB; cursor: grab; display: flex; align-items: center; justify-content: center; }
+.wof_fe_handle:hover, .wof_fe_handle:focus-visible { background: #F1F4F4; color: var(--sf-ink); }
+.wof_fe_handle:active { cursor: grabbing; }
+.wof_fe_comp { position: relative; }
+.wof_fe_comp.is-dragging { opacity: .45; }
+.wof_fe_comp.is-drop-before::before, .wof_fe_comp.is-drop-after::after { content: ""; position: absolute; left: 0; right: 0; height: 3px; border-radius: 99px; background: var(--sf-teal); }
+.wof_fe_comp.is-drop-before::before { top: -2px; }
+.wof_fe_comp.is-drop-after::after { bottom: -2px; }
+.wof_sf_icon_btn.is-active { background: var(--sf-teal-soft); color: var(--sf-teal); }
+
+/* service-area tree: area -> templates -> parts with connector lines */
+.wof_fe_tree, .wof_fe_tree ul { list-style: none; margin: 0; padding: 0; }
+.wof_fe_tree { margin-right: 96px; padding: 4px 0 6px; }
+.wof_fe_tree li { position: relative; padding-right: 22px; }
+.wof_fe_tree li::before { content: ""; position: absolute; right: 0; top: 0; bottom: 0; border-right: 2px solid #D9CCF5; }
+.wof_fe_tree li:last-child::before { bottom: auto; height: 22px; }
+.wof_fe_tree li::after { content: ""; position: absolute; right: 0; top: 21px; width: 16px; border-top: 2px solid #D9CCF5; }
+.wof_fe_tree ul ul { margin-right: 14px; }
+.wof_fe_node { display: flex; align-items: center; gap: 8px; min-height: 42px; color: var(--sf-ink); }
+.wof_fe_node.is-template { border: 0; background: transparent; padding: 0 6px; border-radius: 8px; width: fit-content; text-align: start; }
+.wof_fe_node.is-template:hover { background: var(--sf-violet-soft); }
+.wof_fe_node.is-part { font-size: 14px; color: var(--sf-ink-2); min-height: 36px; }
+.wof_fe_node_icon { color: var(--sf-violet); width: 16px; text-align: center; }
+.wof_fe_node.is-part .wof_fe_node_icon { color: #9AA7AB; }
+.wof_fe_caret { width: 10px; color: var(--sf-muted); }
 .wof_fe_ready { background: #FFFFFF; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 3px rgba(15, 25, 35, .06); }
 .wof_fe_ready_head { display: flex; justify-content: space-between; align-items: center; }
 .wof_fe_ready_head b, .wof_fe_ready_note { font-size: 13.5px; font-weight: 800; }
@@ -144,7 +167,7 @@
 .wof_fe_comp { display: flex; flex-direction: column; gap: 10px; padding: 14px 4px; border-bottom: 1px solid var(--sf-line-2); }
 .wof_fe_comp_row { display: flex; gap: 12px; align-items: center; }
 .wof_fe_kids { display: flex; gap: 6px; flex-wrap: wrap; padding-right: 58px; }
-.wof_fe_tintedit { margin-right: 58px; background: #F7F9F9; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.wof_fe_tintedit { margin-right: 96px; background: #F7F9F9; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
 .wof_fe_gchip { min-height: 38px; padding: 0 14px; border-radius: 99px; border: 1.5px solid #CBD5D6; background: #FFFFFF; color: var(--sf-ink-2); font-weight: 700; }
 .wof_fe_gchip.is-on { border-color: var(--sf-teal); background: var(--sf-teal-soft); color: var(--sf-teal); }
 .wof_sf_card.is-custom { border-color: var(--sf-amber-line); }
@@ -194,7 +217,7 @@
     .wof_fh_side_title { display: none; }
     .wof_fh_act { min-width: 180px; }
     .wof_fh_main { padding: 16px; }
-    .wof_fe_kids, .wof_fe_tintedit { padding-right: 0; margin-right: 0; }
+    .wof_fe_kids, .wof_fe_tintedit, .wof_fe_tree { padding-right: 0; margin-right: 0; }
     .wof_fe_tr { grid-template-columns: minmax(0, 1fr) 90px 90px; }
 }
 .wof_sf .wof_fe_short { width: 140px; max-width: 100%; }

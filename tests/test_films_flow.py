@@ -231,3 +231,12 @@ class TestFilmsFlow(TransactionCase):
             dict(templates[0], is_default=False), dict(templates[1], is_default=True),
         ] if templates[0]['is_default'] else [dict(templates[1], is_default=False), dict(templates[0], is_default=True)]})
         self.assertEqual(new_area.default_template_id.name, 'كامل')
+
+    def test_drag_reorder(self):
+        film = self.new_film('فيلم الترتيب')
+        snap = film.wof_film_apply('comp_add_many', {'part_ids': [self.front.id, self.rear.id, self.area.id]})
+        ids = [c['line_id'] for c in snap['components']]
+        snap = film.wof_film_apply('comp_reorder', {'line_ids': [ids[2], ids[0], ids[1]]})
+        self.assertEqual([c['line_id'] for c in snap['components']], [ids[2], ids[0], ids[1]])
+        with self.assertRaises(ValidationError):
+            film.wof_film_apply('comp_reorder', {'line_ids': ids[:2]})

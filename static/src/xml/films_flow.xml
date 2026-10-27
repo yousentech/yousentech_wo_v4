@@ -426,28 +426,39 @@
                         <!-- film components -->
                         <div t-if="!state.form" class="wof_sf_list">
                             <t t-foreach="d.components" t-as="c" t-key="c.line_id">
-                                <div class="wof_fe_comp">
+                                <div t-att-class="'wof_fe_comp' + dropClass(c) + (state.drag and state.drag.id === c.line_id ? ' is-dragging' : '')"
+                                     t-on-dragover="(ev) => this.onDragOver(c, ev)" t-on-drop="onDrop">
                                     <div class="wof_fe_comp_row">
+                                        <button type="button" class="wof_fe_handle" draggable="true" t-att-aria-label="'اسحب لترتيب ' + c.name + '، أو استخدم الأسهم'" title="اسحب للترتيب"
+                                                t-on-dragstart="(ev) => this.onDragStart(c, ev)" t-on-dragend="onDragEnd" t-on-keydown="(ev) => this.onHandleKey(c, ev)"><i class="fa fa-bars" aria-hidden="true"/></button>
                                         <span t-att-class="'wof_fe_kind is-big is-' + c.type"><i t-att-class="'fa ' + (c.type === 'service_area' ? 'fa-th-large' : 'fa-car')" aria-hidden="true"/></span>
                                         <span class="wof_sf_row_text">
                                             <span class="wof_sf_row_title"><strong class="wof_sf_name" t-esc="c.name"/><span t-att-class="'wof_sf_chip ' + (c.type === 'service_area' ? 'is-lock' : 'is-on')" t-esc="c.type === 'service_area' ? 'منطقة خدمة' : 'جزء'"/><span t-if="c.warning_msg" class="wof_sf_chip is-warn" t-att-title="c.warning_msg"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> تحذير</span></span>
                                             <span class="wof_sf_muted wof_sf_small" t-esc="componentMeta(c)"/>
                                         </span>
                                         <button t-if="c.type === 'service_area'" type="button" class="btn btn-link wof_fe_expand" t-att-aria-expanded="state.expanded[c.line_id] ? 'true' : 'false'" t-on-click="() => this.toggleExpand(c)"><t t-esc="c.templates.length"/> نماذج <i t-att-class="'fa ' + (state.expanded[c.line_id] ? 'fa-chevron-up' : 'fa-chevron-down')" aria-hidden="true"/></button>
-                                        <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'تحريك ' + c.name + ' للأعلى'" t-att-disabled="state.busy or c_first" t-on-click="() => this.apply('comp_move', { line_id: c.line_id, direction: 'up' })"><i class="fa fa-chevron-up" aria-hidden="true"/></button>
-                                        <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'تحريك ' + c.name + ' للأسفل'" t-att-disabled="state.busy or c_last" t-on-click="() => this.apply('comp_move', { line_id: c.line_id, direction: 'down' })"><i class="fa fa-chevron-down" aria-hidden="true"/></button>
-                                        <button t-if="needsTint and c.type === 'car_part'" type="button" class="wof_sf_icon_btn" t-att-aria-label="'درجات اللون لـ ' + c.name" title="درجات اللون" t-on-click="() => this.startTint(c)"><i class="fa fa-tint" aria-hidden="true"/></button>
+                                        <button t-if="needsTint and c.type === 'car_part'" type="button" t-att-aria-label="'درجات اللون لـ ' + c.name" title="درجات اللون" t-att-aria-expanded="state.tintEdit and state.tintEdit.line_id === c.line_id ? 'true' : 'false'" t-att-class="'wof_sf_icon_btn' + (state.tintEdit and state.tintEdit.line_id === c.line_id ? ' is-active' : '')" t-on-click="() => this.toggleTint(c)"><i class="fa fa-tint" aria-hidden="true"/></button>
                                         <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'تعديل ' + c.name" title="تعديل المكوّن" t-on-click="() => this.openForm(c.type, c)"><i class="fa fa-pencil" aria-hidden="true"/></button>
                                         <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'إزالة ' + c.name + ' من الفيلم'" title="إزالة من الفيلم" t-att-disabled="state.busy" t-on-click="() => this.apply('comp_remove', { line_id: c.line_id })"><i class="fa fa-trash-o" aria-hidden="true"/></button>
                                     </div>
-                                    <div t-if="c.type === 'service_area' and state.expanded[c.line_id]" class="wof_fe_tree">
+                                    <ul t-if="c.type === 'service_area' and state.expanded[c.line_id]" class="wof_fe_tree" role="tree" t-att-aria-label="'نماذج ' + c.name">
                                         <t t-foreach="c.templates" t-as="tp" t-key="tp.id">
-                                            <div class="wof_fe_tree_tpl">
-                                                <span class="wof_sf_row_title"><i class="fa fa-folder-open-o" aria-hidden="true"/><strong t-esc="tp.name"/><span t-if="tp.is_default" class="wof_sf_chip is-on">افتراضي</span><span class="wof_sf_muted wof_sf_small"><t t-esc="tp.parts.length"/> أجزاء</span></span>
-                                                <div class="wof_sf_inline"><t t-foreach="tp.parts" t-as="k" t-key="k_index"><span class="wof_sf_chip is-gray" t-esc="k"/></t></div>
-                                            </div>
+                                            <li role="treeitem" t-att-aria-expanded="isTplOpen(c, tp) ? 'true' : 'false'">
+                                                <button type="button" class="wof_fe_node is-template" t-on-click="() => this.toggleTpl(c, tp)">
+                                                    <i t-att-class="'fa wof_fe_caret ' + (isTplOpen(c, tp) ? 'fa-caret-down' : 'fa-caret-left')" aria-hidden="true"/>
+                                                    <i class="fa fa-folder-open-o wof_fe_node_icon" aria-hidden="true"/>
+                                                    <strong t-esc="tp.name"/>
+                                                    <span t-if="tp.is_default" class="wof_sf_chip is-on is-tiny">افتراضي</span>
+                                                    <span class="wof_sf_muted wof_sf_small"><t t-esc="tp.parts.length"/> أجزاء</span>
+                                                </button>
+                                                <ul t-if="isTplOpen(c, tp)" role="group">
+                                                    <t t-foreach="tp.parts" t-as="k" t-key="k_index">
+                                                        <li role="treeitem" class="wof_fe_node is-part"><i class="fa fa-car wof_fe_node_icon" aria-hidden="true"/><span t-esc="k"/></li>
+                                                    </t>
+                                                </ul>
+                                            </li>
                                         </t>
-                                    </div>
+                                    </ul>
                                     <div t-if="state.tintEdit and state.tintEdit.line_id === c.line_id" class="wof_fe_tintedit">
                                         <label class="wof_sf_label is-narrow">الدرجة الافتراضية
                                             <select class="wof_sf_input" t-on-change="onDefaultGrade">

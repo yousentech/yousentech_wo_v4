@@ -681,6 +681,7 @@ class WofFilmCategoryFlow(models.Model):
             'comp_add_many': self._wof_op_comp_add_many,
             'comp_remove': self._wof_op_comp_remove,
             'comp_move': self._wof_op_comp_move,
+            'comp_reorder': self._wof_op_comp_reorder,
             'comp_tint': self._wof_op_comp_tint,
             'policy': self._wof_op_policy,
             'activate': self._wof_op_activate,
@@ -795,6 +796,17 @@ class WofFilmCategoryFlow(models.Model):
             for position, record in enumerate(lines, start=1):
                 if record.sequence != position * 10:
                     record.sequence = position * 10
+
+    def _wof_op_comp_reorder(self, payload):
+        """Drag-and-drop order: ``line_ids`` lists the film's components top to bottom."""
+        lines = self._wof_commercial_lines()
+        order = [int(i) for i in payload.get('line_ids') or []]
+        if sorted(order) != sorted(lines.ids):
+            raise ValidationError(_('ترتيب المكوّنات لا يطابق مكوّنات الفيلم. أعد فتح المحرر.'))
+        by_id = {line.id: line for line in lines}
+        for position, line_id in enumerate(order, start=1):
+            if by_id[line_id].sequence != position * 10:
+                by_id[line_id].sequence = position * 10
 
     def _wof_op_comp_tint(self, payload):
         line = self._wof_comp_line(payload)

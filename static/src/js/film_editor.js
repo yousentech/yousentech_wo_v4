@@ -30,7 +30,7 @@ export class WofFilmEditor extends Component {
         this.state = useState({
             data: null, step: "basic", visited: [], busy: false,
             draft: {}, picker: { open: false, query: "", results: [] }, tintEdit: null,
-            adder: null, form: null, expanded: {},
+            adder: null, form: null, expanded: {}, tplOpen: {}, drag: null,
             discountLimit: "",
         });
         onWillStart(async () => {
@@ -561,6 +561,84 @@ export class WofFilmEditor extends Component {
         const def = c.default_grade_id ? `${_t("الدرجة الافتراضية")} ${this.gradeName(c.default_grade_id)}` : _t("بدون درجة افتراضية");
         const allowed = c.allowed_ids.length ? `${_t("مسموح:")} ${c.allowed_ids.map((id) => this.gradeName(id)).join(" · ")}` : _t("كل الدرجات مسموحة");
         return `${def} · ${allowed}`;
+    }
+
+    toggleTint(c) {
+        if (this.state.tintEdit && this.state.tintEdit.line_id === c.line_id) {
+            this.state.tintEdit = null;
+            return;
+        }
+        this.startTint(c);
+    }
+
+    isTplOpen(c, tp) {
+        const key = `${c.line_id}:${tp.id}`;
+        return this.state.tplOpen[key] !== false;
+    }
+
+    toggleTpl(c, tp) {
+        const key = `${c.line_id}:${tp.id}`;
+        this.state.tplOpen[key] = !this.isTplOpen(c, tp);
+    }
+
+    // drag-and-drop ordering from the handle before the name
+    onDragStart(c, ev) {
+        this.state.drag = { id: c.line_id, over: null, after: false };
+        if (ev.dataTransfer) {
+            ev.dataTransfer.effectAllowed = "move";
+            ev.dataTransfer.setData("text/plain", String(c.line_id));
+            const row = ev.target.closest(".wof_fe_comp");
+            if (row) {
+                ev.dataTransfer.setDragImage(row, 40, 30);
+            }
+        }
+    }
+
+    onDragOver(c, ev) {
+        const drag = this.state.drag;
+        if (!drag) {
+            return;
+        }
+        ev.preventDefault();
+        const rect = ev.currentTarget.getBoundingClientRect();
+        drag.over = c.line_id;
+        drag.after = ev.clientY > rect.top + rect.height / 2;
+    }
+
+    dropClass(c) {
+        const drag = this.state.drag;
+        if (!drag || drag.over !== c.line_id || drag.id === c.line_id) {
+            return "";
+        }
+        return drag.after ? " is-drop-after" : " is-drop-before";
+    }
+
+    async onDrop(ev) {
+        ev.preventDefault();
+        const drag = this.state.drag;
+        this.state.drag = null;
+        if (!drag || drag.over === null || drag.over === drag.id) {
+            return;
+        }
+        const ids = this.state.data.components.map((x) => x.line_id).filter((id) => id !== drag.id);
+        let index = ids.indexOf(drag.over);
+        if (drag.after) {
+            index += 1;
+        }
+        ids.splice(index, 0, drag.id);
+        await this.apply("comp_reorder", { line_ids: ids });
+    }
+
+    onDragEnd() {
+        this.state.drag = null;
+    }
+
+    onHandleKey(c, ev) {
+        // Keyboard alternative to dragging.
+        if (ev.key === "ArrowUp" || ev.key === "ArrowDown") {
+            ev.preventDefault();
+            return this.apply("comp_move", { line_id: c.line_id, direction: ev.key === "ArrowUp" ? "up" : "down" });
+        }
     }
 
     startTint(c) {
