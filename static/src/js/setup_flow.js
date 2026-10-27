@@ -428,14 +428,6 @@ export class WofSetupFlow extends Component {
         }
     }
 
-    get visibleFields() {
-        return this.state.data.fields.filter((f) => f.state !== "hid");
-    }
-
-    get hiddenFieldNames() {
-        return this.state.data.fields.filter((f) => f.state === "hid").map((f) => f.label).join("، ");
-    }
-
     get selectedTax() {
         const tax = this.state.data.tax;
         return tax.enabled && tax.tax_id ? tax.options.find((o) => o.id === tax.tax_id) : null;

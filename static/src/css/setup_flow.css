@@ -150,7 +150,7 @@
 
 /* fields */
 .wof_sf_split { display: flex; gap: 26px; flex-wrap: wrap; align-items: flex-start; }
-.wof_sf_fields { flex: 999 1 400px; min-width: 0; display: flex; flex-direction: column; }
+.wof_sf_fields { max-width: 640px; display: flex; flex-direction: column; }
 .wof_sf_field { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--sf-line-2); flex-wrap: wrap; }
 .wof_sf_field .wof_sf_name { font-size: 15px; }
 .wof_sf_seg { display: inline-flex; background: #F1F4F4; border-radius: 10px; padding: 3px; gap: 2px; flex-wrap: wrap; }
@@ -158,11 +158,6 @@
 .wof_sf_seg > button.is-req { background: var(--sf-teal); color: #FFFFFF; }
 .wof_sf_seg > button.is-opt { background: #FFFFFF; color: var(--sf-ink); box-shadow: 0 1px 2px rgba(15, 25, 35, .12); }
 .wof_sf_seg > button.is-hid { background: var(--sf-muted); color: #FFFFFF; }
-.wof_sf_preview { flex: 1 1 280px; background: #F7F9F9; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; position: sticky; top: 0; }
-.wof_sf_preview_field { display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; font-weight: 700; }
-.wof_sf_preview_box { height: 36px; border-radius: 8px; background: #FFFFFF; border: 1.5px solid var(--sf-line); }
-.wof_sf_preview_box.is-req { border-color: #7CC4BE; }
-.wof_sf_preview_hidden { font-size: 13px; border-top: 1px dashed #CBD5D6; padding-top: 12px; }
 
 /* invoice journey */
 .wof_sf_journey { display: flex; gap: 10px; flex-wrap: wrap; }

@@ -225,8 +225,7 @@
                     <!-- 4a. Order fields -->
                     <t t-if="current === 'fields'">
                         <header class="wof_sf_head"><h2>ما البيانات التي تُطلب عند فتح أمر تركيب؟</h2><p>لكل حقل ثلاث حالات: إجباري لا يُحفظ الأمر بدونه، اختياري، أو مخفي لا يظهر للموظف.</p></header>
-                        <div class="wof_sf_split">
-                            <div class="wof_sf_fields">
+                        <div class="wof_sf_fields">
                                 <t t-foreach="d.fields" t-as="f" t-key="f.id">
                                     <div class="wof_sf_field">
                                         <span t-att-class="'wof_sf_name' + (f.state === 'hid' ? ' is-hidden' : '')" t-esc="f.label"/>
@@ -238,17 +237,6 @@
                                     </div>
                                 </t>
                             </div>
-                            <aside class="wof_sf_preview">
-                                <span class="wof_sf_section_head"><strong>معاينة أمر التركيب</strong><span class="wof_sf_chip is-info">مباشرة</span></span>
-                                <t t-foreach="visibleFields" t-as="v" t-key="v.id">
-                                    <span class="wof_sf_preview_field">
-                                        <span><t t-esc="v.label"/> <span t-if="v.state === 'req'" class="wof_sf_chip is-on is-tiny">إجباري</span></span>
-                                        <span t-att-class="'wof_sf_preview_box' + (v.state === 'req' ? ' is-req' : '')"/>
-                                    </span>
-                                </t>
-                                <span t-if="hiddenFieldNames" class="wof_sf_muted wof_sf_preview_hidden">مخفية عن الموظف: <t t-esc="hiddenFieldNames"/></span>
-                            </aside>
-                        </div>
                     </t>
 
                     <!-- 4b. Tax and pricing -->
