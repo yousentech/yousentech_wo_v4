@@ -26,7 +26,6 @@
                                     its required parent dialog_id.
                                 -->
                                 <field name="dialog_id" column_invisible="1" force_save="1"/>
-                                <field name="company_id" column_invisible="1"/>
                                 <field name="sequence" widget="handle"/>
                                 <field name="name" string="اسم النموذج" required="1" placeholder="مثال: النموذج الأساسي"/>
                                 <field name="is_default" string="افتراضي" widget="boolean_toggle"/>

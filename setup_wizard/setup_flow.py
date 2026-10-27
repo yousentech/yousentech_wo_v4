@@ -61,7 +61,6 @@ class WofCompanyProfileSetupFlow(models.Model):
     def _wof_flow_taxes(self):
         return self.env['account.tax'].search([
             ('type_tax_use', '=', 'sale'),
-            ('company_id', '=', self.company_id.id),
             ('active', '=', True),
         ])
 
@@ -72,7 +71,7 @@ class WofCompanyProfileSetupFlow(models.Model):
 
     def _wof_flow_snapshot(self):
         self.ensure_one()
-        currency = self.company_id.currency_id
+        currency = self.env.company.currency_id
         return {
             'id': self.id,
             'state': self.state,

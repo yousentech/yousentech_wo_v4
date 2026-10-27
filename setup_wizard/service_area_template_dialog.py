@@ -52,9 +52,9 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
         names = [(line.name or '').strip().lower() for line in lines]
         if len(names) != len(set(names)):
             raise ValidationError(_('لا يمكن تكرار اسم النموذج داخل منطقة الخدمة.'))
-        wrong = lines.mapped('component_ids').filtered(lambda part: part.company_id != self.company_id or part.part_type != 'car_part')
+        wrong = lines.mapped('component_ids').filtered(lambda part: part.part_type != 'car_part')
         if wrong:
-            raise ValidationError(_('مكونات النماذج يجب أن تكون أجزاء سيارة من نفس الشركة.'))
+            raise ValidationError(_('مكونات النماذج يجب أن تكون أجزاء سيارة.'))
         self.service_area_part_ids = [(6, 0, defaults.component_ids.ids)]
 
     def _sync_persistent_templates(self, part):
@@ -93,7 +93,7 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
         result = super().action_create_and_add()
         if self.expected_type == 'service_area':
             part = self.env['wof.car.parts'].search([
-                ('company_id', '=', self.company_id.id), ('name', '=ilike', (self.name or '').strip()),
+                ('name', '=ilike', (self.name or '').strip()),
                 ('part_type', '=', 'service_area')], order='id desc', limit=1)
             if part:
                 self._sync_persistent_templates(part)
@@ -107,14 +107,13 @@ class WofFilmSetupServiceAreaTemplateLine(models.TransientModel):
     _order = 'sequence, id'
 
     dialog_id = fields.Many2one('wof.film.setup.component.create.dialog', required=True, ondelete='cascade', index=True)
-    company_id = fields.Many2one(related='dialog_id.company_id', readonly=True)
     template_id = fields.Many2one('wof.service.area.template', readonly=True, ondelete='set null')
     sequence = fields.Integer(string='الترتيب', default=10)
     name = fields.Char(string='اسم النموذج', required=True)
     is_default = fields.Boolean(string='افتراضي')
     component_ids = fields.Many2many(
         'wof.car.parts', 'wof_film_setup_area_template_line_part_rel', 'line_id', 'part_id', string='المكونات',
-        domain="[('company_id', '=', company_id), ('part_type', '=', 'car_part'), ('active', '=', True)]")
+        domain="[('part_type', '=', 'car_part'), ('active', '=', True)]")
 
     @api.onchange('is_default')
     def _onchange_is_default(self):
@@ -156,7 +155,7 @@ class WofFilmSetupWizardTemplateTree(models.TransientModel):
             return
         existing_part_ids = set(self.film_id.film_part_line_ids.filtered('part_selected').mapped('car_part_id').ids)
         masters = self.env['wof.car.parts'].with_context(active_test=False).search([
-            ('company_id', '=', self.company_id.id), ('active', '=', True)], order='priority_part, name, id')
+            ('active', '=', True)], order='priority_part, name, id')
         vals, seq = [], 10
         for part in masters:
             if part.id not in existing_part_ids:
@@ -172,8 +171,8 @@ class WofFilmSetupWizardTemplateTree(models.TransientModel):
     def _append_component_master(self, part):
         self.ensure_one()
         part.ensure_one()
-        if part.company_id != self.company_id or not part.active:
-            raise ValidationError(_('المكوّن المحدد غير متاح لهذه الشركة.'))
+        if not part.active:
+            raise ValidationError(_('المكوّن المحدد غير مفعّل.'))
         existing = self.component_line_ids.filtered(lambda line: not line.is_child and line.car_part_id == part)[:1]
         if existing:
             existing.selected = True

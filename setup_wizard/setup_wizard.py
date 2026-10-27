@@ -138,14 +138,10 @@ class WofCompanyProfile(models.Model):
     _name = 'wof.company.profile'
     _inherit = ['wof.api.mixin']
     _description = 'ملف تهيئة نظام العناية'
-    _rec_name = 'company_id'
-    _order = 'company_id'
-    _check_company_auto = True
+    _order = 'id'
 
-    company_id = fields.Many2one(
-        'res.company', string="الشركة", required=True,
-        default=lambda self: self.env.company, ondelete='cascade', index=True,
-    )
+    # One setup profile drives the whole system: every branch shares it.
+    singleton_key = fields.Boolean(default=True, required=True, readonly=True, copy=False)
     state = fields.Selection(
         [('draft', 'لم تبدأ'), ('in_progress', 'قيد التهيئة'), ('ready', 'جاهز للتشغيل')],
         string="حالة التهيئة", default='draft', required=True, index=True,
@@ -189,8 +185,8 @@ class WofCompanyProfile(models.Model):
     )
     operation_tax_enabled = fields.Boolean(string='تطبيق الضريبة', default=True)
     operation_tax_id = fields.Many2one(
-        'account.tax', string='الضريبة الافتراضية', check_company=True,
-        domain="[('type_tax_use', '=', 'sale'), ('company_id', '=', company_id)]",
+        'account.tax', string='الضريبة الافتراضية',
+        domain="[('type_tax_use', '=', 'sale')]",
     )
     operation_price_input_mode = fields.Selection(
         [('excluded', 'سعر البيع غير شامل الضريبة'), ('included', 'سعر البيع شامل الضريبة')],
@@ -261,9 +257,13 @@ class WofCompanyProfile(models.Model):
     missing_price_count = fields.Integer(compute='_compute_dashboard')
 
     _sql_constraints = [
-        ('company_profile_company_unique', 'unique(company_id)',
-         'يوجد ملف تهيئة لهذه الشركة مسبقًا.'),
+        ('company_profile_company_unique', 'unique(singleton_key)',
+         'يوجد ملف تهيئة للنظام مسبقًا.'),
     ]
+
+    def _compute_display_name(self):
+        for record in self:
+            record.display_name = _('تهيئة نظام العناية')
 
     def _ensure_can_configure(self):
         if not self.env.user.has_group(
@@ -276,15 +276,8 @@ class WofCompanyProfile(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            company = self.env['res.company'].browse(
-                vals.get('company_id') or self.env.company.id
-            ).exists()
-            if not company or company not in self.env.companies:
-                raise AccessError(_(
-                    'لا يمكنك إنشاء ملف تهيئة لشركة غير مسموحة.'
-                ))
             vals.update({
-                'company_id': company.id,
+                'singleton_key': True,
                 'state': 'draft',
                 'current_step': 'activity',
                 'completed_at': False,
@@ -316,7 +309,7 @@ class WofCompanyProfile(models.Model):
         if tracked.intersection(vals):
             self._ensure_can_configure()
         protected = {
-            'company_id', 'state', 'current_step',
+            'singleton_key', 'state', 'current_step',
             'completed_at', 'setup_version',
         }
         if (
@@ -360,22 +353,22 @@ class WofCompanyProfile(models.Model):
         ).write(vals)
 
     @api.model
+    def _wof_get_profile(self):
+        """The single system-wide setup profile (shared by every branch)."""
+        return self.search([], limit=1)
+
+    @api.model
     def get_or_create_for_company(self, company=None):
-        company = company or self.env.company
-        if company not in self.env.companies:
-            raise AccessError(_('الشركة المطلوبة ليست ضمن الشركات المسموح لك بالعمل عليها.'))
-        profile = self.search([('company_id', '=', company.id)], limit=1)
+        # ``company`` is accepted for backward compatibility only: the setup is
+        # shared by all branches, so there is exactly one profile.
+        profile = self._wof_get_profile()
         if not profile:
             try:
                 with self.env.cr.savepoint():
-                    profile = self.with_company(company).create({
-                        'company_id': company.id,
-                    })
+                    profile = self.create({})
                     profile._audit_event('setup.profile.created')
             except IntegrityError:
-                profile = self.search([
-                    ('company_id', '=', company.id),
-                ], limit=1)
+                profile = self._wof_get_profile()
                 if not profile:
                     raise
         profile._ensure_default_activities()
@@ -383,23 +376,20 @@ class WofCompanyProfile(models.Model):
 
     @api.model
     def open_main_menu(self, company=None):
-        company = company or self.env.company
-        if company not in self.env.companies:
-            raise AccessError(_('الشركة المطلوبة ليست ضمن الشركات المسموح لك بالعمل عليها.'))
-        profile = self.search([('company_id', '=', company.id)], limit=1)
+        profile = self._wof_get_profile()
         can_configure = self.env.user.has_group(
             'yousentech_wo_v4.group_wo_settings'
         )
         if not profile:
             if not can_configure:
                 raise AccessError(_(
-                    'لم تبدأ تهيئة نظام العناية لهذه الشركة. '
+                    'لم تبدأ تهيئة نظام العناية بعد. '
                     'اطلب من مسؤول تهيئة النظام إكمالها أولًا.'
                 ))
-            profile = self.get_or_create_for_company(company)
+            profile = self.get_or_create_for_company()
         if profile.state != 'ready' and not can_configure:
             raise AccessError(_(
-                'تهيئة نظام العناية لهذه الشركة غير مكتملة. '
+                'تهيئة نظام العناية غير مكتملة. '
                 'اطلب من مسؤول التهيئة إكمالها.'
             ))
         if profile.state == 'ready':
@@ -568,7 +558,7 @@ class WofCompanyProfile(models.Model):
         self.ensure_one()
         return {
             'public_uuid': self.public_uuid,
-            'company_uuid': self.company_id.wof_public_uuid,
+            'company_uuid': self.env.company.wof_public_uuid,
             'state': self.state,
             'current_step': self.current_step,
             'progress': self.progress,
@@ -594,7 +584,7 @@ class WofCompanyProfile(models.Model):
         size_model = self.env['wof.car.size']
         price_model = self.env['wof.film.parts.price.lines']
         for record in self:
-            domain = [('company_id', '=', record.company_id.id)]
+            domain = []
             record.service_count = service_model.search_count(domain)
             record.film_count = film_model.search_count(domain)
             record.size_count = size_model.search_count(domain)
@@ -769,9 +759,12 @@ class WofCompanyProfile(models.Model):
         self.ensure_one()
         if self.operation_tax_id:
             return True
+        # Taxes belong to a company in Odoo; the main (root) company's taxes are
+        # usable by all of its branches, so the shared setup prefers them.
+        tax_company = self.env.company.root_id
         tax = self.env['account.tax'].search([
             ('type_tax_use', '=', 'sale'),
-            ('company_id', '=', self.company_id.id),
+            ('company_id', '=', tax_company.id),
             ('amount_type', '=', 'percent'),
             ('amount', '=', 15),
             ('active', '=', True),
@@ -779,7 +772,7 @@ class WofCompanyProfile(models.Model):
         if not tax:
             tax = self.env['account.tax'].search([
                 ('type_tax_use', '=', 'sale'),
-                ('company_id', '=', self.company_id.id),
+                ('company_id', '=', tax_company.id),
                 ('active', '=', True),
             ], limit=1)
         if tax:
@@ -867,14 +860,12 @@ class WofCompanyProfile(models.Model):
         Degree = self.env['wof.tint.degree'].with_context(active_test=False)
         if not self.has_tint_activity:
             Degree.search([
-                ('company_id', '=', self.company_id.id),
                 ('is_setup_default', '=', True),
             ]).write({'active': False})
             return
         selected = self.tint_shade_line_ids.filtered('selected')
         selected_codes = set(selected.mapped('code'))
         managed = Degree.search([
-            ('company_id', '=', self.company_id.id),
             ('is_setup_default', '=', True),
         ])
         managed.filtered(lambda degree: degree.code not in selected_codes).write({'active': False})
@@ -882,16 +873,13 @@ class WofCompanyProfile(models.Model):
             # The technical code is the stable identity. The user may rename the
             # visible shade label without breaking films/components linked later.
             degree = Degree.search([
-                ('company_id', '=', self.company_id.id),
                 ('code', '=', line.code),
             ], limit=1)
             if not degree:
                 degree = Degree.search([
-                    ('company_id', '=', self.company_id.id),
                     ('value', '=', line.value),
                 ], limit=1)
             vals = {
-                'company_id': self.company_id.id,
                 'sequence': line.sequence,
                 'value': line.value,
                 'code': line.code,
@@ -1082,7 +1070,6 @@ class WofCompanyProfile(models.Model):
         """Apply only onboarding master data. Films/services/components are configured later."""
         self.ensure_one()
         self._ensure_can_configure()
-        company = self.company_id
 
         # Activities: official master records, without creating any film/service below them.
         Activity = self.env['wof.service.type'].with_context(active_test=False)
@@ -1091,10 +1078,9 @@ class WofCompanyProfile(models.Model):
             code = 'ACT-SETUP-TINT' if line.activity_type == 'tint' else 'ACT-SETUP-GEN-%s' % line.id
             managed_codes.append(code)
             activity = Activity.search([
-                ('company_id', '=', company.id), ('code', '=', code),
+                ('code', '=', code),
             ], limit=1)
             vals = {
-                'company_id': company.id,
                 'code': code,
                 'name': line.name,
                 'description': line.description or False,
@@ -1106,7 +1092,7 @@ class WofCompanyProfile(models.Model):
             else:
                 # Reuse an existing same-name activity where safe, otherwise create our managed record.
                 same_name = Activity.search([
-                    ('company_id', '=', company.id), ('name', '=', line.name),
+                    ('name', '=', line.name),
                 ], limit=1)
                 if same_name and same_name.code not in managed_codes:
                     same_name.write({k: v for k, v in vals.items() if k != 'code'})
@@ -1117,10 +1103,10 @@ class WofCompanyProfile(models.Model):
         Size = self.env['wof.car.size'].with_context(active_test=False)
         for line in self.size_line_ids:
             size = Size.search([
-                ('company_id', '=', company.id), ('code', '=', line.code),
+                ('code', '=', line.code),
             ], limit=1)
             vals = {
-                'company_id': company.id, 'code': line.code, 'name': line.name,
+                'code': line.code, 'name': line.name,
                 'active': bool(line.selected),
             }
             size.write(vals) if size else Size.create(vals)
@@ -1156,7 +1142,6 @@ class WofCompanyProfile(models.Model):
         self._ensure_can_configure()
         hub = self.env['wof.activity.hub'].create({
             'profile_id': self.id,
-            'company_id': self.company_id.id,
             'view_state': 'activities',
         })
         hub._refresh_activities()
@@ -1179,7 +1164,6 @@ class WofCompanyProfile(models.Model):
             raise ValidationError(
                 _('لا يمكن تطبيق القوالب الآن: %s') % self.readiness_note
             )
-        company = self.company_id
         sizes = {}
         disabled_size_codes = self.size_line_ids.filtered(
             lambda line: not line.selected
@@ -1187,15 +1171,14 @@ class WofCompanyProfile(models.Model):
         if disabled_size_codes:
             self.env['wof.car.size'].search([
                 ('code', 'in', disabled_size_codes),
-                ('company_id', '=', company.id),
             ]).write({'active': False})
         for draft in self.size_line_ids.filtered('selected'):
             record = self.env['wof.car.size'].search([
-                ('code', '=', draft.code), ('company_id', '=', company.id),
+                ('code', '=', draft.code),
             ], limit=1)
             vals = {
                 'name': draft.name, 'code': draft.code,
-                'company_id': company.id, 'active': True,
+                'active': True,
             }
             if record:
                 record.write(vals)
@@ -1211,23 +1194,20 @@ class WofCompanyProfile(models.Model):
         if disabled_service_codes:
             disabled_services = self.env['wof.service.type'].search([
                 ('code', 'in', disabled_service_codes),
-                ('company_id', '=', company.id),
             ])
             disabled_services.write({'active': False})
             self.env['wof.film.category'].search([
                 ('service_type_id', 'in', disabled_services.ids),
-                ('company_id', '=', company.id),
             ]).write({'active': False})
 
         for draft in self.service_line_ids.filtered('enabled'):
             service = self.env['wof.service.type'].search([
                 ('code', '=', draft.code),
-                ('company_id', '=', company.id),
             ], limit=1)
             vals = {
                 'name': draft.name, 'code': draft.code,
                 'service_options': draft.service_kind,
-                'company_id': company.id, 'active': True,
+                'active': True,
             }
             if service:
                 service.write(vals)
@@ -1236,7 +1216,7 @@ class WofCompanyProfile(models.Model):
 
             film_code = '%s-DEFAULT' % draft.code
             film = self.env['wof.film.category'].search([
-                ('code', '=', film_code), ('company_id', '=', company.id),
+                ('code', '=', film_code),
             ], limit=1)
             film_vals = {
                 'name': draft.film_name, 'code': film_code,
@@ -1314,45 +1294,33 @@ class WofCompanyProfile(models.Model):
 
     def _ensure_part(self, template, service_draft):
         self.ensure_one()
-        company = self.company_id
         part = self.env['wof.car.parts'].search([
-            ('code', '=', template.code), ('company_id', '=', company.id),
+            ('code', '=', template.code),
         ], limit=1)
+        # Service products are shared (no company) so every branch can sell them.
         products = self.env['product.product'].search([
             ('default_code', '=', template.code),
             ('type', '=', 'service'),
-            ('company_id', '=', company.id),
+            ('company_id', '=', False),
         ], limit=2)
         if len(products) > 1:
             raise ValidationError(_(
-                'يوجد أكثر من صنف خدمي بالكود %s في الشركة. '
+                'يوجد أكثر من صنف خدمي مشترك بالكود %s. '
                 'وحّد الأكواد قبل تطبيق التهيئة.'
             ) % template.code)
         product = products
         if not product:
-            products = self.env['product.product'].search([
-                ('default_code', '=', template.code),
-                ('type', '=', 'service'),
-                ('company_id', '=', False),
-            ], limit=2)
-            if len(products) > 1:
-                raise ValidationError(_(
-                    'يوجد أكثر من صنف خدمي مشترك بالكود %s. '
-                    'وحّد الأكواد قبل تطبيق التهيئة.'
-                ) % template.code)
-            product = products
-        if not product:
             product_template = self.env['product.template'].create({
                 'name': template.name, 'default_code': template.code,
                 'type': 'service', 'sale_ok': True, 'purchase_ok': False,
-                'company_id': company.id,
+                'company_id': False,
                 'list_price': service_draft.base_price * template.price_ratio,
                 'taxes_id': [(6, 0, service_draft.tax_id.ids)],
             })
             product = product_template.product_variant_id
         vals = {
             'name': template.name, 'code': template.code,
-            'company_id': company.id, 'product_id': product.id, 'active': True,
+            'product_id': product.id, 'active': True,
         }
         if part:
             part.write(vals)
@@ -1395,7 +1363,7 @@ class WofCompanyProfile(models.Model):
 
     def _related_action(self, xmlid, domain=None):
         self.ensure_one()
-        action = self.env.ref(xmlid).read()[0]
+        action = self.env['ir.actions.act_window']._for_xml_id(xmlid)
         if domain is not None:
             action['domain'] = domain
         return action
@@ -1403,31 +1371,31 @@ class WofCompanyProfile(models.Model):
     def action_open_services(self):
         return self._related_action(
             'yousentech_wo_v4.action_service_types_wo_v4',
-            [('company_id', '=', self.company_id.id)],
+            [],
         )
 
     def action_open_films(self):
         return self._related_action(
             'yousentech_wo_v4.action_film_category_wo_v4',
-            [('company_id', '=', self.company_id.id)],
+            [],
         )
 
     def action_open_sizes(self):
         return self._related_action(
             'yousentech_wo_v4.action_car_size_wo_v4',
-            [('company_id', '=', self.company_id.id)],
+            [],
         )
 
     def action_open_prices(self):
         return self._related_action(
             'yousentech_wo_v4.action_film_parts_price_lines',
-            [('company_id', '=', self.company_id.id)],
+            [],
         )
 
     def action_open_commissions(self):
         return self._related_action(
             'yousentech_wo_v4.action_film_parts_commission_lines',
-            [('company_id', '=', self.company_id.id)],
+            [],
         )
 
 
@@ -1439,9 +1407,6 @@ class WofSetupActivityLine(models.Model):
     sequence = fields.Integer(default=10)
     profile_id = fields.Many2one(
         'wof.company.profile', required=True, ondelete='cascade', index=True,
-    )
-    company_id = fields.Many2one(
-        related='profile_id.company_id', store=True, index=True, readonly=True,
     )
     activity_type = fields.Selection(
         SETUP_ACTIVITY_TYPES, string='نوع النشاط الداخلي',
@@ -1530,7 +1495,6 @@ class WofSetupSizeLine(models.Model):
     profile_id = fields.Many2one(
         'wof.company.profile', required=True, ondelete='cascade', index=True,
     )
-    company_id = fields.Many2one(related='profile_id.company_id', store=True, index=True)
     selected = fields.Boolean(string="مفعّل", default=True)
     code = fields.Char(string="الكود", required=True)
     name = fields.Char(string="اسم الحجم", required=True)
@@ -1598,9 +1562,6 @@ class WofSetupTintShadeLine(models.Model):
     profile_id = fields.Many2one(
         'wof.company.profile', required=True, ondelete='cascade', index=True,
     )
-    company_id = fields.Many2one(
-        related='profile_id.company_id', store=True, index=True, readonly=True,
-    )
     numbering_method = fields.Selection(
         TINT_NUMBERING_METHODS, required=True, readonly=True,
     )
@@ -1652,9 +1613,6 @@ class WofSetupOperationFieldLine(models.Model):
     profile_id = fields.Many2one(
         'wof.company.profile', required=True, ondelete='cascade', index=True,
     )
-    company_id = fields.Many2one(
-        related='profile_id.company_id', store=True, index=True, readonly=True,
-    )
     field_key = fields.Selection(OPERATION_FIELD_KEYS, string='الحقل', required=True, readonly=True)
     label = fields.Char(string='الخاصية', required=True, readonly=True)
     required = fields.Boolean(string='إجباري')
@@ -1705,9 +1663,9 @@ class WofSetupServiceLine(models.Model):
     profile_id = fields.Many2one(
         'wof.company.profile', required=True, ondelete='cascade', index=True,
     )
-    company_id = fields.Many2one(related='profile_id.company_id', store=True, index=True)
     currency_id = fields.Many2one(
-        related='company_id.currency_id', store=True, readonly=True,
+        'res.currency', readonly=True,
+        default=lambda self: self.env.company.currency_id,
     )
     template_id = fields.Many2one('wof.setup.template', ondelete='restrict')
     service_kind = fields.Selection(SERVICE_OPTIONS, required=True)
@@ -1719,8 +1677,8 @@ class WofSetupServiceLine(models.Model):
         string="السعر الأساسي", currency_field='currency_id',
     )
     tax_id = fields.Many2one(
-        'account.tax', string="الضريبة", check_company=True,
-        domain="[('type_tax_use', '=', 'sale'), ('company_id', '=', company_id)]",
+        'account.tax', string="الضريبة",
+        domain="[('type_tax_use', '=', 'sale')]",
     )
     warranty_years = fields.Integer(string="سنوات الضمان", default=1)
     default_commission = fields.Monetary(

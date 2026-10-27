@@ -14,7 +14,6 @@ class FilmPartLineTintPolicy(models.Model):
         'grade_id',
         string='درجات اللون المسموحة',
         domain="[('header_id', '=', header_id), ('active', '=', True)]",
-        check_company=True,
         help='إذا تُرك الحقل فارغًا فلا يطبق قيد إضافي على درجات هذا المكوّن.',
     )
     warning_msg = fields.Char(

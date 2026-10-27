@@ -985,18 +985,19 @@ def check_installation_order(validation, models, methods, fields):
 
 
 def check_service_architecture(validation, models, methods, fields):
+    # Settings are shared by every branch, so they carry no company_id.
     required_fields = {
         "wof.service.type": {
-            "code", "public_uuid", "company_id", "service_options",
+            "code", "public_uuid", "service_options",
             "supports_color_grades", "service_ids",
         },
         "wof.film.category": {
-            "code", "public_uuid", "company_id", "service_type_id",
+            "code", "public_uuid", "service_type_id",
             "supports_color_grades", "film_part_line_ids",
             "film_category_line_ids", "pricing_summary",
         },
         "wof.film.category.lines": {
-            "code", "header_id", "transmission_percent", "company_id",
+            "code", "header_id", "transmission_percent",
         },
         "wof.film.parts.lines": {
             "header_id", "car_part_id", "film_category_line_id",

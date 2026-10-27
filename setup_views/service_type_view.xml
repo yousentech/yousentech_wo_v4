@@ -25,7 +25,6 @@
                 <field name="service_options"/>
                 <field name="film_count" string="الخدمات"/>
                 <field name="parts_count" string="المكوّنات"/>
-                <field name="company_id" groups="base.group_multi_company"/>
                 <field name="active" column_invisible="1"/>
             </tree>
         </field>
@@ -42,7 +41,6 @@
                 <field name="supports_color_grades"/>
                 <field name="parts_count"/>
                 <field name="film_count"/>
-                <field name="company_id"/>
                 <field name="active"/>
                 <templates>
                     <t t-name="kanban-box">
@@ -123,8 +121,6 @@
                                    options="{'horizontal': true}"/>
                             <field name="description"
                                    placeholder="وصف مختصر يساعد الموظف على اختيار النشاط"/>
-                            <field name="company_id" readonly="1"
-                                   groups="base.group_multi_company"/>
                         </group>
                         <group class="wof_service_card" string="ملخص الجاهزية">
                             <field name="film_count" string="عدد الخدمات" readonly="1"/>
@@ -162,14 +158,9 @@
                 <filter string="مؤرشف" name="inactive"
                         domain="[('active', '=', False)]"/>
                 <group expand="0" string="تجميع">
-                    <filter string="الشركة" name="groupby_company"
-                            context="{'group_by': 'company_id'}"/>
                     <filter string="فئة النشاط" name="groupby_kind"
                             context="{'group_by': 'service_options'}"/>
                 </group>
-                <searchpanel>
-                    <field name="company_id"/>
-                </searchpanel>
             </search>
         </field>
     </record>

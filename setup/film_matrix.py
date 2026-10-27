@@ -16,7 +16,7 @@ The OWL client action ``wof_pricing_matrix`` reads one JSON snapshot with
 """
 
 from odoo import _, api, fields, models
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import ValidationError
 
 
 class WofFilmMatrix(models.Model):
@@ -25,8 +25,6 @@ class WofFilmMatrix(models.Model):
     # ------------------------------------------------------------------ helpers
     def _wof_matrix_check_access(self):
         self.ensure_one()
-        if self.company_id not in self.env.companies:
-            raise AccessError(_('لا يمكنك تعديل فيلم أو خدمة لشركة غير مسموحة.'))
         self.check_access_rights('write')
         self.check_access_rule('write')
 
@@ -35,7 +33,7 @@ class WofFilmMatrix(models.Model):
         sizes = self.car_size_ids.filtered('active')
         if not sizes:
             sizes = self.env['wof.car.size'].search([
-                ('company_id', '=', self.company_id.id), ('active', '=', True),
+                ('active', '=', True),
             ], order='name')
         return sizes.sorted(lambda size: (getattr(size, 'sequence', 0) or 0, size.id))
 
@@ -186,7 +184,7 @@ class WofFilmMatrix(models.Model):
                 'tax_rate': (tax.amount / 100.0) if tax and tax.amount_type == 'percent' else 0.0,
                 'tax_name': tax.name if tax else '',
                 'price_included': (self.price_input_mode == 'included') or bool(tax and tax.price_include),
-                'currency': self.company_id.currency_id.symbol or '',
+                'currency': self.env.company.currency_id.symbol or '',
             },
             'sizes': [{'id': size.id, 'name': size.name, 'code': size.code} for size in sizes],
             'lines': lines,

@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 
 from odoo import api, fields, models, _
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import ValidationError
 
 
 class WofFilmSetupWizard(models.TransientModel):
@@ -13,10 +13,9 @@ class WofFilmSetupWizard(models.TransientModel):
 
     hub_id = fields.Many2one('wof.activity.hub', string='بوابة الأنشطة', readonly=True)
     profile_id = fields.Many2one('wof.company.profile', string='مركز التهيئة', required=True, readonly=True)
-    company_id = fields.Many2one('res.company', string='الشركة', required=True, readonly=True)
     activity_id = fields.Many2one(
         'wof.service.type', string='النشاط', required=True, readonly=True,
-        domain="[('company_id', '=', company_id), ('active', '=', True)]",
+        domain="[('active', '=', True)]",
     )
     film_id = fields.Many2one('wof.film.category', string='الفيلم / الخدمة', readonly=True)
     mode = fields.Selection([('create', 'إضافة'), ('edit', 'تعديل')], default='create', required=True, readonly=True)
@@ -66,7 +65,7 @@ class WofFilmSetupWizard(models.TransientModel):
     car_size_ids = fields.Many2many(
         'wof.car.size', 'wof_film_setup_wizard_car_size_rel', 'wizard_id', 'size_id',
         string='أحجام السيارات',
-        domain="[('company_id', '=', company_id), ('active', '=', True)]",
+        domain="[('active', '=', True)]",
     )
     system_car_size_ids = fields.Many2many(
         'wof.car.size', 'wof_film_setup_wizard_system_size_rel', 'wizard_id', 'size_id',
@@ -83,12 +82,12 @@ class WofFilmSetupWizard(models.TransientModel):
         string='سياسة العمولة من النظام', readonly=True,
     )
 
-    # Tax policy: inherit company setup by default, with an explicit per-film override.
+    # Tax policy: inherit the system setup by default, with an explicit per-film override.
     use_system_tax_policy = fields.Boolean(string='استخدام السياسة الضريبية من النظام', default=True)
     tax_enabled = fields.Boolean(string='تطبيق الضريبة', default=True)
     tax_id = fields.Many2one(
-        'account.tax', string='الضريبة', check_company=True,
-        domain="[('type_tax_use', '=', 'sale'), ('company_id', '=', company_id)]",
+        'account.tax', string='الضريبة',
+        domain="[('type_tax_use', '=', 'sale')]",
     )
     price_input_mode = fields.Selection(
         [('excluded', 'السعر قبل الضريبة'), ('included', 'السعر شامل الضريبة')],
@@ -240,7 +239,6 @@ class WofFilmSetupWizard(models.TransientModel):
                 wizard.activity_parts_count = 0
                 continue
             films = Film.search([
-                ('company_id', '=', wizard.company_id.id),
                 ('service_type_id', '=', wizard.activity_id.id),
             ])
             wizard.activity_film_count = len(films)
@@ -248,28 +246,24 @@ class WofFilmSetupWizard(models.TransientModel):
 
     def _ensure_access(self):
         self.ensure_one()
-        if self.company_id not in self.env.companies:
-            raise AccessError(_('لا يمكنك تهيئة فيلم أو خدمة لشركة غير مسموحة.'))
-        if self.activity_id.company_id != self.company_id or not self.activity_id.active:
-            raise ValidationError(_('النشاط المحدد غير متاح لهذه الشركة.'))
+        if not self.activity_id.active:
+            raise ValidationError(_('النشاط المحدد غير مفعّل.'))
         return True
 
     @api.model
     def create_for_activity(self, activity, hub=None, film=None):
         activity.ensure_one()
-        company = activity.company_id
-        profile = self.env['wof.company.profile'].search([('company_id', '=', company.id)], limit=1)
+        profile = self.env['wof.company.profile']._wof_get_profile()
         if not profile:
-            raise ValidationError(_('لم يتم العثور على ملف تهيئة الشركة.'))
+            raise ValidationError(_('لم يتم العثور على ملف تهيئة النظام.'))
 
         active_sizes = self.env['wof.car.size'].search([
-            ('company_id', '=', company.id), ('active', '=', True)
+            ('active', '=', True)
         ], order='name')
         selected_shades = profile.tint_shade_line_ids.filtered('selected')
         vals = {
             'hub_id': hub.id if hub else False,
             'profile_id': profile.id,
-            'company_id': company.id,
             'activity_id': activity.id,
             'mode': 'edit' if film else 'create',
             'film_id': film.id if film else False,
@@ -452,13 +446,13 @@ class WofFilmSetupWizard(models.TransientModel):
         candidate = base[:40]
         Film = self.env['wof.film.category'].with_context(active_test=False)
         suffix = 1
-        domain = [('company_id', '=', self.company_id.id), ('code', '=', candidate)]
+        domain = [('code', '=', candidate)]
         if self.film_id:
             domain.append(('id', '!=', self.film_id.id))
         while Film.search_count(domain):
             suffix += 1
             candidate = '%s-%s' % (base[:34], suffix)
-            domain = [('company_id', '=', self.company_id.id), ('code', '=', candidate)]
+            domain = [('code', '=', candidate)]
             if self.film_id:
                 domain.append(('id', '!=', self.film_id.id))
         return candidate
@@ -647,7 +641,6 @@ class WofFilmSetupWizard(models.TransientModel):
             return
         existing_part_ids = set(self.film_id.film_part_line_ids.filtered('part_selected').mapped('car_part_id').ids)
         masters = self.env['wof.car.parts'].with_context(active_test=False).search([
-            ('company_id', '=', self.company_id.id),
             ('active', '=', True),
         ], order='priority_part, name, id')
         vals = []
@@ -683,8 +676,8 @@ class WofFilmSetupWizard(models.TransientModel):
     def _append_component_master(self, part):
         self.ensure_one()
         part.ensure_one()
-        if part.company_id != self.company_id or not part.active:
-            raise ValidationError(_('المكوّن المحدد غير متاح لهذه الشركة.'))
+        if not part.active:
+            raise ValidationError(_('المكوّن المحدد غير مفعّل.'))
         existing = self.component_line_ids.filtered(
             lambda line: not line.is_child and line.car_part_id == part
         )[:1]
@@ -936,7 +929,6 @@ class WofFilmSetupWizard(models.TransientModel):
         if not hub.exists():
             hub = self.env['wof.activity.hub'].create({
                 'profile_id': self.profile_id.id,
-                'company_id': self.company_id.id,
                 'view_state': 'films',
                 'selected_activity_id': self.film_id.service_type_id.id,
             })
@@ -1141,7 +1133,6 @@ class WofFilmSetupComponentDialog(models.TransientModel):
     _description = 'اختيار مكوّن للفيلم'
 
     wizard_id = fields.Many2one('wof.film.setup.wizard', required=True, ondelete='cascade', readonly=True)
-    company_id = fields.Many2one(related='wizard_id.company_id', readonly=True)
     expected_type = fields.Selection([('car_part', 'جزء سيارة'), ('service_area', 'منطقة خدمة')], required=True, readonly=True)
     line_id = fields.Many2one('wof.film.setup.component.line', string='السطر الحالي', readonly=True)
     # Do not make this field ORM-required: the transient dialog itself must be
@@ -1149,7 +1140,7 @@ class WofFilmSetupComponentDialog(models.TransientModel):
     # Business-required validation is enforced in action_confirm().
     car_part_id = fields.Many2one(
         'wof.car.parts', string='المكوّن', required=False,
-        domain="[('company_id', '=', company_id), ('active', '=', True), ('part_type', '=', expected_type)]",
+        domain="[('active', '=', True), ('part_type', '=', expected_type)]",
     )
     child_part_ids = fields.Many2many(related='car_part_id.service_area_part_ids', readonly=True)
 
@@ -1220,7 +1211,6 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
     )
     edit_part_id = fields.Many2one('wof.car.parts', string='المكوّن الجاري تعديله', readonly=True)
     edit_line_id = fields.Many2one('wof.film.setup.component.line', string='سطر المكوّن الجاري تعديله', readonly=True)
-    company_id = fields.Many2one(related='wizard_id.company_id', readonly=True)
     expected_type = fields.Selection(
         [('car_part', 'جزء سيارة'), ('service_area', 'منطقة خدمة')],
         required=True, readonly=True,
@@ -1228,7 +1218,7 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
     name = fields.Char(string='اسم المكوّن')
     code = fields.Char(
         string='الكود',
-        help='اختياري. إذا تركته فارغًا سيتم إنشاء كود تلقائي فريد داخل الشركة.',
+        help='اختياري. إذا تركته فارغًا سيتم إنشاء كود تلقائي فريد.',
     )
     auto_create_product = fields.Boolean(
         string='إنشاء صنف خدمي تلقائيًا', default=True,
@@ -1244,7 +1234,7 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
         'wof_film_component_create_area_part_rel',
         'dialog_id', 'part_id',
         string='أجزاء منطقة الخدمة',
-        domain="[('company_id', '=', company_id), ('part_type', '=', 'car_part'), ('active', '=', True)]",
+        domain="[('part_type', '=', 'car_part'), ('active', '=', True)]",
     )
     part_options_required = fields.Boolean(string='الخيارات الإضافية إجبارية')
     part_options_ids = fields.Many2many(
@@ -1285,15 +1275,14 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
         self.ensure_one()
         prefix = 'AREA' if self.expected_type == 'service_area' else 'PART'
         Master = self.env['wof.car.parts'].with_context(active_test=False)
-        # Keep generated codes readable while guaranteeing uniqueness per company.
+        # Keep generated codes readable while guaranteeing uniqueness.
         number = Master.search_count([
-            ('company_id', '=', self.company_id.id),
             ('part_type', '=', self.expected_type),
         ]) + 1
         for _attempt in range(10000):
             code = '%s-%04d' % (prefix, number)
             if not Master.search_count([
-                ('company_id', '=', self.company_id.id), ('code', '=', code),
+                ('code', '=', code),
             ]):
                 return code
             number += 1
@@ -1332,7 +1321,6 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
 
         Master = self.env['wof.car.parts'].with_context(active_test=False)
         duplicate_name = Master.search([
-            ('company_id', '=', self.company_id.id),
             ('name', '=ilike', name),
             ('id', '!=', part.id),
         ], limit=1)
@@ -1341,9 +1329,9 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
 
         code = (self.code or '').strip() or part.code or self._generate_component_code()
         if Master.search_count([
-            ('company_id', '=', self.company_id.id), ('code', '=', code), ('id', '!=', part.id),
+            ('code', '=', code), ('id', '!=', part.id),
         ]):
-            raise ValidationError(_('كود المكوّن "%s" مستخدم مسبقًا في هذه الشركة.') % code)
+            raise ValidationError(_('كود المكوّن "%s" مستخدم مسبقًا.') % code)
 
         product = self._resolve_service_product()
         vals = {
@@ -1394,7 +1382,6 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
 
         Master = self.env['wof.car.parts'].with_context(active_test=False)
         duplicate_name = Master.search([
-            ('company_id', '=', self.company_id.id),
             ('name', '=ilike', name),
         ], limit=1)
         if duplicate_name:
@@ -1404,16 +1391,15 @@ class WofFilmSetupComponentCreateDialog(models.TransientModel):
 
         code = (self.code or '').strip() or self._generate_component_code()
         if Master.search_count([
-            ('company_id', '=', self.company_id.id), ('code', '=', code),
+            ('code', '=', code),
         ]):
-            raise ValidationError(_('كود المكوّن "%s" مستخدم مسبقًا في هذه الشركة.') % code)
+            raise ValidationError(_('كود المكوّن "%s" مستخدم مسبقًا.') % code)
 
         product = self._resolve_service_product()
         vals = {
             'name': name,
             'code': code,
             'part_type': self.expected_type,
-            'company_id': self.company_id.id,
             'product_id': product.id,
             'priority_part': self.priority_part,
             'part_options_required': self.part_options_required,
@@ -1672,7 +1658,11 @@ class WofFilmSetupValueDialog(models.TransientModel):
     part_name = fields.Char(related='commercial_line_id.part_name', readonly=True)
     part_type = fields.Selection(related='commercial_line_id.part_type', readonly=True)
     child_names = fields.Char(related='commercial_line_id.child_names', readonly=True)
-    currency_id = fields.Many2one(related='wizard_id.company_id.currency_id', readonly=True)
+    currency_id = fields.Many2one('res.currency', compute='_compute_wof_currency')
+
+    def _compute_wof_currency(self):
+        for dialog in self:
+            dialog.currency_id = self.env.company.currency_id
     entry_ids = fields.One2many('wof.film.setup.value.entry', 'dialog_id', string='القيم')
     price_charge_mode = fields.Selection(
         [('paid', 'مدفوع'), ('free', 'مجاني')], string='نوع التسعير', default='paid', required=True,

@@ -15,6 +15,8 @@ class TestSetupFlow(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # One setup profile serves every branch: start these tests from a fresh one.
+        cls.env['wof.company.profile'].search([]).unlink()
         cls.company = cls.env['res.company'].create({'name': 'شركة اختبار التهيئة'})
         cls.user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'مسؤول تهيئة الاختبار',
@@ -117,8 +119,8 @@ class TestSetupFlow(TransactionCase):
         self.apply('activate')
         self.assertEqual(self.snap['state'], 'ready')
         self.assertTrue(self.snap['tint']['locked'])
-        sizes = self.env['wof.car.size'].search([('company_id', '=', self.company.id)])
-        self.assertEqual(set(sizes.mapped('code')), {'SMALL', 'MEDIUM', 'LARGE', 'SUV'})
+        sizes = self.env['wof.car.size'].search([])
+        self.assertLessEqual({'SMALL', 'MEDIUM', 'LARGE', 'SUV'}, set(sizes.mapped('code')))
         with self.assertRaises(ValidationError):
             self.apply('tint_method', {'method': 'percentage'})
 

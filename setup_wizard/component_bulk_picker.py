@@ -17,7 +17,7 @@ class WofFilmSetupComponentDialogBulk(models.TransientModel):
         # the base dialog view.  The base view is validated before the inherited
         # bulk-picker view is applied, so referencing search_text here makes
         # Odoo reject the base view during module upgrade.
-        domain="[('company_id', '=', company_id), ('active', '=', True), ('part_type', '=', expected_type)]",
+        domain="[('active', '=', True), ('part_type', '=', expected_type)]",
     )
     selected_count = fields.Integer(string='عدد المحدد', compute='_compute_bulk_counts')
     available_count = fields.Integer(string='عدد المتاح', compute='_compute_bulk_counts')
@@ -25,7 +25,6 @@ class WofFilmSetupComponentDialogBulk(models.TransientModel):
     def _available_parts_domain(self):
         self.ensure_one()
         domain = [
-            ('company_id', '=', self.company_id.id),
             ('active', '=', True),
             ('part_type', '=', self.expected_type),
         ]
@@ -34,12 +33,12 @@ class WofFilmSetupComponentDialogBulk(models.TransientModel):
             domain += ['|', ('name', 'ilike', search), ('code', 'ilike', search)]
         return domain
 
-    @api.depends('selected_part_ids', 'search_text', 'company_id', 'expected_type')
+    @api.depends('selected_part_ids', 'search_text', 'expected_type')
     def _compute_bulk_counts(self):
         Master = self.env['wof.car.parts']
         for dialog in self:
             dialog.selected_count = len(dialog.selected_part_ids)
-            dialog.available_count = Master.search_count(dialog._available_parts_domain()) if dialog.company_id else 0
+            dialog.available_count = Master.search_count(dialog._available_parts_domain()) if dialog.expected_type else 0
 
     def action_select_all(self):
         self.ensure_one()
@@ -65,8 +64,7 @@ class WofFilmSetupComponentDialogBulk(models.TransientModel):
             raise ValidationError(_('حدد مكوّنًا واحدًا على الأقل قبل الإضافة.'))
 
         wrong = parts.filtered(
-            lambda part: part.company_id != self.company_id
-            or not part.active
+            lambda part: not part.active
             or part.part_type != self.expected_type
         )
         if wrong:

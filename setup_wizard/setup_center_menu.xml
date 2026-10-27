@@ -3,10 +3,12 @@
     <record id="action_wo_setup_center_server" model="ir.actions.server">
         <field name="name">مركز الإعدادات</field>
         <field name="model_id" ref="base.model_res_company"/>
+        <!-- Without groups, Odoo requires write access on companies to run it. -->
+        <field name="groups_id" eval="[(4, ref('yousentech_wo_v4.group_wo_settings'))]"/>
         <field name="state">code</field>
         <field name="code">
-profile = env['wof.company.profile'].search([('company_id', '=', env.company.id)], limit=1)
-action = profile.action_open_setup_center() if profile else env['wof.company.profile'].get_or_create_for_company(env.company)._wizard_action()
+profile = env['wof.company.profile']._wof_get_profile()
+action = profile.action_open_setup_center() if profile else env['wof.company.profile'].get_or_create_for_company()._wizard_action()
         </field>
     </record>
 

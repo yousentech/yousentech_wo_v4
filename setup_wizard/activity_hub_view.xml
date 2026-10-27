@@ -6,7 +6,6 @@
         <field name="arch" type="xml">
             <form string="الأنشطة المفعلة" class="wof_activity_hub_form" create="0" edit="0" delete="0">
                 <field name="profile_id" invisible="1"/>
-                <field name="company_id" invisible="1"/>
                 <field name="view_state" invisible="1"/>
                 <field name="selected_activity_id" invisible="1"/>
                 <field name="activity_count" invisible="1"/>
@@ -25,7 +24,6 @@
                             أضف الأفلام والخدمات التي يقدمها هذا النشاط، ثم قم بتهيئة المكونات والأسعار لكل نوع.
                         </p>
                         <div class="wof_hub_context" invisible="view_state != 'activities'">
-                            <span><i class="fa fa-building-o" title="الشركة"/> <field name="company_id" readonly="1"/></span>
                             <span><field name="activity_count" readonly="1"/> أنشطة مفعلة</span>
                         </div>
                         <div class="wof_hub_context" invisible="view_state != 'films'">

@@ -7,7 +7,6 @@
             <form string="إضافة فيلم / خدمة جديدة" class="wof_film_setup_form" create="0" edit="1" delete="0">
                 <field name="hub_id" invisible="1"/>
                 <field name="profile_id" invisible="1"/>
-                <field name="company_id" invisible="1"/>
                 <field name="activity_id" invisible="1"/>
                 <field name="film_id" invisible="1"/>
                 <field name="mode" invisible="1"/>
@@ -575,7 +574,6 @@
         <field name="arch" type="xml">
             <form string="إضافة مكوّن" class="wof_component_dialog_form" create="0" edit="1" delete="0">
                 <field name="wizard_id" invisible="1"/>
-                <field name="company_id" invisible="1"/>
                 <field name="expected_type" invisible="1"/>
                 <field name="line_id" invisible="1"/>
                 <div class="wof_component_dialog_shell">
@@ -632,7 +630,6 @@
             <form string="إنشاء مكوّن جديد" class="wof_component_create_form" create="0" edit="1" delete="0">
                 <field name="wizard_id" invisible="1"/>
                 <field name="source_dialog_id" invisible="1"/>
-                <field name="company_id" invisible="1"/>
                 <field name="expected_type" invisible="1"/>
                 <field name="edit_part_id" invisible="1"/>
                 <field name="edit_line_id" invisible="1"/>

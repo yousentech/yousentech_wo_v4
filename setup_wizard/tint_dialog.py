@@ -44,7 +44,6 @@ class WofSetupTintDialog(models.TransientModel):
         if duplicate:
             raise ValidationError(_('اسم درجة اللون مستخدم مسبقًا في مركز التهيئة.'))
         official_duplicate = self.env['wof.tint.degree'].with_context(active_test=False).search_count([
-            ('company_id', '=', self.profile_id.company_id.id),
             ('value', '=ilike', name),
             ('code', '!=', self.tint_line_id.code),
         ])

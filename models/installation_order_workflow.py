@@ -19,7 +19,7 @@ class WofInstallationOrderWorkflow(models.Model):
 
     def _profile(self):
         self.ensure_one()
-        return self._ensure_company_is_ready(self.company_id)
+        return self._ensure_setup_is_ready()
 
     def _ensure_role(self, *group_xmlids):
         if not any(self.env.user.has_group(group) for group in group_xmlids):
@@ -532,8 +532,7 @@ class WofInstallationOrderWorkflow(models.Model):
 
     @api.model
     def open_main_menu(self):
-        company = self.env.company
-        self._ensure_company_is_ready(company)
-        return self.env.ref(
+        self._ensure_setup_is_ready()
+        return self.env['ir.actions.act_window']._for_xml_id(
             'yousentech_wo_v4.action_wof_installation_order'
-        ).read()[0]
+        )

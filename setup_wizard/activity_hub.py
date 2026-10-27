@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import fields, models, _
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import ValidationError
 
 
 class WofActivityHub(models.TransientModel):
@@ -11,9 +11,6 @@ class WofActivityHub(models.TransientModel):
     profile_id = fields.Many2one(
         'wof.company.profile', string='مركز التهيئة', required=True,
         ondelete='cascade', readonly=True,
-    )
-    company_id = fields.Many2one(
-        'res.company', string='الشركة', required=True, readonly=True,
     )
     view_state = fields.Selection(
         [('activities', 'الأنشطة'), ('films', 'الأفلام والخدمات')],
@@ -38,8 +35,6 @@ class WofActivityHub(models.TransientModel):
 
     def _ensure_access(self):
         self.ensure_one()
-        if self.company_id not in self.env.companies:
-            raise AccessError(_('لا يمكنك إدارة أنشطة شركة غير مسموحة للمستخدم الحالي.'))
         return True
 
     def _refresh_activities(self):
@@ -47,7 +42,6 @@ class WofActivityHub(models.TransientModel):
         self._ensure_access()
         self.activity_line_ids.unlink()
         activities = self.env['wof.service.type'].search([
-            ('company_id', '=', self.company_id.id),
             ('active', '=', True),
         ], order='code, name')
         Line = self.env['wof.activity.hub.activity']
@@ -58,8 +52,8 @@ class WofActivityHub(models.TransientModel):
     def _select_activity(self, activity):
         self.ensure_one()
         self._ensure_access()
-        if activity.company_id != self.company_id or not activity.active:
-            raise ValidationError(_('النشاط المحدد غير متاح ضمن شركة مركز التهيئة الحالي.'))
+        if not activity.active:
+            raise ValidationError(_('النشاط المحدد غير مفعّل.'))
         self.write({'view_state': 'films', 'selected_activity_id': activity.id})
         self._refresh_films()
         return self._reopen_hub()
@@ -71,7 +65,6 @@ class WofActivityHub(models.TransientModel):
         if not self.selected_activity_id:
             return self.env['wof.film.category']
         films = self.env['wof.film.category'].with_context(active_test=False).search([
-            ('company_id', '=', self.company_id.id),
             ('service_type_id', '=', self.selected_activity_id.id),
         ], order='sequence, name')
         Line = self.env['wof.activity.hub.film']

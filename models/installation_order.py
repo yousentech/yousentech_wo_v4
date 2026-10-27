@@ -170,7 +170,7 @@ class WofInstallationOrder(models.Model):
     vehicle_color = fields.Char(string="اللون")
     car_size_id = fields.Many2one(
         'wof.car.size', string="حجم السيارة", required=True,
-        ondelete='restrict', check_company=True, index=True,
+        ondelete='restrict', index=True,
     )
     odometer = fields.Integer(string="قراءة العداد", copy=False)
 
@@ -330,13 +330,13 @@ class WofInstallationOrder(models.Model):
     _sql_constraints = [
         (
             'installation_order_name_company_unique',
-            'unique(name, company_id)',
-            'رقم أمر التركيب مستخدم مسبقًا في هذا الفرع.',
+            'unique(name)',
+            'رقم أمر التركيب مستخدم مسبقًا.',
         ),
         (
             'installation_order_idempotency_unique',
-            'unique(company_id, idempotency_key)',
-            'مفتاح منع التكرار مستخدم مسبقًا في هذا الفرع.',
+            'unique(idempotency_key)',
+            'مفتاح منع التكرار مستخدم مسبقًا.',
         ),
         (
             'installation_order_odometer_nonnegative',
@@ -378,6 +378,8 @@ class WofInstallationOrder(models.Model):
                 else 0
             )
 
+    # Not a branch filter: the dependency only makes Odoo compute the
+    # candidates for freshly created orders (x2many caches start empty).
     @api.depends('company_id')
     def _compute_assignment_candidates(self):
         reception_group = self.env.ref(
@@ -389,23 +391,21 @@ class WofInstallationOrder(models.Model):
         technician_group = self.env.ref(
             'yousentech_wo_v4.group_wo_technician'
         )
+        # Staff of every branch can be assigned: orders are shared by all branches.
+        staff_domain = [('active', '=', True)]
         for order in self:
-            company_domain = [
-                ('active', '=', True),
-                ('company_ids', 'in', order.company_id.id),
-            ] if order.company_id else [('id', '=', False)]
             order.advisor_candidate_ids = self.env['res.users'].search(
-                company_domain + [
+                staff_domain + [
                     ('groups_id', 'in', (reception_group | supervisor_group).ids),
                 ]
             )
             order.supervisor_candidate_ids = self.env['res.users'].search(
-                company_domain + [
+                staff_domain + [
                     ('groups_id', 'in', supervisor_group.ids),
                 ]
             )
             order.technician_candidate_ids = self.env['res.users'].search(
-                company_domain + [
+                staff_domain + [
                     ('groups_id', 'in', technician_group.ids),
                 ]
             )
@@ -424,46 +424,32 @@ class WofInstallationOrder(models.Model):
                 )
 
     @api.constrains(
-        'company_id',
         'advisor_id',
         'supervisor_id',
         'technician_ids',
     )
     def _check_assigned_users_company(self):
         for order in self:
-            users = (
-                order.advisor_id
-                | order.supervisor_id
-                | order.technician_ids
-            )
-            invalid = users.filtered(
-                lambda user: order.company_id not in user.company_ids
-            )
-            if invalid:
-                raise ValidationError(
-                    'المستخدمون التاليون غير مسموح لهم بالعمل في هذا الفرع: %s.'
-                    % '، '.join(invalid.mapped('display_name'))
-                )
             if (
                 order.advisor_id
                 and order.advisor_id not in order.advisor_candidate_ids
             ):
                 raise ValidationError(
-                    'مستشار الخدمة يجب أن يحمل دور الاستقبال أو الإشراف في هذا الفرع.'
+                    'مستشار الخدمة يجب أن يحمل دور الاستقبال أو الإشراف.'
                 )
             if (
                 order.supervisor_id
                 and order.supervisor_id not in order.supervisor_candidate_ids
             ):
                 raise ValidationError(
-                    'مشرف التشغيل يجب أن يحمل دور مشرف التشغيل في هذا الفرع.'
+                    'مشرف التشغيل يجب أن يحمل دور مشرف التشغيل.'
                 )
             invalid_technicians = (
                 order.technician_ids - order.technician_candidate_ids
             )
             if invalid_technicians:
                 raise ValidationError(
-                    'المستخدمون التاليون لا يحملون دور الفني في هذا الفرع: %s.'
+                    'المستخدمون التاليون لا يحملون دور الفني: %s.'
                     % '، '.join(invalid_technicians.mapped('display_name'))
                 )
             line_technicians = order.line_ids.mapped('execution_technician_id')
@@ -486,22 +472,12 @@ class WofInstallationOrder(models.Model):
                     'موعد التسليم المتوقع يجب أن يكون بعد موعد الاستلام.'
                 )
 
-    @api.constrains('before_attachment_ids', 'after_attachment_ids', 'company_id')
+    @api.constrains('before_attachment_ids', 'after_attachment_ids')
     def _check_order_attachments(self):
         for order in self:
             attachments = (
                 order.before_attachment_ids | order.after_attachment_ids
             )
-            wrong_company = attachments.filtered(
-                lambda attachment: (
-                    attachment.company_id
-                    and attachment.company_id != order.company_id
-                )
-            )
-            if wrong_company:
-                raise ValidationError(
-                    'لا يمكن ربط مرفق تابع لفرع آخر بأمر التركيب.'
-                )
             foreign_bound = attachments.filtered(
                 lambda attachment: (
                     attachment.res_model
@@ -599,11 +575,11 @@ class WofInstallationOrder(models.Model):
                 raise AccessError(
                     _('لا يمكنك إنشاء أمر تركيب لفرع غير مسموح لك بالعمل عليه.')
                 )
-            profile = self._ensure_company_is_ready(company)
+            profile = self._ensure_setup_is_ready()
             vals.update({
                 'active': True,
                 'company_id': company.id,
-                'name': self.env['ir.sequence'].with_company(company).next_by_code(
+                'name': self.env['ir.sequence'].next_by_code(
                     'wof.installation.order'
                 ) or _('جديد'),
                 'state': 'draft',
@@ -669,8 +645,7 @@ class WofInstallationOrder(models.Model):
             raise AccessError('الفرع المطلوب ليس ضمن الفروع المسموحة للمستخدم.')
         prepared = dict(values, company_id=company.id, idempotency_key=key)
         fingerprint = _fingerprint_values(prepared)
-        existing = self.search([
-            ('company_id', '=', company.id),
+        existing = self.with_context(active_test=False).search([
             ('idempotency_key', '=', key),
         ], limit=1)
         if existing:
@@ -686,8 +661,7 @@ class WofInstallationOrder(models.Model):
                     wof_idempotency_token=IDEMPOTENCY_TOKEN
                 ).create(prepared)
         except IntegrityError:
-            existing = self.search([
-                ('company_id', '=', company.id),
+            existing = self.with_context(active_test=False).search([
                 ('idempotency_key', '=', key),
             ], limit=1)
             if existing and existing.idempotency_fingerprint == fingerprint:
@@ -697,13 +671,17 @@ class WofInstallationOrder(models.Model):
             )
 
     @api.model
-    def _ensure_company_is_ready(self, company):
-        profile = self.env['wof.company.profile'].search([
-            ('company_id', '=', company.id),
-        ], limit=1)
+    def _ensure_setup_is_ready(self):
+        """The system setup is shared by every branch."""
+        profile = self.env['wof.company.profile']._wof_get_profile()
         if not profile or profile.state != 'ready':
             raise ValidationError(
-                'تهيئة نظام العناية لهذا الفرع غير مكتملة. '
+                'تهيئة نظام العناية غير مكتملة. '
                 'أكمل التهيئة الأولى قبل إنشاء أمر تركيب.'
             )
         return profile
+
+    @api.model
+    def _ensure_company_is_ready(self, company=None):
+        # Backward-compatible name: readiness no longer depends on the branch.
+        return self._ensure_setup_is_ready()

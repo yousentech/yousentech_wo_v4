@@ -79,8 +79,8 @@ class WofFilmCategoryFlow(models.Model):
 
     @api.model
     def _wof_profile(self, company=None):
-        company = company or self.env.company
-        return self.env['wof.company.profile'].search([('company_id', '=', company.id)], limit=1)
+        # The setup is shared by every branch; ``company`` is kept for old callers.
+        return self.env['wof.company.profile']._wof_get_profile()
 
     # -------------------------------------------------------------- readiness
     def _wof_line_complete(self, lines, policy, sizes, prices=False):
@@ -153,12 +153,11 @@ class WofFilmCategoryFlow(models.Model):
     @api.model
     def wof_films_hub_load(self):
         self._wof_flow_can_read()
-        company = self.env.company
         activities = self.env['wof.service.type'].search([
-            ('company_id', '=', company.id), ('active', '=', True),
+            ('active', '=', True),
         ], order='id').sorted(self._wof_activity_rank)
         films = self.with_context(active_test=False).search([
-            ('company_id', '=', company.id), ('service_type_id', 'in', activities.ids),
+            ('service_type_id', 'in', activities.ids),
         ], order='sequence, name')
         return {
             'can_edit': self.check_access_rights('write', raise_exception=False),
@@ -171,13 +170,13 @@ class WofFilmCategoryFlow(models.Model):
 
     # ------------------------------------------------------------- create/copy
     @api.model
-    def _wof_new_code(self, name, company):
+    def _wof_new_code(self, name, company=None):
         base = re.sub(r'[^A-Z0-9_.-]+', '-', (name or '').strip().upper()).strip('-')
         if not base:
             base = 'FS-%s' % datetime.now().strftime('%Y%m%d%H%M%S')
         candidate, suffix = base[:40], 1
         Film = self.with_context(active_test=False)
-        while Film.search_count([('company_id', '=', company.id), ('code', '=', candidate)]):
+        while Film.search_count([('code', '=', candidate)]):
             suffix += 1
             candidate = '%s-%s' % (base[:34], suffix)
         return candidate
@@ -185,7 +184,7 @@ class WofFilmCategoryFlow(models.Model):
     @api.model
     def _wof_system_policy_vals(self, profile):
         sizes = self.env['wof.car.size'].search([
-            ('company_id', '=', profile.company_id.id), ('active', '=', True),
+            ('active', '=', True),
         ])
         return {
             'use_system_pricing_policy': True, 'pricing_policy': profile.operation_pricing_policy or 'fixed',
@@ -202,7 +201,7 @@ class WofFilmCategoryFlow(models.Model):
     @api.model
     def _wof_target_activity(self, activity_id):
         activity = self.env['wof.service.type'].browse(int(activity_id or 0)).exists()
-        if not activity or activity.company_id not in self.env.companies or not activity.active:
+        if not activity or not activity.active:
             raise ValidationError(_('النشاط المحدد غير متاح.'))
         return activity
 
@@ -216,9 +215,9 @@ class WofFilmCategoryFlow(models.Model):
             raise ValidationError(_('أدخل اسم الفيلم أو الخدمة.'))
         if item_type not in ('film', 'service'):
             item_type = 'film'
-        profile = self._wof_profile(activity.company_id)
+        profile = self._wof_profile()
         vals = {
-            'name': name, 'code': self._wof_new_code(name, activity.company_id),
+            'name': name, 'code': self._wof_new_code(name),
             'service_type_id': activity.id, 'item_type': item_type, 'active': False,
             'warranty_period': 1, 'warranty_unit': 'year',
             'is_effected_in_inventory': bool(profile.use_inventory) if profile else False,
@@ -237,18 +236,16 @@ class WofFilmCategoryFlow(models.Model):
         self.check_access_rights('create')
         options = options or {}
         source = self.with_context(active_test=False).browse(int(source_id or 0)).exists()
-        if not source or source.company_id not in self.env.companies:
+        if not source:
             raise ValidationError(_('الفيلم المصدر غير متاح.'))
         source.check_access_rule('read')
         activity = self._wof_target_activity(activity_id)
-        if activity.company_id != source.company_id:
-            raise ValidationError(_('لا يمكن النسخ بين شركتين مختلفتين.'))
         name = (name or '').strip()
         if not name:
             raise ValidationError(_('أدخل اسم الفيلم أو الخدمة الجديد.'))
-        profile = self._wof_profile(activity.company_id)
+        profile = self._wof_profile()
         vals = {
-            'name': name, 'code': self._wof_new_code(name, activity.company_id),
+            'name': name, 'code': self._wof_new_code(name),
             'service_type_id': activity.id, 'item_type': source.item_type, 'active': False,
             'description': source.description, 'warranty_period': source.warranty_period,
             'warranty_unit': source.warranty_unit,
@@ -331,7 +328,7 @@ class WofFilmCategoryFlow(models.Model):
 
     # ----------------------------------------------------------------- editor
     def _wof_system_shades(self):
-        profile = self._wof_profile(self.company_id)
+        profile = self._wof_profile()
         if not profile:
             return self.env['wof.setup.tint.shade.line'], profile
         return profile.tint_shade_line_ids.filtered('selected').sorted(lambda rec: (rec.sequence, rec.id)), profile
@@ -390,7 +387,7 @@ class WofFilmCategoryFlow(models.Model):
 
     def _wof_policies(self, profile):
         system_sizes = self.env['wof.car.size'].search([
-            ('company_id', '=', self.company_id.id), ('active', '=', True),
+            ('active', '=', True),
         ])
         system_tax = profile.operation_tax_id if profile else self.env['account.tax']
         return {
@@ -452,10 +449,10 @@ class WofFilmCategoryFlow(models.Model):
                 'commission_ok': readiness['lines'].get(line.id, {}).get('commission', False),
             })
         taxes = self.env['account.tax'].search([
-            ('type_tax_use', '=', 'sale'), ('company_id', '=', self.company_id.id), ('active', '=', True),
+            ('type_tax_use', '=', 'sale'), ('active', '=', True),
         ])
         sizes = self.env['wof.car.size'].search([
-            ('company_id', '=', self.company_id.id), ('active', '=', True),
+            ('active', '=', True),
         ])
         readiness.pop('lines')
         return {
@@ -489,7 +486,7 @@ class WofFilmCategoryFlow(models.Model):
         self.ensure_one()
         self._wof_flow_can_read()
         taken = self._wof_commercial_lines().mapped('car_part_id').ids
-        domain = [('company_id', '=', self.company_id.id), ('active', '=', True), ('id', 'not in', taken)]
+        domain = [('active', '=', True), ('id', 'not in', taken)]
         if part_type in ('car_part', 'service_area'):
             domain.append(('part_type', '=', part_type))
         if (query or '').strip():
@@ -510,10 +507,10 @@ class WofFilmCategoryFlow(models.Model):
     def _wof_component_code(self, part_type):
         prefix = 'AREA' if part_type == 'service_area' else 'PART'
         Master = self.env['wof.car.parts'].with_context(active_test=False)
-        number = Master.search_count([('company_id', '=', self.company_id.id), ('part_type', '=', part_type)]) + 1
+        number = Master.search_count([('part_type', '=', part_type)]) + 1
         for _attempt in range(10000):
             code = '%s-%04d' % (prefix, number)
-            if not Master.search_count([('company_id', '=', self.company_id.id), ('code', '=', code)]):
+            if not Master.search_count([('code', '=', code)]):
                 return code
             number += 1
         raise ValidationError(_('تعذر إنشاء كود تلقائي فريد للمكوّن. أدخل الكود يدويًا.'))
@@ -522,10 +519,7 @@ class WofFilmCategoryFlow(models.Model):
         """Data for the component form: the master (when editing) and the choices."""
         self.ensure_one()
         self._wof_flow_can_read()
-        company = self.company_id
         part = self.env['wof.car.parts'].browse(int(part_id or 0)).exists()
-        if part and part.company_id != company:
-            raise AccessError(_('المكوّن غير متاح لهذه الشركة.'))
         if part and part.part_type == 'service_area':
             part.ensure_service_area_templates()
         uses = 0
@@ -534,7 +528,7 @@ class WofFilmCategoryFlow(models.Model):
                 ('car_part_id', '=', part.id), ('part_selected', '=', True), ('header_id', '!=', self.id),
             ])
         car_parts = self.env['wof.car.parts'].search([
-            ('company_id', '=', company.id), ('part_type', '=', 'car_part'), ('active', '=', True),
+            ('part_type', '=', 'car_part'), ('active', '=', True),
         ], order='priority_part, name, id')
         options = self.env['wof.car.part.options'].search([('active', '=', True)], order='name')
         return {
@@ -557,13 +551,13 @@ class WofFilmCategoryFlow(models.Model):
     def wof_service_products(self, query=''):
         self.ensure_one()
         self._wof_flow_can_read()
-        domain = [('type', '=', 'service'), ('company_id', 'in', [False, self.company_id.id])]
+        domain = [('type', '=', 'service')]
         if (query or '').strip():
             domain.append(('name', 'ilike', query.strip()))
         products = self.env['product.product'].search(domain, limit=20, order='name')
         return [{'id': product.id, 'name': product.display_name} for product in products]
 
-    def _wof_validate_templates(self, templates, company):
+    def _wof_validate_templates(self, templates):
         if not templates:
             raise ValidationError(_('أضف نموذج مكونات واحدًا على الأقل لمنطقة الخدمة.'))
         names = []
@@ -576,8 +570,8 @@ class WofFilmCategoryFlow(models.Model):
             parts = Part.browse([int(i) for i in template.get('component_ids') or []]).exists()
             if not parts:
                 raise ValidationError(_('كل نموذج يجب أن يحتوي على مكوّن واحد على الأقل.'))
-            if parts.filtered(lambda rec: rec.company_id != company or rec.part_type != 'car_part'):
-                raise ValidationError(_('مكونات النماذج يجب أن تكون أجزاء سيارة من نفس الشركة.'))
+            if parts.filtered(lambda rec: rec.part_type != 'car_part'):
+                raise ValidationError(_('مكونات النماذج يجب أن تكون أجزاء سيارة.'))
             template['_parts'] = parts
             template['name'] = name
         if len(names) != len(set(names)):
@@ -619,26 +613,24 @@ class WofFilmCategoryFlow(models.Model):
         self.ensure_one()
         self._wof_flow_can_read()
         self._wof_matrix_check_access()
-        company = self.company_id
         Master = self.env['wof.car.parts'].with_context(active_test=False)
         part = Master.browse(int(payload.get('id') or 0)).exists()
-        if part and part.company_id != company:
-            raise AccessError(_('المكوّن غير متاح لهذه الشركة.'))
         part_type = part.part_type if part else payload.get('type')
         if part_type not in ('car_part', 'service_area'):
             raise ValidationError(_('نوع المكوّن غير صحيح.'))
         name = (payload.get('name') or '').strip()
         if not name:
             raise ValidationError(_('أدخل اسم المكوّن أولاً.'))
-        duplicate = Master.search([('company_id', '=', company.id), ('name', '=ilike', name), ('id', '!=', part.id or 0)], limit=1)
+        duplicate = Master.search([('name', '=ilike', name), ('id', '!=', part.id or 0)], limit=1)
         if duplicate:
             raise ValidationError(_('يوجد مكوّن باسم "%s" بالفعل. أضفه من القائمة بدل إنشاء نسخة مكررة.') % duplicate.display_name)
         code = (payload.get('code') or '').strip() or (part.code if part else '') or self._wof_component_code(part_type)
-        if Master.search_count([('company_id', '=', company.id), ('code', '=', code), ('id', '!=', part.id or 0)]):
-            raise ValidationError(_('كود المكوّن "%s" مستخدم مسبقًا في هذه الشركة.') % code)
+        if Master.search_count([('code', '=', code), ('id', '!=', part.id or 0)]):
+            raise ValidationError(_('كود المكوّن "%s" مستخدم مسبقًا.') % code)
         if payload.get('auto_product'):
             product = self.env['product.product'].create({
                 'name': name, 'type': 'service', 'sale_ok': True, 'purchase_ok': False,
+                'company_id': False,
             })
         else:
             product = self.env['product.product'].browse(int(payload.get('product_id') or 0)).exists()
@@ -648,7 +640,7 @@ class WofFilmCategoryFlow(models.Model):
                 raise ValidationError(_('الصنف المرتبط بالمكوّن يجب أن يكون من نوع خدمة.'))
         templates = payload.get('templates') or []
         if part_type == 'service_area':
-            self._wof_validate_templates(templates, company)
+            self._wof_validate_templates(templates)
         try:
             priority = int(payload.get('priority') or 0)
         except (TypeError, ValueError):
@@ -664,7 +656,7 @@ class WofFilmCategoryFlow(models.Model):
         if part:
             part.write(vals)
         else:
-            vals.update({'part_type': part_type, 'company_id': company.id, 'active': True})
+            vals.update({'part_type': part_type, 'active': True})
             if part_type == 'service_area':
                 vals['service_area_part_ids'] = [(6, 0, [t for t in templates if t.get('is_default')][0]['_parts'].ids)]
             part = Master.create(vals)
@@ -711,7 +703,7 @@ class WofFilmCategoryFlow(models.Model):
                 raise ValidationError(_('أدخل اسم الفيلم أو الخدمة.'))
         if 'code' in vals:
             code = re.sub(r'[^A-Z0-9_.-]+', '-', (vals['code'] or '').strip().upper()).strip('-')
-            vals['code'] = code or self._wof_new_code(vals.get('name') or self.name, self.company_id)
+            vals['code'] = code or self._wof_new_code(vals.get('name') or self.name)
         if 'item_type' in vals:
             if vals['item_type'] not in ('film', 'service'):
                 raise ValidationError(_('نوع العنصر غير صحيح.'))
@@ -758,8 +750,8 @@ class WofFilmCategoryFlow(models.Model):
 
     def _wof_op_comp_add(self, payload):
         part = self.env['wof.car.parts'].browse(int(payload.get('part_id') or 0)).exists()
-        if not part or part.company_id != self.company_id or not part.active:
-            raise ValidationError(_('المكوّن المحدد غير متاح لهذه الشركة.'))
+        if not part or not part.active:
+            raise ValidationError(_('المكوّن المحدد غير متاح.'))
         if part.part_type == 'service_area' and not self._wof_area_parts(part):
             raise ValidationError(_('منطقة الخدمة يجب أن تحتوي على جزء واحد على الأقل قبل استخدامها.'))
         line = self.film_part_line_ids.filtered(lambda rec: rec.car_part_id == part)[:1]
@@ -829,12 +821,12 @@ class WofFilmCategoryFlow(models.Model):
     def _wof_op_policy(self, payload):
         key = payload.get('key')
         custom = bool(payload.get('custom'))
-        profile = self._wof_profile(self.company_id)
+        profile = self._wof_profile()
         system = self._wof_system_policy_vals(profile) if profile else {}
         if key == 'sizes':
             if custom:
                 sizes = self.env['wof.car.size'].search([
-                    ('company_id', '=', self.company_id.id), ('active', '=', True),
+                    ('active', '=', True),
                     ('id', 'in', [int(i) for i in payload.get('size_ids') or []]),
                 ])
                 if not sizes:
@@ -857,7 +849,6 @@ class WofFilmCategoryFlow(models.Model):
                 if enabled:
                     tax = tax.search([
                         ('id', '=', int(payload.get('tax_id') or 0)), ('type_tax_use', '=', 'sale'),
-                        ('company_id', '=', self.company_id.id),
                     ])
                     if not tax:
                         raise ValidationError(_('اختر الضريبة، أو أوقف تطبيق الضريبة لهذا الفيلم.'))

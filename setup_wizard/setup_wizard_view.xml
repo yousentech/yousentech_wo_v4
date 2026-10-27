@@ -149,7 +149,6 @@
                 </header>
                 <sheet class="wof_setup_sheet">
                     <field name="current_step" invisible="1"/>
-                    <field name="company_id" invisible="1"/>
                     <field name="readiness_ok" invisible="1"/>
                     <field name="review_activity_ready" invisible="1"/>
                     <field name="review_size_ready" invisible="1"/>
@@ -826,7 +825,7 @@
                         </div>
                         <div class="wof_setup_progress">
                             <strong><field name="progress" widget="progressbar"/></strong>
-                            <small><field name="company_id" readonly="1"/></small>
+                            <small>مشتركة لكل الفروع</small>
                         </div>
                     </div>
 
@@ -912,7 +911,6 @@
                         </page>
                         <page string="معلومات التهيئة">
                             <group>
-                                <field name="company_id" readonly="1"/>
                                 <field name="setup_version" readonly="1"/>
                                 <field name="completed_at" readonly="1"/>
                             </group>

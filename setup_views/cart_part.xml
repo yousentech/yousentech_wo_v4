@@ -14,7 +14,6 @@
                 <field name="name"/>
                 <field name="priority_part"/>
                 <field name="commission"/>
-                <field name="company_id"/>
            
               
                 <field name="active" column_invisible="1"/>
@@ -75,7 +74,6 @@
                             <field name="part_options_ids" widget="many2many_tags"
                                    options="{'no_create': True}"/>
 
-                             <field name="company_id" readonly="1"/>
                             <field name="active" invisible="1"/>
                         </group>
                         <group>
@@ -114,7 +112,6 @@
                 <field name="code"/>
                 <field name="name"/>
             
-                <field name="company_id"/>
              
                 <!-- Filters -->
                 
@@ -122,8 +119,6 @@
                         name="inactive"
                         domain="[('active','=',False)]"/>
    
-                    <filter string="الشركة" name="groupby_company"
-                            context="{'group_by':'company_id'}"/>
   
 
             </search>

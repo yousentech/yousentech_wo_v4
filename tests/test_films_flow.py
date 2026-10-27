@@ -33,13 +33,13 @@ class TestFilmsFlow(TransactionCase):
         cls.uenv = uenv
         cls.Film = uenv['wof.film.category']
         cls.activity = uenv['wof.service.type'].search([
-            ('company_id', '=', cls.company.id), ('service_options', '=', 'tint'),
+            ('service_options', '=', 'tint'), ('active', '=', True),
         ], limit=1)
 
         def part(code, name, part_type='car_part', kids=None):
-            product = env['product.product'].create({'name': name, 'type': 'service', 'company_id': cls.company.id})
+            product = env['product.product'].create({'name': name, 'type': 'service'})
             vals = {'code': code, 'name': name, 'part_type': part_type,
-                    'company_id': cls.company.id, 'product_id': product.id}
+                    'product_id': product.id}
             record = env['wof.car.parts'].create(vals)
             if kids:
                 env['wof.service.area.template'].create({
@@ -147,8 +147,8 @@ class TestFilmsFlow(TransactionCase):
 
     def test_hub_activity_order(self):
         Activity = self.uenv['wof.service.type']
-        nano = Activity.create({'name': 'نانو ترتيب', 'service_options': 'nano', 'company_id': self.company.id})
-        ppf = Activity.create({'name': 'حماية ترتيب', 'service_options': 'ppf', 'company_id': self.company.id})
+        nano = Activity.create({'code': 'ORD-NANO', 'name': 'نانو ترتيب', 'service_options': 'nano'})
+        ppf = Activity.create({'code': 'ORD-PPF', 'name': 'حماية ترتيب', 'service_options': 'ppf'})
         ids = [a['id'] for a in self.Film.wof_films_hub_load()['activities']]
         options = Activity.browse(ids).mapped('service_options')
         self.assertEqual(options[0], 'tint')
@@ -229,7 +229,7 @@ class TestFilmsFlow(TransactionCase):
         # new car part, auto code and auto product, added to the film
         snap = film.wof_component_save({'type': 'car_part', 'name': 'سقف FF', 'auto_product': True,
                                         'priority': 5, 'warning_msg': 'انتبه'})
-        roof = self.uenv['wof.car.parts'].search([('name', '=', 'سقف FF'), ('company_id', '=', self.company.id)])
+        roof = self.uenv['wof.car.parts'].search([('name', '=', 'سقف FF')])
         self.assertTrue(roof.code.startswith('PART-'))
         self.assertEqual(roof.product_id.type, 'service')
         self.assertIn(roof.id, [c['part_id'] for c in snap['components']])

@@ -8,23 +8,18 @@ class WofServiceAreaTemplate(models.Model):
     _name = 'wof.service.area.template'
     _description = 'نموذج مكونات منطقة الخدمة'
     _order = 'sequence, id'
-    _check_company_auto = True
 
     name = fields.Char(string='اسم النموذج', required=True, translate=True)
     sequence = fields.Integer(string='الترتيب', default=10)
     service_area_id = fields.Many2one(
         'wof.car.parts', string='منطقة الخدمة', required=True,
-        ondelete='cascade', index=True, check_company=True,
+        ondelete='cascade', index=True,
         domain="[('part_type', '=', 'service_area')]",
-    )
-    company_id = fields.Many2one(
-        'res.company', related='service_area_id.company_id', store=True,
-        readonly=True, index=True,
     )
     component_ids = fields.Many2many(
         'wof.car.parts', 'wof_service_area_template_part_rel',
         'template_id', 'part_id', string='مكونات النموذج', required=True,
-        domain="[('company_id', '=', company_id), ('part_type', '=', 'car_part'), ('active', '=', True)]",
+        domain="[('part_type', '=', 'car_part'), ('active', '=', True)]",
     )
     is_default = fields.Boolean(string='النموذج الافتراضي', default=False, index=True)
     active = fields.Boolean(default=True)
@@ -34,7 +29,7 @@ class WofServiceAreaTemplate(models.Model):
          'اسم النموذج مستخدم مسبقًا داخل منطقة الخدمة.'),
     ]
 
-    @api.constrains('service_area_id', 'component_ids', 'company_id')
+    @api.constrains('service_area_id', 'component_ids')
     def _check_template_components(self):
         for record in self:
             if record.service_area_id.part_type != 'service_area':
@@ -44,9 +39,6 @@ class WofServiceAreaTemplate(models.Model):
             wrong_type = record.component_ids.filtered(lambda part: part.part_type != 'car_part')
             if wrong_type:
                 raise ValidationError(_('نموذج منطقة الخدمة يقبل مكونات من نوع جزء سيارة فقط.'))
-            wrong_company = record.component_ids.filtered(lambda part: part.company_id != record.company_id)
-            if wrong_company:
-                raise ValidationError(_('جميع مكونات النموذج يجب أن تتبع نفس الشركة.'))
 
     @api.constrains('is_default', 'service_area_id', 'active')
     def _check_single_default(self):

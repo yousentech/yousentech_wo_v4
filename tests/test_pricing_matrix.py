@@ -16,11 +16,10 @@ class TestPricingMatrix(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         env = cls.env
-        company = env.company
-        cls.small = env['wof.car.size'].create({'code': 'PMS', 'name': 'صغير PM', 'company_id': company.id})
-        cls.large = env['wof.car.size'].create({'code': 'PML', 'name': 'كبير PM', 'company_id': company.id})
+        cls.small = env['wof.car.size'].create({'code': 'PMS', 'name': 'صغير PM'})
+        cls.large = env['wof.car.size'].create({'code': 'PML', 'name': 'كبير PM'})
         cls.activity = env['wof.service.type'].create({
-            'code': 'PM-ACT', 'name': 'نشاط اختبار المصفوفة', 'service_options': 'ppf', 'company_id': company.id,
+            'code': 'PM-ACT', 'name': 'نشاط اختبار المصفوفة', 'service_options': 'ppf',
         })
 
         def product(name):
@@ -29,7 +28,7 @@ class TestPricingMatrix(TransactionCase):
         def part(code, name, part_type='car_part'):
             return env['wof.car.parts'].create({
                 'code': code, 'name': name, 'part_type': part_type,
-                'company_id': company.id, 'product_id': product(name).id,
+                'product_id': product(name).id,
             })
 
         cls.front = part('PM-FRONT', 'أمامي PM')

@@ -9,7 +9,6 @@ class ServiceType(models.Model):
     _inherit = ['wof.api.mixin', 'mail.thread', 'mail.activity.mixin']
     _description = 'نشاط مركز العناية'
     _order = 'code, name'
-    _check_company_auto = True
 
     code = fields.Char(
         string="الكود", required=True, index=True, copy=False,
@@ -34,10 +33,6 @@ class ServiceType(models.Model):
         string="يدعم درجات لون العزل",
         compute='_compute_supports_color_grades',
     )
-    company_id = fields.Many2one(
-        'res.company', string="الشركة", default=lambda self: self.env.company,
-        required=True, index=True, ondelete='cascade',
-    )
     active = fields.Boolean(string="تفعيل", default=True)
     service_ids = fields.One2many(
         'wof.film.category', 'service_type_id', string="خدمات النشاط",
@@ -46,10 +41,10 @@ class ServiceType(models.Model):
     film_count = fields.Integer(string="عدد الأفلام", compute='_compute_counts')
 
     _sql_constraints = [
-        ('service_name_company_unique', 'unique(name, company_id)',
-         'نوع الخدمة مضاف مسبقًا لنفس الشركة.'),
-        ('service_code_company_unique', 'unique(code, company_id)',
-         'كود الخدمة مستخدم مسبقًا لنفس الشركة.'),
+        ('service_name_company_unique', 'unique(name)',
+         'نوع الخدمة مضاف مسبقًا.'),
+        ('service_code_company_unique', 'unique(code)',
+         'كود الخدمة مستخدم مسبقًا.'),
     ]
 
     @api.depends('service_options')

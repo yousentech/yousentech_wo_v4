@@ -9,16 +9,13 @@ class CarParts(models.Model):
     _inherit = ['wof.api.mixin', 'mail.thread']
     _description = 'جزء سيارة'
     _order = 'priority_part, name'
-    _check_company_auto = True
 
     code = fields.Char(string="الكود", required=True, index=True, copy=False)
     name = fields.Char(string="الاسم", required=True, index=True, translate=True, tracking=True)
     priority_part = fields.Integer(string="ترتيب الأولوية", index=True)
-    company_id = fields.Many2one('res.company', string="الشركة", default=lambda self: self.env.company,
-                                 required=True, index=True, ondelete='cascade')
     product_id = fields.Many2one('product.product', string="الصنف الخدمي",
                                  domain=[('type', '=', 'service')], required=True,
-                                 ondelete='restrict', check_company=True)
+                                 ondelete='restrict')
     commission = fields.Float(string="عمولة الفني (%)")
     active = fields.Boolean(default=True)
     part_type = fields.Selection([('car_part', 'جزء سيارة'), ('service_area', 'منطقة خدمة')],
@@ -29,7 +26,7 @@ class CarParts(models.Model):
     service_area_part_ids = fields.Many2many(
         'wof.car.parts', 'wof_car_parts_service_area_rel', 'service_area_id', 'child_part_id',
         string="أجزاء منطقة الخدمة (قديم)",
-        domain="[('company_id', '=', company_id), ('part_type', '=', 'car_part'), ('active', '=', True)]",
+        domain="[('part_type', '=', 'car_part'), ('active', '=', True)]",
     )
     template_ids = fields.One2many(
         'wof.service.area.template', 'service_area_id', string='نماذج المكونات',
@@ -46,8 +43,8 @@ class CarParts(models.Model):
     part_options_ids = fields.Many2many('wof.car.part.options', string="خيارات إضافية")
 
     _sql_constraints = [
-        ('car_part_name_company_unique', 'unique(name, company_id)', 'جزء السيارة مضاف مسبقًا لنفس الشركة.'),
-        ('car_part_code_company_unique', 'unique(code, company_id)', 'كود جزء السيارة مستخدم مسبقًا لنفس الشركة.'),
+        ('car_part_name_company_unique', 'unique(name)', 'جزء السيارة مضاف مسبقًا.'),
+        ('car_part_code_company_unique', 'unique(code)', 'كود جزء السيارة مستخدم مسبقًا.'),
         ('car_part_commission_range', 'check(commission >= 0 AND commission <= 100)',
          'عمولة الفني يجب أن تكون بين 0 و100.'),
     ]
@@ -73,7 +70,7 @@ class CarParts(models.Model):
             })
         return True
 
-    @api.constrains('part_type', 'service_area_part_ids', 'company_id')
+    @api.constrains('part_type', 'service_area_part_ids')
     def _check_service_area_parts(self):
         for record in self:
             if record.part_type != 'service_area' and record.service_area_part_ids:
@@ -83,9 +80,6 @@ class CarParts(models.Model):
             wrong_type = record.service_area_part_ids.filtered(lambda part: part.part_type != 'car_part')
             if wrong_type:
                 raise ValidationError('منطقة الخدمة يمكن أن تحتوي فقط على مكونات معرفة كأجزاء سيارة.')
-            wrong_company = record.service_area_part_ids.filtered(lambda part: part.company_id != record.company_id)
-            if wrong_company:
-                raise ValidationError('جميع أجزاء منطقة الخدمة يجب أن تتبع نفس الشركة.')
 
     @api.onchange('part_type')
     def _onchange_part_type_clear_service_area_parts(self):

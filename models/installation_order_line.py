@@ -46,24 +46,24 @@ class WofInstallationOrderLine(models.Model):
     )
     service_type_id = fields.Many2one(
         'wof.service.type', string="نشاط المركز", required=True,
-        ondelete='restrict', check_company=True, index=True,
+        ondelete='restrict', index=True,
     )
     film_category_id = fields.Many2one(
         'wof.film.category', string="الخدمة / الفيلم", required=True,
-        ondelete='restrict', check_company=True, index=True,
-        domain="[('service_type_id', '=', service_type_id), ('company_id', '=', company_id)]",
+        ondelete='restrict', index=True,
+        domain="[('service_type_id', '=', service_type_id)]",
     )
     supports_color_grades = fields.Boolean(
         related='film_category_id.supports_color_grades', readonly=True,
     )
     film_category_line_id = fields.Many2one(
         'wof.film.category.lines', string="درجة لون العزل",
-        ondelete='restrict', check_company=True,
+        ondelete='restrict',
         domain="[('id', 'in', available_grade_ids)]",
     )
     car_part_id = fields.Many2one(
         'wof.car.parts', string="مكوّن الخدمة", required=True,
-        ondelete='restrict', check_company=True, index=True,
+        ondelete='restrict', index=True,
         domain="[('id', 'in', available_car_part_ids)]",
     )
     service_product_id = fields.Many2one(
@@ -195,14 +195,17 @@ class WofInstallationOrderLine(models.Model):
             )
 
     @api.model
-    def resolve_default_grade_id(self, film_category_id, car_part_id, company_id):
-        """Resolve the configured tint grade for Odoo and future API callers."""
-        if not film_category_id or not car_part_id or not company_id:
+    def resolve_default_grade_id(self, film_category_id, car_part_id, company_id=None):
+        """Resolve the configured tint grade for Odoo and future API callers.
+
+        ``company_id`` is accepted for backward compatibility only: the setup is
+        shared by every branch.
+        """
+        if not film_category_id or not car_part_id:
             return False
         part_line = self.env['wof.film.parts.lines'].search([
             ('header_id', '=', film_category_id),
             ('car_part_id', '=', car_part_id),
-            ('company_id', '=', company_id),
             ('part_selected', '=', True),
         ], limit=1)
         if not part_line or not part_line.header_id.supports_color_grades:
@@ -290,16 +293,9 @@ class WofInstallationOrderLine(models.Model):
                     % line.max_discount_percent
                 )
 
-    @api.constrains('company_id', 'execution_technician_id')
+    @api.constrains('execution_technician_id')
     def _check_execution_technician_company(self):
         for line in self:
-            if (
-                line.execution_technician_id
-                and line.company_id not in line.execution_technician_id.company_ids
-            ):
-                raise ValidationError(
-                    'فني التنفيذ غير مسموح له بالعمل في فرع الأمر.'
-                )
             if (
                 line.execution_technician_id
                 and line.execution_technician_id not in line.available_technician_ids
@@ -313,10 +309,9 @@ class WofInstallationOrderLine(models.Model):
         self.film_category_id = False
         self.film_category_line_id = False
         self.car_part_id = False
-        if self.service_type_id and self.company_id:
+        if self.service_type_id:
             films = self.env['wof.film.category'].search([
                 ('service_type_id', '=', self.service_type_id.id),
-                ('company_id', '=', self.company_id.id),
                 ('active', '=', True),
             ], limit=2)
             if len(films) == 1:
@@ -341,7 +336,6 @@ class WofInstallationOrderLine(models.Model):
             grade_id = self.resolve_default_grade_id(
                 self.film_category_id.id,
                 self.car_part_id.id,
-                self.company_id.id,
             )
             self.film_category_line_id = grade_id
 
@@ -372,7 +366,6 @@ class WofInstallationOrderLine(models.Model):
             configured_part = self.env['wof.film.parts.lines'].search_count([
                 ('header_id', '=', line.film_category_id.id),
                 ('car_part_id', '=', line.car_part_id.id),
-                ('company_id', '=', line.company_id.id),
                 ('part_selected', '=', True),
             ])
             if not configured_part:
@@ -419,7 +412,6 @@ class WofInstallationOrderLine(models.Model):
                 vals['film_category_line_id'] = self.resolve_default_grade_id(
                     vals.get('film_category_id'),
                     vals.get('car_part_id'),
-                    order.company_id.id,
                 )
             vals.update({
                 'discount_type': 'percent',
@@ -470,7 +462,6 @@ class WofInstallationOrderLine(models.Model):
             vals['film_category_line_id'] = self.resolve_default_grade_id(
                 vals.get('film_category_id', line.film_category_id.id),
                 vals.get('car_part_id', line.car_part_id.id),
-                line.company_id.id,
             )
         protected = {
             'order_id',
@@ -634,7 +625,6 @@ class WofInstallationOrderLine(models.Model):
             ('service_type_id', '=', self.service_type_id.id),
             ('car_part_id', '=', self.car_part_id.id),
             ('part_selected', '=', True),
-            ('company_id', '=', self.company_id.id),
         ], limit=1)
         if not part_line:
             raise ValidationError(

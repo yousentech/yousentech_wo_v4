@@ -44,9 +44,7 @@ class WofFilmCategoryDiscountPolicy(models.Model):
 
     def _discount_company_policy(self):
         self.ensure_one()
-        return self.env['wof.company.profile'].search(
-            [('company_id', '=', self.company_id.id)], limit=1,
-        )
+        return self.env['wof.company.profile']._wof_get_profile()
 
     def get_discount_policy(self, part_line=None, car_size=None):
         """Resolve company -> service -> component -> size discount policy.

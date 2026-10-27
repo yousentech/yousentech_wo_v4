@@ -9,14 +9,13 @@ class FilmCategory(models.Model):
     _inherit = ['wof.api.mixin']
     _description = 'خدمة أو فيلم عناية'
     _order = 'service_type_id, sequence, name'
-    _check_company_auto = True
 
     sequence = fields.Integer(default=10)
     name = fields.Char(string="اسم الخدمة / الفيلم", required=True, index=True, translate=True)
     code = fields.Char(string="الكود", required=True, index=True, copy=False)
     service_type_id = fields.Many2one(
         'wof.service.type', string="نشاط المركز", required=True,
-        ondelete='restrict', check_company=True, index=True,
+        ondelete='restrict', index=True,
     )
     service_options = fields.Selection(
         related='service_type_id.service_options', string="النشاط", store=True,
@@ -33,14 +32,10 @@ class FilmCategory(models.Model):
     is_effected_in_inventory = fields.Boolean(string="يصرف مواد من المخزون")
     car_film_product_required = fields.Boolean(string="اختيار المنتج المخزني إلزامي")
     warning_msg = fields.Char(string="رسالة تنبيه")
-    company_id = fields.Many2one(
-        'res.company', related='service_type_id.company_id',
-        store=True, readonly=True, index=True,
-    )
     active = fields.Boolean(default=True)
 
     # Film/service configuration policy.  These fields preserve whether the
-    # record inherits company setup or intentionally overrides it.
+    # record inherits the system setup or intentionally overrides it.
     use_system_pricing_policy = fields.Boolean(
         string="استخدام سياسة تسعير النظام", default=True,
     )
@@ -58,8 +53,7 @@ class FilmCategory(models.Model):
     car_size_ids = fields.Many2many(
         'wof.car.size', 'wof_film_category_car_size_rel',
         'film_id', 'size_id', string="أحجام السيارات",
-        domain="[('company_id', '=', company_id), ('active', '=', True)]",
-        check_company=True,
+        domain="[('active', '=', True)]",
     )
     use_system_commission_policy = fields.Boolean(
         string="استخدام سياسة عمولة النظام", default=True,
@@ -82,8 +76,8 @@ class FilmCategory(models.Model):
         string="تطبيق الضريبة", default=True,
     )
     tax_id = fields.Many2one(
-        'account.tax', string="الضريبة", check_company=True,
-        domain="[('type_tax_use', '=', 'sale'), ('company_id', '=', company_id)]",
+        'account.tax', string="الضريبة",
+        domain="[('type_tax_use', '=', 'sale')]",
     )
     price_input_mode = fields.Selection(
         [('excluded', 'السعر قبل الضريبة'), ('included', 'السعر شامل الضريبة')],
@@ -110,10 +104,10 @@ class FilmCategory(models.Model):
     configuration_note = fields.Char(compute='_compute_configuration_summary')
 
     _sql_constraints = [
-        ('film_name_service_company_unique', 'unique(name, service_type_id, company_id)',
-         'اسم الفيلم مستخدم مسبقًا لنفس الخدمة والشركة.'),
-        ('film_code_company_unique', 'unique(code, company_id)',
-         'كود الفيلم مستخدم مسبقًا في هذه الشركة.'),
+        ('film_name_service_company_unique', 'unique(name, service_type_id)',
+         'اسم الفيلم مستخدم مسبقًا لنفس النشاط.'),
+        ('film_code_company_unique', 'unique(code)',
+         'كود الفيلم مستخدم مسبقًا.'),
         ('film_warranty_nonnegative', 'check(warranty_years >= 0)',
          'سنوات الضمان لا يمكن أن تكون سالبة.'),
     ]
@@ -233,22 +227,18 @@ class FilmCategoryLine(models.Model):
     _inherit = ['wof.api.mixin']
     _description = 'درجة فيلم ومنتج'
     _order = 'sequence, name'
-    _check_company_auto = True
 
     sequence = fields.Integer(default=10)
     header_id = fields.Many2one(
         'wof.film.category', string="الفيلم", required=True,
-        ondelete='cascade', check_company=True, index=True,
+        ondelete='cascade', index=True,
     )
     name = fields.Char(string="الدرجة أو اللون", required=True)
     code = fields.Char(string="الكود", required=True, index=True, copy=False)
     transmission_percent = fields.Integer(string="نسبة نفاذ الضوء %")
     product_id = fields.Many2one(
         'product.product', string="المنتج المخزني",
-        ondelete='restrict', check_company=True,
-    )
-    company_id = fields.Many2one(
-        related='header_id.company_id', store=True, readonly=True, index=True,
+        ondelete='restrict',
     )
     active = fields.Boolean(default=True)
 
@@ -277,12 +267,11 @@ class FilmPartLine(models.Model):
     _description = 'جزء مرتبط بفيلم'
     _rec_name = 'car_part_id'
     _order = 'header_id, sequence, car_part_id'
-    _check_company_auto = True
 
     sequence = fields.Integer(default=10)
     header_id = fields.Many2one(
         'wof.film.category', string="الفيلم", required=True,
-        ondelete='cascade', check_company=True, index=True,
+        ondelete='cascade', index=True,
     )
     service_type_id = fields.Many2one(
         related='header_id.service_type_id', store=True, readonly=True, index=True,
@@ -290,20 +279,17 @@ class FilmPartLine(models.Model):
     supports_color_grades = fields.Boolean(
         related='header_id.supports_color_grades', readonly=True,
     )
-    company_id = fields.Many2one(
-        related='header_id.company_id', store=True, readonly=True, index=True,
-    )
     part_selected = fields.Boolean(string="مفعّل", default=True)
     car_part_id = fields.Many2one(
         'wof.car.parts', string="الجزء", required=True,
-        ondelete='restrict', check_company=True, index=True,
+        ondelete='restrict', index=True,
     )
     part_type = fields.Selection(
         related='car_part_id.part_type', readonly=True, string='نوع المكوّن',
     )
     film_category_line_id = fields.Many2one(
         'wof.film.category.lines', string="الدرجة الافتراضية",
-        domain="[('header_id', '=', header_id)]", check_company=True,
+        domain="[('header_id', '=', header_id)]",
     )
     is_effected_in_inventory = fields.Boolean(
         related='header_id.is_effected_in_inventory', store=True,
@@ -427,11 +413,10 @@ class FilmPartPriceLine(models.Model):
     _description = 'تسعير جزء فيلم'
     _rec_name = 'car_part_id'
     _order = 'part_line_id, car_size_id'
-    _check_company_auto = True
 
     part_line_id = fields.Many2one(
         'wof.film.parts.lines', string="مكوّن الخدمة", required=True,
-        ondelete='cascade', check_company=True, index=True,
+        ondelete='cascade', index=True,
     )
     header_id = fields.Many2one(related='part_line_id.header_id', store=True, readonly=True)
     service_type_id = fields.Many2one(
@@ -440,21 +425,19 @@ class FilmPartPriceLine(models.Model):
     car_part_id = fields.Many2one(
         related='part_line_id.car_part_id', store=True, readonly=True,
     )
-    company_id = fields.Many2one(
-        related='part_line_id.company_id', store=True, readonly=True, index=True,
-    )
     currency_id = fields.Many2one(
-        related='company_id.currency_id', store=True, readonly=True,
+        'res.currency', readonly=True,
+        default=lambda self: self.env.company.currency_id,
     )
     car_size_id = fields.Many2one(
         'wof.car.size', string="حجم السيارة",
-        ondelete='restrict', check_company=True, index=True,
+        ondelete='restrict', index=True,
     )
     part_price = fields.Monetary(string="السعر", currency_field='currency_id')
     discount_exceed_limit = fields.Integer(string="حد الخصم %")
     tax_id = fields.Many2one(
         'account.tax', string="الضريبة", ondelete='restrict',
-        check_company=True, domain=[('type_tax_use', '=', 'sale')],
+        domain=[('type_tax_use', '=', 'sale')],
     )
     price_readonly = fields.Boolean(string="السعر ثابت")
     free_part = fields.Boolean(string="مجاني")
@@ -505,11 +488,10 @@ class FilmPartCommissionLine(models.Model):
     _description = 'عمولة جزء فيلم'
     _rec_name = 'car_part_id'
     _order = 'part_line_id, car_size_id'
-    _check_company_auto = True
 
     part_line_id = fields.Many2one(
         'wof.film.parts.lines', string="مكوّن الخدمة", required=True,
-        ondelete='cascade', check_company=True, index=True,
+        ondelete='cascade', index=True,
     )
     header_id = fields.Many2one(related='part_line_id.header_id', store=True, readonly=True)
     service_type_id = fields.Many2one(
@@ -518,15 +500,13 @@ class FilmPartCommissionLine(models.Model):
     car_part_id = fields.Many2one(
         related='part_line_id.car_part_id', store=True, readonly=True,
     )
-    company_id = fields.Many2one(
-        related='part_line_id.company_id', store=True, readonly=True, index=True,
-    )
     currency_id = fields.Many2one(
-        related='company_id.currency_id', store=True, readonly=True,
+        'res.currency', readonly=True,
+        default=lambda self: self.env.company.currency_id,
     )
     car_size_id = fields.Many2one(
         'wof.car.size', string="حجم السيارة",
-        ondelete='restrict', check_company=True, index=True,
+        ondelete='restrict', index=True,
     )
     commission = fields.Monetary(
         string="قيمة العمولة", currency_field='currency_id',

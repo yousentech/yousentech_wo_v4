@@ -31,7 +31,6 @@ class InstallationOrderLineTintPolicy(models.Model):
             policy = PartLine.search([
                 ('header_id', '=', line.film_category_id.id),
                 ('car_part_id', '=', line.car_part_id.id),
-                ('company_id', '=', line.company_id.id),
                 ('part_selected', '=', True),
             ], limit=1)
             if (
