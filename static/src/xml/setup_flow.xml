@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="yousentech_wo_v4.SetupFlow.Check">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+    </t>
+
+    <t t-name="yousentech_wo_v4.SetupFlow.Switch">
+        <button type="button" role="switch" t-att-aria-checked="on ? 'true' : 'false'" t-att-aria-label="label"
+                t-att-class="'wof_sf_switch' + (on ? ' is-on' : '')" t-att-disabled="state.busy" t-on-click="onClick">
+            <span/>
+        </button>
+    </t>
+
+    <t t-name="yousentech_wo_v4.SetupFlow.Choice">
+        <div class="wof_sf_choices" role="radiogroup" t-att-aria-label="label">
+            <t t-foreach="options" t-as="o" t-key="o.key">
+                <button type="button" role="radio" t-att-aria-checked="o.key === value ? 'true' : 'false'"
+                        t-att-class="'wof_sf_choice' + (o.key === value ? ' is-on' : '')" t-att-disabled="state.busy"
+                        t-on-click="() => pick(o.key)">
+                    <span class="wof_sf_choice_head"><strong t-esc="o.name"/><span class="wof_sf_tick"><t t-call="yousentech_wo_v4.SetupFlow.Check"/></span></span>
+                    <span class="wof_sf_muted" t-esc="o.desc"/>
+                    <span t-if="o.ex" class="wof_sf_example" t-esc="o.ex"/>
+                </button>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="yousentech_wo_v4.SetupFlow">
+        <div class="wof_sf" t-ref="root" dir="rtl">
+            <div class="wof_sf_body">
+
+                <!-- Step rail -->
+                <nav class="wof_sf_rail" aria-label="خطوات تهيئة النظام">
+                    <div class="wof_sf_progress">
+                        <strong>تهيئة النظام</strong>
+                        <span class="wof_sf_bar"><span t-attf-style="width: {{ progress.pct }}%"/></span>
+                        <span class="wof_sf_muted wof_sf_small"><t t-esc="progress.done"/> من <t t-esc="progress.total"/> مكتملة</span>
+                    </div>
+                    <ol class="wof_sf_steps">
+                        <t t-foreach="rail" t-as="r" t-key="r.key">
+                            <li>
+                                <button type="button" t-att-class="'wof_sf_step is-' + r.kind + (r.isCur ? ' is-current' : '')"
+                                        t-att-aria-current="r.isCur ? 'step' : 'false'" t-on-click="() => this.go(r.target)">
+                                    <span t-att-class="'wof_sf_dot is-' + r.dot">
+                                        <t t-if="r.kind !== 'sub'">
+                                            <t t-if="r.dot === 'done'"><t t-call="yousentech_wo_v4.SetupFlow.Check"/></t>
+                                            <t t-elif="r.dot === 'warn'">!</t>
+                                            <t t-else=""><t t-esc="r.num"/></t>
+                                        </t>
+                                    </span>
+                                    <span class="wof_sf_step_text">
+                                        <span class="wof_sf_step_name" t-esc="r.name"/>
+                                        <span t-if="r.sub" t-att-class="'wof_sf_step_sub' + (r.warnSub ? ' is-warn' : '')" t-esc="r.sub"/>
+                                    </span>
+                                </button>
+                            </li>
+                        </t>
+                    </ol>
+                    <div class="wof_sf_legend">
+                        <span class="wof_sf_muted wof_sf_small"><strong>دليل الألوان</strong></span>
+                        <span class="wof_sf_chip is-on">مفعّل ومكتمل</span>
+                        <span class="wof_sf_chip is-warn">يحتاج قرارك</span>
+                        <span class="wof_sf_chip is-lock">يُثبَّت بعد التفعيل</span>
+                        <span class="wof_sf_chip is-info">توضيح ومعاينة</span>
+                    </div>
+                </nav>
+
+                <main class="wof_sf_main">
+                    <t t-set="d" t-value="state.data"/>
+
+                    <!-- 1. Activities -->
+                    <t t-if="current === 'activity'">
+                        <header class="wof_sf_head"><h2>ما الذي تقدّمه منشأتك؟</h2><p>فعّل ما تقدّمه فقط. كل فيلم أو خدمة تضيفها لاحقًا يتبع نشاطًا واحدًا.</p></header>
+                        <div class="wof_sf_list">
+                            <t t-foreach="d.activities" t-as="a" t-key="a.id">
+                                <div class="wof_sf_row">
+                                    <span t-att-class="'wof_sf_icon' + (a.selected ? ' is-on' : '')">
+                                        <i t-att-class="'fa ' + (a.type === 'tint' ? 'fa-sun-o' : (a.is_default ? 'fa-shield' : 'fa-star-o'))" aria-hidden="true"/>
+                                    </span>
+                                    <div class="wof_sf_row_text">
+                                        <t t-if="isEditing('activity', a.id)">
+                                            <div class="wof_sf_inline">
+                                                <input class="wof_sf_input" t-att-value="state.editValue" t-on-input="(ev) => state.editValue = ev.target.value"
+                                                       t-on-keydown="(ev) => this.onKey(ev, () => this.confirmEdit('activity', a.id), () => state.editing = null)" aria-label="اسم النشاط"/>
+                                                <button type="button" class="btn btn-primary" t-att-disabled="state.busy" t-on-click="() => this.confirmEdit('activity', a.id)">حفظ</button>
+                                                <button type="button" class="btn btn-link" t-on-click="() => state.editing = null">إلغاء</button>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="wof_sf_row_title">
+                                                <span t-att-class="'wof_sf_name' + (a.selected ? '' : ' is-off')" t-esc="a.name"/>
+                                                <span t-if="a.type === 'tint'" class="wof_sf_chip is-info">يضيف خطوة درجات اللون</span>
+                                                <span t-elif="!a.is_default" class="wof_sf_chip is-gray">نشاط مخصص</span>
+                                            </span>
+                                            <span class="wof_sf_muted" t-esc="a.description"/>
+                                        </t>
+                                    </div>
+                                    <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'تعديل اسم ' + a.name" t-on-click="() => this.startEdit('activity', a.id, a.name)"><i class="fa fa-pencil" aria-hidden="true"/></button>
+                                    <button type="button" role="switch" t-att-aria-checked="a.selected ? 'true' : 'false'" t-att-aria-label="a.name" t-att-class="'wof_sf_switch' + (a.selected ? ' is-on' : '')" t-att-disabled="state.busy" t-on-click="() => this.toggleActivity(a)"><span/></button>
+                                </div>
+                            </t>
+                            <t t-if="state.adding === 'activity'">
+                                <div class="wof_sf_addform">
+                                    <label class="wof_sf_label">اسم النشاط
+                                        <input class="wof_sf_input" placeholder="مثال: التلميع" t-on-input="(ev) => this.onDraft('name', ev)"
+                                               t-on-keydown="(ev) => this.onKey(ev, () => this.confirmAdd(), () => this.cancelAdd())"/>
+                                    </label>
+                                    <div class="wof_sf_inline"><button type="button" class="btn btn-primary" t-att-disabled="state.busy" t-on-click="confirmAdd">إضافة</button><button type="button" class="btn btn-link" t-on-click="cancelAdd">إلغاء</button></div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <button type="button" class="wof_sf_add" t-on-click="() => this.startAdd('activity')"><i class="fa fa-plus" aria-hidden="true"/> إضافة نشاط</button>
+                            </t>
+                        </div>
+                        <aside class="wof_sf_info">
+                            <i class="fa fa-info-circle" aria-hidden="true"/>
+                            <div><strong>ماذا يعني اختيارك؟</strong><t t-foreach="activityEffects" t-as="e" t-key="e_index"><span t-esc="e"/></t></div>
+                        </aside>
+                    </t>
+
+                    <!-- 2. Sizes -->
+                    <t t-if="current === 'sizes'">
+                        <header class="wof_sf_head"><h2>ما أحجام السيارات التي يختلف عليها السعر أو العمولة؟</h2><p>فعّل الأحجام التي تستخدمها فقط. إذا كان سعرك واحدًا لكل السيارات يكفي حجم واحد.</p></header>
+                        <div class="wof_sf_list">
+                            <t t-foreach="d.sizes" t-as="s" t-key="s.id">
+                                <div class="wof_sf_row">
+                                    <div class="wof_sf_row_text">
+                                        <t t-if="isEditing('size', s.id)">
+                                            <div class="wof_sf_inline">
+                                                <input class="wof_sf_input" t-att-value="state.editValue" t-on-input="(ev) => state.editValue = ev.target.value"
+                                                       t-on-keydown="(ev) => this.onKey(ev, () => this.confirmEdit('size', s.id), () => state.editing = null)" aria-label="اسم الحجم"/>
+                                                <button type="button" class="btn btn-primary" t-att-disabled="state.busy" t-on-click="() => this.confirmEdit('size', s.id)">حفظ</button>
+                                                <button type="button" class="btn btn-link" t-on-click="() => state.editing = null">إلغاء</button>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="wof_sf_row_title">
+                                                <span t-att-class="'wof_sf_name' + (s.selected ? '' : ' is-off')" t-esc="s.name"/>
+                                                <span class="wof_sf_chip is-lock" dir="ltr"><i class="fa fa-lock" aria-hidden="true"/> <t t-esc="s.code"/></span>
+                                            </span>
+                                        </t>
+                                    </div>
+                                    <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'تعديل اسم ' + s.name" t-on-click="() => this.startEdit('size', s.id, s.name)"><i class="fa fa-pencil" aria-hidden="true"/></button>
+                                    <button type="button" role="switch" t-att-aria-checked="s.selected ? 'true' : 'false'" t-att-aria-label="s.name" t-att-class="'wof_sf_switch' + (s.selected ? ' is-on' : '')" t-att-disabled="state.busy" t-on-click="() => this.toggleSize(s)"><span/></button>
+                                </div>
+                            </t>
+                            <t t-if="state.adding === 'size'">
+                                <div class="wof_sf_addform is-grid">
+                                    <label class="wof_sf_label">اسم الحجم
+                                        <input class="wof_sf_input" placeholder="مثال: فان" t-on-input="(ev) => this.onDraft('name', ev)"
+                                               t-on-keydown="(ev) => this.onKey(ev, () => this.confirmAdd(), () => this.cancelAdd())"/>
+                                    </label>
+                                    <label class="wof_sf_label">الكود (اختياري، إنجليزي)
+                                        <input class="wof_sf_input" dir="ltr" placeholder="VAN" t-on-input="(ev) => this.onDraft('code', ev)"
+                                               t-on-keydown="(ev) => this.onKey(ev, () => this.confirmAdd(), () => this.cancelAdd())"/>
+                                    </label>
+                                    <div class="wof_sf_inline"><button type="button" class="btn btn-primary" t-att-disabled="state.busy" t-on-click="confirmAdd">إضافة</button><button type="button" class="btn btn-link" t-on-click="cancelAdd">إلغاء</button></div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <button type="button" class="wof_sf_add" t-on-click="() => this.startAdd('size')"><i class="fa fa-plus" aria-hidden="true"/> حجم مخصص</button>
+                            </t>
+                        </div>
+                        <aside class="wof_sf_info is-column">
+                            <span class="wof_sf_info_title"><i class="fa fa-info-circle" aria-hidden="true"/> <strong>هكذا ستظهر أعمدة الأسعار والعمولات</strong></span>
+                            <div class="wof_sf_cols">
+                                <span class="is-first">المكوّن</span>
+                                <t t-foreach="activeSizes" t-as="s" t-key="s.id"><span t-esc="s.name"/></t>
+                            </div>
+                            <span>الكود البنفسجي يُثبَّت بعد التفعيل، والاسم يمكن تغييره في أي وقت.</span>
+                        </aside>
+                    </t>
+
+                    <!-- 3. Tint -->
+                    <t t-if="current === 'tint'">
+                        <header class="wof_sf_head is-split">
+                            <div><h2>كيف ترقّم درجات اللون في محلك؟</h2><p>اختر الطريقة التي يعرفها عملاؤك وفنيوك.</p></div>
+                            <span class="wof_sf_chip is-lock"><i class="fa fa-lock" aria-hidden="true"/> <t t-if="d.tint.locked">مثبتة بعد التفعيل</t><t t-else="">تُثبَّت بعد التفعيل</t></span>
+                        </header>
+                        <div class="wof_sf_choices is-wide" role="radiogroup" aria-label="طريقة ترقيم درجات اللون">
+                            <t t-foreach="tintMethods" t-as="m" t-key="m.key">
+                                <button type="button" role="radio" t-att-aria-checked="m.on ? 'true' : 'false'"
+                                        t-att-class="'wof_sf_choice' + (m.on ? ' is-on' : '')" t-att-disabled="state.busy or (d.tint.locked and !m.on)"
+                                        t-on-click="() => this.setTintMethod(m.key)">
+                                    <span class="wof_sf_choice_head"><strong t-esc="m.name"/><span class="wof_sf_tick"><t t-call="yousentech_wo_v4.SetupFlow.Check"/></span></span>
+                                    <span class="wof_sf_swatches">
+                                        <t t-foreach="m.sample" t-as="sw" t-key="sw.v"><span><span class="wof_sf_swatch" t-att-style="sw.style"/><b dir="ltr" t-esc="sw.v"/></span></t>
+                                    </span>
+                                </button>
+                            </t>
+                        </div>
+                        <div class="wof_sf_section">
+                            <span class="wof_sf_section_head">
+                                <strong>الدرجات المعتمدة لديك</strong>
+                                <span t-att-class="'wof_sf_chip ' + (shadeCount.on ? 'is-on' : 'is-warn')">
+                                    <t t-if="shadeCount.on"><t t-esc="shadeCount.on"/> من <t t-esc="shadeCount.total"/> مفعّلة</t>
+                                    <t t-else="">فعّل درجة واحدة على الأقل</t>
+                                </span>
+                            </span>
+                            <div class="wof_sf_shades">
+                                <t t-foreach="d.tint.shades" t-as="sh" t-key="sh.id">
+                                    <div t-att-class="'wof_sf_shade' + (sh.selected ? ' is-on' : '')">
+                                        <t t-if="isEditing('shade', sh.id)">
+                                            <input class="wof_sf_input" t-att-value="state.editValue" t-on-input="(ev) => state.editValue = ev.target.value" aria-label="اسم الدرجة"
+                                                   t-on-keydown="(ev) => this.onKey(ev, () => this.confirmEdit('shade', sh.id), () => state.editing = null)"/>
+                                            <button type="button" class="wof_sf_icon_btn" aria-label="حفظ" t-on-click="() => this.confirmEdit('shade', sh.id)"><i class="fa fa-check" aria-hidden="true"/></button>
+                                        </t>
+                                        <t t-else="">
+                                            <button type="button" class="wof_sf_shade_toggle" t-att-aria-pressed="sh.selected ? 'true' : 'false'" t-att-aria-label="'الدرجة ' + sh.value"
+                                                    t-att-disabled="state.busy" t-on-click="() => this.toggleShade(sh)">
+                                                <span class="wof_sf_swatch is-small" t-att-style="shadeStyleAt(sh, sh_index)"/>
+                                                <b dir="ltr" t-esc="sh.value"/>
+                                                <span class="wof_sf_tick"><t t-call="yousentech_wo_v4.SetupFlow.Check"/></span>
+                                            </button>
+                                            <button type="button" class="wof_sf_icon_btn is-small" t-att-aria-label="'تعديل اسم الدرجة ' + sh.value" t-on-click="() => this.startEdit('shade', sh.id, sh.value)"><i class="fa fa-pencil" aria-hidden="true"/></button>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                        <aside class="wof_sf_info"><i class="fa fa-info-circle" aria-hidden="true"/><div><strong>ماذا يعني اختيارك؟</strong><span>كل فيلم عزل يختار من هذه الدرجات فقط. الدرجة غير المفعّلة لا تظهر في أوامر التركيب، ويمكن تفعيلها لاحقًا.</span></div></aside>
+                    </t>
+
+                    <!-- 4a. Order fields -->
+                    <t t-if="current === 'fields'">
+                        <header class="wof_sf_head"><h2>ما البيانات التي تُطلب عند فتح أمر تركيب؟</h2><p>لكل حقل ثلاث حالات: إجباري لا يُحفظ الأمر بدونه، اختياري، أو مخفي لا يظهر للموظف.</p></header>
+                        <div class="wof_sf_split">
+                            <div class="wof_sf_fields">
+                                <t t-foreach="d.fields" t-as="f" t-key="f.id">
+                                    <div class="wof_sf_field">
+                                        <span t-att-class="'wof_sf_name' + (f.state === 'hid' ? ' is-hidden' : '')" t-esc="f.label"/>
+                                        <span class="wof_sf_seg" role="radiogroup" t-att-aria-label="'حالة ' + f.label">
+                                            <button type="button" role="radio" t-att-aria-checked="f.state === 'req' ? 'true' : 'false'" t-att-class="f.state === 'req' ? 'is-req' : ''" t-att-disabled="state.busy" t-on-click="() => this.setField(f, 'req')">إجباري</button>
+                                            <button type="button" role="radio" t-att-aria-checked="f.state === 'opt' ? 'true' : 'false'" t-att-class="f.state === 'opt' ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setField(f, 'opt')">اختياري</button>
+                                            <button type="button" role="radio" t-att-aria-checked="f.state === 'hid' ? 'true' : 'false'" t-att-class="f.state === 'hid' ? 'is-hid' : ''" t-att-disabled="state.busy" t-on-click="() => this.setField(f, 'hid')">مخفي</button>
+                                        </span>
+                                    </div>
+                                </t>
+                            </div>
+                            <aside class="wof_sf_preview">
+                                <span class="wof_sf_section_head"><strong>معاينة أمر التركيب</strong><span class="wof_sf_chip is-info">مباشرة</span></span>
+                                <t t-foreach="visibleFields" t-as="v" t-key="v.id">
+                                    <span class="wof_sf_preview_field">
+                                        <span><t t-esc="v.label"/> <span t-if="v.state === 'req'" class="wof_sf_chip is-on is-tiny">إجباري</span></span>
+                                        <span t-att-class="'wof_sf_preview_box' + (v.state === 'req' ? ' is-req' : '')"/>
+                                    </span>
+                                </t>
+                                <span t-if="hiddenFieldNames" class="wof_sf_muted wof_sf_preview_hidden">مخفية عن الموظف: <t t-esc="hiddenFieldNames"/></span>
+                            </aside>
+                        </div>
+                    </t>
+
+                    <!-- 4b. Tax and pricing -->
+                    <t t-if="current === 'tax'">
+                        <header class="wof_sf_head"><h2>كيف تُحسب الضريبة والأسعار؟</h2><p>هذه القيم الافتراضية يرثها كل فيلم أو خدمة، ويمكن تخصيصها للفيلم لاحقًا.</p></header>
+                        <section class="wof_sf_card">
+                            <div class="wof_sf_card_row">
+                                <span class="wof_sf_row_text"><strong class="wof_sf_card_title">تطبيق الضريبة على المبيعات</strong><span class="wof_sf_muted">أوقفها إذا كانت منشأتك غير مسجلة في الضريبة.</span></span>
+                                <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.tax.enabled"/><t t-set="label" t-value="'تطبيق الضريبة'"/><t t-set="onClick" t-value="() => this.setScalar('operation_tax_enabled', !state.data.tax.enabled)"/></t>
+                            </div>
+                            <t t-if="d.tax.enabled">
+                                <label class="wof_sf_label is-narrow">الضريبة الافتراضية
+                                    <select t-att-class="'wof_sf_input' + (selectedTax ? '' : ' is-warn')" t-att-disabled="state.busy" t-on-change="onTaxChange">
+                                        <option value="" t-att-selected="!d.tax.tax_id">اختر الضريبة</option>
+                                        <t t-foreach="d.tax.options" t-as="o" t-key="o.id"><option t-att-value="o.id" t-att-selected="o.id === d.tax.tax_id" t-esc="o.name"/></t>
+                                    </select>
+                                </label>
+                                <span t-if="!selectedTax" class="wof_sf_chip is-warn"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> مطلوبة قبل التفعيل</span>
+                                <span t-if="!d.tax.options.length" class="wof_sf_muted">لا توجد ضريبة مبيعات معرّفة لهذه الشركة. أضفها من إعدادات المحاسبة أو أوقف تطبيق الضريبة.</span>
+                                <t t-set="tp" t-value="taxPreview"/>
+                                <div t-if="tp" class="wof_sf_info is-column">
+                                    <strong t-esc="tp.title"/>
+                                    <div class="wof_sf_flow"><t t-foreach="tp.flow" t-as="t" t-key="t_index"><span><small t-esc="t.k"/><b t-esc="t.v"/></span></t></div>
+                                </div>
+                            </t>
+                        </section>
+                        <section class="wof_sf_card">
+                            <span class="wof_sf_row_text"><strong class="wof_sf_card_title">سياسة التسعير الافتراضية</strong><span class="wof_sf_muted">مثال لتوضيح الفرق، والأسعار الفعلية تُدخل في مصفوفة كل فيلم.</span></span>
+                            <t t-call="yousentech_wo_v4.SetupFlow.Choice"><t t-set="options" t-value="pricingOptions"/><t t-set="value" t-value="d.pricing_policy"/><t t-set="label" t-value="'سياسة التسعير الافتراضية'"/><t t-set="pick" t-value="(key) => this.setScalar('operation_pricing_policy', key)"/></t>
+                        </section>
+                    </t>
+
+                    <!-- 4c. Invoicing -->
+                    <t t-if="current === 'invoice'">
+                        <header class="wof_sf_head"><h2>متى تُنشأ الفاتورة؟</h2><p>اختر ما يناسب طريقة التحصيل في محلك.</p></header>
+                        <t t-call="yousentech_wo_v4.SetupFlow.Choice"><t t-set="options" t-value="invoiceOptions"/><t t-set="value" t-value="d.invoice"/><t t-set="label" t-value="'وقت إنشاء الفاتورة'"/><t t-set="pick" t-value="(key) => this.setInvoice(key)"/></t>
+                        <section class="wof_sf_card is-soft">
+                            <span class="wof_sf_section_head"><strong>رحلة أمر التركيب</strong><span class="wof_sf_chip is-info">مباشرة</span></span>
+                            <div class="wof_sf_journey">
+                                <t t-foreach="journey" t-as="j" t-key="j_index">
+                                    <span><span class="wof_sf_journey_bar"/><b t-esc="j.name"/>
+                                        <span t-att-class="'wof_sf_pin is-' + j.pin"><t t-if="j.pin === 'here'">الفاتورة هنا</t><t t-elif="j.pin === 'any'">يمكن إنشاؤها</t><t t-else="">-</t></span>
+                                    </span>
+                                </t>
+                            </div>
+                        </section>
+                    </t>
+
+                    <!-- 4d. Discounts -->
+                    <t t-if="current === 'discount'">
+                        <header class="wof_sf_head is-split">
+                            <div><h2>هل تسمح بالخصم؟ وإلى أي حد؟</h2><p>حدود افتراضية يرثها كل فيلم، ويمكن تخصيصها لكل مكوّن.</p></div>
+                            <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.discount.enabled"/><t t-set="label" t-value="'تفعيل الخصومات'"/><t t-set="onClick" t-value="() => this.setScalar('discount_enabled', !state.data.discount.enabled)"/></t>
+                        </header>
+                        <t t-if="d.discount.enabled">
+                            <div class="wof_sf_grid2">
+                                <label class="wof_sf_label">الحد الأقصى للخصم %
+                                    <input class="wof_sf_input" inputmode="decimal" dir="ltr" t-att-value="state.discount.limit" t-on-input="(ev) => this.onDiscountInput('limit', ev)" t-on-change="() => this.commitDiscount('limit')"/>
+                                </label>
+                                <label class="wof_sf_label">يُطلب سبب الخصم من %
+                                    <input class="wof_sf_input" inputmode="decimal" dir="ltr" t-att-value="state.discount.reason" t-on-input="(ev) => this.onDiscountInput('reason', ev)" t-on-change="() => this.commitDiscount('reason')"/>
+                                </label>
+                            </div>
+                            <section class="wof_sf_card is-soft">
+                                <strong>ماذا يحدث عند كل نسبة خصم؟</strong>
+                                <div class="wof_sf_zones"><t t-foreach="discountZones" t-as="z" t-key="z.cls"><span t-att-class="'is-' + z.cls" t-attf-style="width: {{ z.w }}%"/></t></div>
+                                <div class="wof_sf_zone_list">
+                                    <t t-foreach="discountZones" t-as="z" t-key="z.cls"><span><i t-att-class="'is-' + z.cls"/><b t-esc="z.range"/><span class="wof_sf_muted" t-esc="z.text"/></span></t>
+                                </div>
+                            </section>
+                            <div class="wof_sf_card_row">
+                                <span class="wof_sf_row_text"><strong class="wof_sf_card_title">السماح بطلب تجاوز الحد</strong><span class="wof_sf_muted">الموظف يطلب، ومن لديه صلاحية تجاوز السعر يوافق.</span></span>
+                                <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.discount.override"/><t t-set="label" t-value="'السماح بطلب تجاوز الحد'"/><t t-set="onClick" t-value="() => this.setScalar('discount_allow_override_request', !state.data.discount.override)"/></t>
+                            </div>
+                            <div class="wof_sf_inline">
+                                <strong class="wof_sf_card_title">يُطبَّق الخصم</strong>
+                                <span class="wof_sf_seg" role="radiogroup" aria-label="نطاق الخصم">
+                                    <button type="button" role="radio" t-att-aria-checked="d.discount.scope === 'order' ? 'true' : 'false'" t-att-class="d.discount.scope === 'order' ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setScalar('discount_scope', 'order')">على إجمالي الأمر</button>
+                                    <button type="button" role="radio" t-att-aria-checked="d.discount.scope === 'service' ? 'true' : 'false'" t-att-class="d.discount.scope === 'service' ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setScalar('discount_scope', 'service')">على كل خدمة</button>
+                                </span>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <aside class="wof_sf_info"><i class="fa fa-info-circle" aria-hidden="true"/><div><strong>الخصم موقوف</strong><span>لن يظهر حقل الخصم في أوامر التركيب. يمكنك تفعيله لاحقًا من الإعدادات.</span></div></aside>
+                        </t>
+                    </t>
+
+                    <!-- 4e. Technicians and commission -->
+                    <t t-if="current === 'tech'">
+                        <header class="wof_sf_head"><h2>كيف يعمل الفنيون ومتى تُستحق عمولتهم؟</h2><p>طريقة حساب وتوزيع العمولة تُحدَّد لكل فيلم في مصفوفة التسعير والعمولة.</p></header>
+                        <section class="wof_sf_card">
+                            <div class="wof_sf_card_row">
+                                <span class="wof_sf_row_text"><strong class="wof_sf_card_title">السماح بأكثر من فني في نفس الأمر</strong>
+                                    <span class="wof_sf_muted"><t t-if="d.tech.multi">يمكن اختيار عدة فنيين في الأمر، وتوزَّع العمولة بينهم حسب سياسة الفيلم.</t><t t-else="">فني واحد فقط لكل أمر تركيب.</t></span></span>
+                                <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.tech.multi"/><t t-set="label" t-value="'السماح بتعدد الفنيين'"/><t t-set="onClick" t-value="() => this.setScalar('operation_allow_multiple_technicians', !state.data.tech.multi)"/></t>
+                            </div>
+                        </section>
+                        <section class="wof_sf_card">
+                            <strong class="wof_sf_card_title">متى تُستحق عمولة الفني؟</strong>
+                            <t t-call="yousentech_wo_v4.SetupFlow.Choice"><t t-set="options" t-value="eventOptions"/><t t-set="value" t-value="d.tech.event"/><t t-set="label" t-value="'استحقاق العمولة'"/><t t-set="pick" t-value="(key) => this.setScalar('commission_event', key)"/></t>
+                        </section>
+                    </t>
+
+                    <!-- 5. Review -->
+                    <t t-if="current === 'review'">
+                        <t t-if="d.state === 'ready'">
+                            <div class="wof_sf_done">
+                                <span class="wof_sf_done_icon"><i class="fa fa-check" aria-hidden="true"/></span>
+                                <h2>النظام مفعّل</h2>
+                                <p>الأنشطة والأحجام ودرجات اللون جاهزة. الخطوة التالية: أضف الأفلام والخدمات وحدد أسعارها من بوابة الأنشطة.</p>
+                                <div class="wof_sf_inline is-center">
+                                    <button type="button" class="btn btn-primary btn-lg" t-on-click="openActivities"><i class="fa fa-plus" aria-hidden="true"/> إضافة الأفلام والخدمات</button>
+                                    <button type="button" class="btn btn-light btn-lg" t-on-click="close">إغلاق</button>
+                                </div>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <header class="wof_sf_head"><h2>راجع ثم فعّل النظام</h2><p>بعد التفعيل تضيف الأفلام والخدمات من بوابة الأنشطة.</p></header>
+                            <section t-if="issues.length" class="wof_sf_issues">
+                                <strong><i class="fa fa-exclamation-triangle" aria-hidden="true"/> ينقص <t t-esc="issues.length"/> قبل التفعيل</strong>
+                                <t t-foreach="issues" t-as="i" t-key="i.code">
+                                    <span class="wof_sf_issue"><span t-esc="i.message"/><button type="button" class="btn btn-link" t-on-click="() => this.go(i.step)">إصلاح</button></span>
+                                </t>
+                            </section>
+                            <section t-else="" class="wof_sf_ready"><i class="fa fa-check-circle" aria-hidden="true"/> <strong>كل شيء جاهز للتفعيل</strong></section>
+                            <div class="wof_sf_summary">
+                                <t t-foreach="summary" t-as="s" t-key="s.key">
+                                    <div class="wof_sf_summary_row">
+                                        <span t-att-class="'wof_sf_state_dot' + (s.ok ? '' : ' is-warn')"/>
+                                        <strong t-esc="s.name"/>
+                                        <span class="wof_sf_summary_text" t-esc="s.text"/>
+                                        <button type="button" class="btn btn-link" t-on-click="() => this.go(s.key)">تعديل</button>
+                                    </div>
+                                </t>
+                            </div>
+                            <section class="wof_sf_locked">
+                                <strong><i class="fa fa-lock" aria-hidden="true"/> يُثبَّت بعد التفعيل، تأكد منه الآن</strong>
+                                <t t-foreach="locked" t-as="l" t-key="l_index"><span t-esc="l"/></t>
+                            </section>
+                        </t>
+                    </t>
+                </main>
+            </div>
+
+            <footer class="wof_sf_footer">
+                <span class="wof_sf_footer_state"><span t-att-class="'wof_sf_state_dot' + (footer.warn ? ' is-warn' : '')"/><span t-esc="footer.text"/></span>
+                <span class="wof_sf_inline">
+                    <button t-if="prevKey and !(current === 'review' and state.data.state === 'ready')" type="button" class="btn btn-light" t-att-disabled="state.busy" t-on-click="prev"><i class="fa fa-arrow-right" aria-hidden="true"/> السابق</button>
+                    <button t-if="state.data.state !== 'ready'" type="button" class="btn btn-light" t-on-click="close">حفظ والمتابعة لاحقًا</button>
+                    <button t-if="current !== 'review'" type="button" class="btn btn-primary" t-att-disabled="state.busy or info[current].block" t-on-click="next"><t t-esc="nextLabel"/> <i class="fa fa-arrow-left" aria-hidden="true"/></button>
+                    <button t-if="current === 'review' and state.data.state !== 'ready'" type="button" class="btn btn-primary" t-att-disabled="state.busy or issues.length" t-on-click="activate"><i class="fa fa-check" aria-hidden="true"/> تفعيل النظام</button>
+                </span>
+            </footer>
+        </div>
+    </t>
+
+</templates>
