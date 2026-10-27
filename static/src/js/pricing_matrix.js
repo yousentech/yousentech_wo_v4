@@ -173,18 +173,52 @@ export class WofPricingMatrix extends Component {
         return cell.free ? 0 : cell.amount === undefined ? null : cell.amount;
     }
 
-    priceComplete(line) {
+    // A price of 0 is not a price: only the "free" flag makes a line cost nothing.
+    isPriced(amount) {
+        return amount !== null && amount !== undefined && amount > 0;
+    }
+
+    isZero(amount) {
+        return amount === 0;
+    }
+
+    priceProblem(line) {
         const mode = this.priceMode(line);
         if (mode === "free") {
-            return true;
+            return null;
         }
-        if (mode === "uniform") {
-            return line.price.general.amount !== null && line.price.general.amount !== undefined;
+        const amounts = mode === "uniform"
+            ? [line.price.general.amount]
+            : this.sizes.map((size) => this.priceCell(line, size)).filter((cell) => !cell.free).map((cell) => cell.amount);
+        if (amounts.some((a) => this.isZero(a))) {
+            return "zero";
         }
-        return this.sizes.every((size) => {
-            const cell = this.priceCell(line, size);
-            return cell.free || (cell.amount !== null && cell.amount !== undefined);
-        });
+        if (amounts.some((a) => !this.isPriced(a))) {
+            return "missing";
+        }
+        return null;
+    }
+
+    priceComplete(line) {
+        return !this.priceProblem(line);
+    }
+
+    priceKind(line, sizeId) {
+        const mode = this.priceMode(line);
+        if (mode === "free") {
+            return "free";
+        }
+        if (mode !== "uniform") {
+            const cell = line.price.sizes[String(sizeId)] || {};
+            if (cell.free) {
+                return "free";
+            }
+        }
+        const amount = this.priceAt(line, sizeId);
+        if (this.isZero(amount)) {
+            return "zero";
+        }
+        return this.isPriced(amount) ? "price" : "missing";
     }
 
     onPriceMode(line, ev) {
@@ -466,15 +500,16 @@ export class WofPricingMatrix extends Component {
         const rows = this.data.lines.map((line) => {
             const price = this.priceAt(line, sizeId);
             const comm = this.commAt(line, sizeId);
-            if (price === null) {
+            const kind = this.priceKind(line, sizeId);
+            if (kind === "missing" || kind === "zero") {
                 gaps.push(line.name);
             } else {
-                subtotal += price;
+                subtotal += price || 0;
             }
             if (comm !== null) {
                 commission += comm;
             }
-            return { id: line.id, name: line.name, price };
+            return { id: line.id, name: line.name, price, kind };
         });
         let vat;
         let total;

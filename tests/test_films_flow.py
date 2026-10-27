@@ -145,6 +145,21 @@ class TestFilmsFlow(TransactionCase):
         self.assertTrue(snap['film']['active'])
         self.assertTrue(snap['readiness']['ready'])
 
+    def test_zero_price_is_not_a_price_unless_free(self):
+        film = self.new_film()
+        film.wof_film_apply('comp_add', {'part_id': self.front.id})
+        snap = film.wof_matrix_load()
+        for line in snap['lines']:
+            line['price'] = {'mode': 'uniform', 'general': {'amount': 0, 'readonly': False}, 'sizes': {}}
+        film.wof_matrix_save({'lines': snap['lines']})
+        self.assertFalse(film._wof_readiness()['ready'])
+        with self.assertRaises(ValidationError):
+            film.wof_film_apply('activate')
+        for line in snap['lines']:
+            line['price'] = {'mode': 'free', 'general': {'amount': 0, 'free': True, 'readonly': False}, 'sizes': {}}
+        film.wof_matrix_save({'lines': snap['lines']})
+        self.assertTrue(film._wof_readiness()['ready'])
+
     def test_copy_with_components_prices_and_grades(self):
         source = self.new_film('فيلم المصدر')
         snap = source.wof_film_apply('comp_add', {'part_id': self.front.id})

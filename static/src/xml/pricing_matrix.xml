@@ -94,18 +94,19 @@
                                         <t t-if="mode === 'size'"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell">
                                             <t t-set="cell" t-value="priceCell(line, size)"/>
                                             <span t-if="cell.free" class="wof_pm_free">مجاني</span>
-                                            <input t-else="" type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ cell.amount === null or cell.amount === undefined ? 'is-missing' : '' }}" t-att-value="cell.amount === null or cell.amount === undefined ? '' : cell.amount" t-att-aria-label="'سعر ' + line.name + ' ' + size.name + (cell.readonly ? '، ثابت في أوامر التركيب' : '')" t-on-change="(ev) => this.onPriceCell(line, size, ev)"/>
+                                            <input t-else="" type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ isPriced(cell.amount) ? '' : 'is-missing' }}" t-att-title="isZero(cell.amount) ? 'سعر صفر يعني غير مسعّر. اجعله «مجاني» من خصائص السطر إذا كان بلا مقابل.' : false" t-att-value="cell.amount === null or cell.amount === undefined ? '' : cell.amount" t-att-aria-label="'سعر ' + line.name + ' ' + size.name + (cell.readonly ? '، ثابت في أوامر التركيب' : '')" t-on-change="(ev) => this.onPriceCell(line, size, ev)"/>
                                             <i t-if="cell.readonly and !cell.free" class="fa fa-lock wof_pm_lock" title="ثابت في أوامر التركيب، يُعدَّل من هنا فقط" aria-hidden="true"/>
                                         </td></t>
                                         <t t-else=""><td t-att-colspan="isBySize ? sizes.length : 1" class="wof_pm_cell wof_pm_merged">
                                             <span t-if="mode === 'free'" class="wof_pm_free">مجاني <t t-if="isBySize">لكل الأحجام</t></span>
                                             <span t-else="" class="wof_pm_merged_inner">
-                                                <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ line.price.general.amount === null or line.price.general.amount === undefined ? 'is-missing' : '' }}" t-att-value="line.price.general.amount === null or line.price.general.amount === undefined ? '' : line.price.general.amount" t-att-aria-label="'سعر ' + line.name" t-on-change="(ev) => this.onPriceGeneral(line, ev)"/>
+                                                <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ isPriced(line.price.general.amount) ? '' : 'is-missing' }}" t-att-title="isZero(line.price.general.amount) ? 'سعر صفر يعني غير مسعّر. اختر «مجاني لكل الأحجام» إذا كان بلا مقابل.' : false" t-att-value="line.price.general.amount === null or line.price.general.amount === undefined ? '' : line.price.general.amount" t-att-aria-label="'سعر ' + line.name" t-on-change="(ev) => this.onPriceGeneral(line, ev)"/>
                                                 <small class="wof_pm_hint"><t t-esc="currency"/><t t-if="isBySize"> · لكل الأحجام</t><t t-if="line.price.general.readonly"> · <i class="fa fa-lock" aria-hidden="true"/> ثابت في الأوامر</t></small>
                                             </span>
                                         </td></t>
                                         <td class="wof_pm_state">
                                             <span t-if="priceComplete(line)" class="wof_pm_pill is-ok">مكتمل</span>
+                                            <span t-elif="priceProblem(line) === 'zero'" class="wof_pm_pill is-warn" title="الصفر ليس سعرًا. اجعله مجانيًا إذا كان بلا مقابل.">سعر صفر</span>
                                             <span t-else="" class="wof_pm_pill is-warn">ينقصه سعر</span>
                                         </td>
                                     </tr>
@@ -281,15 +282,16 @@
                         <div class="wof_pm_receipt_lines">
                             <div t-foreach="rc.rows" t-as="row" t-key="row.id" class="wof_pm_receipt_line">
                                 <span t-esc="row.name"/>
-                                <strong t-if="row.price === null" class="is-missing">ناقص</strong>
-                                <strong t-elif="row.price === 0" class="is-free">مجاني</strong>
+                                <strong t-if="row.kind === 'missing'" class="is-missing">ناقص</strong>
+                                <strong t-elif="row.kind === 'zero'" class="is-missing">صفر · غير مسعّر</strong>
+                                <strong t-elif="row.kind === 'free'" class="is-free">مجاني</strong>
                                 <strong t-else=""><t t-esc="fmt(row.price)"/> <t t-esc="currency"/></strong>
                             </div>
                         </div>
                         <div class="wof_pm_receipt_tax"><span>الضريبة <t t-if="data.film.tax_rate"><t t-esc="fmt(data.film.tax_rate * 100)"/>%</t></span><span><t t-esc="fmt(rc.vat)"/> <t t-esc="currency"/></span></div>
                         <div class="wof_pm_receipt_total"><span>الإجمالي</span><span><t t-esc="fmt(rc.total)"/> <t t-esc="currency"/></span></div>
                         <div class="wof_pm_receipt_comm"><span>عمولة الفنيين</span><strong><t t-esc="fmt(rc.commission)"/> <t t-esc="currency"/></strong></div>
-                        <p t-if="rc.gaps.length" class="wof_pm_gaps">بلا سعر لهذا الحجم: <t t-esc="rc.gaps.join('، ')"/></p>
+                        <p t-if="rc.gaps.length" class="wof_pm_gaps">بلا سعر صالح لهذا الحجم: <t t-esc="rc.gaps.join('، ')"/></p>
                     </div>
                 </aside>
                 </div>

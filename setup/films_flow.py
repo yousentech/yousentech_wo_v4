@@ -83,7 +83,10 @@ class WofFilmCategoryFlow(models.Model):
         return self.env['wof.company.profile'].search([('company_id', '=', company.id)], limit=1)
 
     # -------------------------------------------------------------- readiness
-    def _wof_line_complete(self, lines, policy, sizes):
+    def _wof_line_complete(self, lines, policy, sizes, prices=False):
+        if prices:
+            # A zero price is not a price; only the free flag makes a line cost nothing.
+            lines = lines.filtered(lambda line: line.free_part or line.part_price > 0)
         by_size = self._wof_line_by_size(lines)
         if policy == 'by_size':
             return bool(sizes) and all(size.id in by_size for size in sizes)
@@ -97,7 +100,7 @@ class WofFilmCategoryFlow(models.Model):
         price_done = comm_done = 0
         line_states = {}
         for line in lines:
-            price_ok = self._wof_line_complete(line.price_line_ids, price_policy, sizes)
+            price_ok = self._wof_line_complete(line.price_line_ids, price_policy, sizes, prices=True)
             comm_lines = line.commission_line_ids
             if line.part_type == 'service_area' and line.service_commission_source == 'from_parts':
                 comm_ok = bool(comm_lines)
