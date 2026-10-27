@@ -188,3 +188,46 @@ class TestFilmsFlow(TransactionCase):
         self.assertEqual(sum(shade['selected'] for shade in snap['tint']['shades']), 5)
         snap = film.wof_film_apply('tint', {'use_all': False, 'code': 'SEQ-00', 'selected': False})
         self.assertEqual(sum(shade['selected'] for shade in snap['tint']['shades']), 4)
+
+    def test_bulk_add_and_component_master(self):
+        film = self.new_film('فيلم المكوّنات')
+        snap = film.wof_film_apply('comp_add_many', {'part_ids': [self.front.id, self.area.id]})
+        self.assertEqual(len(snap['components']), 2)
+        area = next(c for c in snap['components'] if c['type'] == 'service_area')
+        self.assertEqual(area['templates'][0]['is_default'], True)
+        with self.assertRaises(ValidationError):
+            film.wof_film_apply('comp_add_many', {'part_ids': [self.front.id]})
+        with self.assertRaises(ValidationError):
+            film.wof_film_apply('comp_add_many', {'part_ids': [self.empty_area.id]})
+        self.assertEqual({p['type'] for p in film.wof_film_parts_search('', 'car_part')}, {'car_part'})
+
+        # new car part, auto code and auto product, added to the film
+        snap = film.wof_component_save({'type': 'car_part', 'name': 'سقف FF', 'auto_product': True,
+                                        'priority': 5, 'warning_msg': 'انتبه'})
+        roof = self.uenv['wof.car.parts'].search([('name', '=', 'سقف FF'), ('company_id', '=', self.company.id)])
+        self.assertTrue(roof.code.startswith('PART-'))
+        self.assertEqual(roof.product_id.type, 'service')
+        self.assertIn(roof.id, [c['part_id'] for c in snap['components']])
+        with self.assertRaises(ValidationError):
+            film.wof_component_save({'type': 'car_part', 'name': 'سقف FF', 'auto_product': True})
+
+        # new service area with two templates; default drives the legacy part list
+        film.wof_component_save({'type': 'service_area', 'name': 'منطقة جديدة FF', 'auto_product': True, 'templates': [
+            {'name': 'كامل', 'is_default': False, 'component_ids': [self.front.id, self.rear.id]},
+            {'name': 'أمامي فقط', 'is_default': True, 'component_ids': [self.front.id]},
+        ]})
+        new_area = self.uenv['wof.car.parts'].search([('name', '=', 'منطقة جديدة FF')])
+        self.assertEqual(new_area.default_template_id.name, 'أمامي فقط')
+        self.assertEqual(new_area.service_area_part_ids, self.front)
+        with self.assertRaises(ValidationError):
+            film.wof_component_save({'type': 'service_area', 'name': 'منطقة خطأ FF', 'auto_product': True, 'templates': [
+                {'name': 'أ', 'is_default': True, 'component_ids': []}]})
+
+        # edit: switch the default template and drop one
+        info = film.wof_component_load(new_area.id)
+        templates = info['part']['templates']
+        film.wof_component_save({'id': new_area.id, 'name': new_area.name, 'auto_product': False,
+                                 'product_id': new_area.product_id.id, 'templates': [
+            dict(templates[0], is_default=False), dict(templates[1], is_default=True),
+        ] if templates[0]['is_default'] else [dict(templates[1], is_default=False), dict(templates[0], is_default=True)]})
+        self.assertEqual(new_area.default_template_id.name, 'كامل')

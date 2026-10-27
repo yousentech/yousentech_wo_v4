@@ -30,6 +30,7 @@ export class WofFilmEditor extends Component {
         this.state = useState({
             data: null, step: "basic", visited: [], busy: false,
             draft: {}, picker: { open: false, query: "", results: [] }, tintEdit: null,
+            adder: null, form: null, expanded: {},
             discountLimit: "",
         });
         onWillStart(async () => {
@@ -117,6 +118,8 @@ export class WofFilmEditor extends Component {
         this.state.step = key;
         this.state.picker.open = false;
         this.state.tintEdit = null;
+        this.state.adder = null;
+        this.state.form = null;
         if (!this.state.visited.includes(key)) {
             this.state.visited.push(key);
         }
@@ -311,45 +314,236 @@ export class WofFilmEditor extends Component {
     }
 
     // -------------------------------------------------------- components
-    async search(query) {
-        const results = await this.orm.call(MODEL, "wof_film_parts_search", [[this.filmId]], { query: query || "" });
-        this.state.picker.results = results || [];
+    get componentSummary() {
+        const comps = this.state.data.components;
+        const areas = comps.filter((c) => c.type === "service_area");
+        return {
+            parts: comps.length - areas.length,
+            areas: areas.length,
+            inner: areas.reduce((n, c) => n + c.kids.length, 0),
+        };
     }
 
-    openPicker() {
-        this.state.picker.open = true;
+    toggleExpand(c) {
+        this.state.expanded[c.line_id] = !this.state.expanded[c.line_id];
+    }
+
+    // adder: pick existing masters, several at once
+    async openAdder(type = "car_part") {
+        this.state.form = null;
         this.state.tintEdit = null;
-        this.search(this.state.picker.query);
+        this.state.adder = { type, query: "", results: [], selected: [] };
+        await this.searchAdder();
     }
 
-    onPickerInput(ev) {
-        this.state.picker.query = ev.target.value;
-        this.state.picker.open = true;
-        this.search(ev.target.value);
-    }
-
-    onPickerKey(ev) {
-        if (ev.key === "Escape") {
-            ev.stopPropagation();
-            this.state.picker.open = false;
+    async searchAdder() {
+        const a = this.state.adder;
+        if (!a) {
+            return;
+        }
+        const results = await this.orm.call(MODEL, "wof_film_parts_search", [[this.filmId]], { query: a.query || "", part_type: a.type });
+        if (this.state.adder === a) {
+            a.results = results || [];
         }
     }
 
-    async addPart(part) {
-        if (await this.apply("comp_add", { part_id: part.id })) {
-            this.state.picker.query = "";
-            this.state.picker.open = false;
+    setAdderType(type) {
+        this.state.adder.type = type;
+        this.state.adder.selected = [];
+        return this.searchAdder();
+    }
+
+    onAdderQuery(ev) {
+        this.state.adder.query = ev.target.value;
+        return this.searchAdder();
+    }
+
+    toggleAdderPick(p) {
+        if (!p.usable) {
+            return;
+        }
+        const a = this.state.adder;
+        a.selected = a.selected.includes(p.id) ? a.selected.filter((id) => id !== p.id) : [...a.selected, p.id];
+    }
+
+    selectAllAdder() {
+        this.state.adder.selected = this.state.adder.results.filter((p) => p.usable).map((p) => p.id);
+    }
+
+    async addSelected() {
+        const ids = this.state.adder.selected;
+        if (!ids.length) {
+            return;
+        }
+        if (await this.apply("comp_add_many", { part_ids: ids })) {
+            this.notification.add(`${_t("أُضيف")} ${ids.length} ${_t("مكوّن للفيلم.")}`, { type: "success" });
+            this.state.adder = null;
         }
     }
 
-    newComponent() {
-        this.state.picker.open = false;
-        return this.action.doAction({
-            type: "ir.actions.act_window", name: _t("مكوّن جديد"), res_model: "wof.car.parts",
-            views: [[false, "form"]], target: "new",
-        }, {
-            onClose: async () => this.setData(await this.orm.call(MODEL, "wof_film_load", [[this.filmId]])),
-        });
+    // component form: create a new master or edit an existing one
+    async openForm(type, c = null) {
+        this.state.adder = null;
+        this.state.tintEdit = null;
+        const info = await this.orm.call(MODEL, "wof_component_load", [[this.filmId]], { part_id: c ? c.part_id : false });
+        const part = info.part;
+        const grades = this.state.data.grades.map((g) => g.id);
+        const templates = part && part.templates.length ? part.templates : [{ id: false, name: _t("النموذج الأساسي"), is_default: true, component_ids: [] }];
+        let key = 0;
+        this.state.form = {
+            id: part ? part.id : false,
+            type: part ? part.type : type,
+            name: part ? part.name : "",
+            code: part ? part.code : "",
+            autoProduct: !part,
+            product: part ? part.product : false,
+            productQuery: "", productResults: [],
+            priority: String(part ? part.priority || 0 : 10),
+            option_ids: part ? [...part.option_ids] : [],
+            options_required: part ? part.options_required : false,
+            notes: part ? part.notes : "",
+            warning_msg: part ? part.warning_msg : "",
+            other_films: part ? part.other_films : 0,
+            templates: templates.map((t) => ({ ...t, key: ++key, component_ids: [...t.component_ids] })),
+            nextKey: key,
+            tint: c ? { default_grade_id: c.default_grade_id || false, allowed_ids: c.allowed_ids.length ? [...c.allowed_ids] : grades } : { default_grade_id: false, allowed_ids: grades },
+            choices: info,
+        };
+        const main = this.root.el && this.root.el.querySelector(".wof_sf_main");
+        if (main) {
+            main.scrollTop = 0;
+        }
+    }
+
+    closeForm() {
+        this.state.form = null;
+    }
+
+    setFormType(type) {
+        this.state.form.type = type;
+    }
+
+    onForm(field, ev) {
+        this.state.form[field] = ev.target.value;
+    }
+
+    toggleFormOption(id) {
+        const f = this.state.form;
+        f.option_ids = f.option_ids.includes(id) ? f.option_ids.filter((x) => x !== id) : [...f.option_ids, id];
+        if (!f.option_ids.length) {
+            f.options_required = false;
+        }
+    }
+
+    async searchProducts(ev) {
+        const f = this.state.form;
+        f.productQuery = ev.target.value;
+        f.productResults = await this.orm.call(MODEL, "wof_service_products", [[this.filmId]], { query: f.productQuery });
+    }
+
+    pickProduct(p) {
+        this.state.form.product = p;
+        this.state.form.productResults = [];
+        this.state.form.productQuery = "";
+    }
+
+    get formNeedsTint() {
+        return this.state.form && this.state.form.type === "car_part" && this.needsTint;
+    }
+
+    onFormDefaultGrade(ev) {
+        const id = parseInt(ev.target.value, 10);
+        this.state.form.tint.default_grade_id = Number.isFinite(id) ? id : false;
+    }
+
+    toggleFormAllowed(id) {
+        const tint = this.state.form.tint;
+        if (tint.allowed_ids.includes(id)) {
+            if (tint.allowed_ids.length === 1) {
+                this.notification.add(_t("اترك درجة واحدة مسموحة على الأقل."), { type: "warning" });
+                return;
+            }
+            tint.allowed_ids = tint.allowed_ids.filter((x) => x !== id);
+            if (tint.default_grade_id === id) {
+                tint.default_grade_id = false;
+            }
+        } else {
+            tint.allowed_ids = [...tint.allowed_ids, id];
+        }
+    }
+
+    // service-area templates
+    addTemplate() {
+        const f = this.state.form;
+        f.nextKey += 1;
+        f.templates.push({ id: false, key: f.nextKey, name: `${_t("نموذج")} ${f.templates.length + 1}`, is_default: false, component_ids: [] });
+    }
+
+    removeTemplate(t) {
+        const f = this.state.form;
+        if (f.templates.length === 1) {
+            return;
+        }
+        f.templates = f.templates.filter((x) => x.key !== t.key);
+        if (!f.templates.some((x) => x.is_default)) {
+            f.templates[0].is_default = true;
+        }
+    }
+
+    setDefaultTemplate(t) {
+        for (const x of this.state.form.templates) {
+            x.is_default = x.key === t.key;
+        }
+    }
+
+    partName(id) {
+        const p = this.state.form.choices.car_parts.find((x) => x.id === id);
+        return p ? p.name : "";
+    }
+
+    templateChoices(t) {
+        return this.state.form.choices.car_parts.filter((p) => !t.component_ids.includes(p.id));
+    }
+
+    addTemplatePart(t, ev) {
+        const id = parseInt(ev.target.value, 10);
+        if (Number.isFinite(id) && !t.component_ids.includes(id)) {
+            t.component_ids.push(id);
+        }
+        ev.target.value = "";
+    }
+
+    removeTemplatePart(t, id) {
+        t.component_ids = t.component_ids.filter((x) => x !== id);
+    }
+
+    async saveForm() {
+        const f = this.state.form;
+        if (!(f.name || "").trim()) {
+            this.notification.add(_t("أدخل اسم المكوّن أولاً."), { type: "warning" });
+            return;
+        }
+        const grades = this.state.data.grades.map((g) => g.id);
+        const restricted = grades.some((id) => !f.tint.allowed_ids.includes(id));
+        const payload = {
+            id: f.id, type: f.type, name: f.name, code: f.code,
+            auto_product: f.autoProduct, product_id: f.product ? f.product.id : false,
+            priority: parseInt(digits(f.priority) || "0", 10),
+            option_ids: f.option_ids, options_required: f.options_required,
+            notes: f.notes, warning_msg: f.warning_msg,
+            templates: f.type === "service_area"
+                ? f.templates.map((t) => ({ id: t.id, name: t.name, is_default: t.is_default, component_ids: t.component_ids }))
+                : [],
+        };
+        if (this.formNeedsTint) {
+            payload.tint = { default_grade_id: f.tint.default_grade_id, allowed_ids: restricted ? f.tint.allowed_ids : [] };
+        }
+        const data = await this.call("wof_component_save", [payload]);
+        if (data) {
+            this.setData(data);
+            this.notification.add(f.id ? _t("حُفظ تعديل المكوّن.") : _t("أُنشئ المكوّن وأُضيف للفيلم."), { type: "success" });
+            this.state.form = null;
+        }
     }
 
     gradeName(id) {

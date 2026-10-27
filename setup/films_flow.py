@@ -432,6 +432,11 @@ class WofFilmCategoryFlow(models.Model):
                 'type': part.part_type,
                 'template': part.default_template_id.name if is_area and part.default_template_id else '',
                 'kids': [child.name for child in self._wof_area_parts(part)] if is_area else [],
+                'templates': [{
+                    'id': template.id, 'name': template.name, 'is_default': template.is_default,
+                    'parts': template.component_ids.mapped('name'),
+                } for template in part.template_ids.filtered('active').sorted(lambda rec: (rec.sequence, rec.id))] if is_area else [],
+                'warning_msg': part.warning_msg or '',
                 'default_grade_id': line.film_category_line_id.id or False,
                 'allowed_ids': line.allowed_grade_ids.filtered('active').ids,
                 'price_ok': readiness['lines'].get(line.id, {}).get('price', False),
@@ -470,19 +475,199 @@ class WofFilmCategoryFlow(models.Model):
             'readiness': readiness,
         }
 
-    def wof_film_parts_search(self, query=''):
-        """Masters that can still be added to this film."""
+    def wof_film_parts_search(self, query='', part_type=False):
+        """Masters that can still be added to this film, optionally of one type."""
         self.ensure_one()
         self._wof_flow_can_read()
         taken = self._wof_commercial_lines().mapped('car_part_id').ids
         domain = [('company_id', '=', self.company_id.id), ('active', '=', True), ('id', 'not in', taken)]
+        if part_type in ('car_part', 'service_area'):
+            domain.append(('part_type', '=', part_type))
         if (query or '').strip():
             domain += ['|', ('name', 'ilike', query.strip()), ('code', 'ilike', query.strip())]
-        parts = self.env['wof.car.parts'].search(domain, order='priority_part, name, id', limit=30)
-        return [{
-            'id': part.id, 'name': part.name, 'type': part.part_type,
-            'kids': len(self._wof_area_parts(part)) if part.part_type == 'service_area' else 0,
-        } for part in parts]
+        parts = self.env['wof.car.parts'].search(domain, order='priority_part, name, id', limit=200)
+        result = []
+        for part in parts:
+            is_area = part.part_type == 'service_area'
+            result.append({
+                'id': part.id, 'name': part.name, 'code': part.code, 'type': part.part_type,
+                'kids': len(self._wof_area_parts(part)) if is_area else 0,
+                'templates': len(part.template_ids.filtered('active')) if is_area else 0,
+                'usable': (not is_area) or bool(self._wof_area_parts(part)),
+            })
+        return result
+
+    # ------------------------------------------------------- component master
+    def _wof_component_code(self, part_type):
+        prefix = 'AREA' if part_type == 'service_area' else 'PART'
+        Master = self.env['wof.car.parts'].with_context(active_test=False)
+        number = Master.search_count([('company_id', '=', self.company_id.id), ('part_type', '=', part_type)]) + 1
+        for _attempt in range(10000):
+            code = '%s-%04d' % (prefix, number)
+            if not Master.search_count([('company_id', '=', self.company_id.id), ('code', '=', code)]):
+                return code
+            number += 1
+        raise ValidationError(_('تعذر إنشاء كود تلقائي فريد للمكوّن. أدخل الكود يدويًا.'))
+
+    def wof_component_load(self, part_id=False):
+        """Data for the component form: the master (when editing) and the choices."""
+        self.ensure_one()
+        self._wof_flow_can_read()
+        company = self.company_id
+        part = self.env['wof.car.parts'].browse(int(part_id or 0)).exists()
+        if part and part.company_id != company:
+            raise AccessError(_('المكوّن غير متاح لهذه الشركة.'))
+        if part and part.part_type == 'service_area':
+            part.ensure_service_area_templates()
+        uses = 0
+        if part:
+            uses = self.env['wof.film.parts.lines'].search_count([
+                ('car_part_id', '=', part.id), ('part_selected', '=', True), ('header_id', '!=', self.id),
+            ])
+        car_parts = self.env['wof.car.parts'].search([
+            ('company_id', '=', company.id), ('part_type', '=', 'car_part'), ('active', '=', True),
+        ], order='priority_part, name, id')
+        options = self.env['wof.car.part.options'].search([('active', '=', True)], order='name')
+        return {
+            'part': {
+                'id': part.id, 'name': part.name, 'code': part.code, 'type': part.part_type,
+                'product': {'id': part.product_id.id, 'name': part.product_id.display_name} if part.product_id else False,
+                'priority': part.priority_part, 'options_required': part.part_options_required,
+                'option_ids': part.part_options_ids.ids, 'notes': part.notes or '',
+                'warning_msg': part.warning_msg or '',
+                'templates': [{
+                    'id': template.id, 'name': template.name, 'is_default': template.is_default,
+                    'component_ids': template.component_ids.ids,
+                } for template in part.template_ids.filtered('active').sorted(lambda rec: (rec.sequence, rec.id))],
+                'other_films': uses,
+            } if part else False,
+            'car_parts': [{'id': rec.id, 'name': rec.name, 'code': rec.code} for rec in car_parts if rec != part],
+            'options': [{'id': rec.id, 'name': rec.name} for rec in options],
+        }
+
+    def wof_service_products(self, query=''):
+        self.ensure_one()
+        self._wof_flow_can_read()
+        domain = [('type', '=', 'service'), ('company_id', 'in', [False, self.company_id.id])]
+        if (query or '').strip():
+            domain.append(('name', 'ilike', query.strip()))
+        products = self.env['product.product'].search(domain, limit=20, order='name')
+        return [{'id': product.id, 'name': product.display_name} for product in products]
+
+    def _wof_validate_templates(self, templates, company):
+        if not templates:
+            raise ValidationError(_('أضف نموذج مكونات واحدًا على الأقل لمنطقة الخدمة.'))
+        names = []
+        Part = self.env['wof.car.parts']
+        for template in templates:
+            name = (template.get('name') or '').strip()
+            if not name:
+                raise ValidationError(_('أدخل اسمًا لكل نموذج مكونات.'))
+            names.append(name.lower())
+            parts = Part.browse([int(i) for i in template.get('component_ids') or []]).exists()
+            if not parts:
+                raise ValidationError(_('كل نموذج يجب أن يحتوي على مكوّن واحد على الأقل.'))
+            if parts.filtered(lambda rec: rec.company_id != company or rec.part_type != 'car_part'):
+                raise ValidationError(_('مكونات النماذج يجب أن تكون أجزاء سيارة من نفس الشركة.'))
+            template['_parts'] = parts
+            template['name'] = name
+        if len(names) != len(set(names)):
+            raise ValidationError(_('لا يمكن تكرار اسم النموذج داخل منطقة الخدمة.'))
+        if len([t for t in templates if t.get('is_default')]) != 1:
+            raise ValidationError(_('حدد نموذجًا افتراضيًا واحدًا فقط لمنطقة الخدمة.'))
+
+    def _wof_sync_templates(self, part, templates):
+        """Same rules as the develop dialog: update, create, archive missing; one default."""
+        Template = self.env['wof.service.area.template'].with_context(active_test=False)
+        existing = {template.id: template for template in part.template_ids}
+        keep = []
+        default_parts = self.env['wof.car.parts']
+        # Clear the old default first and write the new default first, so the
+        # "single default template" constraint never sees two defaults.
+        part.template_ids.filtered('is_default').with_context(skip_default_sync=True).write({'is_default': False})
+        ordered = sorted(enumerate(templates, start=1), key=lambda item: not item[1].get('is_default'))
+        for sequence, template in ordered:
+            vals = {
+                'name': template['name'], 'sequence': sequence * 10, 'service_area_id': part.id,
+                'component_ids': [(6, 0, template['_parts'].ids)], 'active': True,
+                'is_default': bool(template.get('is_default')),
+            }
+            record = existing.get(int(template.get('id') or 0))
+            if record:
+                record.with_context(skip_default_sync=True).write(vals)
+            else:
+                record = Template.with_context(skip_default_sync=True).create(vals)
+            keep.append(record.id)
+            if template.get('is_default'):
+                default_parts = template['_parts']
+        obsolete = Template.search([('service_area_id', '=', part.id), ('id', 'not in', keep), ('active', '=', True)])
+        if obsolete:
+            obsolete.with_context(skip_default_sync=True).write({'active': False, 'is_default': False})
+        part.service_area_part_ids = [(6, 0, default_parts.ids)]
+
+    def wof_component_save(self, payload):
+        """Create (and add to this film) or edit a component master."""
+        self.ensure_one()
+        self._wof_flow_can_read()
+        self._wof_matrix_check_access()
+        company = self.company_id
+        Master = self.env['wof.car.parts'].with_context(active_test=False)
+        part = Master.browse(int(payload.get('id') or 0)).exists()
+        if part and part.company_id != company:
+            raise AccessError(_('المكوّن غير متاح لهذه الشركة.'))
+        part_type = part.part_type if part else payload.get('type')
+        if part_type not in ('car_part', 'service_area'):
+            raise ValidationError(_('نوع المكوّن غير صحيح.'))
+        name = (payload.get('name') or '').strip()
+        if not name:
+            raise ValidationError(_('أدخل اسم المكوّن أولاً.'))
+        duplicate = Master.search([('company_id', '=', company.id), ('name', '=ilike', name), ('id', '!=', part.id or 0)], limit=1)
+        if duplicate:
+            raise ValidationError(_('يوجد مكوّن باسم "%s" بالفعل. أضفه من القائمة بدل إنشاء نسخة مكررة.') % duplicate.display_name)
+        code = (payload.get('code') or '').strip() or (part.code if part else '') or self._wof_component_code(part_type)
+        if Master.search_count([('company_id', '=', company.id), ('code', '=', code), ('id', '!=', part.id or 0)]):
+            raise ValidationError(_('كود المكوّن "%s" مستخدم مسبقًا في هذه الشركة.') % code)
+        if payload.get('auto_product'):
+            product = self.env['product.product'].create({
+                'name': name, 'type': 'service', 'sale_ok': True, 'purchase_ok': False,
+            })
+        else:
+            product = self.env['product.product'].browse(int(payload.get('product_id') or 0)).exists()
+            if not product:
+                raise ValidationError(_('اختر الصنف الخدمي المرتبط بالمكوّن، أو فعّل الإنشاء التلقائي.'))
+            if product.type != 'service':
+                raise ValidationError(_('الصنف المرتبط بالمكوّن يجب أن يكون من نوع خدمة.'))
+        templates = payload.get('templates') or []
+        if part_type == 'service_area':
+            self._wof_validate_templates(templates, company)
+        try:
+            priority = int(payload.get('priority') or 0)
+        except (TypeError, ValueError):
+            raise ValidationError(_('ترتيب الأولوية يجب أن يكون رقمًا.'))
+        options = self.env['wof.car.part.options'].browse([int(i) for i in payload.get('option_ids') or []]).exists()
+        vals = {
+            'name': name, 'code': code, 'product_id': product.id, 'priority_part': priority,
+            'part_options_required': bool(payload.get('options_required')) and bool(options),
+            'part_options_ids': [(6, 0, options.ids)],
+            'notes': (payload.get('notes') or '').strip() or False,
+            'warning_msg': (payload.get('warning_msg') or '').strip() or False,
+        }
+        if part:
+            part.write(vals)
+        else:
+            vals.update({'part_type': part_type, 'company_id': company.id, 'active': True})
+            if part_type == 'service_area':
+                vals['service_area_part_ids'] = [(6, 0, [t for t in templates if t.get('is_default')][0]['_parts'].ids)]
+            part = Master.create(vals)
+        if part_type == 'service_area':
+            self._wof_sync_templates(part, templates)
+        if not payload.get('id'):
+            self._wof_op_comp_add({'part_id': part.id})
+        if part_type == 'car_part' and self.supports_color_grades and self.item_type == 'film' and 'tint' in payload:
+            line = self._wof_commercial_lines().filtered(lambda rec: rec.car_part_id == part)
+            if line:
+                self._wof_op_comp_tint(dict(payload['tint'], line_id=line.id))
+        return self.wof_film_load()
 
     def wof_film_apply(self, op, payload=None):
         self.ensure_one()
@@ -493,6 +678,7 @@ class WofFilmCategoryFlow(models.Model):
             'basic': self._wof_op_basic,
             'tint': self._wof_op_tint,
             'comp_add': self._wof_op_comp_add,
+            'comp_add_many': self._wof_op_comp_add_many,
             'comp_remove': self._wof_op_comp_remove,
             'comp_move': self._wof_op_comp_move,
             'comp_tint': self._wof_op_comp_tint,
@@ -574,6 +760,20 @@ class WofFilmCategoryFlow(models.Model):
             self.env['wof.film.parts.lines'].create({
                 'header_id': self.id, 'car_part_id': part.id, 'part_selected': True, 'sequence': sequence,
             })
+
+    def _wof_op_comp_add_many(self, payload):
+        parts = self.env['wof.car.parts'].browse([int(i) for i in payload.get('part_ids') or []]).exists()
+        if not parts:
+            raise ValidationError(_('حدد مكوّنًا واحدًا على الأقل قبل الإضافة.'))
+        empty = parts.filtered(lambda part: part.part_type == 'service_area' and not self._wof_area_parts(part))
+        if empty:
+            raise ValidationError(_('مناطق الخدمة التالية لا تحتوي على نماذج أو أجزاء: %s') % '، '.join(empty.mapped('name')))
+        taken = self._wof_commercial_lines().mapped('car_part_id')
+        to_add = (parts - taken).sorted(lambda rec: (rec.priority_part, rec.name or '', rec.id))
+        if not to_add:
+            raise ValidationError(_('جميع المكونات المحددة مضافة بالفعل لهذا الفيلم / الخدمة.'))
+        for part in to_add:
+            self._wof_op_comp_add({'part_id': part.id})
 
     def _wof_comp_line(self, payload):
         line = self._wof_commercial_lines().filtered(lambda rec: rec.id == payload.get('line_id'))
