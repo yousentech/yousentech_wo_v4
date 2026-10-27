@@ -6,6 +6,7 @@ from . import car_parts
 from . import service_area_template
 from . import film_category
 from . import film_matrix
+from . import films_flow
 from . import component_tint_policy
 from . import car_types
 from . import car_manufactory_year

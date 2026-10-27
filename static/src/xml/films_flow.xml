@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- ================================================================ hub -->
+    <t t-name="yousentech_wo_v4.FilmsHub">
+        <div class="wof_sf wof_fh" dir="rtl">
+            <div class="wof_fh_inner">
+                <header class="wof_fh_head">
+                    <div class="wof_sf_head"><h2>الأفلام والخدمات</h2><p>كل فيلم أو خدمة تبيعها، مع جاهزيته للاستخدام في أوامر التركيب.</p></div>
+                    <div class="wof_sf_inline">
+                        <label class="wof_fh_search"><i class="fa fa-search" aria-hidden="true"/>
+                            <input class="wof_sf_input" placeholder="ابحث بالاسم أو الكود" aria-label="بحث" t-att-value="state.query" t-on-input="(ev) => state.query = ev.target.value"/>
+                        </label>
+                        <button t-if="state.data.can_edit and activity" type="button" class="btn btn-primary" t-on-click="() => this.openNew()"><i class="fa fa-plus" aria-hidden="true"/> فيلم أو خدمة</button>
+                    </div>
+                </header>
+
+                <t t-if="!state.data.activities.length">
+                    <div class="wof_fh_empty"><strong>لا توجد أنشطة مفعّلة</strong><span class="wof_sf_muted">فعّل الأنشطة من تهيئة النظام أولًا.</span></div>
+                </t>
+                <t t-else="">
+                    <div class="wof_fh_tabs" role="tablist" aria-label="الأنشطة">
+                        <t t-foreach="tabs" t-as="t" t-key="t.id">
+                            <button type="button" role="tab" t-att-aria-selected="t.id === state.tab ? 'true' : 'false'"
+                                    t-att-class="'wof_fh_tab' + (t.id === state.tab ? ' is-on' : '')" t-on-click="() => state.tab = t.id">
+                                <t t-esc="t.name"/><span t-esc="t.count"/>
+                            </button>
+                        </t>
+                    </div>
+
+                    <t t-set="c" t-value="counts"/>
+                    <div t-if="c.total" class="wof_sf_inline">
+                        <span class="wof_sf_chip is-on"><t t-esc="c.ready"/> جاهزة</span>
+                        <span t-if="c.pending" class="wof_sf_chip is-warn"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> <t t-esc="c.pending"/> تحتاج إكمال</span>
+                        <span t-if="c.off" class="wof_sf_chip is-gray"><t t-esc="c.off"/> موقوفة</span>
+                    </div>
+
+                    <div t-if="c.total" class="wof_fh_grid">
+                        <t t-foreach="films" t-as="f" t-key="f.id">
+                            <article t-att-class="'wof_fh_card is-' + f.state">
+                                <div class="wof_fh_card_head">
+                                    <span class="wof_sf_icon is-on"><i t-att-class="'fa ' + (f.item_type === 'film' ? 'fa-film' : 'fa-wrench')" aria-hidden="true"/></span>
+                                    <span class="wof_sf_row_text">
+                                        <span class="wof_sf_row_title"><strong class="wof_sf_name" t-esc="f.name"/><span class="wof_sf_chip is-gray" t-esc="f.item_type === 'film' ? 'فيلم' : 'خدمة'"/></span>
+                                        <span class="wof_sf_muted wof_fh_desc" t-esc="f.description"/>
+                                    </span>
+                                    <button t-if="state.data.can_edit" type="button" class="wof_sf_icon_btn" t-att-aria-label="'نسخ ' + f.name" title="نسخ لفيلم جديد" t-on-click="() => this.openNew(f)"><i class="fa fa-clone" aria-hidden="true"/></button>
+                                </div>
+                                <div class="wof_fh_stats">
+                                    <span><b t-esc="f.components"/><small>مكوّنات</small></span>
+                                    <span t-if="f.needs_tint"><b t-esc="f.grades"/><small>درجات لون</small></span>
+                                    <span><b><t t-esc="f.price_done"/>/<t t-esc="f.components"/></b><small>أسعار</small></span>
+                                </div>
+                                <div t-att-class="'wof_fh_state is-' + f.state">
+                                    <t t-if="f.state === 'ready'"><strong>جاهز للاستخدام</strong><span>يظهر في أوامر التركيب.</span></t>
+                                    <t t-elif="f.state === 'pending'"><strong>يحتاج إكمال</strong><span>ينقص: <t t-esc="f.missingText"/>. <t t-if="f.active">مفعّل لكنه غير مكتمل.</t><t t-else="">لا يظهر في أوامر التركيب حتى يكتمل ويُفعَّل.</t></span></t>
+                                    <t t-else=""><strong>موقوف</strong><span>جاهز، فعّله من المحرر ليظهر في أوامر التركيب.</span></t>
+                                </div>
+                                <div class="wof_sf_inline wof_fh_actions">
+                                    <button type="button" t-att-class="'btn ' + (f.state === 'pending' ? 'btn-warning' : 'btn-primary')" t-on-click="() => this.openEditor(f)">
+                                        <t t-if="f.state === 'pending'">إكمال الإعداد</t><t t-else="">فتح وتعديل</t>
+                                    </button>
+                                    <button t-if="f.components" type="button" class="btn btn-light" t-on-click="() => this.openMatrix(f)"><i class="fa fa-table" aria-hidden="true"/> التسعير والعمولة</button>
+                                </div>
+                            </article>
+                        </t>
+                    </div>
+                    <div t-if="c.total and !films.length" class="wof_fh_empty"><span class="wof_sf_muted">لا توجد نتائج مطابقة للبحث.</span></div>
+                    <div t-if="!c.total" class="wof_fh_empty">
+                        <span class="wof_sf_icon"><i class="fa fa-film" aria-hidden="true"/></span>
+                        <strong>لا توجد أفلام أو خدمات في «<t t-esc="activity and activity.name"/>» بعد</strong>
+                        <span class="wof_sf_muted">ابدأ من الصفر، أو انسخ فيلمًا جاهزًا ثم عدّل ما يختلف.</span>
+                        <button t-if="state.data.can_edit" type="button" class="btn btn-primary" t-on-click="() => this.openNew()"><i class="fa fa-plus" aria-hidden="true"/> إضافة أول فيلم أو خدمة</button>
+                    </div>
+                </t>
+            </div>
+
+            <!-- new / copy dialog -->
+            <div t-if="state.dialog" class="wof_fh_overlay" t-on-keydown="onDialogKey">
+                <section class="wof_fh_dialog" role="dialog" aria-modal="true" aria-label="فيلم أو خدمة جديدة">
+                    <header><strong>فيلم أو خدمة جديدة · <t t-esc="activity and activity.name"/></strong><button type="button" class="wof_sf_icon_btn" aria-label="إغلاق" t-on-click="closeNew"><i class="fa fa-times" aria-hidden="true"/></button></header>
+                    <div class="wof_fh_dialog_body">
+                        <h3>كيف تحب أن تبدأ؟</h3>
+                        <div class="wof_sf_choices" role="radiogroup" aria-label="طريقة البدء">
+                            <button type="button" role="radio" t-att-aria-checked="state.dialog.mode === 'blank' ? 'true' : 'false'" t-att-class="'wof_sf_choice' + (state.dialog.mode === 'blank' ? ' is-on' : '')" t-on-click="() => state.dialog.mode = 'blank'">
+                                <span class="wof_sf_choice_head"><strong>من الصفر</strong><span class="wof_sf_tick"><i class="fa fa-check" aria-hidden="true"/></span></span>
+                                <span class="wof_sf_muted">تبدأ بالبيانات الأساسية، والسياسات تُؤخذ من إعدادات النظام.</span>
+                            </button>
+                            <button type="button" role="radio" t-att-disabled="!sources.length" t-att-aria-checked="state.dialog.mode === 'copy' ? 'true' : 'false'" t-att-class="'wof_sf_choice' + (state.dialog.mode === 'copy' ? ' is-on' : '')" t-on-click="() => state.dialog.mode = 'copy'">
+                                <span class="wof_sf_choice_head"><strong>نسخ من فيلم موجود</strong><span class="wof_sf_tick"><i class="fa fa-check" aria-hidden="true"/></span></span>
+                                <span class="wof_sf_muted">المكوّنات والأسعار جاهزة، وتعدّل ما يختلف فقط.</span>
+                            </button>
+                        </div>
+                        <t t-if="state.dialog.mode === 'blank'">
+                            <div class="wof_sf_inline">
+                                <strong class="wof_sf_card_title">النوع</strong>
+                                <span class="wof_sf_seg" role="radiogroup" aria-label="النوع">
+                                    <button type="button" role="radio" t-att-aria-checked="state.dialog.itemType === 'film' ? 'true' : 'false'" t-att-class="state.dialog.itemType === 'film' ? 'is-opt' : ''" t-on-click="() => state.dialog.itemType = 'film'">فيلم</button>
+                                    <button type="button" role="radio" t-att-aria-checked="state.dialog.itemType === 'service' ? 'true' : 'false'" t-att-class="state.dialog.itemType === 'service' ? 'is-opt' : ''" t-on-click="() => state.dialog.itemType = 'service'">خدمة</button>
+                                </span>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="wof_sf_section">
+                                <strong class="wof_sf_card_title">انسخ من</strong>
+                                <div class="wof_fh_sources" role="radiogroup" aria-label="الفيلم المصدر">
+                                    <t t-foreach="sources" t-as="s" t-key="s.id">
+                                        <button type="button" role="radio" t-att-aria-checked="s.id === state.dialog.source ? 'true' : 'false'" t-att-class="'wof_fh_source' + (s.id === state.dialog.source ? ' is-on' : '')" t-on-click="() => state.dialog.source = s.id">
+                                            <span class="wof_sf_tick"><i class="fa fa-check" aria-hidden="true"/></span>
+                                            <span class="wof_sf_row_text"><strong t-esc="s.name"/><span class="wof_sf_muted wof_sf_small"><t t-esc="s.activityName"/> · <t t-esc="s.components"/> مكوّنات<t t-if="s.needs_tint"> · <t t-esc="s.grades"/> درجات</t></span></span>
+                                            <span t-att-class="'wof_sf_chip ' + (s.ready ? 'is-on' : 'is-warn')" t-esc="s.ready ? 'جاهز' : 'غير مكتمل'"/>
+                                        </button>
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="wof_sf_section">
+                                <strong class="wof_sf_card_title">ما الذي يُنسخ؟</strong>
+                                <div class="wof_fh_parts">
+                                    <t t-foreach="copyParts" t-as="p" t-key="p[0]">
+                                        <label><input type="checkbox" t-att-checked="state.dialog.parts[p[0]]" t-att-disabled="(p[0] === 'prices' or p[0] === 'commissions') and !state.dialog.parts.components" t-on-change="(ev) => state.dialog.parts[p[0]] = ev.target.checked"/><t t-esc="p[1]"/></label>
+                                    </t>
+                                </div>
+                                <span class="wof_sf_muted wof_sf_small">الأسعار والعمولات تُنسخ مع المكوّنات. الفيلم الجديد يُحفظ موقوفًا حتى تراجعه وتفعّله.</span>
+                            </div>
+                        </t>
+                        <label class="wof_sf_label">اسم الفيلم أو الخدمة الجديد
+                            <input class="wof_sf_input" t-att-value="state.dialog.name" t-on-input="(ev) => state.dialog.name = ev.target.value" placeholder="مثال: عزل نانو كربون بلس"/>
+                        </label>
+                    </div>
+                    <footer>
+                        <button type="button" class="btn btn-light" t-on-click="closeNew">إلغاء</button>
+                        <button type="button" class="btn btn-primary" t-att-disabled="!canCreate" t-on-click="create">
+                            <t t-if="state.dialog.mode === 'copy'">نسخ وفتح المحرر</t><t t-else="">إنشاء وفتح المحرر</t> <i class="fa fa-arrow-left" aria-hidden="true"/>
+                        </button>
+                    </footer>
+                </section>
+            </div>
+        </div>
+    </t>
+
+    <!-- ============================================================= editor -->
+    <t t-name="yousentech_wo_v4.FilmEditor">
+        <div class="wof_sf wof_fe" t-ref="root" dir="rtl">
+            <t t-set="d" t-value="state.data"/>
+            <div class="wof_sf_body">
+                <nav class="wof_sf_rail" aria-label="خطوات الفيلم">
+                    <div class="wof_fe_ready">
+                        <span class="wof_fe_ready_head"><strong>جاهزية الفيلم</strong><b t-att-class="readiness.ready ? 'is-ok' : 'is-warn'"><t t-esc="hardChecks.filter((x) => x.ok).length"/> / <t t-esc="hardChecks.length"/></b></span>
+                        <span class="wof_fe_segs"><t t-foreach="checks" t-as="k" t-key="k.key"><span t-att-class="'is-' + k.state" t-att-title="k.name"/></t></span>
+                        <span t-att-class="'wof_fe_ready_note ' + (readiness.ready ? 'is-ok' : 'is-warn')"><t t-if="readiness.ready">جاهز للتفعيل</t><t t-else="">ينقص: <t t-esc="missingText"/></t></span>
+                    </div>
+                    <ol class="wof_sf_steps">
+                        <t t-foreach="rail" t-as="r" t-key="r.key">
+                            <li>
+                                <button type="button" t-att-class="'wof_sf_step is-main' + (r.isCur ? ' is-current' : '')" t-att-aria-current="r.isCur ? 'step' : 'false'" t-on-click="() => this.go(r.key)">
+                                    <span t-att-class="'wof_sf_dot is-' + r.dot">
+                                        <t t-if="r.dot === 'done'"><i class="fa fa-check" aria-hidden="true"/></t><t t-elif="r.dot === 'warn'">!</t><t t-else=""><t t-esc="r.num"/></t>
+                                    </span>
+                                    <span class="wof_sf_step_text"><span class="wof_sf_step_name" t-esc="r.name"/><span t-att-class="'wof_sf_step_sub' + (r.warnSub ? ' is-warn' : '')" t-esc="r.sub"/></span>
+                                </button>
+                            </li>
+                        </t>
+                    </ol>
+                </nav>
+
+                <main class="wof_sf_main">
+                    <!-- basics -->
+                    <t t-if="current === 'basic'">
+                        <header class="wof_sf_head"><h2>ما هذا العنصر؟</h2><p>النوع يحدد ما يظهر للموظف في أمر التركيب.</p></header>
+                        <div class="wof_sf_choices" role="radiogroup" aria-label="نوع العنصر">
+                            <t t-foreach="typeOptions" t-as="o" t-key="o.key">
+                                <button type="button" role="radio" t-att-aria-checked="o.key === d.film.item_type ? 'true' : 'false'" t-att-class="'wof_sf_choice' + (o.key === d.film.item_type ? ' is-on' : '')" t-att-disabled="state.busy" t-on-click="() => this.setType(o.key)">
+                                    <span class="wof_sf_choice_head"><strong t-esc="o.name"/><span class="wof_sf_tick"><i class="fa fa-check" aria-hidden="true"/></span></span>
+                                    <span class="wof_sf_muted" t-esc="o.desc"/>
+                                </button>
+                            </t>
+                        </div>
+                        <div class="wof_fe_grid">
+                            <label class="wof_sf_label">الاسم
+                                <input class="wof_sf_input" t-att-value="state.draft.name" t-on-input="(ev) => this.onDraft('name', ev)" t-on-change="() => this.commit('name')"/>
+                            </label>
+                            <label class="wof_sf_label">الكود
+                                <input class="wof_sf_input" dir="ltr" t-att-value="state.draft.code" t-on-input="(ev) => this.onDraft('code', ev)" t-on-change="() => this.commit('code')"/>
+                                <span class="wof_sf_hint">يُولَّد تلقائيًا إذا تُرك فارغًا.</span>
+                            </label>
+                            <label class="wof_sf_label">وصف مختصر للموظف
+                                <input class="wof_sf_input" t-att-value="state.draft.description" t-on-input="(ev) => this.onDraft('description', ev)" t-on-change="() => this.commit('description')"/>
+                            </label>
+                            <div class="wof_sf_label">
+                                <span>الضمان</span>
+                                <div class="wof_sf_inline is-nowrap">
+                                    <input class="wof_sf_input wof_fe_num" inputmode="numeric" aria-label="مدة الضمان" t-att-value="state.draft.warranty_period" t-on-input="(ev) => this.onDraft('warranty_period', ev)" t-on-change="() => this.commit('warranty_period')"/>
+                                    <span class="wof_sf_seg" role="radiogroup" aria-label="وحدة الضمان">
+                                        <t t-foreach="units" t-as="u" t-key="u.key">
+                                            <button type="button" role="radio" t-att-aria-checked="u.on ? 'true' : 'false'" t-att-class="u.on ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.apply('basic', { warranty_unit: u.key })" t-esc="u.name"/>
+                                        </t>
+                                    </span>
+                                </div>
+                                <span class="wof_sf_hint" t-esc="warrantyNote"/>
+                            </div>
+                        </div>
+                        <div class="wof_sf_list">
+                            <div class="wof_sf_row">
+                                <span class="wof_sf_row_text"><strong class="wof_sf_card_title">يصرف مواد من المخزون</strong><span class="wof_sf_muted">يُخصم الفيلم المستخدم من المخزون عند التنفيذ.</span></span>
+                                <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.film.inventory"/><t t-set="label" t-value="'يصرف مواد من المخزون'"/><t t-set="onClick" t-value="() => this.apply('basic', { is_effected_in_inventory: !this.state.data.film.inventory })"/></t>
+                            </div>
+                            <div t-if="d.film.inventory and isFilm" class="wof_sf_row wof_fe_nested">
+                                <span class="wof_sf_row_text"><strong class="wof_sf_card_title">اختيار المنتج المخزني إلزامي</strong><span class="wof_sf_muted">لا يكتمل التنفيذ حتى يحدد الفني رول الفيلم المستخدم.</span></span>
+                                <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.film.product_required"/><t t-set="label" t-value="'اختيار المنتج المخزني إلزامي'"/><t t-set="onClick" t-value="() => this.apply('basic', { car_film_product_required: !this.state.data.film.product_required })"/></t>
+                            </div>
+                        </div>
+                        <label class="wof_sf_label">رسالة تنبيه للموظف <span class="wof_sf_hint">(اختياري)</span>
+                            <input class="wof_sf_input" placeholder="مثال: لا تُغسل السيارة قبل 3 أيام" t-att-value="state.draft.warning_msg" t-on-input="(ev) => this.onDraft('warning_msg', ev)" t-on-change="() => this.commit('warning_msg')"/>
+                        </label>
+                        <div t-if="(state.draft.warning_msg or '').trim()" class="wof_fe_warnbox"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> هكذا تظهر للموظف: <t t-esc="state.draft.warning_msg"/></div>
+                    </t>
+
+                    <!-- tint -->
+                    <t t-if="current === 'tint'">
+                        <header class="wof_sf_head"><h2>أي درجات لون يقدّمها هذا الفيلم؟</h2><p>الدرجات من إعدادات النظام (<t t-esc="d.tint.method === 'percentage' ? 'ترقيم بالنسب' : 'ترقيم تسلسلي'"/>).</p></header>
+                        <div class="wof_sf_choices" role="radiogroup" aria-label="طريقة اختيار الدرجات">
+                            <t t-foreach="tintOptions" t-as="o" t-key="o.key">
+                                <button type="button" role="radio" t-att-aria-checked="o.key === tintMode ? 'true' : 'false'" t-att-class="'wof_sf_choice' + (o.key === tintMode ? ' is-on' : '')" t-att-disabled="state.busy" t-on-click="() => this.setTintMode(o.key)">
+                                    <span class="wof_sf_choice_head"><strong t-esc="o.name"/><span class="wof_sf_tick"><i class="fa fa-check" aria-hidden="true"/></span></span>
+                                    <span class="wof_sf_muted" t-esc="o.desc"/>
+                                </button>
+                            </t>
+                        </div>
+                        <div class="wof_sf_shades">
+                            <t t-foreach="d.tint.shades" t-as="sh" t-key="sh.code">
+                                <div t-att-class="'wof_sf_shade' + (sh.selected ? ' is-on' : '')">
+                                    <button type="button" class="wof_sf_shade_toggle" t-att-aria-pressed="sh.selected ? 'true' : 'false'" t-att-aria-label="'الدرجة ' + sh.value" t-att-disabled="state.busy or d.tint.use_all" t-on-click="() => this.toggleShade(sh)">
+                                        <span class="wof_sf_swatch is-small" t-att-style="shadeStyle(sh, sh_index)"/><b dir="ltr" t-esc="sh.value"/>
+                                        <span class="wof_sf_tick"><i class="fa fa-check" aria-hidden="true"/></span>
+                                    </button>
+                                </div>
+                            </t>
+                        </div>
+                        <aside class="wof_sf_info"><i class="fa fa-info-circle" aria-hidden="true"/><div><strong>ماذا يعني اختيارك؟</strong><span t-esc="tintNote"/></div></aside>
+                    </t>
+
+                    <!-- components -->
+                    <t t-if="current === 'comp'">
+                        <header class="wof_sf_head"><h2>على أي أجزاء يُركَّب هذا الفيلم؟</h2><p>الجزء يُسعَّر وحده. منطقة الخدمة تجمع عدة أجزاء وتُسعَّر كوحدة واحدة.</p></header>
+                        <div class="wof_fe_picker">
+                            <label class="wof_fh_search is-wide"><i class="fa fa-search" aria-hidden="true"/>
+                                <input class="wof_sf_input" placeholder="أضف جزءًا أو منطقة خدمة… اكتب للبحث" aria-label="إضافة مكوّن" t-att-value="state.picker.query" t-on-focus="openPicker" t-on-input="onPickerInput" t-on-keydown="onPickerKey"/>
+                            </label>
+                            <div t-if="state.picker.open" class="wof_fe_results">
+                                <t t-foreach="state.picker.results" t-as="p" t-key="p.id">
+                                    <button type="button" class="wof_fe_result" t-att-disabled="state.busy" t-on-click="() => this.addPart(p)">
+                                        <span t-att-class="'wof_fe_kind is-' + p.type"><i t-att-class="'fa ' + (p.type === 'service_area' ? 'fa-th-large' : 'fa-car')" aria-hidden="true"/></span>
+                                        <strong t-esc="p.name"/>
+                                        <span t-att-class="'wof_sf_chip ' + (p.type === 'service_area' ? 'is-lock' : 'is-on')"><t t-if="p.type === 'service_area'">منطقة خدمة · <t t-esc="p.kids"/> أجزاء</t><t t-else="">جزء</t></span>
+                                    </button>
+                                </t>
+                                <span t-if="!state.picker.results.length" class="wof_sf_muted wof_fe_noresult">لا توجد مكوّنات مطابقة غير مضافة.</span>
+                                <button type="button" class="wof_fe_result is-new" t-on-click="newComponent"><i class="fa fa-plus" aria-hidden="true"/> مكوّن جديد غير موجود في القائمة</button>
+                                <button type="button" class="btn btn-link wof_fe_close" t-on-click="() => state.picker.open = false">إغلاق</button>
+                            </div>
+                        </div>
+                        <div class="wof_sf_list">
+                            <t t-foreach="d.components" t-as="c" t-key="c.line_id">
+                                <div class="wof_fe_comp">
+                                    <div class="wof_fe_comp_row">
+                                        <span t-att-class="'wof_fe_kind is-big is-' + c.type"><i t-att-class="'fa ' + (c.type === 'service_area' ? 'fa-th-large' : 'fa-car')" aria-hidden="true"/></span>
+                                        <span class="wof_sf_row_text">
+                                            <span class="wof_sf_row_title"><strong class="wof_sf_name" t-esc="c.name"/><span t-att-class="'wof_sf_chip ' + (c.type === 'service_area' ? 'is-lock' : 'is-on')" t-esc="c.type === 'service_area' ? 'منطقة خدمة' : 'جزء'"/></span>
+                                            <span class="wof_sf_muted wof_sf_small" t-esc="componentMeta(c)"/>
+                                        </span>
+                                        <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'تحريك ' + c.name + ' للأعلى'" t-att-disabled="state.busy or c_first" t-on-click="() => this.apply('comp_move', { line_id: c.line_id, direction: 'up' })"><i class="fa fa-chevron-up" aria-hidden="true"/></button>
+                                        <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'تحريك ' + c.name + ' للأسفل'" t-att-disabled="state.busy or c_last" t-on-click="() => this.apply('comp_move', { line_id: c.line_id, direction: 'down' })"><i class="fa fa-chevron-down" aria-hidden="true"/></button>
+                                        <button t-if="needsTint and c.type === 'car_part'" type="button" class="wof_sf_icon_btn" t-att-aria-label="'درجات اللون لـ ' + c.name" title="درجات اللون" t-on-click="() => this.startTint(c)"><i class="fa fa-tint" aria-hidden="true"/></button>
+                                        <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'إزالة ' + c.name" t-att-disabled="state.busy" t-on-click="() => this.apply('comp_remove', { line_id: c.line_id })"><i class="fa fa-trash-o" aria-hidden="true"/></button>
+                                    </div>
+                                    <div t-if="c.type === 'service_area' and c.kids.length" class="wof_fe_kids"><t t-foreach="c.kids" t-as="k" t-key="k_index"><span class="wof_sf_chip is-gray" t-esc="k"/></t></div>
+                                    <div t-if="state.tintEdit and state.tintEdit.line_id === c.line_id" class="wof_fe_tintedit">
+                                        <label class="wof_sf_label is-narrow">الدرجة الافتراضية
+                                            <select class="wof_sf_input" t-on-change="(ev) => state.tintEdit.default_grade_id = parseInt(ev.target.value, 10) || false">
+                                                <option value="" t-att-selected="!state.tintEdit.default_grade_id">بدون</option>
+                                                <t t-foreach="d.grades" t-as="g" t-key="g.id"><option t-att-value="g.id" t-att-selected="g.id === state.tintEdit.default_grade_id" t-esc="g.name"/></t>
+                                            </select>
+                                        </label>
+                                        <div class="wof_sf_section">
+                                            <span class="wof_sf_card_title">الدرجات المسموحة <span class="wof_sf_hint">(بدون اختيار = كل الدرجات)</span></span>
+                                            <div class="wof_sf_inline"><t t-foreach="d.grades" t-as="g" t-key="g.id">
+                                                <button type="button" t-att-aria-pressed="state.tintEdit.allowed_ids.includes(g.id) ? 'true' : 'false'" t-att-class="'wof_fe_gchip' + (state.tintEdit.allowed_ids.includes(g.id) ? ' is-on' : '')" t-on-click="() => this.toggleAllowed(g.id)" t-esc="g.name"/>
+                                            </t></div>
+                                        </div>
+                                        <div class="wof_sf_inline"><button type="button" class="btn btn-primary" t-att-disabled="state.busy" t-on-click="saveTint">حفظ</button><button type="button" class="btn btn-link" t-on-click="() => state.tintEdit = null">إلغاء</button></div>
+                                    </div>
+                                </div>
+                            </t>
+                            <div t-if="!d.components.length" class="wof_fh_empty is-small"><span class="wof_sf_muted">لم تُضف مكوّنات بعد. ابدأ بالبحث في الأعلى.</span></div>
+                        </div>
+                    </t>
+
+                    <!-- policies -->
+                    <t t-if="current === 'pol'">
+                        <header class="wof_sf_head"><h2>هل يختلف هذا الفيلم عن إعدادات النظام؟</h2><p>كل سياسة تُؤخذ من إعدادات النظام تلقائيًا. خصّص فقط ما يختلف في هذا الفيلم.</p></header>
+                        <t t-set="p" t-value="d.policies"/>
+                        <t t-foreach="policyCards" t-as="card" t-key="card.key">
+                            <section t-att-class="'wof_sf_card' + (card.custom ? ' is-custom' : '')">
+                                <div class="wof_sf_card_row">
+                                    <span class="wof_sf_row_title"><strong class="wof_sf_card_title" t-esc="card.name"/><span t-att-class="'wof_sf_chip ' + (card.custom ? 'is-warn' : 'is-info')" t-esc="card.custom ? 'مخصص لهذا الفيلم' : 'من النظام'"/></span>
+                                    <label class="wof_fe_check"><input type="checkbox" t-att-checked="card.custom" t-att-disabled="state.busy" t-on-change="() => this.togglePolicy(card)"/>تخصيص لهذا الفيلم</label>
+                                </div>
+                                <span t-if="!card.custom" class="wof_fe_value" t-esc="card.system"/>
+                                <t t-else="">
+                                    <t t-if="card.key === 'sizes'">
+                                        <div class="wof_sf_inline"><t t-foreach="d.sizes" t-as="z" t-key="z.id">
+                                            <button type="button" t-att-aria-pressed="p.sizes.value.includes(z.id) ? 'true' : 'false'" t-att-class="'wof_fe_gchip' + (p.sizes.value.includes(z.id) ? ' is-on' : '')" t-att-disabled="state.busy" t-on-click="() => this.toggleSize(z.id)" t-esc="z.name"/>
+                                        </t></div>
+                                    </t>
+                                    <t t-if="card.key === 'pricing'">
+                                        <span class="wof_sf_seg" role="radiogroup" aria-label="سياسة التسعير">
+                                            <button type="button" role="radio" t-att-aria-checked="p.pricing.value === 'fixed' ? 'true' : 'false'" t-att-class="p.pricing.value === 'fixed' ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setPolicy('pricing', { value: 'fixed' })">سعر موحد</button>
+                                            <button type="button" role="radio" t-att-aria-checked="p.pricing.value === 'by_size' ? 'true' : 'false'" t-att-class="p.pricing.value === 'by_size' ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setPolicy('pricing', { value: 'by_size' })">حسب حجم السيارة</button>
+                                        </span>
+                                    </t>
+                                    <t t-if="card.key === 'tax'">
+                                        <div class="wof_sf_inline">
+                                            <span class="wof_sf_seg" role="radiogroup" aria-label="تطبيق الضريبة">
+                                                <button type="button" role="radio" t-att-aria-checked="p.tax.enabled ? 'true' : 'false'" t-att-class="p.tax.enabled ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setPolicy('tax', { enabled: true })">تطبيق الضريبة</button>
+                                                <button type="button" role="radio" t-att-aria-checked="!p.tax.enabled ? 'true' : 'false'" t-att-class="!p.tax.enabled ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setPolicy('tax', { enabled: false })">بدون ضريبة</button>
+                                            </span>
+                                            <select t-if="p.tax.enabled" class="wof_sf_input wof_fe_select" aria-label="الضريبة" t-att-disabled="state.busy" t-on-change="onTaxSelect">
+                                                <t t-foreach="d.taxes" t-as="tx" t-key="tx.id"><option t-att-value="tx.id" t-att-selected="tx.id === p.tax.tax_id" t-esc="tx.name"/></t>
+                                            </select>
+                                        </div>
+                                    </t>
+                                    <t t-if="card.key === 'commission'">
+                                        <div class="wof_sf_inline">
+                                            <span class="wof_sf_seg" role="radiogroup" aria-label="استحقاق العمولة">
+                                                <button type="button" role="radio" t-att-aria-checked="p.commission.event === 'delivery' ? 'true' : 'false'" t-att-class="p.commission.event === 'delivery' ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setPolicy('commission', { event: 'delivery' })">عند إنجاز الأمر</button>
+                                                <button type="button" role="radio" t-att-aria-checked="p.commission.event === 'invoice' ? 'true' : 'false'" t-att-class="p.commission.event === 'invoice' ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setPolicy('commission', { event: 'invoice' })">عند ترحيل الفاتورة</button>
+                                            </span>
+                                            <span class="wof_sf_seg" role="radiogroup" aria-label="طريقة احتساب العمولة">
+                                                <button type="button" role="radio" t-att-aria-checked="p.commission.calc === 'fixed' ? 'true' : 'false'" t-att-class="p.commission.calc === 'fixed' ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setPolicy('commission', { calc: 'fixed' })">موحدة</button>
+                                                <button type="button" role="radio" t-att-aria-checked="p.commission.calc === 'by_size' ? 'true' : 'false'" t-att-class="p.commission.calc === 'by_size' ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setPolicy('commission', { calc: 'by_size' })">حسب الحجم</button>
+                                            </span>
+                                        </div>
+                                    </t>
+                                    <t t-if="card.key === 'discount'">
+                                        <div class="wof_sf_inline">
+                                            <span class="wof_sf_seg" role="radiogroup" aria-label="الخصم">
+                                                <button type="button" role="radio" t-att-aria-checked="p.discount.enabled ? 'true' : 'false'" t-att-class="p.discount.enabled ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setPolicy('discount', { enabled: true })">مسموح</button>
+                                                <button type="button" role="radio" t-att-aria-checked="!p.discount.enabled ? 'true' : 'false'" t-att-class="!p.discount.enabled ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setPolicy('discount', { enabled: false })">غير مسموح</button>
+                                            </span>
+                                            <label t-if="p.discount.enabled" class="wof_fe_inline_label">حتى
+                                                <input class="wof_sf_input wof_fe_num" inputmode="decimal" dir="ltr" aria-label="حد الخصم" t-att-value="state.discountLimit" t-on-input="(ev) => state.discountLimit = ev.target.value" t-on-change="commitDiscountLimit"/> %
+                                            </label>
+                                        </div>
+                                    </t>
+                                    <span class="wof_sf_hint" t-esc="card.hint"/>
+                                </t>
+                            </section>
+                        </t>
+                    </t>
+
+                    <!-- prices -->
+                    <t t-if="current === 'price'">
+                        <header class="wof_sf_head is-split">
+                            <div><h2>الأسعار والعمولات</h2><p>تُدخل لكل المكوّنات في جدول واحد. سياسة التسعير: <t t-esc="d.policies.pricing.value === 'by_size' ? 'حسب حجم السيارة' : 'سعر موحد'"/>.</p></div>
+                            <button type="button" class="btn btn-primary" t-att-disabled="!d.components.length" t-on-click="openMatrix"><i class="fa fa-table" aria-hidden="true"/> فتح مصفوفة التسعير والعمولة</button>
+                        </header>
+                        <div class="wof_sf_grid2">
+                            <div class="wof_sf_card wof_fe_meter"><span class="wof_sf_muted">الأسعار</span><b><t t-esc="readiness.price_done"/> / <t t-esc="readiness.components"/></b><span class="wof_fe_bar"><span t-att-class="readiness.price_done === readiness.components and readiness.components ? 'is-ok' : 'is-warn'" t-attf-style="width: {{ pct(readiness.price_done) }}%"/></span></div>
+                            <div class="wof_sf_card wof_fe_meter"><span class="wof_sf_muted">العمولات</span><b><t t-esc="readiness.comm_done"/> / <t t-esc="readiness.components"/></b><span class="wof_fe_bar"><span t-att-class="readiness.comm_done === readiness.components and readiness.components ? 'is-ok' : 'is-info'" t-attf-style="width: {{ pct(readiness.comm_done) }}%"/></span></div>
+                        </div>
+                        <div class="wof_fe_table">
+                            <div class="wof_fe_tr is-head"><span>المكوّن</span><span>السعر</span><span>العمولة</span></div>
+                            <t t-foreach="d.components" t-as="c" t-key="c.line_id">
+                                <div class="wof_fe_tr">
+                                    <span class="wof_sf_row_title"><strong t-esc="c.name"/><span t-att-class="'wof_sf_chip ' + (c.type === 'service_area' ? 'is-lock' : 'is-gray')" t-esc="c.type === 'service_area' ? 'منطقة خدمة' : 'جزء'"/></span>
+                                    <span><span t-att-class="'wof_sf_chip ' + (c.price_ok ? 'is-on' : 'is-warn')" t-esc="c.price_ok ? 'مكتمل' : 'ناقص'"/></span>
+                                    <span><span t-att-class="'wof_sf_chip ' + (c.commission_ok ? 'is-on' : 'is-info')" t-esc="c.commission_ok ? 'مكتملة' : 'ناقصة'"/></span>
+                                </div>
+                            </t>
+                            <div t-if="!d.components.length" class="wof_fh_empty is-small"><span class="wof_sf_muted">أضف المكوّنات أولًا ثم أدخل أسعارها.</span></div>
+                        </div>
+                    </t>
+
+                    <!-- review -->
+                    <t t-if="current === 'rev'">
+                        <t t-if="d.film.active and readiness.ready">
+                            <div class="wof_sf_done">
+                                <span class="wof_sf_done_icon"><i class="fa fa-check" aria-hidden="true"/></span>
+                                <h2>«<t t-esc="d.film.name"/>» جاهز للاستخدام</h2>
+                                <p>يظهر في أوامر التركيب لنشاط «<t t-esc="d.film.activity.name"/>».</p>
+                                <div class="wof_sf_inline is-center">
+                                    <button type="button" class="btn btn-primary btn-lg" t-on-click="close">العودة للأفلام والخدمات</button>
+                                    <button type="button" class="btn btn-light btn-lg" t-att-disabled="state.busy" t-on-click="deactivate">إيقاف الفيلم</button>
+                                </div>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <header class="wof_sf_head"><h2>راجع ثم فعّل</h2><p>بعد التفعيل يظهر «<t t-esc="d.film.name"/>» في أوامر التركيب.</p></header>
+                            <div class="wof_fe_checks">
+                                <t t-foreach="checks" t-as="k" t-key="k.key">
+                                    <div t-att-class="'wof_fe_check_row is-' + k.state">
+                                        <span class="wof_fe_check_dot"><t t-if="k.ok"><i class="fa fa-check" aria-hidden="true"/></t><t t-else="">!</t></span>
+                                        <span class="wof_sf_row_text"><strong t-esc="k.name"/><span class="wof_sf_small" t-esc="k.note"/></span>
+                                        <button t-if="!k.ok" type="button" class="btn btn-link" t-on-click="() => this.go(k.step)">إصلاح</button>
+                                    </div>
+                                </t>
+                            </div>
+                            <div t-if="d.film.active" class="wof_fe_warnbox"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> الفيلم مفعّل حاليًا لكنه غير مكتمل. أكمل النواقص أو أوقفه.</div>
+                        </t>
+                    </t>
+                </main>
+            </div>
+
+            <footer class="wof_sf_footer">
+                <span class="wof_sf_footer_state"><span t-att-class="'wof_sf_state_dot' + (footer.warn ? ' is-warn' : '')"/><span t-esc="footer.text"/></span>
+                <span class="wof_sf_inline">
+                    <button t-if="prevKey" type="button" class="btn btn-light" t-on-click="() => this.go(prevKey)"><i class="fa fa-arrow-right" aria-hidden="true"/> السابق</button>
+                    <button type="button" class="btn btn-light" t-on-click="close">حفظ والخروج</button>
+                    <button t-if="current !== 'rev'" type="button" class="btn btn-primary" t-on-click="() => this.go(nextKey)"><t t-esc="nextLabel"/> <i class="fa fa-arrow-left" aria-hidden="true"/></button>
+                    <button t-if="current === 'rev' and !d.film.active" type="button" class="btn btn-primary" t-att-disabled="state.busy or !readiness.ready" t-on-click="activate"><i class="fa fa-check" aria-hidden="true"/> تفعيل الفيلم</button>
+                    <button t-if="current === 'rev' and d.film.active and !readiness.ready" type="button" class="btn btn-light" t-att-disabled="state.busy" t-on-click="deactivate">إيقاف الفيلم</button>
+                </span>
+            </footer>
+        </div>
+    </t>
+
+</templates>

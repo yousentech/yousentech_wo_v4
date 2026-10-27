@@ -35,6 +35,7 @@ export class WofPricingMatrix extends Component {
         const params = (this.props.action && this.props.action.params) || {};
         this.filmId = params.film_id;
         this.wizardId = params.wizard_id || false;
+        this.returnToEditor = !!params.editor;
         this.state = useState({
             loading: true,
             saving: false,
@@ -502,7 +503,19 @@ export class WofPricingMatrix extends Component {
             return this.action.doAction(action);
         }
         const config = this.env.config || {};
-        if (config.breadcrumbs && config.breadcrumbs.length > 1 && config.historyBack) {
+        const canGoBack = config.breadcrumbs && config.breadcrumbs.length > 1 && config.historyBack;
+        if (this.returnToEditor) {
+            // Opened from the film editor: go back to the page underneath, then reopen the editor.
+            if (canGoBack) {
+                await config.historyBack();
+            }
+            return this.action.doAction({
+                type: "ir.actions.client", tag: "wof_film_editor", target: "new",
+                params: { film_id: this.filmId, step: "price" },
+                context: { dialog_size: "extra-large" },
+            });
+        }
+        if (canGoBack) {
             return config.historyBack();
         }
         return this.action.doAction({

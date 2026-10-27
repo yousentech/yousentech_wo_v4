@@ -51,6 +51,12 @@ class WofCompanyProfileSetupFlow(models.Model):
         self._ensure_default_operation_fields()
         self._ensure_default_operation_tax()
 
+    def action_go_to_activities(self):
+        """After activation, continue on the films & services page."""
+        self.ensure_one()
+        self._ensure_can_configure()
+        return self.env['wof.film.category'].action_open_films_hub()
+
     # --------------------------------------------------------------- snapshot
     def _wof_flow_taxes(self):
         return self.env['account.tax'].search([
