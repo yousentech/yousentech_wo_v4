@@ -94,14 +94,14 @@
                                         <t t-if="mode === 'size'"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell">
                                             <t t-set="cell" t-value="priceCell(line, size)"/>
                                             <span t-if="cell.free" class="wof_pm_free">مجاني</span>
-                                            <input t-else="" type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ cell.amount === null or cell.amount === undefined ? 'is-missing' : '' }}" t-att-value="cell.amount === null or cell.amount === undefined ? '' : cell.amount" t-att-disabled="cell.readonly" t-att-aria-label="'سعر ' + line.name + ' ' + size.name" t-on-change="(ev) => this.onPriceCell(line, size, ev)"/>
-                                            <small t-if="cell.readonly and !cell.free" class="wof_pm_hint">للقراءة فقط</small>
+                                            <input t-else="" type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ cell.amount === null or cell.amount === undefined ? 'is-missing' : '' }}" t-att-value="cell.amount === null or cell.amount === undefined ? '' : cell.amount" t-att-aria-label="'سعر ' + line.name + ' ' + size.name + (cell.readonly ? '، ثابت في أوامر التركيب' : '')" t-on-change="(ev) => this.onPriceCell(line, size, ev)"/>
+                                            <i t-if="cell.readonly and !cell.free" class="fa fa-lock wof_pm_lock" title="ثابت في أوامر التركيب، يُعدَّل من هنا فقط" aria-hidden="true"/>
                                         </td></t>
                                         <t t-else=""><td t-att-colspan="isBySize ? sizes.length : 1" class="wof_pm_cell wof_pm_merged">
                                             <span t-if="mode === 'free'" class="wof_pm_free">مجاني <t t-if="isBySize">لكل الأحجام</t></span>
                                             <span t-else="" class="wof_pm_merged_inner">
                                                 <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ line.price.general.amount === null or line.price.general.amount === undefined ? 'is-missing' : '' }}" t-att-value="line.price.general.amount === null or line.price.general.amount === undefined ? '' : line.price.general.amount" t-att-aria-label="'سعر ' + line.name" t-on-change="(ev) => this.onPriceGeneral(line, ev)"/>
-                                                <small class="wof_pm_hint"><t t-esc="currency"/><t t-if="isBySize"> · لكل الأحجام</t><t t-if="line.price.general.readonly"> · للقراءة فقط</t></small>
+                                                <small class="wof_pm_hint"><t t-esc="currency"/><t t-if="isBySize"> · لكل الأحجام</t><t t-if="line.price.general.readonly"> · <i class="fa fa-lock" aria-hidden="true"/> ثابت في الأوامر</t></small>
                                             </span>
                                         </td></t>
                                         <td class="wof_pm_state">
@@ -210,7 +210,7 @@
                         <t t-if="state.dim === 'price'">
                             <t t-set="pm" t-value="priceMode(sel.line)"/>
                             <p class="wof_pm_help" t-if="isArea(sel.line)">منطقة الخدمة تُسعَّر كوحدة واحدة، وأجزاؤها لا تُسعَّر منفردة.</p>
-                            <p class="wof_pm_help" t-else="">المجاني يجعل السعر صفرًا ويلغي «للقراءة فقط». «للقراءة فقط» تمنع تعديل السعر في أمر التركيب.</p>
+                            <p class="wof_pm_help" t-else="">المجاني يجعل السعر صفرًا. «للقراءة فقط» تمنع الموظف من تعديل السعر في أمر التركيب، ويبقى قابلًا للتعديل هنا.</p>
                             <div t-if="pm === 'size'" class="wof_pm_flags">
                                 <div class="wof_pm_flags_head"><span>الحجم</span><span>مجاني</span><span>للقراءة فقط</span></div>
                                 <div t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_flags_row">
@@ -222,7 +222,7 @@
                             </div>
                             <label t-if="pm === 'uniform'" class="wof_pm_check">
                                 <input type="checkbox" class="form-check-input" t-att-checked="sel.line.price.general.readonly" t-on-change="() => this.toggleGeneralReadonly(sel.line)"/>
-                                <span>السعر للقراءة فقط في أمر التركيب</span>
+                                <span>السعر ثابت في أمر التركيب (لا يعدّله الموظف)</span>
                             </label>
                             <div class="wof_pm_field">
                                 <span class="wof_pm_label">سياسة الخصم للمكوّن</span>
