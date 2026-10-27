@@ -145,6 +145,16 @@ class TestFilmsFlow(TransactionCase):
         self.assertTrue(snap['film']['active'])
         self.assertTrue(snap['readiness']['ready'])
 
+    def test_hub_activity_order(self):
+        Activity = self.uenv['wof.service.type']
+        nano = Activity.create({'name': 'نانو ترتيب', 'service_options': 'nano', 'company_id': self.company.id})
+        ppf = Activity.create({'name': 'حماية ترتيب', 'service_options': 'ppf', 'company_id': self.company.id})
+        ids = [a['id'] for a in self.Film.wof_films_hub_load()['activities']]
+        options = Activity.browse(ids).mapped('service_options')
+        self.assertEqual(options[0], 'tint')
+        self.assertLess(ids.index(ppf.id), ids.index(nano.id))
+        self.assertEqual(options, sorted(options, key=lambda o: {'tint': 0, 'ppf': 1}.get(o, 2)))
+
     def test_zero_price_is_not_a_price_unless_free(self):
         film = self.new_film()
         film.wof_film_apply('comp_add', {'part_id': self.front.id})

@@ -145,12 +145,18 @@ class WofFilmCategoryFlow(models.Model):
         }
 
     @api.model
+    def _wof_activity_rank(self, activity):
+        # Tint always first, then protection (PPF), then the order they were entered.
+        rank = {'tint': 0, 'ppf': 1}.get(activity.service_options, 2)
+        return (rank, activity.id)
+
+    @api.model
     def wof_films_hub_load(self):
         self._wof_flow_can_read()
         company = self.env.company
         activities = self.env['wof.service.type'].search([
             ('company_id', '=', company.id), ('active', '=', True),
-        ], order='code, name')
+        ], order='id').sorted(self._wof_activity_rank)
         films = self.with_context(active_test=False).search([
             ('company_id', '=', company.id), ('service_type_id', 'in', activities.ids),
         ], order='sequence, name')
