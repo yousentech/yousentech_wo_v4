@@ -327,6 +327,16 @@ class WofFilmCategoryFlow(models.Model):
             return self.env['wof.setup.tint.shade.line'], profile
         return profile.tint_shade_line_ids.filtered('selected').sorted(lambda rec: (rec.sequence, rec.id)), profile
 
+    def _wof_selected_shade_codes(self, shades=None):
+        """System shade codes this film offers today, matched by code or by name
+        (grades created by older versions may carry a different code)."""
+        self.ensure_one()
+        if shades is None:
+            shades, _profile = self._wof_system_shades()
+        grades = self.film_category_line_ids.filtered('active')
+        codes, names = set(grades.mapped('code')), set(grades.mapped('name'))
+        return {shade.code for shade in shades if shade.code in codes or shade.value in names}
+
     def _wof_apply_tint(self, use_all=None, codes=None):
         """Same rules as the film wizard: archive removed grades, never delete."""
         self.ensure_one()
@@ -339,7 +349,7 @@ class WofFilmCategoryFlow(models.Model):
             wanted = shades
         else:
             if codes is None:
-                codes = set(existing.filtered('active').mapped('code'))
+                codes = self._wof_selected_shade_codes(shades)
             wanted = shades.filtered(lambda shade: shade.code in set(codes))
         if not wanted and shades:
             raise ValidationError(_('اختر درجة لون واحدة على الأقل لهذا الفيلم.'))
@@ -410,7 +420,8 @@ class WofFilmCategoryFlow(models.Model):
         self.check_access_rule('read')
         shades, profile = self._wof_system_shades()
         grades = self.film_category_line_ids.filtered('active').sorted(lambda rec: (rec.sequence, rec.id))
-        active_codes = set(grades.mapped('code'))
+        active_codes = self._wof_selected_shade_codes(shades)
+        use_all = self.use_system_tint_grades
         readiness = self._wof_readiness()
         components = []
         for line in self._wof_commercial_lines():
@@ -445,8 +456,9 @@ class WofFilmCategoryFlow(models.Model):
             },
             'tint': {
                 'method': profile.tint_numbering_method if profile else 'sequential',
-                'use_all': self.use_system_tint_grades,
-                'shades': [{'code': shade.code, 'value': shade.value, 'selected': shade.code in active_codes}
+                'use_all': use_all,
+                'shades': [{'code': shade.code, 'value': shade.value,
+                            'selected': use_all or shade.code in active_codes}
                            for shade in shades],
             },
             'grades': [{'id': grade.id, 'name': grade.name, 'code': grade.code} for grade in grades],
@@ -535,7 +547,12 @@ class WofFilmCategoryFlow(models.Model):
         if payload.get('use_all'):
             self._wof_apply_tint(use_all=True)
             return
-        codes = set(self.film_category_line_ids.filtered('active').mapped('code'))
+        shades, _profile = self._wof_system_shades()
+        # Switching from "all" starts the specific selection from everything the
+        # film offers today; if nothing matches yet, start from all system shades.
+        codes = self._wof_selected_shade_codes(shades)
+        if self.use_system_tint_grades or not codes:
+            codes = set(shades.mapped('code'))
         if 'code' in payload:
             if payload.get('selected'):
                 codes.add(payload['code'])

@@ -176,3 +176,15 @@ class TestFilmsFlow(TransactionCase):
         })
         with self.assertRaises(AccessError):
             self.Film.with_user(employee).wof_films_hub_load()
+
+    def test_legacy_grade_codes_match_by_name(self):
+        film = self.new_film('فيلم بأكواد قديمة')
+        for grade in film.film_category_line_ids:
+            grade.code = 'OLD-' + grade.name
+        snap = film.wof_film_load()
+        self.assertTrue(all(shade['selected'] for shade in snap['tint']['shades']))
+        snap = film.wof_film_apply('tint', {'use_all': False})
+        self.assertFalse(snap['tint']['use_all'])
+        self.assertEqual(sum(shade['selected'] for shade in snap['tint']['shades']), 5)
+        snap = film.wof_film_apply('tint', {'use_all': False, 'code': 'SEQ-00', 'selected': False})
+        self.assertEqual(sum(shade['selected'] for shade in snap['tint']['shades']), 4)
