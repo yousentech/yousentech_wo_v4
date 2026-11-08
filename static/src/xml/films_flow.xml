@@ -5,7 +5,7 @@
     <t t-name="yousentech_wo_v4.FilmsHub">
         <div class="wof_sf wof_fh" dir="rtl">
             <div class="wof_fh_inner">
-                <header class="wof_fh_head">
+                <header t-if="!state.data.activities.length or !prefs.hero" class="wof_fh_head">
                     <div class="wof_sf_head"><h2>الأفلام والخدمات</h2><p>كل فيلم أو خدمة تبيعها، مع جاهزيته للاستخدام في أوامر التركيب.</p></div>
                     <div class="wof_sf_inline">
                         <label class="wof_fh_search"><i class="fa fa-search" aria-hidden="true"/>
@@ -44,76 +44,49 @@
 
                         <!-- hero: the activity at a glance; the tiles double as filters -->
                         <div t-if="prefs.hero and activity" class="wof_fh_hero">
-                            <div class="wof_fh_hero_text">
-                                <span class="wof_fh_hero_kicker"><i class="fa fa-th-large" aria-hidden="true"/> النشاط</span>
-                                <div class="wof_fh_hero_title">
-                                    <h3 t-esc="activity.name"/>
-                                    <p>
-                                        <t t-if="activity.supports_grades">أفلام بدرجات لون</t><t t-else="">أفلام وخدمات بدون درجات لون</t>
-                                        · <t t-esc="c.total"/> <t t-esc="c.total === 1 ? 'عنصر' : 'عناصر'"/>
-                                    </p>
-                                </div>
-                                <div t-if="c.total" class="wof_fh_kpis" role="radiogroup" aria-label="تصفية حسب الحالة">
-                                    <t t-foreach="kpis" t-as="k" t-key="k.key">
-                                        <button type="button" role="radio" t-att-aria-checked="state.filter === k.key ? 'true' : 'false'"
-                                                t-att-class="'wof_fh_kpi is-' + k.tone + (state.filter === k.key ? ' is-on' : '')"
-                                                t-att-disabled="!k.count and state.filter !== k.key"
-                                                t-on-click="() => this.toggleFilter(k.key)">
-                                            <b t-esc="k.count"/><span t-esc="k.name"/>
-                                        </button>
-                                    </t>
-                                </div>
-                            </div>
-                            <div class="wof_fh_hero_side">
+                            <div class="wof_fh_hero_main">
                                 <div class="wof_fh_ring" role="img" t-att-aria-label="'الجاهزية ' + readiness.pct + '%'"
                                      t-attf-style="--ready: {{ readiness.ready }}; --pending: {{ readiness.pending }};">
                                     <span><b><t t-esc="readiness.pct"/>%</b><small>جاهزية</small></span>
                                 </div>
+                                <div class="wof_fh_hero_text">
+                                    <span class="wof_fh_hero_kicker">الأفلام والخدمات <i class="fa fa-angle-left" aria-hidden="true"/></span>
+                                    <div class="wof_fh_hero_title">
+                                        <h2 t-esc="activity.name"/>
+                                        <p>
+                                            <t t-if="activity.supports_grades">أفلام بدرجات لون</t><t t-else="">أفلام وخدمات بدون درجات لون</t>
+                                            · <t t-esc="c.total"/> <t t-esc="c.total === 1 ? 'عنصر' : 'عناصر'"/>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="wof_fh_hero_actions">
+                                <label class="wof_fh_hero_search"><i class="fa fa-search" aria-hidden="true"/>
+                                    <input placeholder="ابحث بالاسم أو الكود" aria-label="بحث" t-att-value="state.query" t-on-input="(ev) => state.query = ev.target.value"/>
+                                </label>
                                 <button t-if="state.data.can_edit" type="button" class="btn btn-primary" t-on-click="() => this.openNew()"><i class="fa fa-plus" aria-hidden="true"/> فيلم أو خدمة</button>
+                            </div>
+                            <div class="wof_fh_hero_bar">
+                            <div class="wof_fh_kpis" role="radiogroup" aria-label="تصفية حسب الحالة">
+                                <t t-foreach="kpis" t-as="k" t-key="k.key">
+                                    <button type="button" role="radio" t-att-aria-checked="state.filter === k.key ? 'true' : 'false'"
+                                            t-att-class="'wof_fh_kpi is-' + k.tone + (state.filter === k.key ? ' is-on' : '')"
+                                            t-att-disabled="!k.count and state.filter !== k.key"
+                                            t-on-click="() => this.toggleFilter(k.key)">
+                                        <b t-esc="k.count"/><span t-esc="k.name"/>
+                                    </button>
+                                </t>
+                            </div>
+                                <t t-call="yousentech_wo_v4.FilmsHubTools"/>
                             </div>
                         </div>
 
-                        <div class="wof_fh_main_head">
+                        <div t-if="!(prefs.hero and activity)" class="wof_fh_main_head">
                             <div class="wof_fh_main_title">
                                 <h3 t-if="!prefs.hero" t-esc="activity and activity.name"/>
                                 <strong t-else="" class="wof_fh_list_title">الأفلام والخدمات <span class="wof_fh_count" t-esc="films.length"/></strong>
                             </div>
-                            <div class="wof_fh_tools">
-                                <span t-if="c.total and !prefs.hero" class="wof_sf_seg" role="radiogroup" aria-label="تصفية حسب الحالة">
-                                    <t t-foreach="filters" t-as="flt" t-key="flt.key">
-                                        <button type="button" role="radio" t-att-aria-checked="flt.key === state.filter ? 'true' : 'false'" t-att-class="flt.key === state.filter ? 'is-opt' : ''" t-on-click="() => state.filter = flt.key">
-                                            <t t-esc="flt.name"/> <span class="wof_fh_count" t-esc="flt.count"/>
-                                        </button>
-                                    </t>
-                                </span>
-                                <span t-if="c.total" class="wof_fh_viewtoggle" role="radiogroup" aria-label="طريقة العرض">
-                                    <button type="button" role="radio" title="بطاقات" aria-label="بطاقات" t-att-aria-checked="prefs.view === 'cards' ? 'true' : 'false'" t-att-class="prefs.view === 'cards' ? 'is-on' : ''" t-on-click="() => this.setPref('view', 'cards')"><i class="fa fa-th-large" aria-hidden="true"/></button>
-                                    <button type="button" role="radio" title="قائمة" aria-label="قائمة" t-att-aria-checked="prefs.view === 'list' ? 'true' : 'false'" t-att-class="prefs.view === 'list' ? 'is-on' : ''" t-on-click="() => this.setPref('view', 'list')"><i class="fa fa-list" aria-hidden="true"/></button>
-                                </span>
-                                <div class="wof_fh_custom">
-                                    <button type="button" t-att-class="'wof_fh_custom_btn' + (state.customize ? ' is-on' : '')" t-att-aria-expanded="state.customize ? 'true' : 'false'" t-on-click="toggleCustomize">
-                                        <i class="fa fa-sliders" aria-hidden="true"/> تخصيص العرض
-                                    </button>
-                                    <div t-if="state.customize" class="wof_fh_custom_panel" role="dialog" aria-label="تخصيص العرض" t-on-keydown="onCustomizeKey">
-                                        <div class="wof_fh_custom_head"><strong>تخصيص العرض</strong><span class="wof_sf_muted wof_sf_small">يُحفظ لهذا المتصفح</span></div>
-                                        <t t-foreach="prefGroups" t-as="g" t-key="g.key">
-                                            <div class="wof_fh_custom_row">
-                                                <span class="wof_fh_custom_label" t-esc="g.label"/>
-                                                <span class="wof_sf_seg" role="radiogroup" t-att-aria-label="g.label">
-                                                    <t t-foreach="g.options" t-as="o" t-key="o.value">
-                                                        <button type="button" role="radio" t-att-aria-checked="prefs[g.key] === o.value ? 'true' : 'false'" t-att-class="prefs[g.key] === o.value ? 'is-opt' : ''" t-on-click="() => this.setPref(g.key, o.value)" t-esc="o.label"/>
-                                                    </t>
-                                                </span>
-                                            </div>
-                                        </t>
-                                        <p class="wof_fh_custom_sample">حجم الخط يطبَّق على كل شاشات العناية: الأفلام، المحرر، مصفوفة الأسعار، وتهيئة النظام.</p>
-                                        <div class="wof_fh_custom_foot">
-                                            <button type="button" class="btn btn-link" t-att-disabled="isDefaultPrefs" t-on-click="resetPrefs"><i class="fa fa-undo" aria-hidden="true"/> الافتراضي</button>
-                                            <button type="button" class="btn btn-primary" t-on-click="toggleCustomize">تم</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <t t-call="yousentech_wo_v4.FilmsHubTools"/>
                         </div>
 
                         <!-- cards -->
@@ -267,6 +240,46 @@
                         </button>
                     </footer>
                 </section>
+            </div>
+        </div>
+    </t>
+
+    <!-- view toggle + display customization (in the hero bar or above the list) -->
+    <t t-name="yousentech_wo_v4.FilmsHubTools">
+        <div class="wof_fh_tools">
+            <span t-if="c.total and !prefs.hero" class="wof_sf_seg" role="radiogroup" aria-label="تصفية حسب الحالة">
+                <t t-foreach="filters" t-as="flt" t-key="flt.key">
+                    <button type="button" role="radio" t-att-aria-checked="flt.key === state.filter ? 'true' : 'false'" t-att-class="flt.key === state.filter ? 'is-opt' : ''" t-on-click="() => state.filter = flt.key">
+                        <t t-esc="flt.name"/> <span class="wof_fh_count" t-esc="flt.count"/>
+                    </button>
+                </t>
+            </span>
+            <span t-if="c.total" class="wof_fh_viewtoggle" role="radiogroup" aria-label="طريقة العرض">
+                <button type="button" role="radio" title="بطاقات" aria-label="بطاقات" t-att-aria-checked="prefs.view === 'cards' ? 'true' : 'false'" t-att-class="prefs.view === 'cards' ? 'is-on' : ''" t-on-click="() => this.setPref('view', 'cards')"><i class="fa fa-th-large" aria-hidden="true"/></button>
+                <button type="button" role="radio" title="قائمة" aria-label="قائمة" t-att-aria-checked="prefs.view === 'list' ? 'true' : 'false'" t-att-class="prefs.view === 'list' ? 'is-on' : ''" t-on-click="() => this.setPref('view', 'list')"><i class="fa fa-list" aria-hidden="true"/></button>
+            </span>
+            <div class="wof_fh_custom">
+                <button type="button" t-att-class="'wof_fh_custom_btn' + (state.customize ? ' is-on' : '')" t-att-aria-expanded="state.customize ? 'true' : 'false'" t-on-click="toggleCustomize">
+                    <i class="fa fa-sliders" aria-hidden="true"/> تخصيص العرض
+                </button>
+                <div t-if="state.customize" class="wof_fh_custom_panel" role="dialog" aria-label="تخصيص العرض" t-on-keydown="onCustomizeKey">
+                    <div class="wof_fh_custom_head"><strong>تخصيص العرض</strong><span class="wof_sf_muted wof_sf_small">يُحفظ لهذا المتصفح</span></div>
+                    <t t-foreach="prefGroups" t-as="g" t-key="g.key">
+                        <div class="wof_fh_custom_row">
+                            <span class="wof_fh_custom_label" t-esc="g.label"/>
+                            <span class="wof_sf_seg" role="radiogroup" t-att-aria-label="g.label">
+                                <t t-foreach="g.options" t-as="o" t-key="o.value">
+                                    <button type="button" role="radio" t-att-aria-checked="prefs[g.key] === o.value ? 'true' : 'false'" t-att-class="prefs[g.key] === o.value ? 'is-opt' : ''" t-on-click="() => this.setPref(g.key, o.value)" t-esc="o.label"/>
+                                </t>
+                            </span>
+                        </div>
+                    </t>
+                    <p class="wof_fh_custom_sample">حجم الخط يطبَّق على كل شاشات العناية: الأفلام، المحرر، مصفوفة الأسعار، وتهيئة النظام.</p>
+                    <div class="wof_fh_custom_foot">
+                        <button type="button" class="btn btn-link" t-att-disabled="isDefaultPrefs" t-on-click="resetPrefs"><i class="fa fa-undo" aria-hidden="true"/> الافتراضي</button>
+                        <button type="button" class="btn btn-primary" t-on-click="toggleCustomize">تم</button>
+                    </div>
+                </div>
             </div>
         </div>
     </t>
