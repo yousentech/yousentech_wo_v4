@@ -1,15 +1,23 @@
 /** @odoo-module **/
 
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onWillStart, onWillUnmount, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { UI_DEFAULTS, loadUiPrefs, saveUiPrefs } from "./ui_prefs";
 
 const MODEL = "wof.film.category";
 const MISSING = { components: "المكوّنات", tint: "درجات اللون", prices: "الأسعار" };
 const COPY_PARTS = [
     ["components", "المكوّنات وترتيبها"], ["tint", "درجات اللون"], ["policies", "السياسات"],
     ["prices", "الأسعار"], ["commissions", "العمولات"],
+];
+
+const PREF_GROUPS = [
+    { key: "view", label: "طريقة العرض", options: [{ value: "cards", label: "بطاقات" }, { value: "list", label: "قائمة" }] },
+    { key: "font", label: "حجم الخط", options: [{ value: "sm", label: "صغير" }, { value: "md", label: "متوسط" }, { value: "lg", label: "كبير" }] },
+    { key: "density", label: "المسافات", options: [{ value: "comfy", label: "مريحة" }, { value: "compact", label: "مضغوطة" }] },
+    { key: "hero", label: "بطاقة النشاط", options: [{ value: true, label: "إظهار" }, { value: false, label: "إخفاء" }] },
 ];
 
 const editorAction = (filmId) => ({
@@ -30,9 +38,18 @@ export class WofFilmsHub extends Component {
         this.notification = useService("notification");
         this.state = useState({
             data: null, tab: null, query: "", filter: "all", busy: false,
-            dialog: null,
+            dialog: null, customize: false,
         });
+        this.prefs = useState(loadUiPrefs());
+        this.prefGroups = PREF_GROUPS;
         this.copyParts = COPY_PARTS;
+        this.onDocClick = (ev) => {
+            if (this.state.customize && !ev.target.closest(".wof_fh_custom")) {
+                this.state.customize = false;
+            }
+        };
+        document.addEventListener("click", this.onDocClick, true);
+        onWillUnmount(() => document.removeEventListener("click", this.onDocClick, true));
         onWillStart(() => this.load());
     }
 
@@ -98,6 +115,50 @@ export class WofFilmsHub extends Component {
             pending: all.filter((f) => !f.ready).length,
             off: all.filter((f) => f.ready && !f.active).length,
         };
+    }
+
+    // ------------------------------------------------------- hero / prefs
+    get kpis() {
+        const c = this.counts;
+        return [
+            { key: "ready", name: _t("جاهزة"), count: c.ready, tone: "ready" },
+            { key: "pending", name: _t("تحتاج إكمال"), count: c.pending, tone: "pending" },
+            { key: "off", name: _t("موقوفة"), count: c.off, tone: "off" },
+        ];
+    }
+
+    get readiness() {
+        const c = this.counts;
+        const pct = (n) => (c.total ? Math.round((n / c.total) * 100) : 0);
+        return { pct: pct(c.ready), ready: pct(c.ready), pending: pct(c.pending) };
+    }
+
+    toggleFilter(key) {
+        this.state.filter = this.state.filter === key ? "all" : key;
+    }
+
+    setPref(key, value) {
+        this.prefs[key] = value;
+        saveUiPrefs({ ...this.prefs });
+    }
+
+    get isDefaultPrefs() {
+        return Object.keys(UI_DEFAULTS).every((key) => this.prefs[key] === UI_DEFAULTS[key]);
+    }
+
+    resetPrefs() {
+        Object.assign(this.prefs, UI_DEFAULTS);
+        saveUiPrefs({ ...this.prefs });
+    }
+
+    toggleCustomize() {
+        this.state.customize = !this.state.customize;
+    }
+
+    onCustomizeKey(ev) {
+        if (ev.key === "Escape") {
+            this.state.customize = false;
+        }
     }
 
     // ------------------------------------------------------------ actions
