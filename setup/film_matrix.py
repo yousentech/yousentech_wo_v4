@@ -92,25 +92,34 @@ class WofFilmMatrix(models.Model):
                 'readonly': bool(line.price_readonly) and not line.free_part,
             }
 
-        cells = {str(size.id): cell(by_size.get(size.id)) for size in sizes}
+        # Only the lines of the active policy are shown: leftovers of the other
+        # policy (older data) must not resurface when the user switches modes.
         if policy == 'by_size':
+            cells = {str(size.id): cell(by_size.get(size.id)) for size in sizes}
             values = list(cells.values())
             if values and all(value['free'] for value in values):
                 mode = 'free'
-            elif values and all(value['amount'] is not None for value in values) and len(
+                general_cell = {'amount': 0.0, 'free': True, 'readonly': False}
+            elif values and all(value['amount'] is not None and not value['free'] for value in values) and len(
                 {(value['amount'], value['readonly']) for value in values}
             ) == 1:
+                # "Same price for all sizes" is stored per size: show it as the shared value.
                 mode = 'uniform'
+                general_cell = dict(values[0])
             else:
                 mode = 'size'
+                general_cell = cell(False)
         else:
+            cells = {str(size.id): cell(False) for size in sizes}
             mode = 'free' if general and general.free_part else 'uniform'
-        return {'mode': mode, 'general': cell(general), 'sizes': cells}
+            general_cell = cell(general)
+        return {'mode': mode, 'general': general_cell, 'sizes': cells}
 
     def _wof_commission_snapshot(self, part_line, sizes):
         by_size = self._wof_line_by_size(part_line.commission_line_ids)
         general = by_size.get(0)
         policy = part_line.commission_calculation_policy or self.commission_calculation_policy or 'fixed'
+        by_size_policy = policy == 'by_size'
         return {
             'source': (
                 part_line.service_commission_source
@@ -118,9 +127,11 @@ class WofFilmMatrix(models.Model):
             ),
             'type': part_line.commission_value_type or 'fixed',
             'policy': policy,
-            'general': general.commission if general else None,
+            'general': general.commission if general and not by_size_policy else None,
             'sizes': {
-                str(size.id): (by_size[size.id].commission if size.id in by_size else None)
+                str(size.id): (
+                    by_size[size.id].commission if by_size_policy and size.id in by_size else None
+                )
                 for size in sizes
             },
             'readonly': bool(part_line.commission_readonly),

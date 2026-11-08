@@ -91,6 +91,35 @@ class TestPricingMatrix(TransactionCase):
         self.assertFalse(self.front_line.price_line_ids.car_size_id)
         self.assertEqual(self.front_line.price_line_ids.part_price, 250)
 
+    def test_same_price_for_all_sizes_survives_reload_and_resave(self):
+        snap = self.film.wof_matrix_load()
+        front = self._line(snap, self.front_line)
+        front['price'] = {'mode': 'uniform', 'general': {'amount': 480, 'readonly': False}, 'sizes': {}}
+        snap = self.film.wof_matrix_save({'lines': [front]})
+        front = self._line(snap, self.front_line)
+        # Reported bug: the shared value came back empty, and the next save erased it.
+        self.assertEqual(front['price']['mode'], 'uniform')
+        self.assertEqual(front['price']['general']['amount'], 480)
+        snap = self.film.wof_matrix_save({'lines': [front]})
+        self.assertEqual(set(self.front_line.price_line_ids.mapped('part_price')), {480})
+        self.assertEqual(len(self.front_line.price_line_ids), 2)
+
+    def test_snapshot_hides_lines_of_the_other_policy(self):
+        Price = self.env['wof.film.parts.price.lines']
+        # Older data: a general line and per-size lines on the same component.
+        Price.create({'part_line_id': self.front_line.id, 'part_price': 111})
+        Price.create({'part_line_id': self.front_line.id, 'car_size_id': self.small.id, 'part_price': 222})
+        Price.create({'part_line_id': self.front_line.id, 'car_size_id': self.large.id, 'part_price': 333})
+        front = self._line(self.film.wof_matrix_load(), self.front_line)
+        self.assertEqual(front['price']['mode'], 'size')
+        self.assertIsNone(front['price']['general']['amount'])
+        self.film.pricing_policy = 'fixed'
+        front = self._line(self.film.wof_matrix_load(), self.front_line)
+        self.assertEqual(front['price']['general']['amount'], 111)
+        self.assertTrue(all(cell['amount'] is None for cell in front['price']['sizes'].values()))
+        self.film.wof_matrix_save({'lines': [front]})
+        self.assertEqual(self.front_line.price_line_ids.mapped('part_price'), [111])
+
     def test_area_commission_derived_from_default_template_parts(self):
         snap = self.film.wof_matrix_load()
         area = self._line(snap, self.area_line)

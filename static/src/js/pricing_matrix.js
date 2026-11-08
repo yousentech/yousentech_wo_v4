@@ -5,6 +5,7 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { browser } from "@web/core/browser/browser";
 
 const num = (value) => {
     if (value === null || value === undefined || value === "") {
@@ -221,24 +222,25 @@ export class WofPricingMatrix extends Component {
         return this.isPriced(amount) ? "price" : "missing";
     }
 
+    // Switching the method carries forward exactly what the user sees, never
+    // older values hidden in the other method's cells.
     onPriceMode(line, ev) {
         const mode = ev.target.value;
-        const general = line.price.general;
-        if (mode === "uniform" && (general.amount === null || general.amount === undefined)) {
-            const first = this.sizes.map((size) => this.priceCell(line, size)).find((cell) => !cell.free && cell.amount !== null);
-            general.amount = first ? first.amount : null;
-            general.free = false;
+        const prev = this.priceMode(line);
+        if (mode === prev) {
+            return;
         }
-        if (mode === "size") {
-            for (const size of this.sizes) {
-                const cell = this.priceCell(line, size);
-                if ((cell.amount === null || cell.amount === undefined) && !cell.free && general.amount !== null) {
-                    cell.amount = general.amount;
-                    cell.readonly = general.readonly;
-                }
-                if (line.price.mode === "free") {
-                    cell.free = false;
-                }
+        const general = line.price.general;
+        const cells = this.sizes.map((size) => this.priceCell(line, size));
+        if (mode === "uniform") {
+            const first = prev === "size" ? cells.find((cell) => !cell.free && cell.amount !== null && cell.amount !== undefined) : null;
+            general.amount = first ? first.amount : null;
+            general.readonly = first ? Boolean(first.readonly) : false;
+        } else if (mode === "size") {
+            for (const cell of cells) {
+                cell.free = false;
+                cell.amount = prev === "uniform" ? general.amount : null;
+                cell.readonly = prev === "uniform" ? Boolean(general.readonly) : false;
             }
         }
         line.price.mode = mode;
@@ -287,10 +289,22 @@ export class WofPricingMatrix extends Component {
             return;
         }
         for (const line of this.data.lines) {
+            const cells = this.sizes.map((size) => this.priceCell(line, size));
             if (policy === "fixed" && line.price.mode === "size") {
-                const first = this.sizes.map((size) => this.priceCell(line, size)).find((cell) => !cell.free && cell.amount !== null);
-                line.price.general.amount = first ? first.amount : line.price.general.amount;
+                // Per-size prices become one price: keep the first one the user entered.
+                const first = cells.find((cell) => !cell.free && cell.amount !== null && cell.amount !== undefined);
+                line.price.general.amount = first ? first.amount : null;
+                line.price.general.readonly = first ? Boolean(first.readonly) : false;
+                line.price.general.free = false;
                 line.price.mode = "uniform";
+            }
+            if (policy === "by_size") {
+                // One price becomes "same price for all sizes"; the cells mirror it.
+                for (const cell of cells) {
+                    cell.free = line.price.mode === "free";
+                    cell.amount = line.price.mode === "free" ? 0 : line.price.general.amount;
+                    cell.readonly = line.price.mode === "free" ? false : Boolean(line.price.general.readonly);
+                }
             }
         }
         this.data.film.pricing_policy = policy;
@@ -348,14 +362,12 @@ export class WofPricingMatrix extends Component {
                     comm.distribution = "equal";
                 }
             }
-            if (value === "by_size") {
+            const prev = comm.policy === "by_size" ? "by_size" : "fixed";
+            if (value === "by_size" && prev !== "by_size") {
                 for (const size of this.sizes) {
-                    const key = String(size.id);
-                    if (comm.sizes[key] === null || comm.sizes[key] === undefined) {
-                        comm.sizes[key] = comm.general;
-                    }
+                    comm.sizes[String(size.id)] = comm.general ?? null;
                 }
-            } else if (comm.general === null || comm.general === undefined) {
+            } else if (value === "fixed" && prev !== "fixed") {
                 comm.general = this.sizes.map((size) => comm.sizes[String(size.id)]).find((v) => v !== null && v !== undefined) ?? null;
             }
             comm.policy = value;
@@ -564,12 +576,14 @@ export class WofPricingMatrix extends Component {
             const action = await this.orm.call("wof.film.setup.wizard", "action_return_from_matrix", [[this.wizardId]], { step });
             return this.action.doAction(action);
         }
-        const config = this.env.config || {};
-        const canGoBack = config.breadcrumbs && config.breadcrumbs.length > 1 && config.historyBack;
+        const crumbs = (this.env.config && this.env.config.breadcrumbs) || [];
+        const previous = crumbs.length > 1 ? crumbs[crumbs.length - 2] : null;
+        const canGoBack = Boolean(previous && previous.jsId);
         if (this.returnToEditor) {
-            // Opened from the film editor: go back to the page underneath, then reopen the editor.
+            // Opened from the film editor: go back to the page underneath, wait until
+            // it is shown (historyBack does not wait), then reopen the editor on top.
             if (canGoBack) {
-                await config.historyBack();
+                await this.action.restore(previous.jsId);
             }
             return this.action.doAction({
                 type: "ir.actions.client", tag: "wof_film_editor", target: "new",
@@ -578,7 +592,7 @@ export class WofPricingMatrix extends Component {
             });
         }
         if (canGoBack) {
-            return config.historyBack();
+            return this.action.restore(previous.jsId);
         }
         return this.action.doAction({
             type: "ir.actions.act_window",
@@ -589,6 +603,12 @@ export class WofPricingMatrix extends Component {
         });
     }
 
+    async saveAndLeave() {
+        if (await this.save()) {
+            await this.leave();
+        }
+    }
+
     back() {
         if (!this.state.dirty) {
             return this.leave();
@@ -597,13 +617,15 @@ export class WofPricingMatrix extends Component {
             title: _t("تغييرات غير محفوظة"),
             body: _t("لديك تغييرات لم تُحفظ. هل تريد حفظها قبل الرجوع؟"),
             confirmLabel: _t("حفظ والرجوع"),
-            confirm: async () => {
-                if (await this.save()) {
-                    await this.leave();
-                }
+            // Let the confirmation close first: navigating while it is still open
+            // made the film editor fail to reopen.
+            confirm: () => {
+                browser.setTimeout(() => this.saveAndLeave());
             },
             cancelLabel: _t("رجوع بدون حفظ"),
-            cancel: () => this.leave(),
+            cancel: () => {
+                browser.setTimeout(() => this.leave());
+            },
         });
     }
 }
