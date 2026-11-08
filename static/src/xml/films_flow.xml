@@ -46,11 +46,13 @@
                         <div t-if="prefs.hero and activity" class="wof_fh_hero">
                             <div class="wof_fh_hero_text">
                                 <span class="wof_fh_hero_kicker"><i class="fa fa-th-large" aria-hidden="true"/> النشاط</span>
-                                <h3 t-esc="activity.name"/>
-                                <p>
-                                    <t t-if="activity.supports_grades">أفلام بدرجات لون</t><t t-else="">أفلام وخدمات بدون درجات لون</t>
-                                    · <t t-esc="c.total"/> <t t-esc="c.total === 1 ? 'عنصر' : 'عناصر'"/>
-                                </p>
+                                <div class="wof_fh_hero_title">
+                                    <h3 t-esc="activity.name"/>
+                                    <p>
+                                        <t t-if="activity.supports_grades">أفلام بدرجات لون</t><t t-else="">أفلام وخدمات بدون درجات لون</t>
+                                        · <t t-esc="c.total"/> <t t-esc="c.total === 1 ? 'عنصر' : 'عناصر'"/>
+                                    </p>
+                                </div>
                                 <div t-if="c.total" class="wof_fh_kpis" role="radiogroup" aria-label="تصفية حسب الحالة">
                                     <t t-foreach="kpis" t-as="k" t-key="k.key">
                                         <button type="button" role="radio" t-att-aria-checked="state.filter === k.key ? 'true' : 'false'"
