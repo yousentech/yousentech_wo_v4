@@ -488,7 +488,8 @@ export class WofPricingMatrix extends Component {
         const lines = this.data ? this.data.lines : [];
         const priced = lines.filter((line) => this.priceComplete(line)).length;
         const commissioned = lines.filter((line) => this.commComplete(line)).length;
-        return { total: lines.length, priced, commissioned };
+        const pct = (n) => (lines.length ? Math.round((n * 100) / lines.length) : 0);
+        return { total: lines.length, priced, commissioned, pricedPct: pct(priced), commPct: pct(commissioned) };
     }
 
     get receipt() {
