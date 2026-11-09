@@ -347,3 +347,12 @@
 .wof_pm_suffix { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--pm-muted); }
 .wof_pm_receipt { padding: 18px 20px; gap: 16px; }
 .wof_pm_col_method { width: 190px; } .wof_pm_select { min-width: 170px; }
+
+/* Header stays neutral so the selected row (mode colour) never blends with it. */
+.wof_pm { --pm-accent-sel: #E6F3F1; }
+.wof_pm.is-dim-commission { --pm-accent-sel: #EAEDFC; }
+.wof_pm_table thead th { background: #FFFFFF; color: var(--pm-muted); border-bottom: 1.5px solid var(--pm-line); }
+.wof_pm_row.is-selected td { background: var(--pm-accent-sel); }
+.wof_pm_row.is-selected td.wof_pm_name { box-shadow: inset -4px 0 0 var(--pm-accent), -1px 0 0 var(--pm-line-2); }
+.wof_pm_row.is-selected .wof_pm_name_text strong { color: var(--pm-accent-dark); }
+.wof_pm_select { background-color: #FFFFFF; }
