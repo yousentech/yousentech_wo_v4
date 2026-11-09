@@ -251,3 +251,99 @@
     .wof_pm_hero_meters, .wof_pm_hero_find { width: 100%; }
     .wof_pm_meter, .wof_pm_hero_search { flex: 1; width: auto; }
 }
+
+/* ============================================ mode colours (price / commission)
+ * Each mode owns one colour so you always know what you are editing:
+ * price = teal, technician commission = indigo. The hero, tabs, table edge,
+ * selected row, focus rings and side panel all follow it. */
+.wof_pm {
+    --pm-accent: #0F6E6E; --pm-accent-dark: #0A5252; --pm-accent-soft: #E1F1EF; --pm-accent-tint: #F2F9F8; --pm-accent-ring: #D3EBE9;
+    --pm-hero: linear-gradient(120deg, #0A5252 0%, #0F6E6E 55%, #148080 100%);
+    --pm-hero-shadow: rgba(15, 110, 110, .16);
+}
+.wof_pm.is-dim-commission {
+    --pm-accent: #3F4FC4; --pm-accent-dark: #2C3891; --pm-accent-soft: #E4E8FB; --pm-accent-tint: #F4F6FE; --pm-accent-ring: #D6DCF8;
+    --pm-hero: linear-gradient(120deg, #26307F 0%, #3442B0 55%, #4757CF 100%);
+    --pm-hero-shadow: rgba(52, 66, 176, .18);
+}
+.wof_pm_hero {
+    background:
+        radial-gradient(circle at 10% 140%, rgba(255, 255, 255, .10) 0 110px, transparent 111px),
+        var(--pm-hero);
+    box-shadow: 0 6px 18px var(--pm-hero-shadow);
+    transition: box-shadow .25s ease;
+}
+.wof_pm_hseg > button.is-on, .wof_pm_hero_back:hover { color: var(--pm-accent); }
+.wof_pm_hero .wof_pm_save { color: var(--pm-accent-dark); }
+.wof_pm_hero .wof_pm_save:hover:not(:disabled) { background: var(--pm-accent-soft); }
+/* the active mode's meter is lit, the other one rests */
+.wof_pm.is-dim-price .wof_pm_meter:last-child, .wof_pm.is-dim-commission .wof_pm_meter:first-child { opacity: .6; }
+.wof_pm.is-dim-commission .wof_pm_meter.is-ok .wof_pm_meter_bar > span { background: #A5B4FC; }
+
+.wof_pm_table_card, .wof_pm_side { border-top: 3px solid var(--pm-accent); }
+.wof_pm_table thead th { background: var(--pm-accent-tint); color: var(--pm-accent-dark); }
+.wof_pm_row.is-selected td { background: var(--pm-accent-tint); }
+.wof_pm_row.is-selected td.wof_pm_name { box-shadow: inset -3px 0 0 var(--pm-accent), -1px 0 0 var(--pm-line-2); }
+.wof_pm_input:focus { border-color: var(--pm-accent); box-shadow: 0 0 0 3px var(--pm-accent-ring); }
+.wof_pm_seg > button.is-on { background: var(--pm-accent); }
+.wof_pm .form-check-input:checked { background-color: var(--pm-accent); border-color: var(--pm-accent); }
+.wof_pm_side_tabs > button.is-on { color: var(--pm-accent); }
+.wof_pm_sizes > button.is-on { border-color: var(--pm-accent); background: var(--pm-accent-soft); color: var(--pm-accent); }
+.wof_pm.is-dim-commission .wof_pm_pill.is-ok { background: var(--pm-accent-soft); color: var(--pm-accent); }
+
+/* ============================================ side panel, airy */
+.wof_pm_props { padding: 0 0 20px; gap: 0; }
+.wof_pm_props_head {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    padding: 18px 20px 16px; background: var(--pm-accent-tint); border-bottom: 1px solid var(--pm-line-2);
+}
+.wof_pm_props_mode { display: inline-flex; align-items: center; gap: 7px; font-size: calc(12px * var(--wof-fs, 0.92)); font-weight: 700; color: var(--pm-accent); }
+.wof_pm_props_head h2 { margin: 0; font-size: calc(18px * var(--wof-fs, 0.92)); font-weight: 800; line-height: 1.35; color: var(--pm-ink); }
+.wof_pm_props_head .wof_pm_tag { margin: 0; }
+.wof_pm_sect { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--pm-line-2); }
+.wof_pm_sect:last-child { border-bottom: 0; }
+.wof_pm_sect_head { display: flex; flex-direction: column; gap: 3px; }
+.wof_pm_sect_head h3 { margin: 0; font-size: calc(14px * var(--wof-fs, 0.92)); font-weight: 800; color: var(--pm-ink); }
+.wof_pm_sect_head p, .wof_pm_sect_foot { margin: 0; font-size: calc(12.5px * var(--wof-fs, 0.92)); color: var(--pm-muted); line-height: 1.6; }
+.wof_pm_note {
+    margin: 16px 20px 0; padding: 10px 12px; border-radius: 10px; background: #F5F7F7;
+    font-size: calc(12.5px * var(--wof-fs, 0.92)); color: var(--pm-ink-2); line-height: 1.6; display: flex; gap: 8px; align-items: baseline;
+}
+.wof_pm_sect .wof_pm_note { margin: 0; }
+.wof_pm_note .fa { color: var(--pm-muted); }
+.wof_pm_note.is-ok { background: var(--pm-teal-soft); color: var(--pm-teal-dark); }
+.wof_pm_note.is-ok .fa { color: var(--pm-teal); }
+
+.wof_pm_sizerows { display: flex; flex-direction: column; gap: 8px; }
+.wof_pm_sizerow {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 8px 8px 8px 12px; padding-inline-start: 14px; border: 1px solid var(--pm-line); border-radius: 12px; background: #FFFFFF;
+}
+.wof_pm_sizerow_name { font-weight: 700; font-size: calc(14px * var(--wof-fs, 0.92)); }
+.wof_pm_chips { display: inline-flex; gap: 6px; }
+.wof_pm_chip {
+    min-height: 32px; padding: 0 12px; border-radius: 99px; border: 1.5px solid var(--pm-line); background: #FFFFFF;
+    color: var(--pm-muted); font-weight: 700; font-size: calc(12.5px * var(--wof-fs, 0.92)); display: inline-flex; gap: 6px; align-items: center;
+}
+.wof_pm_chip:hover:not(:disabled) { border-color: #B8C4C5; color: var(--pm-ink); }
+.wof_pm_chip.is-on { border-color: var(--pm-teal); background: var(--pm-teal-soft); color: var(--pm-teal); }
+.wof_pm_chip.is-lock.is-on { border-color: var(--pm-violet); background: var(--pm-violet-soft); color: var(--pm-violet); }
+.wof_pm_chip:disabled { opacity: .4; cursor: not-allowed; }
+
+.wof_pm_toggle {
+    display: flex; gap: 12px; align-items: flex-start; margin: 0; padding: 12px 14px; cursor: pointer;
+    border: 1px solid var(--pm-line); border-radius: 12px; background: #FFFFFF;
+}
+.wof_pm_toggle .form-check-input { margin: 3px 0 0; flex: 0 0 auto; }
+.wof_pm_toggle > span { display: flex; flex-direction: column; gap: 2px; }
+.wof_pm_toggle strong { font-size: calc(13.5px * var(--wof-fs, 0.92)); font-weight: 700; }
+.wof_pm_toggle small { font-size: calc(12px * var(--wof-fs, 0.92)); color: var(--pm-muted); }
+.wof_pm_toggle.is-on { border-color: var(--pm-accent); background: var(--pm-accent-tint); }
+
+.wof_pm_seg.is-full { display: flex; width: 100%; }
+.wof_pm_seg.is-full > button { flex: 1 1 0; min-height: 36px; padding: 0 8px; }
+.wof_pm_seg.is-stack > button { flex: 1 1 auto; }
+.wof_pm_inline { justify-content: space-between; padding: 10px 14px; border-radius: 12px; background: #F7F9F9; font-size: calc(13px * var(--wof-fs, 0.92)); }
+.wof_pm_suffix { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--pm-muted); }
+.wof_pm_receipt { padding: 18px 20px; gap: 16px; }
+.wof_pm_col_method { width: 190px; } .wof_pm_select { min-width: 170px; }

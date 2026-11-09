@@ -2,7 +2,7 @@
 <templates xml:space="preserve">
 
     <t t-name="yousentech_wo_v4.PricingMatrix">
-        <div class="o_action wof_pm" dir="rtl">
+        <div t-attf-class="o_action wof_pm is-dim-{{ state.dim }}" dir="rtl">
             <div t-if="state.loading" class="wof_pm_loading">جارٍ تحميل الأسعار والعمولات…</div>
             <div t-else="" class="wof_pm_wrap">
 
@@ -206,10 +206,11 @@
                     </div>
                     <div t-if="state.side === 'props'" class="wof_pm_props">
                         <div class="wof_pm_props_head">
-                            <div>
-                                <div class="wof_pm_kicker">خصائص السطر · <t t-if="state.dim === 'price'">السعر</t><t t-else="">العمولة</t></div>
-                                <h2 t-esc="sel.child ? sel.child.name : sel.line.name"/>
-                            </div>
+                            <span class="wof_pm_props_mode">
+                                <i t-attf-class="fa {{ state.dim === 'price' ? 'fa-tag' : 'fa-user' }}" aria-hidden="true"/>
+                                <t t-if="state.dim === 'price'">خصائص السعر</t><t t-else="">خصائص العمولة</t>
+                            </span>
+                            <h2 t-esc="sel.child ? sel.child.name : sel.line.name"/>
                             <span t-if="sel.child" class="wof_pm_tag is-basis">أساس عمولة</span>
                             <span t-elif="isArea(sel.line)" class="wof_pm_tag is-area">منطقة خدمة</span>
                             <span t-else="" class="wof_pm_tag is-part">جزء سيارة</span>
@@ -218,66 +219,88 @@
                         <!-- price properties -->
                         <t t-if="state.dim === 'price'">
                             <t t-set="pm" t-value="priceMode(sel.line)"/>
-                            <p class="wof_pm_help" t-if="isArea(sel.line)">منطقة الخدمة تُسعَّر كوحدة واحدة، وأجزاؤها لا تُسعَّر منفردة.</p>
-                            <p class="wof_pm_help" t-else="">المجاني يجعل السعر صفرًا. «للقراءة فقط» تمنع الموظف من تعديل السعر في أمر التركيب، ويبقى قابلًا للتعديل هنا.</p>
-                            <div t-if="pm === 'size'" class="wof_pm_flags">
-                                <div class="wof_pm_flags_head"><span>الحجم</span><span>مجاني</span><span>للقراءة فقط</span></div>
-                                <div t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_flags_row">
-                                    <t t-set="fc" t-value="priceCell(sel.line, size)"/>
-                                    <span t-esc="size.name"/>
-                                    <span><input type="checkbox" class="form-check-input" t-att-checked="fc.free" t-att-aria-label="size.name + ' مجاني'" t-on-change="() => this.toggleFree(sel.line, size)"/></span>
-                                    <span><input type="checkbox" class="form-check-input" t-att-checked="fc.readonly and !fc.free" t-att-disabled="fc.free" t-att-aria-label="size.name + ' للقراءة فقط'" t-on-change="() => this.toggleReadonly(sel.line, size)"/></span>
+                            <p class="wof_pm_note" t-if="isArea(sel.line)"><i class="fa fa-info-circle" aria-hidden="true"/> تُسعَّر المنطقة كوحدة واحدة، وأجزاؤها لا تُسعَّر منفردة.</p>
+
+                            <section t-if="pm === 'size'" class="wof_pm_sect">
+                                <div class="wof_pm_sect_head">
+                                    <h3>حالة السعر لكل حجم</h3>
+                                    <p>مجاني: بلا مقابل للعميل · ثابت: لا يعدّله الموظف في أمر التركيب</p>
                                 </div>
-                            </div>
-                            <label t-if="pm === 'uniform'" class="wof_pm_check">
-                                <input type="checkbox" class="form-check-input" t-att-checked="sel.line.price.general.readonly" t-on-change="() => this.toggleGeneralReadonly(sel.line)"/>
-                                <span>السعر ثابت في أمر التركيب (لا يعدّله الموظف)</span>
-                            </label>
-                            <div class="wof_pm_field">
-                                <span class="wof_pm_label">سياسة الخصم للمكوّن</span>
-                                <div class="wof_pm_seg" role="radiogroup" aria-label="سياسة الخصم">
-                                    <button type="button" role="radio" t-att-aria-checked="sel.line.discount_policy === 'inherit' ? 'true' : 'false'" t-attf-class="{{ sel.line.discount_policy === 'inherit' ? 'is-on' : '' }}" t-on-click="() => this.setDiscount(sel.line, 'inherit')">يرث سياسة الخدمة</button>
+                                <div class="wof_pm_sizerows">
+                                    <div t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_sizerow">
+                                        <t t-set="fc" t-value="priceCell(sel.line, size)"/>
+                                        <span class="wof_pm_sizerow_name" t-esc="size.name"/>
+                                        <span class="wof_pm_chips">
+                                            <button type="button" t-attf-class="wof_pm_chip {{ fc.free ? 'is-on' : '' }}" t-att-aria-pressed="fc.free ? 'true' : 'false'" t-att-aria-label="size.name + ' مجاني'" t-on-click="() => this.toggleFree(sel.line, size)"><i class="fa fa-gift" aria-hidden="true"/> مجاني</button>
+                                            <button type="button" t-attf-class="wof_pm_chip is-lock {{ fc.readonly and !fc.free ? 'is-on' : '' }}" t-att-disabled="fc.free" t-att-aria-pressed="fc.readonly and !fc.free ? 'true' : 'false'" t-att-aria-label="size.name + ' ثابت في أمر التركيب'" t-on-click="() => this.toggleReadonly(sel.line, size)"><i class="fa fa-lock" aria-hidden="true"/> ثابت</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section t-if="pm === 'uniform'" class="wof_pm_sect">
+                                <div class="wof_pm_sect_head"><h3>تعديل السعر في أمر التركيب</h3></div>
+                                <label t-attf-class="wof_pm_toggle {{ sel.line.price.general.readonly ? 'is-on' : '' }}">
+                                    <input type="checkbox" class="form-check-input" t-att-checked="sel.line.price.general.readonly" t-on-change="() => this.toggleGeneralReadonly(sel.line)"/>
+                                    <span><strong>سعر ثابت</strong><small>لا يعدّله الموظف، ويبقى قابلًا للتعديل من هنا</small></span>
+                                </label>
+                            </section>
+
+                            <section t-if="pm === 'free'" class="wof_pm_sect">
+                                <p class="wof_pm_note is-ok"><i class="fa fa-gift" aria-hidden="true"/> هذا المكوّن مجاني لكل الأحجام. غيّر الطريقة من الجدول لتسعيره.</p>
+                            </section>
+
+                            <section class="wof_pm_sect">
+                                <div class="wof_pm_sect_head">
+                                    <h3>سياسة الخصم</h3>
+                                    <p>هل يُسمح بالخصم على هذا المكوّن في الفاتورة؟</p>
+                                </div>
+                                <div class="wof_pm_seg is-full" role="radiogroup" aria-label="سياسة الخصم">
+                                    <button type="button" role="radio" t-att-aria-checked="sel.line.discount_policy === 'inherit' ? 'true' : 'false'" t-attf-class="{{ sel.line.discount_policy === 'inherit' ? 'is-on' : '' }}" t-on-click="() => this.setDiscount(sel.line, 'inherit')">حسب الخدمة</button>
                                     <button type="button" role="radio" t-att-aria-checked="sel.line.discount_policy === 'allow' ? 'true' : 'false'" t-attf-class="{{ sel.line.discount_policy === 'allow' ? 'is-on' : '' }}" t-on-click="() => this.setDiscount(sel.line, 'allow')">يسمح</button>
                                     <button type="button" role="radio" t-att-aria-checked="sel.line.discount_policy === 'deny' ? 'true' : 'false'" t-attf-class="{{ sel.line.discount_policy === 'deny' ? 'is-on' : '' }}" t-on-click="() => this.setDiscount(sel.line, 'deny')">يمنع</button>
                                 </div>
                                 <label t-if="sel.line.discount_policy === 'allow'" class="wof_pm_inline">
-                                    <span>الحد الأقصى %</span>
-                                    <input type="text" inputmode="decimal" class="wof_pm_input wof_pm_small" t-att-value="sel.line.discount_limit" t-on-change="(ev) => this.onDiscountLimit(sel.line, ev)"/>
+                                    <span>الحد الأقصى للخصم</span>
+                                    <span class="wof_pm_suffix"><input type="text" inputmode="decimal" class="wof_pm_input wof_pm_small" t-att-value="sel.line.discount_limit" t-on-change="(ev) => this.onDiscountLimit(sel.line, ev)"/> %</span>
                                 </label>
-                            </div>
+                            </section>
                         </t>
 
                         <!-- commission properties -->
                         <t t-else="">
                             <t t-set="comm" t-value="sel.child ? sel.child.commission : sel.line.commission"/>
-                            <p t-if="sel.child" class="wof_pm_help">جزء أساس للعمولة: لا يُسعَّر للعميل، وتُجمع عمولته في عمولة «<t t-esc="sel.line.name"/>».</p>
-                            <div t-if="!sel.child and isArea(sel.line)" class="wof_pm_field">
-                                <span class="wof_pm_label">مصدر عمولة المنطقة</span>
-                                <div class="wof_pm_seg" role="radiogroup" aria-label="مصدر عمولة المنطقة">
-                                    <button type="button" role="radio" t-att-aria-checked="!fromParts(sel.line) ? 'true' : 'false'" t-attf-class="{{ !fromParts(sel.line) ? 'is-on' : '' }}" t-on-click="() => this.setSource(sel.line, 'independent')">مستقلة للمنطقة</button>
-                                    <button type="button" role="radio" t-att-aria-checked="fromParts(sel.line) ? 'true' : 'false'" t-attf-class="{{ fromParts(sel.line) ? 'is-on' : '' }}" t-on-click="() => this.setSource(sel.line, 'from_parts')">من أجزاء النموذج الافتراضي</button>
+                            <p t-if="sel.child" class="wof_pm_note"><i class="fa fa-info-circle" aria-hidden="true"/> جزء أساس: لا يُسعَّر للعميل، وتُجمع عمولته في عمولة «<t t-esc="sel.line.name"/>».</p>
+                            <section t-if="!sel.child and isArea(sel.line)" class="wof_pm_sect">
+                                <div class="wof_pm_sect_head"><h3>مصدر عمولة المنطقة</h3></div>
+                                <div class="wof_pm_seg is-full" role="radiogroup" aria-label="مصدر عمولة المنطقة">
+                                    <button type="button" role="radio" t-att-aria-checked="!fromParts(sel.line) ? 'true' : 'false'" t-attf-class="{{ !fromParts(sel.line) ? 'is-on' : '' }}" t-on-click="() => this.setSource(sel.line, 'independent')">مستقلة</button>
+                                    <button type="button" role="radio" t-att-aria-checked="fromParts(sel.line) ? 'true' : 'false'" t-attf-class="{{ fromParts(sel.line) ? 'is-on' : '' }}" t-on-click="() => this.setSource(sel.line, 'from_parts')">من الأجزاء</button>
                                 </div>
-                                <p class="wof_pm_help" t-if="fromParts(sel.line)">مجموع عمولات الأجزاء. إذا كان أي جزء «لكل حجم» تصبح عمولة المنطقة لكل حجم تلقائيًا.</p>
-                            </div>
+                                <p class="wof_pm_sect_foot" t-if="fromParts(sel.line)">مجموع عمولات أجزاء النموذج الافتراضي. إذا كان أي جزء «لكل حجم» تصبح عمولة المنطقة لكل حجم تلقائيًا.</p>
+                            </section>
                             <t t-if="sel.child or !fromParts(sel.line)">
-                                <div class="wof_pm_field">
-                                    <span class="wof_pm_label">نوع العمولة</span>
-                                    <div class="wof_pm_seg" role="radiogroup" aria-label="نوع العمولة">
+                                <section class="wof_pm_sect">
+                                    <div class="wof_pm_sect_head"><h3>نوع العمولة</h3></div>
+                                    <div class="wof_pm_seg is-full" role="radiogroup" aria-label="نوع العمولة">
                                         <button type="button" role="radio" t-att-aria-checked="comm.type !== 'percent' ? 'true' : 'false'" t-attf-class="{{ comm.type !== 'percent' ? 'is-on' : '' }}" t-on-click="() => this.setCommType(comm, 'fixed')">مبلغ ثابت</button>
                                         <button type="button" role="radio" t-att-aria-checked="comm.type === 'percent' ? 'true' : 'false'" t-attf-class="{{ comm.type === 'percent' ? 'is-on' : '' }}" t-on-click="() => this.setCommType(comm, 'percent')">نسبة من السعر</button>
                                     </div>
-                                </div>
-                                <label t-if="!sel.child" class="wof_pm_check">
-                                    <input type="checkbox" class="form-check-input" t-att-checked="comm.readonly" t-on-change="() => this.toggleCommReadonly(comm)"/>
-                                    <span>العمولة للقراءة فقط · لا يُسمح بتجاوزها</span>
-                                </label>
+                                    <label t-if="!sel.child" t-attf-class="wof_pm_toggle {{ comm.readonly ? 'is-on' : '' }}">
+                                        <input type="checkbox" class="form-check-input" t-att-checked="comm.readonly" t-on-change="() => this.toggleCommReadonly(comm)"/>
+                                        <span><strong>عمولة ثابتة</strong><small>للقراءة فقط، ولا يُسمح بتجاوزها</small></span>
+                                    </label>
+                                </section>
                             </t>
-                            <div t-if="!sel.child" class="wof_pm_field">
-                                <span class="wof_pm_label">التوزيع بين الفنيين</span>
-                                <div class="wof_pm_seg" role="radiogroup" aria-label="التوزيع بين الفنيين">
+                            <section t-if="!sel.child" class="wof_pm_sect">
+                                <div class="wof_pm_sect_head">
+                                    <h3>التوزيع بين الفنيين</h3>
+                                    <p>كيف تُقسم العمولة إذا اشترك أكثر من فني</p>
+                                </div>
+                                <div class="wof_pm_seg is-full is-stack" role="radiogroup" aria-label="التوزيع بين الفنيين">
                                     <button t-foreach="distributionOptions(sel.line)" t-as="opt" t-key="opt[0]" type="button" role="radio" t-att-aria-checked="comm.distribution === opt[0] ? 'true' : 'false'" t-attf-class="{{ comm.distribution === opt[0] ? 'is-on' : '' }}" t-on-click="() => this.setDistribution(comm, opt[0])" t-esc="opt[1]"/>
                                 </div>
-                            </div>
+                            </section>
                         </t>
                     </div>
 
