@@ -39,9 +39,8 @@ class WofCompanyProfileSetupFlow(models.Model):
             'type': 'ir.actions.client',
             'tag': 'wof_setup_flow',
             'name': _('تهيئة النظام'),
-            'target': 'new',
+            'target': 'current',
             'params': {'profile_id': self.id},
-            'context': {'dialog_size': 'extra-large'},
         }
 
     def _wof_flow_prepare(self):

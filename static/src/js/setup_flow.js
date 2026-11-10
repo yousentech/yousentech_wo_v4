@@ -186,8 +186,30 @@ export class WofSetupFlow extends Component {
         }
     }
 
-    close() {
-        this.action.doAction({ type: "ir.actions.act_window_close" });
+    get stepInfo() {
+        // Same numbering as the rail: operations is one numbered step with sub-screens.
+        const rail = this.rail;
+        const row = rail.find((r) => r.key === this.current) || rail[0];
+        const step = this.stepOf(this.current);
+        const head = step.kind === "sub" ? this.stepOf("ops").name : "";
+        const total = rail.filter((r) => r.kind !== "sub").length;
+        return { num: row.num, total, name: step.name, head };
+    }
+
+    get ringStyle() {
+        return `--sf-ring: ${this.progress.pct * 3.6}deg`;
+    }
+
+    async close() {
+        // Full page: go back to where setup was opened from (form, main menu…).
+        if (this.env.inDialog) {
+            return this.action.doAction({ type: "ir.actions.act_window_close" });
+        }
+        const crumbs = (this.env.config && this.env.config.breadcrumbs) || [];
+        if (crumbs.length > 1) {
+            return this.action.restore(crumbs[crumbs.length - 2].jsId);
+        }
+        return this.action.doAction("yousentech_wo_v4.action_menu_wo_v4", { clearBreadcrumbs: true });
     }
 
     // ------------------------------------------------------------ readiness
@@ -262,7 +284,8 @@ export class WofSetupFlow extends Component {
 
     get progress() {
         const keys = this.flow.filter((k) => k !== "review");
-        const done = keys.filter((k) => this.info[k].ok && this.state.visited.includes(k)).length;
+        const ready = this.state.data.state === "ready";
+        const done = keys.filter((k) => this.info[k].ok && (ready || this.state.visited.includes(k))).length;
         return { done, total: keys.length, pct: Math.round((done / keys.length) * 100) };
     }
 

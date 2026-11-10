@@ -27,16 +27,28 @@
     </t>
 
     <t t-name="yousentech_wo_v4.SetupFlow">
-        <div class="wof_sf" t-ref="root" dir="rtl">
+        <div class="o_action wof_sf" t-ref="root" dir="rtl">
+            <t t-set="si" t-value="stepInfo"/>
+            <header class="wof_sf_hero">
+                <div class="wof_sf_hero_id">
+                    <button type="button" class="wof_sf_hero_back" aria-label="رجوع" title="رجوع" t-on-click="close"><i class="fa fa-arrow-right" aria-hidden="true"/></button>
+                    <span class="wof_sf_ring" t-att-style="ringStyle" role="img" t-att-aria-label="'اكتمال التهيئة ' + progress.pct + '%'"><b><t t-esc="progress.pct"/>%</b></span>
+                    <div class="wof_sf_hero_title">
+                        <span class="wof_sf_hero_kicker">العناية بالسيارات <i class="fa fa-angle-left" aria-hidden="true"/> تهيئة النظام</span>
+                        <h1>تهيئة النظام</h1>
+                        <span class="wof_sf_hero_meta">الخطوة <t t-esc="si.num"/> من <t t-esc="si.total"/> · أنجزت <t t-esc="progress.done"/> من <t t-esc="progress.total"/> إعدادات</span>
+                    </div>
+                </div>
+                <div class="wof_sf_hero_side">
+                    <span t-if="state.data.state === 'ready'" class="wof_sf_hero_badge is-ok"><i class="fa fa-check-circle" aria-hidden="true"/> النظام مفعّل</span>
+                    <span t-else="" class="wof_sf_hero_badge is-pending"><i class="fa fa-clock-o" aria-hidden="true"/> قيد التهيئة</span>
+                </div>
+            </header>
             <div class="wof_sf_body">
 
                 <!-- Step rail -->
                 <nav class="wof_sf_rail" aria-label="خطوات تهيئة النظام">
-                    <div class="wof_sf_progress">
-                        <strong>تهيئة النظام</strong>
-                        <span class="wof_sf_bar"><span t-attf-style="width: {{ progress.pct }}%"/></span>
-                        <span class="wof_sf_muted wof_sf_small"><t t-esc="progress.done"/> من <t t-esc="progress.total"/> مكتملة</span>
-                    </div>
+                    <span class="wof_sf_rail_title">الخطوات</span>
                     <ol class="wof_sf_steps">
                         <t t-foreach="rail" t-as="r" t-key="r.key">
                             <li>
@@ -66,8 +78,13 @@
                     </div>
                 </nav>
 
+                <section class="wof_sf_panel">
                 <main class="wof_sf_main">
                     <t t-set="d" t-value="state.data"/>
+                    <span class="wof_sf_stepkicker">
+                        <b>الخطوة <t t-esc="si.num"/> من <t t-esc="si.total"/></b>
+                        <t t-if="si.head"><t t-esc="si.head"/> <i class="fa fa-angle-left" aria-hidden="true"/> </t><t t-esc="si.name"/>
+                    </span>
 
                     <!-- 1. Activities -->
                     <t t-if="current === 'activity'">
@@ -379,17 +396,18 @@
                         </t>
                     </t>
                 </main>
+                <footer class="wof_sf_footer">
+                    <span class="wof_sf_footer_state"><span t-att-class="'wof_sf_state_dot' + (footer.warn ? ' is-warn' : '')"/><span t-esc="footer.text"/></span>
+                    <span class="wof_sf_inline">
+                        <button t-if="prevKey and !(current === 'review' and state.data.state === 'ready')" type="button" class="btn btn-light" t-att-disabled="state.busy" t-on-click="prev"><i class="fa fa-arrow-right" aria-hidden="true"/> السابق</button>
+                        <button t-if="state.data.state !== 'ready'" type="button" class="btn btn-light" t-on-click="close">حفظ والمتابعة لاحقًا</button>
+                        <button t-if="current !== 'review'" type="button" class="btn btn-primary" t-att-disabled="state.busy or info[current].block" t-on-click="next"><t t-esc="nextLabel"/> <i class="fa fa-arrow-left" aria-hidden="true"/></button>
+                        <button t-if="current === 'review' and state.data.state !== 'ready'" type="button" class="btn btn-primary" t-att-disabled="state.busy or issues.length" t-on-click="activate"><i class="fa fa-check" aria-hidden="true"/> تفعيل النظام</button>
+                    </span>
+                </footer>
+                </section>
             </div>
 
-            <footer class="wof_sf_footer">
-                <span class="wof_sf_footer_state"><span t-att-class="'wof_sf_state_dot' + (footer.warn ? ' is-warn' : '')"/><span t-esc="footer.text"/></span>
-                <span class="wof_sf_inline">
-                    <button t-if="prevKey and !(current === 'review' and state.data.state === 'ready')" type="button" class="btn btn-light" t-att-disabled="state.busy" t-on-click="prev"><i class="fa fa-arrow-right" aria-hidden="true"/> السابق</button>
-                    <button t-if="state.data.state !== 'ready'" type="button" class="btn btn-light" t-on-click="close">حفظ والمتابعة لاحقًا</button>
-                    <button t-if="current !== 'review'" type="button" class="btn btn-primary" t-att-disabled="state.busy or info[current].block" t-on-click="next"><t t-esc="nextLabel"/> <i class="fa fa-arrow-left" aria-hidden="true"/></button>
-                    <button t-if="current === 'review' and state.data.state !== 'ready'" type="button" class="btn btn-primary" t-att-disabled="state.busy or issues.length" t-on-click="activate"><i class="fa fa-check" aria-hidden="true"/> تفعيل النظام</button>
-                </span>
-            </footer>
         </div>
     </t>
 
