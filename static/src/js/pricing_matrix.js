@@ -6,6 +6,7 @@ import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { browser } from "@web/core/browser/browser";
+import { activityColor, previousCrumbs } from "./hero_nav";
 
 const num = (value) => {
     if (value === null || value === undefined || value === "") {
@@ -50,7 +51,12 @@ export class WofPricingMatrix extends Component {
             side: "props",
         });
         this.fmt = fmt;
-        onWillStart(() => this.load());
+        onWillStart(async () => {
+            await this.load();
+            if (this.env.config && this.env.config.setDisplayName) {
+                this.env.config.setDisplayName(_t("التسعير والعمولة"));
+            }
+        });
     }
 
     // ------------------------------------------------------------------ data
@@ -625,6 +631,19 @@ export class WofPricingMatrix extends Component {
                 browser.setTimeout(() => this.leave());
             },
         });
+    }
+
+    // ------------------------------------------------------------ hero trail
+    get heroCrumbs() {
+        return previousCrumbs(this.env);
+    }
+
+    goCrumb(crumb) {
+        return this.action.restore(crumb.jsId);
+    }
+
+    actColor(type) {
+        return activityColor(type);
     }
 }
 

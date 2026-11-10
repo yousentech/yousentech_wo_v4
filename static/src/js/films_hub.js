@@ -5,6 +5,7 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 import { UI_DEFAULTS, loadUiPrefs, saveUiPrefs } from "./ui_prefs";
+import { activityColor, previousCrumbs } from "./hero_nav";
 
 const MODEL = "wof.film.category";
 const MISSING = { components: "المكوّنات", tint: "درجات اللون", prices: "الأسعار" };
@@ -55,6 +56,10 @@ export class WofFilmsHub extends Component {
     async load() {
         const data = await this.orm.call(MODEL, "wof_films_hub_load", []);
         this.state.data = data;
+        const remembered = this.props.action && this.props.action.params && this.props.action.params.tab;
+        if (!this.state.tab && remembered) {
+            this.state.tab = remembered;
+        }
         if (!data.activities.some((a) => a.id === this.state.tab)) {
             this.state.tab = data.activities.length ? data.activities[0].id : null;
         }
@@ -74,6 +79,10 @@ export class WofFilmsHub extends Component {
 
     selectTab(id) {
         this.state.tab = id;
+        // Kept on the action so coming back (breadcrumb, back button) shows the same activity.
+        if (this.props.action) {
+            this.props.action.params = { ...(this.props.action.params || {}), tab: id };
+        }
         this.state.filter = "all";
     }
 
@@ -162,6 +171,9 @@ export class WofFilmsHub extends Component {
 
     // ------------------------------------------------------------ actions
     openEditor(film) {
+        if (this.props.action) {
+            this.props.action.params = { ...(this.props.action.params || {}), tab: this.state.tab };
+        }
         return this.action.doAction(editorAction(film.id));
     }
 
@@ -224,6 +236,19 @@ export class WofFilmsHub extends Component {
         } else if (ev.key === "Enter" && ev.target.tagName === "INPUT") {
             this.create();
         }
+    }
+
+    // ------------------------------------------------------------ hero trail
+    get heroCrumbs() {
+        return previousCrumbs(this.env);
+    }
+
+    goCrumb(crumb) {
+        return this.action.restore(crumb.jsId);
+    }
+
+    actColor(type) {
+        return activityColor(type);
     }
 }
 

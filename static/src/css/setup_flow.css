@@ -306,3 +306,31 @@ button.wof_sf_hero_badge:hover { background: rgba(255, 255, 255, .2); }
 .wof_sf_hero_title { min-width: 0; }
 .wof_sf_hero h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .wof_sf_ring.is-warn { background: conic-gradient(#FBBF24 var(--sf-ring, 0deg), rgba(255, 255, 255, .18) 0); }
+
+/* ===================================================== page identity (shared)
+ * Every car-care hero: a screen icon, a clickable trail of the pages you came
+ * through, and the activity's identity colour as a small dot. */
+.wof_hero_icon {
+    width: 44px; height: 44px; flex: 0 0 44px; border-radius: 13px; display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .22); color: #FFFFFF; font-size: 19px;
+}
+.wof_sf_hero_kicker:has(.wof_crumbs), .wof_pm_hero_kicker:has(.wof_crumbs), .wof_fh_hero_kicker:has(.wof_crumbs) { opacity: 1; }
+.wof_crumbs { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: calc(12px * var(--wof-fs, 0.92)); font-weight: 600; }
+.wof_crumb { padding: 0; border: 0; background: none; color: inherit; font: inherit; opacity: .75; display: inline-flex; align-items: center; }
+button.wof_crumb { cursor: pointer; text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .35); text-underline-offset: 3px; }
+button.wof_crumb:hover { opacity: 1; text-decoration-color: currentColor; }
+.wof_crumb.is-here { opacity: .95; font-weight: 700; }
+.wof_crumb_sep { opacity: .5; }
+.wof_act_dot {
+    display: inline-block; width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; vertical-align: middle;
+    background: var(--act, #64748B); margin-inline-end: 7px;
+}
+.wof_act_dot.is-lg { width: 12px; height: 12px; flex-basis: 12px; margin-inline-end: 10px; }
+.wof_sf_hero .wof_act_dot, .wof_pm_hero .wof_act_dot, .wof_fh_hero .wof_act_dot { box-shadow: 0 0 0 2px rgba(255, 255, 255, .9); }
+.wof_act_chip {
+    display: inline-flex; align-items: center; margin-inline-start: 8px; padding: 3px 10px; border-radius: 99px; vertical-align: middle;
+    background: rgba(255, 255, 255, .14); font-size: calc(12px * var(--wof-fs, 0.92)); font-weight: 700; opacity: 1;
+}
+.wof_act_chip .wof_act_dot { width: 8px; height: 8px; flex-basis: 8px; margin-inline-end: 6px; }
+.wof_fh_act.is-on { box-shadow: inset -3px 0 0 var(--act, #0F6E6E); }
+.wof_fh_act_head strong { display: inline-flex; align-items: center; }

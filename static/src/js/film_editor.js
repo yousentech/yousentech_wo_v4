@@ -4,6 +4,7 @@ import { Component, onMounted, onWillStart, useRef, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { activityColor, previousCrumbs } from "./hero_nav";
 
 const MODEL = "wof.film.category";
 const UNITS = [["day", "يوم"], ["month", "شهر"], ["year", "سنة"]];
@@ -35,6 +36,9 @@ export class WofFilmEditor extends Component {
         });
         onWillStart(async () => {
             this.setData(await this.orm.call(MODEL, "wof_film_load", [[this.filmId]]));
+            if (this.env.config && this.env.config.setDisplayName) {
+                this.env.config.setDisplayName(this.state.data.film.name);
+            }
             const start = this.flow.includes(params.step) ? params.step : "basic";
             this.state.step = start;
             this.state.visited = this.flow.slice(0, this.flow.indexOf(start) + 1);
@@ -798,6 +802,19 @@ export class WofFilmEditor extends Component {
 
     deactivate() {
         return this.apply("deactivate");
+    }
+
+    // ------------------------------------------------------------ hero trail
+    get heroCrumbs() {
+        return previousCrumbs(this.env);
+    }
+
+    goCrumb(crumb) {
+        return this.action.restore(crumb.jsId);
+    }
+
+    actColor(type) {
+        return activityColor(type);
     }
 }
 

@@ -12,9 +12,10 @@
                     <div class="wof_pm_hero_top">
                         <div class="wof_pm_hero_id">
                             <button type="button" class="wof_pm_hero_back" aria-label="رجوع" title="رجوع" t-on-click="back"><i class="fa fa-arrow-right" aria-hidden="true"/></button>
+                            <span class="wof_hero_icon" aria-hidden="true"><i class="fa fa-tags"/></span>
                             <div class="wof_pm_hero_title">
-                                <span class="wof_pm_hero_kicker">التسعير والعمولة <i class="fa fa-angle-left" aria-hidden="true"/> <t t-esc="data.film.activity"/></span>
-                                <h1><t t-esc="data.film.name"/> <small t-esc="data.film.code"/></h1>
+                                <span class="wof_pm_hero_kicker"><t t-call="yousentech_wo_v4.HeroCrumbs">التسعير والعمولة</t></span>
+                                <h1><t t-esc="data.film.name"/> <small t-esc="data.film.code"/> <span class="wof_act_chip" t-attf-style="--act: {{ actColor(data.film.activity_type) }}"><span class="wof_act_dot" aria-hidden="true"/><t t-esc="data.film.activity"/></span></h1>
                             </div>
                         </div>
                         <div class="wof_pm_hero_meters" aria-label="جاهزية التسعير والعمولة">

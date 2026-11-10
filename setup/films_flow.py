@@ -162,7 +162,7 @@ class WofFilmCategoryFlow(models.Model):
         return {
             'can_edit': self.check_access_rights('write', raise_exception=False),
             'activities': [{
-                'id': activity.id, 'name': activity.name,
+                'id': activity.id, 'name': activity.name, 'type': activity.service_options or 'others',
                 'supports_grades': bool(activity.supports_color_grades),
             } for activity in activities],
             'films': [film._wof_card() for film in films],
@@ -463,6 +463,7 @@ class WofFilmCategoryFlow(models.Model):
                 'inventory': self.is_effected_in_inventory, 'product_required': self.car_film_product_required,
                 'warning_msg': self.warning_msg or '',
                 'activity': {'id': self.service_type_id.id, 'name': self.service_type_id.name,
+                             'type': self.service_type_id.service_options or 'others',
                              'supports_grades': bool(self.supports_color_grades)},
             },
             'tint': {

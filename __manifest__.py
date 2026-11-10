@@ -54,6 +54,7 @@
         'yousentech_wo_v4/static/src/css/installation_order.css',
         'yousentech_wo_v4/static/src/css/pricing_matrix.css',
         'yousentech_wo_v4/static/src/js/ui_prefs.js',
+        'yousentech_wo_v4/static/src/js/hero_nav.js',
         'yousentech_wo_v4/static/src/js/pricing_matrix.js',
         'yousentech_wo_v4/static/src/xml/pricing_matrix.xml',
         'yousentech_wo_v4/static/src/css/setup_flow.css',

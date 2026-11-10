@@ -32,9 +32,10 @@
             <header class="wof_sf_hero">
                 <div class="wof_sf_hero_id">
                     <button type="button" class="wof_sf_hero_back" aria-label="رجوع" title="رجوع" t-on-click="close"><i class="fa fa-arrow-right" aria-hidden="true"/></button>
+                    <span class="wof_hero_icon" aria-hidden="true"><i class="fa fa-cogs"/></span>
                     <span class="wof_sf_ring" t-att-style="ringStyle" role="img" t-att-aria-label="'اكتمال التهيئة ' + progress.pct + '%'"><b><t t-esc="progress.pct"/>%</b></span>
                     <div class="wof_sf_hero_title">
-                        <span class="wof_sf_hero_kicker">العناية بالسيارات <i class="fa fa-angle-left" aria-hidden="true"/> تهيئة النظام</span>
+                        <span class="wof_sf_hero_kicker"><t t-call="yousentech_wo_v4.HeroCrumbs">العناية بالسيارات</t></span>
                         <h1>تهيئة النظام</h1>
                         <span class="wof_sf_hero_meta">الخطوة <t t-esc="si.num"/> من <t t-esc="si.total"/> · أنجزت <t t-esc="progress.done"/> من <t t-esc="progress.total"/> إعدادات</span>
                     </div>

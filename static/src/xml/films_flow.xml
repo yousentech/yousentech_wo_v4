@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
+    <!-- Hero trail: pages you came through (clickable), then where you are. -->
+    <t t-name="yousentech_wo_v4.HeroCrumbs">
+        <nav class="wof_crumbs" aria-label="مسار التنقل">
+            <t t-foreach="heroCrumbs" t-as="cr" t-key="cr.jsId">
+                <button type="button" class="wof_crumb" t-att-title="'رجوع إلى ' + cr.name" t-on-click="() => this.goCrumb(cr)" t-esc="cr.name"/>
+                <i class="fa fa-angle-left wof_crumb_sep" aria-hidden="true"/>
+            </t>
+            <span class="wof_crumb is-here"><t t-out="0"/></span>
+        </nav>
+    </t>
+
     <!-- ================================================================ hub -->
     <t t-name="yousentech_wo_v4.FilmsHub">
         <div class="wof_sf wof_fh" dir="rtl">
@@ -24,8 +35,8 @@
                         <span class="wof_fh_side_title">الأنشطة</span>
                         <t t-foreach="tabs" t-as="t" t-key="t.id">
                             <button type="button" t-att-aria-current="t.id === state.tab ? 'true' : 'false'"
-                                    t-att-class="'wof_fh_act' + (t.id === state.tab ? ' is-on' : '')" t-on-click="() => this.selectTab(t.id)">
-                                <span class="wof_fh_act_head"><strong t-esc="t.name"/><b t-esc="t.count"/></span>
+                                    t-att-class="'wof_fh_act' + (t.id === state.tab ? ' is-on' : '')" t-attf-style="--act: {{ actColor(t.type) }}" t-on-click="() => this.selectTab(t.id)">
+                                <span class="wof_fh_act_head"><strong><span class="wof_act_dot" t-attf-style="--act: {{ actColor(t.type) }}" aria-hidden="true"/><t t-esc="t.name"/></strong><b t-esc="t.count"/></span>
                                 <span t-if="t.count" class="wof_fh_act_bar">
                                     <span class="is-ready" t-attf-style="width: {{ t.readyPct }}%"/>
                                     <span class="is-pending" t-attf-style="width: {{ t.pendingPct }}%"/>
@@ -45,14 +56,15 @@
                         <!-- hero: the activity at a glance; the tiles double as filters -->
                         <div t-if="prefs.hero and activity" class="wof_fh_hero">
                             <div class="wof_fh_hero_main">
+                                <span class="wof_hero_icon" aria-hidden="true"><i class="fa fa-clone"/></span>
                                 <div class="wof_fh_ring" role="img" t-att-aria-label="'الجاهزية ' + readiness.pct + '%'"
                                      t-attf-style="--ready: {{ readiness.ready }}; --pending: {{ readiness.pending }};">
                                     <span><b><t t-esc="readiness.pct"/>%</b><small>جاهزية</small></span>
                                 </div>
                                 <div class="wof_fh_hero_text">
-                                    <span class="wof_fh_hero_kicker">الأفلام والخدمات <i class="fa fa-angle-left" aria-hidden="true"/></span>
+                                    <span class="wof_fh_hero_kicker"><t t-call="yousentech_wo_v4.HeroCrumbs">الأفلام والخدمات</t></span>
                                     <div class="wof_fh_hero_title">
-                                        <h2 t-esc="activity.name"/>
+                                        <h2><span class="wof_act_dot is-lg" t-attf-style="--act: {{ actColor(activity.type) }}" aria-hidden="true"/><t t-esc="activity.name"/></h2>
                                         <p>
                                             <t t-if="activity.supports_grades">أفلام بدرجات لون</t><t t-else="">أفلام وخدمات بدون درجات لون</t>
                                             · <t t-esc="c.total"/> <t t-esc="c.total === 1 ? 'عنصر' : 'عناصر'"/>
@@ -292,9 +304,10 @@
             <header class="wof_sf_hero">
                 <div class="wof_sf_hero_id">
                     <button type="button" class="wof_sf_hero_back" aria-label="رجوع" title="رجوع" t-on-click="close"><i class="fa fa-arrow-right" aria-hidden="true"/></button>
+                    <span class="wof_hero_icon" aria-hidden="true"><i t-attf-class="fa {{ isFilm ? 'fa-film' : 'fa-magic' }}"/></span>
                     <span t-attf-class="wof_sf_ring {{ readiness.ready ? '' : 'is-warn' }}" t-att-style="readyRing" role="img" t-att-aria-label="'جاهزية الفيلم ' + okCount + ' من ' + hardChecks.length"><b><t t-esc="okCount"/>/<t t-esc="hardChecks.length"/></b></span>
                     <div class="wof_sf_hero_title">
-                        <span class="wof_sf_hero_kicker">الأفلام والخدمات <i class="fa fa-angle-left" aria-hidden="true"/> <t t-esc="d.film.activity.name"/></span>
+                        <span class="wof_sf_hero_kicker"><t t-call="yousentech_wo_v4.HeroCrumbs"><span class="wof_act_dot" t-attf-style="--act: {{ actColor(d.film.activity.type) }}" aria-hidden="true"/><t t-esc="d.film.activity.name"/></t></span>
                         <h1><t t-esc="d.film.name"/> <small t-if="d.film.code" dir="ltr" t-esc="d.film.code"/></h1>
                         <span class="wof_sf_hero_meta">الخطوة <t t-esc="stepNum"/> من <t t-esc="flow.length"/> · <t t-if="isFilm">فيلم</t><t t-else="">خدمة</t></span>
                     </div>

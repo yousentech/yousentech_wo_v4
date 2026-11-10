@@ -4,6 +4,7 @@ import { Component, onMounted, onWillStart, useRef, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { activityColor, previousCrumbs } from "./hero_nav";
 
 const MODEL = "wof.company.profile";
 
@@ -614,6 +615,19 @@ export class WofSetupFlow extends Component {
     async openActivities() {
         const action = await this.orm.call(MODEL, "action_go_to_activities", [[this.profileId]]);
         return this.action.doAction(action);
+    }
+
+    // ------------------------------------------------------------ hero trail
+    get heroCrumbs() {
+        return previousCrumbs(this.env);
+    }
+
+    goCrumb(crumb) {
+        return this.action.restore(crumb.jsId);
+    }
+
+    actColor(type) {
+        return activityColor(type);
     }
 }
 

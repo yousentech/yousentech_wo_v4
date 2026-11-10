@@ -189,6 +189,7 @@ class WofFilmMatrix(models.Model):
                 'name': self.display_name,
                 'code': self.code,
                 'activity': self.service_type_id.display_name,
+                'activity_type': self.service_type_id.service_options or 'others',
                 'pricing_policy': policy,
                 'commission_policy': self.commission_calculation_policy or 'fixed',
                 'commission_event': self.commission_event,
