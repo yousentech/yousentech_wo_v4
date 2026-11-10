@@ -18,7 +18,7 @@ class TestOrderFields(TransactionCase):
             'name': 'مدير حقول الأمر', 'login': 'wof_order_fields_tester',
             'groups_id': [(6, 0, [cls.env.ref(g).id for g in groups])],
         })
-        root = cls.env
+        root = cls.root = cls.env
         env = cls.env = cls.env(user=user)
         profile = env['wof.company.profile']._wof_get_profile()
         if not profile:
@@ -68,7 +68,7 @@ class TestOrderFields(TransactionCase):
                     'customer_category', 'delivery_time', 'salesperson', 'supervisor'):
             self.set_state(key, 'opt')
         self.order.write({'vehicle_plate': False})
-        self.order.partner_id.sudo().mobile = False
+        self.root['res.partner'].browse(self.order.partner_id.id).mobile = False
         self.order._wof_check_stage_fields('confirm')
 
     def test_intake_fields_checked_at_intake_only(self):

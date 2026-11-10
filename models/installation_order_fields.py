@@ -53,7 +53,7 @@ class WofInstallationOrderFields(models.Model):
     def _wof_field_policy(self):
         """{key: 'req' | 'opt' | 'hid'} from the shared setup, with safe defaults."""
         policy = dict(DEFAULT_POLICY)
-        profile = self.env['wof.company.profile'].sudo()._wof_get_profile()
+        profile = self.env['wof.company.profile']._wof_get_profile()
         for line in profile.operation_field_line_ids if profile else []:
             policy[line.field_key] = 'hid' if line.hidden else ('req' if line.required else 'opt')
         return policy

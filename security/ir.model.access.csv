@@ -99,3 +99,4 @@ access_wof_film_setup_pricing_warning_settings,wof.film.setup.pricing.warning.se
 access_wof_film_setup_pricing_warning_manager,wof.film.setup.pricing.warning.manager,model_wof_film_setup_pricing_warning,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_film_setup_commission_warning_settings,wof.film.setup.commission.warning.settings,model_wof_film_setup_commission_warning,yousentech_wo_v4.group_wo_settings,1,1,1,1
 access_wof_film_setup_commission_warning_manager,wof.film.setup.commission.warning.manager,model_wof_film_setup_commission_warning,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_setup_operation_field_line_employee,setup.operation.field.line.employee,model_wof_setup_operation_field_line,yousentech_wo_v4.group_wo_employee,1,0,0,0
