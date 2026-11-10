@@ -405,32 +405,58 @@
                         </button>
                     </div>
 
+                    <field name="wof_hidden_fields" invisible="1"/>
+                    <field name="wof_required_fields" invisible="1"/>
                     <div class="wof_order_cards">
                         <group class="wof_order_card" string="العميل والتواصل">
                             <field name="partner_id"
                                    readonly="state not in ('draft', 'scheduled')"
                                    options="{'no_quick_create': True}"/>
-                            <field name="partner_mobile" readonly="1"/>
-                            <field name="partner_phone" readonly="1"/>
+                            <field name="partner_mobile" readonly="1"
+                                   invisible="',mobile,' in wof_hidden_fields"/>
+                            <field name="partner_phone" readonly="1"
+                                   invisible="',mobile,' in wof_hidden_fields"/>
+                            <field name="partner_category_ids" widget="many2many_tags"
+                                   options="{'no_create': True, 'color_field': 'color'}"
+                                   readonly="state not in ('draft', 'scheduled')"
+                                   invisible="',customer_category,' in wof_hidden_fields"
+                                   required="',customer_category,' in wof_required_fields"/>
                             <field name="customer_notes"
                                    readonly="state not in ('draft', 'scheduled')"/>
                         </group>
                         <group class="wof_order_card" string="السيارة">
                             <field name="vehicle_plate"
-                                   readonly="state not in ('draft', 'scheduled')"/>
+                                   readonly="state not in ('draft', 'scheduled')"
+                                   invisible="',plate,' in wof_hidden_fields"
+                                   required="',plate,' in wof_required_fields"/>
                             <field name="vehicle_vin"
-                                   readonly="state not in ('draft', 'scheduled')"/>
+                                   readonly="state not in ('draft', 'scheduled')"
+                                   invisible="',vin,' in wof_hidden_fields"
+                                   required="',vin,' in wof_required_fields"/>
                             <field name="vehicle_manufacturer_id"
                                    readonly="state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
+                                   options="{'no_create': True}"
+                                   invisible="',manufacturer,' in wof_hidden_fields"
+                                   required="',manufacturer,' in wof_required_fields"/>
                             <field name="vehicle_model_id"
                                    readonly="state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
+                                   options="{'no_create': True}"
+                                   invisible="',model,' in wof_hidden_fields"
+                                   required="',model,' in wof_required_fields"/>
                             <field name="vehicle_year_id"
                                    readonly="state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
+                                   options="{'no_create': True}"
+                                   invisible="',manufacture_year,' in wof_hidden_fields"
+                                   required="',manufacture_year,' in wof_required_fields"/>
                             <field name="vehicle_color"
-                                   readonly="state not in ('draft', 'scheduled')"/>
+                                   readonly="state not in ('draft', 'scheduled')"
+                                   invisible="',color,' in wof_hidden_fields"
+                                   required="',color,' in wof_required_fields"/>
+                            <field name="agency_id"
+                                   readonly="state not in ('draft', 'scheduled')"
+                                   options="{'no_create': True}"
+                                   invisible="',agency,' in wof_hidden_fields"
+                                   required="',agency,' in wof_required_fields"/>
                             <field name="car_size_id"
                                    readonly="state not in ('draft', 'scheduled')"
                                    options="{'no_create': True}"/>
@@ -440,20 +466,31 @@
                                    required="use_appointments"
                                    readonly="state not in ('draft', 'scheduled')"/>
                             <field name="expected_delivery_at"
-                                   readonly="state not in ('draft', 'scheduled')"/>
+                                   readonly="state not in ('draft', 'scheduled')"
+                                   invisible="',delivery_time,' in wof_hidden_fields"
+                                   required="',delivery_time,' in wof_required_fields"/>
                             <field name="advisor_id"
                                    readonly="state not in ('draft', 'scheduled')"
                                    domain="[('id', 'in', advisor_candidate_ids)]"
                                    options="{'no_create': True}"/>
+                            <field name="salesperson_id"
+                                   readonly="state not in ('draft', 'scheduled')"
+                                   options="{'no_create': True}"
+                                   invisible="',salesperson,' in wof_hidden_fields"
+                                   required="',salesperson,' in wof_required_fields"/>
                             <field name="supervisor_id"
                                    readonly="state in ('quality', 'ready', 'delivered', 'cancelled')"
                                    domain="[('id', 'in', supervisor_candidate_ids)]"
-                                   options="{'no_create': True}"/>
+                                   options="{'no_create': True}"
+                                   invisible="',supervisor,' in wof_hidden_fields"
+                                   required="',supervisor,' in wof_required_fields"/>
                             <field name="technician_ids"
                                    widget="many2many_avatar_user"
                                    readonly="state in ('quality', 'ready', 'delivered', 'cancelled')"
                                    domain="[('id', 'in', technician_candidate_ids)]"
-                                   options="{'no_create': True}"/>
+                                   options="{'no_create': True}"
+                                   invisible="',technician,' in wof_hidden_fields"
+                                   required="',technician,' in wof_required_fields and state == 'intake'"/>
                         </group>
                     </div>
 
@@ -483,9 +520,15 @@
                             <group>
                                 <group>
                                     <field name="odometer"
-                                           readonly="state not in ('draft', 'scheduled')"/>
+                                           readonly="state not in ('draft', 'scheduled')"
+                                   invisible="',odometer,' in wof_hidden_fields"
+                                   required="',odometer,' in wof_required_fields and state == 'scheduled'"/>
                                     <field name="intake_condition"
                                            readonly="state not in ('draft', 'scheduled')"/>
+                                    <field name="sticker_removal"
+                                           readonly="state not in ('draft', 'scheduled')"
+                                           invisible="',sticker_removal,' in wof_hidden_fields"
+                                           required="',sticker_removal,' in wof_required_fields and state == 'scheduled'"/>
                                     <field name="intake_notes"
                                            readonly="state not in ('draft', 'scheduled')"/>
                                 </group>
@@ -502,6 +545,10 @@
                                     <field name="execution_progress" widget="progressbar" readonly="1"/>
                                     <field name="execution_started_at" readonly="1"/>
                                     <field name="execution_completed_at" readonly="1"/>
+                                    <field name="completion_date"
+                                           readonly="state not in ('quality', 'ready')"
+                                           invisible="',completion_date,' in wof_hidden_fields"
+                                           required="',completion_date,' in wof_required_fields and state == 'ready'"/>
                                 </group>
                                 <group>
                                     <field name="execution_notes"

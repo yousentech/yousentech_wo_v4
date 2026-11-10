@@ -134,4 +134,11 @@
               parent="menu_wo_v4_configuration"
               action="action_car_agency_wo_v4"
               sequence="70"/>
+
+    <!-- Customer categories are Odoo's customer tags, reachable from the car-care setup. -->
+    <menuitem id="menu_customer_category_wo_v4"
+              name="فئات العملاء"
+              parent="menu_wo_v4_configuration"
+              action="base.action_partner_category_form"
+              sequence="71"/>
 </odoo>

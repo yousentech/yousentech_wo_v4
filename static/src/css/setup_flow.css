@@ -334,3 +334,4 @@ button.wof_crumb:hover { opacity: 1; text-decoration-color: currentColor; }
 .wof_act_chip .wof_act_dot { width: 8px; height: 8px; flex-basis: 8px; margin-inline-end: 6px; }
 .wof_fh_act.is-on { box-shadow: inset -3px 0 0 var(--act, #0F6E6E); }
 .wof_fh_act_head strong { display: inline-flex; align-items: center; }
+.wof_sf_field_text { display: flex; flex-direction: column; gap: 2px; } .wof_sf_field_text .wof_sf_hint { font-size: calc(12px * var(--wof-fs, 0.92)); color: var(--sf-muted); }

@@ -97,12 +97,16 @@ class WofInstallationOrderWorkflow(models.Model):
             'technician_ids',
             'line_ids',
             'order_discount_percent',
+            'agency_id',
+            'partner_category_ids',
+            'salesperson_id',
         }
         intake_fields = {
             'odometer',
             'intake_condition',
             'intake_notes',
             'before_attachment_ids',
+            'sticker_removal',
         }
         execution_fields = {
             'execution_notes',
@@ -114,6 +118,7 @@ class WofInstallationOrderWorkflow(models.Model):
             'customer_approved',
             'customer_approval_reference',
             'delivery_notes',
+            'completion_date',
         }
         for order in self:
             if commercial.intersection(vals):
@@ -295,26 +300,17 @@ class WofInstallationOrderWorkflow(models.Model):
     def _validate_order_basics(self):
         self.ensure_one()
         profile = self._profile()
+        # Always needed; the rest follows the setup's field policy.
         missing = []
         if not self.partner_id:
             missing.append('العميل')
-        if not (self.partner_id.mobile or self.partner_id.phone):
-            missing.append('جوال أو هاتف العميل')
-        if not self.vehicle_plate:
-            missing.append('رقم اللوحة')
-        if profile.required_vehicle_data == 'plate_vin_mobile' and not self.vehicle_vin:
-            missing.append('رقم الهيكل')
         if not self.car_size_id:
             missing.append('حجم السيارة')
         if profile.use_appointments and not self.appointment_at:
             missing.append('الموعد')
         if not self.line_ids:
             missing.append('خدمة واحدة على الأقل')
-        if missing:
-            raise ValidationError(
-                'أكمل البيانات التالية قبل المتابعة: %s.'
-                % '، '.join(missing)
-            )
+        self._wof_check_stage_fields('confirm', extra=missing)
         self.line_ids._validate_ready_for_confirmation()
 
     def action_confirm_arrival(self):
@@ -350,6 +346,7 @@ class WofInstallationOrderWorkflow(models.Model):
             raise ValidationError(
                 'اكتب ملاحظة توضح الضرر السابق أو سبب المراجعة.'
             )
+        self._wof_check_stage_fields('intake')
         return self._perform_transition(
             'scheduled',
             'intake',
@@ -365,10 +362,7 @@ class WofInstallationOrderWorkflow(models.Model):
             'yousentech_wo_v4.group_wo_manager',
         )
         self._ensure_assigned_technician_or_supervisor()
-        if not self.technician_ids:
-            raise ValidationError(
-                'عيّن فنيًا واحدًا على الأقل قبل بدء التنفيذ.'
-            )
+        self._wof_check_stage_fields('execute')
         if len(self.technician_ids) == 1:
             unassigned = self.line_ids.filtered(
                 lambda line: not line.execution_technician_id
@@ -391,10 +385,11 @@ class WofInstallationOrderWorkflow(models.Model):
             'yousentech_wo_v4.group_wo_manager',
         )
         self._ensure_assigned_technician_or_supervisor()
+        need_technician = self._wof_field_required('technician')
         incomplete = self.line_ids.filtered(
             lambda line: (
                 line.execution_progress != 100
-                or not line.execution_technician_id
+                or (need_technician and not line.execution_technician_id)
             )
         )
         if incomplete:
@@ -405,7 +400,10 @@ class WofInstallationOrderWorkflow(models.Model):
             'in_progress',
             'quality',
             'order.sent_to_quality',
-            {'execution_completed_at': fields.Datetime.now()},
+            {
+                'execution_completed_at': fields.Datetime.now(),
+                'completion_date': self.completion_date or fields.Datetime.now(),
+            },
         )
 
     def action_return_to_execution(self):
@@ -457,6 +455,7 @@ class WofInstallationOrderWorkflow(models.Model):
             raise ValidationError(
                 'سجّل موافقة العميل على الأعمال والتسليم قبل إغلاق الأمر.'
             )
+        self._wof_check_stage_fields('delivery')
         now = fields.Datetime.now()
         return self._perform_transition(
             'ready',

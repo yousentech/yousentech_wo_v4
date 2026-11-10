@@ -246,7 +246,10 @@
                         <div class="wof_sf_fields">
                                 <t t-foreach="d.fields" t-as="f" t-key="f.id">
                                     <div class="wof_sf_field">
-                                        <span t-att-class="'wof_sf_name' + (f.state === 'hid' ? ' is-hidden' : '')" t-esc="f.label"/>
+                                        <span class="wof_sf_field_text">
+                                            <span t-att-class="'wof_sf_name' + (f.state === 'hid' ? ' is-hidden' : '')" t-esc="f.label"/>
+                                            <small t-if="f.stage and f.state === 'req'" class="wof_sf_hint">يُطلب <t t-esc="f.stage"/></small>
+                                        </span>
                                         <span class="wof_sf_seg" role="radiogroup" t-att-aria-label="'حالة ' + f.label">
                                             <button type="button" role="radio" t-att-aria-checked="f.state === 'req' ? 'true' : 'false'" t-att-class="f.state === 'req' ? 'is-req' : ''" t-att-disabled="state.busy" t-on-click="() => this.setField(f, 'req')">إجباري</button>
                                             <button type="button" role="radio" t-att-aria-checked="f.state === 'opt' ? 'true' : 'false'" t-att-class="f.state === 'opt' ? 'is-opt' : ''" t-att-disabled="state.busy" t-on-click="() => this.setField(f, 'opt')">اختياري</button>

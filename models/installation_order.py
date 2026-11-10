@@ -154,7 +154,7 @@ class WofInstallationOrder(models.Model):
     customer_notes = fields.Text(string="ملاحظات العميل")
 
     vehicle_plate = fields.Char(
-        string="رقم اللوحة", required=True, index=True, tracking=True,
+        string="رقم اللوحة", index=True, tracking=True,
     )
     vehicle_vin = fields.Char(string="رقم الهيكل", index=True)
     vehicle_manufacturer_id = fields.Many2one(

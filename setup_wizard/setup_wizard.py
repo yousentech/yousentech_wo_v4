@@ -53,17 +53,51 @@ TINT_SHADE_DEFAULTS = {
 }
 
 OPERATION_FIELD_DEFAULTS = [
-    ('plate', 'اللوحة', True, False, 10),
-    ('vin', 'الشاصي', False, False, 20),
-    ('mobile', 'الجوال', True, False, 30),
+    # key, label, required, hidden, sequence
+    ('mobile', 'الجوال', True, False, 10),
+    ('customer_category', 'فئة العميل', False, True, 15),
+    ('plate', 'اللوحة', True, False, 20),
+    ('vin', 'الشاصي', False, False, 25),
+    ('manufacturer', 'الشركة المصنعة', False, False, 30),
+    ('model', 'نوع السيارة', False, False, 35),
     ('manufacture_year', 'سنة الصنع', False, False, 40),
     ('color', 'اللون', False, False, 50),
-    ('agency', 'الوكالة', False, False, 60),
+    ('agency', 'الوكالة', False, True, 60),
     ('delivery_time', 'وقت التسليم', False, False, 70),
-    ('odometer', 'العداد', False, True, 80),
-    ('salesperson', 'المندوب', False, True, 90),
-    ('technician', 'الفني', True, False, 100),
+    ('salesperson', 'المندوب', False, True, 80),
+    ('supervisor', 'المشرف', False, False, 85),
+    ('technician', 'الفني', True, False, 90),
+    ('odometer', 'العداد', False, True, 100),
+    ('sticker_removal', 'إزالة اللواصق', False, True, 110),
+    ('completion_date', 'تاريخ الإنجاز', False, False, 120),
 ]
+
+# Where each order-field policy is checked: key -> (order field, stage).
+FIELD_RULES = {
+    'mobile': ('partner_mobile', 'confirm'),
+    'customer_category': ('partner_category_ids', 'confirm'),
+    'plate': ('vehicle_plate', 'confirm'),
+    'vin': ('vehicle_vin', 'confirm'),
+    'manufacturer': ('vehicle_manufacturer_id', 'confirm'),
+    'model': ('vehicle_model_id', 'confirm'),
+    'manufacture_year': ('vehicle_year_id', 'confirm'),
+    'color': ('vehicle_color', 'confirm'),
+    'agency': ('agency_id', 'confirm'),
+    'delivery_time': ('expected_delivery_at', 'confirm'),
+    'salesperson': ('salesperson_id', 'confirm'),
+    'supervisor': ('supervisor_id', 'confirm'),
+    'technician': ('technician_ids', 'execute'),
+    'odometer': ('odometer', 'intake'),
+    'sticker_removal': ('sticker_removal', 'intake'),
+    'completion_date': ('completion_date', 'delivery'),
+}
+
+STAGE_LABELS = {
+    'confirm': 'عند تأكيد الأمر',
+    'intake': 'عند الاستلام',
+    'execute': 'عند بدء التنفيذ',
+    'delivery': 'عند التسليم',
+}
 
 OPERATION_FIELD_KEYS = [(key, label) for key, label, _required, _hidden, _sequence in OPERATION_FIELD_DEFAULTS]
 
@@ -751,7 +785,7 @@ class WofCompanyProfile(models.Model):
                     'hidden': hidden,
                 })
                 self.env['wof.setup.operation.field.line'].create(vals)
-            elif not line.label:
+            elif not line.label or line.sequence != sequence:
                 line.with_context(wof_operation_setup_sync=True).write(vals)
         return True
 

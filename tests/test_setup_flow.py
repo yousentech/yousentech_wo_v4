@@ -6,6 +6,7 @@ Run on a test database:
 """
 
 from odoo.exceptions import AccessError, ValidationError
+from odoo.addons.yousentech_wo_v4.setup_wizard.setup_wizard import OPERATION_FIELD_DEFAULTS
 from odoo.tests import TransactionCase, tagged
 
 
@@ -44,7 +45,7 @@ class TestSetupFlow(TransactionCase):
         self.assertEqual({a['type'] for a in self.snap['activities']}, {'tint', 'general'})
         self.assertEqual([s['code'] for s in self.snap['sizes']], ['SMALL', 'MEDIUM', 'LARGE', 'SUV'])
         self.assertEqual([s['value'] for s in self.snap['tint']['shades']], ['00', '01', '02', '03', '04'])
-        self.assertEqual(len(self.snap['fields']), 10)
+        self.assertEqual(len(self.snap['fields']), len(OPERATION_FIELD_DEFAULTS))
         action = self.profile._wizard_action()
         self.assertEqual(action['type'], 'ir.actions.client')
         self.assertEqual(action['tag'], 'wof_setup_flow')

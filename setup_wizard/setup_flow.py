@@ -9,7 +9,7 @@ stay exactly where they were.
 from odoo import _, fields, models
 from odoo.exceptions import ValidationError
 
-from .setup_wizard import SETUP_STEPS, TECHNICAL_CODE_RE
+from .setup_wizard import FIELD_RULES, SETUP_STEPS, STAGE_LABELS, TECHNICAL_CODE_RE
 
 FLOW_STEPS = dict(SETUP_STEPS)
 
@@ -96,6 +96,7 @@ class WofCompanyProfileSetupFlow(models.Model):
             'fields': [{
                 'id': line.id, 'key': line.field_key, 'label': line.label,
                 'state': 'hid' if line.hidden else ('req' if line.required else 'opt'),
+                'stage': STAGE_LABELS.get(FIELD_RULES.get(line.field_key, ('', 'confirm'))[1], ''),
             } for line in self.operation_field_line_ids],
             'tax': {
                 'enabled': self.operation_tax_enabled,
