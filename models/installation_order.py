@@ -59,6 +59,9 @@ EVENT_LABELS = {
     'order.delivered': 'تسليم السيارة وإغلاق الأمر',
     'order.cancelled': 'إلغاء أمر التركيب',
     'order.price_overridden': 'تجاوز السعر المهيأ',
+    'order.payment_registered': 'تسجيل دفعة',
+    'order.sale_order_created': 'إنشاء أمر البيع',
+    'order.invoice_created': 'إنشاء الفاتورة',
 }
 
 ORDER_ATTACHMENT_MIMETYPES = {

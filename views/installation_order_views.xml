@@ -371,6 +371,9 @@
                             string="تسليم السيارة وإغلاق الأمر" class="btn-primary"
                             invisible="state != 'ready'"
                             groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor"/>
+                    <button name="action_register_payment" type="object"
+                            string="تسجيل دفعة" icon="fa-money"
+                            invisible="state == 'cancelled' or payment_status == 'paid' or amount_total == 0"/>
                     <button name="action_cancel" type="object"
                             string="إلغاء الأمر" class="btn-secondary"
                             invisible="state in ('delivered', 'cancelled')"
@@ -409,6 +412,11 @@
                     </div>
 
                     <div class="oe_button_box" name="button_box">
+                        <button name="action_view_payments" type="object"
+                                class="oe_stat_button" icon="fa-money"
+                                invisible="not payment_count">
+                            <field name="payment_count" widget="statinfo" string="الدفعات"/>
+                        </button>
                         <button name="action_open_sale_order" type="object"
                                 class="oe_stat_button" icon="fa-shopping-cart"
                                 invisible="not sale_order_id">
@@ -527,6 +535,11 @@
                                 <field name="amount_discount" readonly="1"/>
                                 <field name="amount_tax" readonly="1"/>
                                 <field name="amount_total" readonly="1"/>
+                                <field name="payment_status" widget="badge" readonly="1"
+                                       decoration-success="payment_status == 'paid'"
+                                       decoration-warning="payment_status == 'partial'"/>
+                                <field name="amount_paid" readonly="1" invisible="not amount_paid"/>
+                                <field name="amount_residual" readonly="1" invisible="not amount_paid"/>
                                 <field name="order_discount_percent"
                                        invisible="discount_scope != 'order'"
                                        readonly="state not in ('draft', 'scheduled')"/>
@@ -677,4 +690,32 @@
               action="action_wof_installation_order"
               groups="yousentech_wo_v4.group_wo_employee"
               sequence="1"/>
+
+    <record id="view_wof_order_payment_wizard_form" model="ir.ui.view">
+        <field name="name">wof.order.payment.wizard.form</field>
+        <field name="model">wof.order.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="تسجيل دفعة">
+                <group>
+                    <group>
+                        <field name="order_id"/>
+                        <field name="partner_id"/>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="amount_total"/>
+                        <field name="amount_residual"/>
+                    </group>
+                    <group>
+                        <field name="amount"/>
+                        <field name="journal_id" options="{'no_create': True}"/>
+                        <field name="date"/>
+                        <field name="memo" placeholder="مثال: دفعة مقدمة"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="تسجيل الدفعة" class="btn-primary"/>
+                    <button special="cancel" string="إلغاء" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 </odoo>
