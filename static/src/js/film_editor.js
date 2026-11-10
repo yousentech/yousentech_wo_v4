@@ -142,8 +142,31 @@ export class WofFilmEditor extends Component {
         return step ? `${_t("التالي:")} ${step[1]}` : "";
     }
 
-    close() {
-        this.action.doAction({ type: "ir.actions.act_window_close" });
+    get stepNum() {
+        return this.flow.indexOf(this.current) + 1;
+    }
+
+    get stepName() {
+        const step = this.steps.find((s) => s[0] === this.current);
+        return step ? step[1] : "";
+    }
+
+    get readyRing() {
+        const total = this.hardChecks.length;
+        const ok = this.hardChecks.filter((c) => c.ok).length;
+        return `--sf-ring: ${total ? (ok / total) * 360 : 0}deg`;
+    }
+
+    async close() {
+        // Full page: back to the films hub (or wherever the editor was opened from).
+        if (this.env.inDialog) {
+            return this.action.doAction({ type: "ir.actions.act_window_close" });
+        }
+        const crumbs = (this.env.config && this.env.config.breadcrumbs) || [];
+        if (crumbs.length > 1) {
+            return this.action.restore(crumbs[crumbs.length - 2].jsId);
+        }
+        return this.action.doAction("yousentech_wo_v4.action_wof_films_hub", { clearBreadcrumbs: true });
     }
 
     // --------------------------------------------------------- readiness
@@ -751,6 +774,10 @@ export class WofFilmEditor extends Component {
 
     // ------------------------------------------------------------- price
     openMatrix() {
+        // Coming back from the matrix restores this page; reopen it on the same step.
+        if (this.props.action && this.props.action.params) {
+            this.props.action.params.step = this.current;
+        }
         return this.action.doAction({
             type: "ir.actions.client", tag: "wof_pricing_matrix", target: "current",
             params: { film_id: this.filmId, editor: true },

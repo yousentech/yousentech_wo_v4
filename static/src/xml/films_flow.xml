@@ -286,15 +286,29 @@
 
     <!-- ============================================================= editor -->
     <t t-name="yousentech_wo_v4.FilmEditor">
-        <div class="wof_sf wof_fe" t-ref="root" dir="rtl">
+        <div class="o_action wof_sf wof_fe" t-ref="root" dir="rtl">
             <t t-set="d" t-value="state.data"/>
+            <t t-set="okCount" t-value="hardChecks.filter((x) => x.ok).length"/>
+            <header class="wof_sf_hero">
+                <div class="wof_sf_hero_id">
+                    <button type="button" class="wof_sf_hero_back" aria-label="رجوع" title="رجوع" t-on-click="close"><i class="fa fa-arrow-right" aria-hidden="true"/></button>
+                    <span t-attf-class="wof_sf_ring {{ readiness.ready ? '' : 'is-warn' }}" t-att-style="readyRing" role="img" t-att-aria-label="'جاهزية الفيلم ' + okCount + ' من ' + hardChecks.length"><b><t t-esc="okCount"/>/<t t-esc="hardChecks.length"/></b></span>
+                    <div class="wof_sf_hero_title">
+                        <span class="wof_sf_hero_kicker">الأفلام والخدمات <i class="fa fa-angle-left" aria-hidden="true"/> <t t-esc="d.film.activity.name"/></span>
+                        <h1><t t-esc="d.film.name"/> <small t-if="d.film.code" dir="ltr" t-esc="d.film.code"/></h1>
+                        <span class="wof_sf_hero_meta">الخطوة <t t-esc="stepNum"/> من <t t-esc="flow.length"/> · <t t-if="isFilm">فيلم</t><t t-else="">خدمة</t></span>
+                    </div>
+                </div>
+                <div class="wof_sf_hero_side">
+                    <span t-if="readiness.ready" class="wof_sf_hero_badge is-ok"><i class="fa fa-check-circle" aria-hidden="true"/> جاهز للتفعيل</span>
+                    <button t-else="" type="button" class="wof_sf_hero_badge is-pending" t-att-title="'ينقص: ' + missingText" t-on-click="() => this.go('rev')"><i class="fa fa-exclamation-circle" aria-hidden="true"/> ينقص: <t t-esc="missingText"/></button>
+                    <span t-if="d.film.active" class="wof_sf_hero_badge is-ok"><i class="fa fa-circle" aria-hidden="true"/> مفعّل في الأوامر</span>
+                    <span t-else="" class="wof_sf_hero_badge is-muted"><i class="fa fa-circle-o" aria-hidden="true"/> مسودة</span>
+                </div>
+            </header>
             <div class="wof_sf_body">
                 <nav class="wof_sf_rail" aria-label="خطوات الفيلم">
-                    <div class="wof_fe_ready">
-                        <span class="wof_fe_ready_head"><strong>جاهزية الفيلم</strong><b t-att-class="readiness.ready ? 'is-ok' : 'is-warn'"><t t-esc="hardChecks.filter((x) => x.ok).length"/> / <t t-esc="hardChecks.length"/></b></span>
-                        <span class="wof_fe_segs"><t t-foreach="checks" t-as="k" t-key="k.key"><span t-att-class="'is-' + k.state" t-att-title="k.name"/></t></span>
-                        <span t-att-class="'wof_fe_ready_note ' + (readiness.ready ? 'is-ok' : 'is-warn')"><t t-if="readiness.ready">جاهز للتفعيل</t><t t-else="">ينقص: <t t-esc="missingText"/></t></span>
-                    </div>
+                    <span class="wof_sf_rail_title">الخطوات</span>
                     <ol class="wof_sf_steps">
                         <t t-foreach="rail" t-as="r" t-key="r.key">
                             <li>
@@ -309,7 +323,9 @@
                     </ol>
                 </nav>
 
+                <section class="wof_sf_panel">
                 <main class="wof_sf_main">
+                    <span class="wof_sf_stepkicker"><b>الخطوة <t t-esc="stepNum"/> من <t t-esc="flow.length"/></b> <t t-esc="stepName"/></span>
                     <!-- basics -->
                     <t t-if="current === 'basic'">
                         <header class="wof_sf_head"><h2>ما هذا العنصر؟</h2><p>النوع يحدد ما يظهر للموظف في أمر التركيب.</p></header>
@@ -711,18 +727,18 @@
                         </t>
                     </t>
                 </main>
+                <footer class="wof_sf_footer">
+                    <span class="wof_sf_footer_state"><span t-att-class="'wof_sf_state_dot' + (footer.warn ? ' is-warn' : '')"/><span t-esc="footer.text"/></span>
+                    <span class="wof_sf_inline">
+                        <button t-if="prevKey" type="button" class="btn btn-light" t-on-click="() => this.go(prevKey)"><i class="fa fa-arrow-right" aria-hidden="true"/> السابق</button>
+                        <button type="button" class="btn btn-light" t-on-click="close">حفظ والخروج</button>
+                        <button t-if="current !== 'rev'" type="button" class="btn btn-primary" t-on-click="() => this.go(nextKey)"><t t-esc="nextLabel"/> <i class="fa fa-arrow-left" aria-hidden="true"/></button>
+                        <button t-if="current === 'rev' and !d.film.active" type="button" class="btn btn-primary" t-att-disabled="state.busy or !readiness.ready" t-on-click="activate"><i class="fa fa-check" aria-hidden="true"/> تفعيل الفيلم</button>
+                        <button t-if="current === 'rev' and d.film.active and !readiness.ready" type="button" class="btn btn-light" t-att-disabled="state.busy" t-on-click="deactivate">إيقاف الفيلم</button>
+                    </span>
+                </footer>
+                </section>
             </div>
-
-            <footer class="wof_sf_footer">
-                <span class="wof_sf_footer_state"><span t-att-class="'wof_sf_state_dot' + (footer.warn ? ' is-warn' : '')"/><span t-esc="footer.text"/></span>
-                <span class="wof_sf_inline">
-                    <button t-if="prevKey" type="button" class="btn btn-light" t-on-click="() => this.go(prevKey)"><i class="fa fa-arrow-right" aria-hidden="true"/> السابق</button>
-                    <button type="button" class="btn btn-light" t-on-click="close">حفظ والخروج</button>
-                    <button t-if="current !== 'rev'" type="button" class="btn btn-primary" t-on-click="() => this.go(nextKey)"><t t-esc="nextLabel"/> <i class="fa fa-arrow-left" aria-hidden="true"/></button>
-                    <button t-if="current === 'rev' and !d.film.active" type="button" class="btn btn-primary" t-att-disabled="state.busy or !readiness.ready" t-on-click="activate"><i class="fa fa-check" aria-hidden="true"/> تفعيل الفيلم</button>
-                    <button t-if="current === 'rev' and d.film.active and !readiness.ready" type="button" class="btn btn-light" t-att-disabled="state.busy" t-on-click="deactivate">إيقاف الفيلم</button>
-                </span>
-            </footer>
         </div>
     </t>
 

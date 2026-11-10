@@ -298,3 +298,11 @@
 .wof_sf_legend { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; padding: 12px 6px 0; }
 .wof_sf_legend > .wof_sf_muted { flex-basis: 100%; }
 .wof_sf_legend .wof_sf_chip { font-size: calc(11.5px * var(--wof-fs, 0.92)); padding: 2px 9px; }
+.wof_sf_hero h1 small { font-size: calc(13px * var(--wof-fs, 0.92)); font-weight: 600; opacity: .7; margin-inline-start: 6px; }
+button.wof_sf_hero_badge { color: #FFFFFF; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+button.wof_sf_hero_badge:hover { background: rgba(255, 255, 255, .2); }
+.wof_sf_hero_badge.is-muted { opacity: .85; }
+.wof_sf_hero_badge.is-muted .fa, .wof_sf_hero_badge.is-ok .fa-circle { font-size: calc(9px * var(--wof-fs, 0.92)); }
+.wof_sf_hero_title { min-width: 0; }
+.wof_sf_hero h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wof_sf_ring.is-warn { background: conic-gradient(#FBBF24 var(--sf-ring, 0deg), rgba(255, 255, 255, .18) 0); }

@@ -580,15 +580,13 @@ export class WofPricingMatrix extends Component {
         const previous = crumbs.length > 1 ? crumbs[crumbs.length - 2] : null;
         const canGoBack = Boolean(previous && previous.jsId);
         if (this.returnToEditor) {
-            // Opened from the film editor: go back to the page underneath, wait until
-            // it is shown (historyBack does not wait), then reopen the editor on top.
+            // Opened from the film editor page: going back shows it again on its price step.
             if (canGoBack) {
-                await this.action.restore(previous.jsId);
+                return this.action.restore(previous.jsId);
             }
             return this.action.doAction({
-                type: "ir.actions.client", tag: "wof_film_editor", target: "new",
+                type: "ir.actions.client", tag: "wof_film_editor", target: "current",
                 params: { film_id: this.filmId, step: "price" },
-                context: { dialog_size: "extra-large" },
             });
         }
         if (canGoBack) {

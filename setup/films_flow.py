@@ -898,8 +898,7 @@ class WofFilmCategoryFlow(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.client', 'tag': 'wof_film_editor', 'name': self.name,
-            'target': 'new', 'params': {'film_id': self.id, 'step': step or False},
-            'context': {'dialog_size': 'extra-large'},
+            'target': 'current', 'params': {'film_id': self.id, 'step': step or False},
         }
 
     def action_configure(self):

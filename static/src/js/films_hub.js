@@ -23,9 +23,8 @@ const PREF_GROUPS = [
 const editorAction = (filmId) => ({
     type: "ir.actions.client",
     tag: "wof_film_editor",
-    target: "new",
+    target: "current",
     params: { film_id: filmId },
-    context: { dialog_size: "extra-large" },
 });
 
 export class WofFilmsHub extends Component {
@@ -163,7 +162,7 @@ export class WofFilmsHub extends Component {
 
     // ------------------------------------------------------------ actions
     openEditor(film) {
-        return this.action.doAction(editorAction(film.id), { onClose: () => this.load() });
+        return this.action.doAction(editorAction(film.id));
     }
 
     openMatrix(film) {
