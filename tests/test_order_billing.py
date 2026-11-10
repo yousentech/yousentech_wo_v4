@@ -218,3 +218,24 @@ class TestOrderBilling(TransactionCase):
         order.cancellation_reason = 'تجربة'
         with self.assertRaises(ValidationError):
             order.action_cancel()
+
+    # ------------------------------------------------- add-service picker
+    def test_catalog_and_add_services(self):
+        partner = self.root['res.partner'].create({'name': 'عميل الكتالوج', 'mobile': '0500000009'})
+        size = self.env['wof.car.size'].search([], limit=1)
+        order = self.env['wof.installation.order'].create({
+            'partner_id': partner.id, 'vehicle_plate': 'CAT 1', 'car_size_id': size.id,
+        })
+        catalog = order.wof_service_catalog()
+        films = [film for act in catalog['activities'] for film in act['films']]
+        film = next(film for film in films if film['id'] == self.film.id)
+        comp = next(comp for comp in film['comps'] if comp['id'] == self.part.id)
+        self.assertEqual(comp['price'], 500)
+        self.assertFalse(comp['added'])
+        order.wof_add_services([{'film_id': self.film.id, 'part_id': self.part.id}])
+        self.assertEqual(len(order.line_ids), 1)
+        self.assertEqual(order.line_ids.unit_price, 500)
+        self.assertEqual(order.line_ids.film_product_id, self.roll)
+        catalog = order.wof_service_catalog()
+        film = next(film for act in catalog['activities'] for film in act['films'] if film['id'] == self.film.id)
+        self.assertTrue(next(comp for comp in film['comps'] if comp['id'] == self.part.id)['added'])

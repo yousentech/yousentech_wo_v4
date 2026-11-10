@@ -26,7 +26,7 @@ AUTO_POST_GROUP = 'yousentech_sale_invoice_automation.post_create_invoice_from_s
 LOCKED_LINE_FIELDS = {
     'service_type_id', 'film_category_id', 'film_category_line_id', 'car_part_id',
     'film_product_id', 'film_product_qty', 'quantity', 'discount_type', 'discount_value',
-    'use_manual_price', 'manual_unit_price',
+    'use_manual_price', 'manual_unit_price', 'service_area_template_id',
 }
 
 

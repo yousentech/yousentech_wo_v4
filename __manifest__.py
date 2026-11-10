@@ -64,6 +64,8 @@
         'yousentech_wo_v4/static/src/js/films_hub.js',
         'yousentech_wo_v4/static/src/js/film_editor.js',
         'yousentech_wo_v4/static/src/xml/films_flow.xml',
+        'yousentech_wo_v4/static/src/js/order_add_services.js',
+        'yousentech_wo_v4/static/src/xml/order_add_services.xml',
     ]},
     'pre_init_hook': 'pre_init_hook',
     'installable': True,

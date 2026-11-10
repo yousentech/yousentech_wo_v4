@@ -88,6 +88,12 @@
                                    string="مكوّن الخدمة"
                                    readonly="order_state not in ('draft', 'scheduled')"
                                    options="{'no_create': True}"/>
+                            <field name="part_kind" invisible="1"/>
+                            <field name="service_area_template_id"
+                                   invisible="part_kind != 'service_area'"
+                                   readonly="order_state not in ('draft', 'scheduled')"
+                                   options="{'no_create': True}"/>
+                            <field name="template_part_names" invisible="part_kind != 'service_area'" readonly="1"/>
                             <field name="film_category_line_id"
                                    invisible="not supports_color_grades"
                                    readonly="order_state not in ('draft', 'scheduled')"
@@ -448,195 +454,11 @@
 
                     <field name="wof_hidden_fields" invisible="1"/>
                     <field name="wof_required_fields" invisible="1"/>
-                    <div class="wof_order_layout">
-                        <div class="wof_order_main">
-                    <notebook>
-                        <page string="الخدمات والتسعير" name="services">
-                            <div class="wof_order_hint">السعر يُطبَّق تلقائيًا حسب حجم السيارة. اضغط بطاقة الخدمة لتفاصيلها: الدرجة، والصنف المخزني، والخصم، والفنيين.</div>
-                            <field name="line_ids" mode="kanban"
-                                   class="wof_line_cards"
-                                   add-label="إضافة خدمة"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   context="{'default_company_id': company_id}">
-                                <kanban class="wof_line_kanban">
-                                    <field name="company_id" invisible="1"/>
-                                    <field name="available_car_part_ids" invisible="1"/>
-                                    <field name="available_grade_ids" invisible="1"/>
-                                    <field name="activity_type"/>
-                                    <field name="part_kind"/>
-                                    <field name="service_type_id"/>
-                                    <field name="film_category_id"/>
-                                    <field name="car_part_id"/>
-                                    <field name="film_category_line_id"/>
-                                    <field name="film_product_id"/>
-                                    <field name="film_product_qty"/>
-                                    <field name="film_uses_inventory"/>
-                                    <field name="unit_price"/>
-                                    <field name="amount_total"/>
-                                    <field name="discount_amount"/>
-                                    <field name="price_source_note"/>
-                                    <field name="currency_id"/>
-                                    <templates>
-                                        <t t-name="kanban-box">
-                                            <div t-attf-class="oe_kanban_global_click wof_line_card wof_act_{{ record.activity_type.raw_value or 'others' }} {{ record.part_kind.raw_value == 'service_area' ? 'is-area' : '' }}">
-                                                <div class="wof_line_body">
-                                                    <div class="wof_line_tags">
-                                                        <span class="wof_line_act"><i class="wof_line_dot"/><field name="service_type_id"/></span>
-                                                        <span t-if="record.part_kind.raw_value == 'service_area'" class="wof_line_kind is-area">منطقة خدمة</span>
-                                                        <span t-else="" class="wof_line_kind">جزء</span>
-                                                    </div>
-                                                    <strong class="wof_line_title"><field name="film_category_id"/> <span>· <field name="car_part_id"/></span></strong>
-                                                    <div class="wof_line_meta">
-                                                        <span t-if="record.film_category_line_id.raw_value" class="wof_line_chip">الدرجة <b><field name="film_category_line_id"/></b></span>
-                                                        <span t-if="record.film_uses_inventory.raw_value and record.film_product_id.raw_value" class="wof_line_chip is-stock"><i class="fa fa-cube" title="الصنف المخزني"/> <field name="film_product_id"/> · <field name="film_product_qty"/></span>
-                                                        <span t-if="record.film_uses_inventory.raw_value and !record.film_product_id.raw_value" class="wof_line_chip is-warn">بدون صنف مخزني</span>
-                                                    </div>
-                                                </div>
-                                                <div class="wof_line_price">
-                                                    <b><field name="unit_price" widget="monetary"/></b>
-                                                    <small><field name="price_source_note"/></small>
-                                                    <small t-if="record.discount_amount.raw_value" class="wof_line_disc">خصم <field name="discount_amount" widget="monetary"/></small>
-                                                    <span class="wof_line_open">التفاصيل</span>
-                                                </div>
-                                            </div>
-                                        </t>
-                                    </templates>
-                                </kanban>
-                            </field>
-                            <group class="wof_order_totals">
-                                <field name="amount_untaxed" readonly="1"/>
-                                <field name="amount_discount" readonly="1"/>
-                                <field name="amount_tax" readonly="1"/>
-                                <field name="amount_total" readonly="1"/>
-                                <field name="order_discount_percent"
-                                       invisible="discount_scope != 'order'"
-                                       readonly="state not in ('draft', 'scheduled')"/>
-                            </group>
-                        </page>
-
-                        <page string="الاستلام والفحص" name="intake">
-                            <div class="wof_order_section_intro">
-                                وثّق حالة السيارة قبل بدء العمل. عند وجود ضرر سابق تصبح الملاحظة إلزامية.
-                            </div>
-                            <group>
-                                <group>
-                                    <field name="odometer"
-                                           readonly="state not in ('draft', 'scheduled')"
-                                   invisible="',odometer,' in wof_hidden_fields"
-                                   required="',odometer,' in wof_required_fields and state == 'scheduled'"/>
-                                    <field name="intake_condition"
-                                           readonly="state not in ('draft', 'scheduled')"/>
-                                    <field name="sticker_removal"
-                                           readonly="state not in ('draft', 'scheduled')"
-                                           invisible="',sticker_removal,' in wof_hidden_fields"
-                                           required="',sticker_removal,' in wof_required_fields and state == 'scheduled'"/>
-                                    <field name="intake_notes"
-                                           readonly="state not in ('draft', 'scheduled')"/>
-                                </group>
-                                <group>
-                                    <field name="arrival_confirmed_at" readonly="1"/>
-                                    <field name="intake_completed_at" readonly="1"/>
-                                </group>
-                            </group>
-                        </page>
-
-                        <page string="التنفيذ" name="execution">
-                            <group>
-                                <group>
-                                    <field name="execution_progress" widget="progressbar" readonly="1"/>
-                                    <field name="execution_started_at" readonly="1"/>
-                                    <field name="execution_completed_at" readonly="1"/>
-                                    <field name="completion_date"
-                                           readonly="state not in ('quality', 'ready')"
-                                           invisible="',completion_date,' in wof_hidden_fields"
-                                           required="',completion_date,' in wof_required_fields and state == 'ready'"/>
-                                </group>
-                                <group>
-                                    <field name="execution_notes"
-                                           readonly="state not in ('in_progress', 'quality')"/>
-                                </group>
-                            </group>
-                            <separator string="تقدم الخدمات"/>
-                            <field name="line_ids" mode="tree,form"
-                                   readonly="state != 'in_progress'"
-                                   context="{'tree_view_ref': 'yousentech_wo_v4.view_wof_installation_order_line_execution_tree'}"/>
-                            <separator string="المواد المستخدمة"/>
-                            <div class="alert alert-warning" role="status">
-                                يسجل هذا القسم الاستهلاك التشغيلي الآن. إنشاء حركات المخزون الفعلية مؤجل لمرحلة تكامل المخزون.
-                            </div>
-                            <field name="material_line_ids" mode="tree"
-                                   readonly="state != 'in_progress'"/>
-                        </page>
-
-                        <page string="الجودة والتسليم" name="quality_delivery">
-                            <group>
-                                <group string="فحص الجودة">
-                                    <field name="quality_passed"
-                                           readonly="state != 'quality'"/>
-                                    <field name="quality_notes"
-                                           readonly="state != 'quality'"/>
-                                    <field name="quality_checked_at" readonly="1"/>
-                                    <field name="quality_checked_by_id" readonly="1"/>
-                                </group>
-                                <group string="التسليم">
-                                    <field name="customer_approved"
-                                           readonly="state != 'ready'"/>
-                                    <field name="customer_approval_reference"
-                                           readonly="state != 'ready'"/>
-                                    <field name="delivery_notes"
-                                           readonly="state != 'ready'"/>
-                                    <field name="delivered_at" readonly="1"/>
-                                    <field name="delivered_by_id" readonly="1"/>
-                                </group>
-                            </group>
-                            <group string="الضمان والروابط">
-                                <field name="warranty_status" readonly="1"/>
-                                <field name="warranty_reference" readonly="1"/>
-                                <field name="sale_order_id" readonly="1"/>
-                                <field name="invoice_id" readonly="1"/>
-                            </group>
-                        </page>
-
-                        <page string="الصور والمرفقات" name="attachments">
-                            <group>
-                                <group string="قبل التنفيذ">
-                                    <field name="before_attachment_ids"
-                                           widget="many2many_binary"
-                                           readonly="state not in ('draft', 'scheduled')"/>
-                                </group>
-                                <group string="بعد التنفيذ">
-                                    <field name="after_attachment_ids"
-                                           widget="many2many_binary"
-                                           readonly="state not in ('in_progress', 'quality')"/>
-                                </group>
-                            </group>
-                        </page>
-
-                        <page string="خيارات متقدمة" name="advanced">
-                            <group>
-                                <group string="الإلغاء"
-                                       groups="yousentech_wo_v4.group_wo_supervisor">
-                                    <field name="cancellation_reason"
-                                           readonly="state in ('delivered', 'cancelled')"/>
-                                    <field name="cancelled_at" readonly="1"/>
-                                    <field name="cancelled_by_id" readonly="1"/>
-                                </group>
-                                <group string="التكامل والتدقيق">
-                                    <field name="public_uuid" readonly="1"/>
-                                    <field name="operation_source" readonly="1"/>
-                                    <field name="created_by_id" readonly="1"/>
-                                    <field name="idempotency_key" readonly="1"/>
-                                </group>
-                            </group>
-                        </page>
-
-                        <page string="السجل الزمني" name="timeline">
-                            <field name="event_ids" mode="tree" readonly="1"/>
-                        </page>
-                    </notebook>
-                        </div>
-                        <div class="wof_order_side">
-                    <div class="wof_order_cards">
+                    <div class="wof_order_main">
+                    <notebook class="wof_order_steps">
+                        <page string="1 · العميل والسيارة" name="customer">
+                            <div class="wof_order_step_head"><h2>العميل والسيارة</h2><p>بيانات الأمر الأساسية. الحقول المعلّمة بنجمة مطلوبة عند تأكيد الأمر.</p></div>
+                            <div class="wof_order_cards">
                         <group class="wof_order_card" string="العميل والتواصل">
                             <field name="partner_id"
                                    readonly="state not in ('draft', 'scheduled')"
@@ -722,8 +544,166 @@
                                    required="',technician,' in wof_required_fields and state == 'intake'"/>
                         </group>
                     </div>
+                        </page>
+                        
+                        <page string="2 · الخدمات" name="services">
+                            <div class="wof_order_step_head"><h2>الخدمات</h2><p>السعر يُطبَّق تلقائيًا حسب حجم السيارة. اضغط بطاقة الخدمة لتفاصيلها: الدرجة، والصنف المخزني، والخصم، والفنيين.</p></div>
+                            <button name="action_open_add_services" type="object" string="إضافة خدمة" icon="fa-plus"
+                                    class="btn btn-primary wof_order_add"
+                                    invisible="state not in ('draft', 'scheduled')"/>
+                            <field name="line_ids" mode="kanban"
+                                   class="wof_line_cards"
+                                   add-label="إضافة خدمة يدويًا"
+                                   readonly="state not in ('draft', 'scheduled')"
+                                   context="{'default_company_id': company_id}">
+                                <kanban class="wof_line_kanban" create="0">
+                                    <field name="company_id" invisible="1"/>
+                                    <field name="available_car_part_ids" invisible="1"/>
+                                    <field name="available_grade_ids" invisible="1"/>
+                                    <field name="activity_type"/>
+                                    <field name="part_kind"/>
+                                    <field name="service_type_id"/>
+                                    <field name="film_category_id"/>
+                                    <field name="car_part_id"/>
+                                    <field name="film_category_line_id"/>
+                                    <field name="film_product_id"/>
+                                    <field name="film_product_qty"/>
+                                    <field name="film_uses_inventory"/>
+                                    <field name="unit_price"/>
+                                    <field name="amount_total"/>
+                                    <field name="discount_amount"/>
+                                    <field name="price_source_note"/>
+                                    <field name="currency_id"/>
+                                    <field name="service_area_template_id"/>
+                                    <field name="template_part_names"/>
+                                    <templates>
+                                        <t t-name="kanban-box">
+                                            <div t-attf-class="oe_kanban_global_click wof_line_card wof_act_{{ record.activity_type.raw_value or 'others' }} {{ record.part_kind.raw_value == 'service_area' ? 'is-area' : '' }}">
+                                                <div class="wof_line_body">
+                                                    <div class="wof_line_tags">
+                                                        <span class="wof_line_act"><i class="wof_line_dot"/><field name="service_type_id"/></span>
+                                                        <span t-if="record.part_kind.raw_value == 'service_area'" class="wof_line_kind is-area">منطقة خدمة</span>
+                                                        <span t-else="" class="wof_line_kind">جزء</span>
+                                                    </div>
+                                                    <strong class="wof_line_title"><field name="film_category_id"/> <span>· <field name="car_part_id"/></span></strong>
+                                                    <div t-if="record.part_kind.raw_value == 'service_area' and record.template_part_names.raw_value" class="wof_line_tpl">
+                                                        النموذج <b><field name="service_area_template_id"/></b>: <field name="template_part_names"/>
+                                                    </div>
+                                                    <div class="wof_line_meta">
+                                                        <span t-if="record.film_category_line_id.raw_value" class="wof_line_chip">الدرجة <b><field name="film_category_line_id"/></b></span>
+                                                        <span t-if="record.film_uses_inventory.raw_value and record.film_product_id.raw_value" class="wof_line_chip is-stock"><i class="fa fa-cube" title="الصنف المخزني"/> <field name="film_product_id"/> · <field name="film_product_qty"/></span>
+                                                        <span t-if="record.film_uses_inventory.raw_value and !record.film_product_id.raw_value" class="wof_line_chip is-warn">بدون صنف مخزني</span>
+                                                    </div>
+                                                </div>
+                                                <div class="wof_line_price">
+                                                    <b><field name="unit_price" widget="monetary"/></b>
+                                                    <small><field name="price_source_note"/></small>
+                                                    <small t-if="record.discount_amount.raw_value" class="wof_line_disc">خصم <field name="discount_amount" widget="monetary"/></small>
+                                                    <span class="wof_line_open">التفاصيل</span>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+                            <group class="wof_order_totals">
+                                <field name="amount_untaxed" readonly="1"/>
+                                <field name="amount_discount" readonly="1"/>
+                                <field name="amount_tax" readonly="1"/>
+                                <field name="amount_total" readonly="1"/>
+                                <field name="order_discount_percent"
+                                       invisible="discount_scope != 'order'"
+                                       readonly="state not in ('draft', 'scheduled')"/>
+                            </group>
+                        </page>
 
-                            <group class="wof_order_card wof_order_pay" string="الدفع" invisible="amount_total == 0">
+                        <page string="3 · الاستلام والفحص" name="intake">
+                            <div class="wof_order_section_intro">
+                                وثّق حالة السيارة قبل بدء العمل. عند وجود ضرر سابق تصبح الملاحظة إلزامية.
+                            </div>
+                            <group>
+                                <group>
+                                    <field name="odometer"
+                                           readonly="state not in ('draft', 'scheduled')"
+                                   invisible="',odometer,' in wof_hidden_fields"
+                                   required="',odometer,' in wof_required_fields and state == 'scheduled'"/>
+                                    <field name="intake_condition"
+                                           readonly="state not in ('draft', 'scheduled')"/>
+                                    <field name="sticker_removal"
+                                           readonly="state not in ('draft', 'scheduled')"
+                                           invisible="',sticker_removal,' in wof_hidden_fields"
+                                           required="',sticker_removal,' in wof_required_fields and state == 'scheduled'"/>
+                                    <field name="intake_notes"
+                                           readonly="state not in ('draft', 'scheduled')"/>
+                                </group>
+                                <group>
+                                    <field name="arrival_confirmed_at" readonly="1"/>
+                                    <field name="intake_completed_at" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="4 · التنفيذ" name="execution">
+                            <group>
+                                <group>
+                                    <field name="execution_progress" widget="progressbar" readonly="1"/>
+                                    <field name="execution_started_at" readonly="1"/>
+                                    <field name="execution_completed_at" readonly="1"/>
+                                    <field name="completion_date"
+                                           readonly="state not in ('quality', 'ready')"
+                                           invisible="',completion_date,' in wof_hidden_fields"
+                                           required="',completion_date,' in wof_required_fields and state == 'ready'"/>
+                                </group>
+                                <group>
+                                    <field name="execution_notes"
+                                           readonly="state not in ('in_progress', 'quality')"/>
+                                </group>
+                            </group>
+                            <separator string="تقدم الخدمات"/>
+                            <field name="line_ids" mode="tree,form"
+                                   readonly="state != 'in_progress'"
+                                   context="{'tree_view_ref': 'yousentech_wo_v4.view_wof_installation_order_line_execution_tree'}"/>
+                            <separator string="المواد المستخدمة"/>
+                            <div class="alert alert-warning" role="status">
+                                يسجل هذا القسم الاستهلاك التشغيلي الآن. إنشاء حركات المخزون الفعلية مؤجل لمرحلة تكامل المخزون.
+                            </div>
+                            <field name="material_line_ids" mode="tree"
+                                   readonly="state != 'in_progress'"/>
+                        </page>
+
+                        <page string="5 · الجودة والتسليم" name="quality_delivery">
+                            <group>
+                                <group string="فحص الجودة">
+                                    <field name="quality_passed"
+                                           readonly="state != 'quality'"/>
+                                    <field name="quality_notes"
+                                           readonly="state != 'quality'"/>
+                                    <field name="quality_checked_at" readonly="1"/>
+                                    <field name="quality_checked_by_id" readonly="1"/>
+                                </group>
+                                <group string="التسليم">
+                                    <field name="customer_approved"
+                                           readonly="state != 'ready'"/>
+                                    <field name="customer_approval_reference"
+                                           readonly="state != 'ready'"/>
+                                    <field name="delivery_notes"
+                                           readonly="state != 'ready'"/>
+                                    <field name="delivered_at" readonly="1"/>
+                                    <field name="delivered_by_id" readonly="1"/>
+                                </group>
+                            </group>
+                            <group string="الضمان والروابط">
+                                <field name="warranty_status" readonly="1"/>
+                                <field name="warranty_reference" readonly="1"/>
+                                <field name="sale_order_id" readonly="1"/>
+                                <field name="invoice_id" readonly="1"/>
+                            </group>
+                        </page>
+
+                        <page string="6 · الدفع والفوترة" name="billing">
+                            <div class="wof_order_step_head"><h2>الدفع والفوترة</h2><p>الدفعات على الأمر، ثم أمر البيع والشحنة والفاتورة حسب تهيئة النظام.</p></div>
+                            <div class="wof_order_cards is-two">
+                                <group class="wof_order_card wof_order_pay" string="الدفع" >
                                 <field name="payment_status" widget="badge" readonly="1"
                                        decoration-success="payment_status == 'paid'"
                                        decoration-warning="payment_status == 'partial'"/>
@@ -737,7 +717,50 @@
                                             class="btn btn-light" invisible="not payment_count"/>
                                 </div>
                             </group>
-                        </div>
+                                <group class="wof_order_card" string="أمر البيع والفاتورة">
+                                    <field name="sale_order_id" readonly="1" string="أمر البيع"/>
+                                    <field name="picking_count" readonly="1" string="الشحنات"/>
+                                    <field name="invoice_id" readonly="1" string="الفاتورة"/>
+                                </group>
+                            </div>
+                        </page>
+                        <page string="الصور والمرفقات" name="attachments">
+                            <group>
+                                <group string="قبل التنفيذ">
+                                    <field name="before_attachment_ids"
+                                           widget="many2many_binary"
+                                           readonly="state not in ('draft', 'scheduled')"/>
+                                </group>
+                                <group string="بعد التنفيذ">
+                                    <field name="after_attachment_ids"
+                                           widget="many2many_binary"
+                                           readonly="state not in ('in_progress', 'quality')"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="خيارات متقدمة" name="advanced">
+                            <group>
+                                <group string="الإلغاء"
+                                       groups="yousentech_wo_v4.group_wo_supervisor">
+                                    <field name="cancellation_reason"
+                                           readonly="state in ('delivered', 'cancelled')"/>
+                                    <field name="cancelled_at" readonly="1"/>
+                                    <field name="cancelled_by_id" readonly="1"/>
+                                </group>
+                                <group string="التكامل والتدقيق">
+                                    <field name="public_uuid" readonly="1"/>
+                                    <field name="operation_source" readonly="1"/>
+                                    <field name="created_by_id" readonly="1"/>
+                                    <field name="idempotency_key" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="السجل الزمني" name="timeline">
+                            <field name="event_ids" mode="tree" readonly="1"/>
+                        </page>
+                    </notebook>
                     </div>
                 </sheet>
                 <chatter/>

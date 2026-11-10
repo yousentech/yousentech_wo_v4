@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="yousentech_wo_v4.OrderAddServices">
+        <div class="wof_as" t-ref="root" dir="rtl">
+            <t t-set="d" t-value="state.data"/>
+            <div class="wof_as_head">
+                <div>
+                    <h2>إضافة خدمة</h2>
+                    <p>ثلاث نقرات: النشاط، ثم الفيلم، ثم المكوّن. السعر حسب حجم السيارة <b t-esc="d.order.size or '—'"/>.</p>
+                </div>
+            </div>
+
+            <div t-if="!d.activities.length" class="wof_as_empty">لا توجد أفلام أو خدمات جاهزة. أكمل تهيئة الأفلام من صفحة «الأفلام والخدمات».</div>
+            <div t-else="" class="wof_as_body">
+
+                <!-- 1. activity -->
+                <section class="wof_as_step">
+                    <span class="wof_as_step_title"><span class="wof_as_n">1</span> النشاط</span>
+                    <div class="wof_as_grid" role="radiogroup" aria-label="النشاط">
+                        <t t-foreach="activities" t-as="a" t-key="a.id">
+                            <button type="button" role="radio" t-att-aria-checked="a.on ? 'true' : 'false'" t-attf-class="wof_as_tile {{ a.on ? 'is-on' : '' }}" t-on-click="() => this.pickActivity(a)">
+                                <span class="wof_as_dot" t-attf-style="background: {{ a.color }}"/>
+                                <span class="wof_as_tile_text"><b t-esc="a.name"/><small><t t-esc="a.films.length"/> جاهزة</small></span>
+                            </button>
+                        </t>
+                    </div>
+                </section>
+
+                <!-- 2. film -->
+                <section class="wof_as_step">
+                    <span class="wof_as_step_title"><span class="wof_as_n">2</span> الفيلم أو الخدمة</span>
+                    <div class="wof_as_grid" role="radiogroup" aria-label="الفيلم">
+                        <t t-foreach="films" t-as="f" t-key="f.id">
+                            <button type="button" role="radio" t-att-aria-checked="f.on ? 'true' : 'false'" t-attf-class="wof_as_tile is-col {{ f.on ? 'is-on' : '' }}" t-on-click="() => this.pickFilm(f)">
+                                <b t-esc="f.name"/>
+                                <small t-if="f.description" t-esc="f.description"/>
+                                <span t-if="f.from !== null" class="wof_as_from">من <t t-esc="fmt(f.from)"/> <t t-esc="d.currency"/></span>
+                            </button>
+                        </t>
+                    </div>
+                </section>
+
+                <!-- 3. components -->
+                <section class="wof_as_step">
+                    <span class="wof_as_step_title"><span class="wof_as_n">3</span> المكوّن <small>اختر جزءًا أو أكثر، أو منطقة خدمة</small></span>
+                    <div class="wof_as_grid is-3">
+                        <t t-foreach="comps" t-as="c" t-key="c.id">
+                            <button type="button" t-att-aria-pressed="c.on ? 'true' : 'false'" t-att-disabled="c.added or c.price === null"
+                                    t-attf-class="wof_as_tile {{ c.on ? 'is-on' : '' }} {{ c.added ? 'is-added' : '' }}" t-on-click="() => this.toggleComp(c)">
+                                <span t-attf-class="wof_as_box {{ c.on ? 'is-on' : '' }}"><i t-if="c.on" class="fa fa-check" aria-hidden="true"/></span>
+                                <span class="wof_as_tile_text">
+                                    <b t-esc="c.name"/>
+                                    <small t-if="c.added">مضاف للأمر</small>
+                                    <small t-elif="c.price === null" class="is-warn">بدون سعر لهذا الحجم</small>
+                                    <small t-elif="c.area" class="is-area">منطقة خدمة<t t-if="c.templates.length > 1"> · <t t-esc="c.templates.length"/> نماذج</t></small>
+                                    <small t-else="">جزء</small>
+                                </span>
+                                <b t-if="c.price !== null" class="wof_as_price"><t t-if="c.price">
+                                    <t t-esc="fmt(c.price)"/></t><t t-else="">مجاني</t></b>
+                            </button>
+                        </t>
+                    </div>
+
+                    <!-- template of each chosen service area -->
+                    <t t-foreach="chosenAreas" t-as="row" t-key="row.key">
+                        <div class="wof_as_tpl">
+                            <span class="wof_as_tpl_title">نموذج «<t t-esc="row.comp.name"/>» <small>— يأتي الافتراضي، وتقدر تغيّره</small></span>
+                            <div class="wof_as_tpl_opts" role="radiogroup" t-att-aria-label="'نموذج ' + row.comp.name">
+                                <t t-foreach="row.comp.templates" t-as="t" t-key="t.id">
+                                    <button type="button" role="radio" t-att-aria-checked="row.tpl and row.tpl.id === t.id ? 'true' : 'false'"
+                                            t-attf-class="wof_as_tpl_opt {{ row.tpl and row.tpl.id === t.id ? 'is-on' : '' }}" t-on-click="() => this.pickTemplate(row, t)">
+                                        <t t-esc="t.name"/><small t-if="t.is_default"> (افتراضي)</small>
+                                    </button>
+                                </t>
+                            </div>
+                            <div t-if="row.tpl" class="wof_as_parts">
+                                <t t-foreach="row.tpl.parts" t-as="p" t-key="p_index"><span t-esc="p"/></t>
+                            </div>
+                        </div>
+                    </t>
+                </section>
+            </div>
+
+            <footer class="wof_as_foot">
+                <div class="wof_as_sum">
+                    <small t-esc="summary"/>
+                    <b><t t-if="chosen.length"><t t-esc="fmt(total)"/> <t t-esc="d.currency"/> · <t t-esc="chosen.length"/> خدمة</t><t t-else="">—</t></b>
+                </div>
+                <div class="wof_as_actions">
+                    <button type="button" class="btn btn-light" t-on-click="close"><t t-if="state.added">تم</t><t t-else="">إلغاء</t></button>
+                    <button type="button" class="btn btn-light" t-att-disabled="!chosen.length or state.busy" t-on-click="() => this.submit(true)">إضافة وأخرى</button>
+                    <button type="button" class="btn btn-primary" t-att-disabled="!chosen.length or state.busy" t-on-click="() => this.submit(false)">إضافة للأمر</button>
+                </div>
+            </footer>
+        </div>
+    </t>
+
+</templates>
