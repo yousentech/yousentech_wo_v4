@@ -82,6 +82,8 @@ class WofInstallationOrderStock(models.Model):
 class WofInstallationOrderLineStock(models.Model):
     _inherit = 'wof.installation.order.line'
 
+    activity_type = fields.Selection(related='service_type_id.service_options', string='نوع النشاط')
+    part_kind = fields.Selection(related='car_part_id.part_type', string='نوع المكوّن')
     film_uses_inventory = fields.Boolean(related='film_category_id.is_effected_in_inventory')
     film_product_required = fields.Boolean(related='film_category_id.car_film_product_required')
     film_product_qty = fields.Float(string='كمية الصنف المخزني', default=1.0, digits='Product Unit of Measure')
