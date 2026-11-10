@@ -33,6 +33,7 @@ export class WofFilmEditor extends Component {
             draft: {}, picker: { open: false, query: "", results: [] }, tintEdit: null,
             adder: null, form: null, expanded: {}, tplOpen: {}, drag: null,
             discountLimit: "",
+            stockPick: { target: null, query: "", results: [] },
         });
         onWillStart(async () => {
             this.setData(await this.orm.call(MODEL, "wof_film_load", [[this.filmId]]));
@@ -774,6 +775,40 @@ export class WofFilmEditor extends Component {
         if (value !== this.state.data.policies.discount.limit) {
             return this.setPolicy("discount", { enabled: true, limit: value });
         }
+    }
+
+    // ------------------------------------------------------- stock product
+    async openStockPick(target) {
+        this.state.stockPick = { target, query: "", results: [] };
+        await this.searchStock("");
+    }
+
+    closeStockPick() {
+        this.state.stockPick = { target: null, query: "", results: [] };
+    }
+
+    onStockQuery(ev) {
+        const query = ev.target.value;
+        this.state.stockPick.query = query;
+        clearTimeout(this.stockTimer);
+        this.stockTimer = setTimeout(() => this.searchStock(query), 250);
+    }
+
+    async searchStock(query) {
+        const target = this.state.stockPick.target;
+        const results = await this.orm.call(MODEL, "wof_stock_products_search", [query]);
+        if (this.state.stockPick.target === target && this.state.stockPick.query === query) {
+            this.state.stockPick.results = results;
+        }
+    }
+
+    async setStockProduct(target, productId) {
+        const payload = { product_id: productId || false };
+        if (target !== "film") {
+            payload.grade_id = target;
+        }
+        this.closeStockPick();
+        await this.apply("stock_product", payload);
     }
 
     // ------------------------------------------------------------- price

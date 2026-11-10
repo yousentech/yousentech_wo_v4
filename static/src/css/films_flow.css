@@ -422,3 +422,27 @@ html[data-wof-density="compact"] .wof_fh_inner { padding: 20px 24px 36px; gap: 1
 .wof_fe_panel_actions { display: inline-flex; gap: 8px; order: 3; }
 .wof_fe .wof_fe_panel_actions .btn { min-height: 34px; padding: 0 14px; }
 .wof_fe_panel { overflow: visible; }
+
+/* Stock product picker (film default and per tint grade). */
+.wof_fe_stock { flex-wrap: wrap; }
+.wof_fe_stockpick { position: relative; display: flex; align-items: center; gap: 6px; min-width: 260px; max-width: 360px; flex: 0 1 320px; }
+.wof_fe_stockpick > .wof_sf_input { height: 40px; }
+.wof_fe_stockpick_btn {
+    flex: 1; min-width: 0; min-height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px;
+    border: 1.5px dashed #B7CFCD; border-radius: 10px; background: #FFFFFF; color: var(--sf-ink); font-weight: 600; text-align: start;
+}
+.wof_fe_stockpick_btn > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wof_fe_stockpick_btn.is-set { border-style: solid; border-color: #BFDDDA; background: var(--sf-teal-tint); }
+.wof_fe_stockpick_btn .fa-cube { color: var(--sf-teal); }
+.wof_fe_stockpick_edit { color: var(--sf-muted); font-size: 12px; }
+.wof_fe_stockpick_menu {
+    position: absolute; top: calc(100% + 4px); inset-inline: 0; z-index: 20; max-height: 260px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 2px; padding: 6px; background: #FFFFFF;
+    border: 1px solid var(--sf-line); border-radius: 12px; box-shadow: 0 10px 28px rgba(15, 25, 35, .12);
+}
+.wof_fe_stockpick_opt { border: 0; background: transparent; text-align: start; padding: 8px 10px; border-radius: 8px; font-weight: 600; color: var(--sf-ink); }
+.wof_fe_stockpick_opt:hover { background: var(--sf-teal-tint); }
+.wof_fe_grade_stock { display: flex; flex-direction: column; gap: 8px; margin-inline-start: 24px; padding: 14px 16px; border: 1px solid var(--sf-line); border-radius: 14px; background: #FAFCFC; }
+.wof_fe_grade_stock_head { font-weight: 700; font-size: calc(13.5px * var(--wof-fs, 0.92)); }
+.wof_fe_grade_stock_row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.wof_fe_grade_chip { min-width: 56px; text-align: center; padding: 6px 12px; border-radius: 10px; background: #FFFFFF; border: 1px solid var(--sf-line); font-weight: 800; font-variant-numeric: tabular-nums; }

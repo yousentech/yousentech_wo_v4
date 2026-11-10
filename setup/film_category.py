@@ -31,6 +31,11 @@ class FilmCategory(models.Model):
     warranty_years = fields.Integer(string="سنوات الضمان", default=5)
     is_effected_in_inventory = fields.Boolean(string="يصرف مواد من المخزون")
     car_film_product_required = fields.Boolean(string="اختيار المنتج المخزني إلزامي")
+    default_product_id = fields.Many2one(
+        'product.product', string="الصنف المخزني الافتراضي", ondelete='restrict',
+        domain="[('type', 'in', ('product', 'consu'))]",
+        help="يُقترح في أمر التركيب عند صرف الفيلم من المخزون، ما لم تحدد درجة اللون صنفًا مخصصًا.",
+    )
     warning_msg = fields.Char(string="رسالة تنبيه")
     active = fields.Boolean(default=True)
 

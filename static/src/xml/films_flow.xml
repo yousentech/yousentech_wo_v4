@@ -12,6 +12,33 @@
         </nav>
     </t>
 
+    <!-- Film editor: pick a stock product (film default or a tint grade's own). -->
+    <t t-name="yousentech_wo_v4.FilmEditor.StockPick">
+        <div class="wof_fe_stockpick">
+            <t t-if="state.stockPick.target === pickTarget">
+                <input class="wof_sf_input" placeholder="ابحث بالاسم أو الكود أو الباركود" aria-label="بحث عن صنف مخزني"
+                       t-att-value="state.stockPick.query" t-on-input="(ev) => this.onStockQuery(ev)"
+                       t-on-keydown="(ev) => ev.key === 'Escape' and this.closeStockPick()"/>
+                <div class="wof_fe_stockpick_menu" role="listbox">
+                    <t t-foreach="state.stockPick.results" t-as="p" t-key="p.id">
+                        <button type="button" role="option" class="wof_fe_stockpick_opt" t-on-click="() => this.setStockProduct(pickTarget, p.id)" t-esc="p.name"/>
+                    </t>
+                    <span t-if="!state.stockPick.results.length" class="wof_sf_muted wof_sf_small">لا توجد أصناف مطابقة.</span>
+                    <button type="button" class="btn btn-link btn-sm" t-on-click="() => this.closeStockPick()">إلغاء</button>
+                </div>
+            </t>
+            <t t-else="">
+                <button type="button" t-attf-class="wof_fe_stockpick_btn {{ pickValue ? 'is-set' : '' }}" t-att-disabled="state.busy" t-on-click="() => this.openStockPick(pickTarget)">
+                    <i class="fa fa-cube" aria-hidden="true"/>
+                    <span t-if="pickValue" t-esc="pickValue.name"/>
+                    <span t-else="" class="wof_sf_muted" t-esc="pickEmpty"/>
+                    <i class="fa fa-pencil wof_fe_stockpick_edit" aria-hidden="true"/>
+                </button>
+                <button t-if="pickValue" type="button" class="wof_sf_icon_btn is-small" title="إزالة الصنف" aria-label="إزالة الصنف" t-att-disabled="state.busy" t-on-click="() => this.setStockProduct(pickTarget, false)"><i class="fa fa-times" aria-hidden="true"/></button>
+            </t>
+        </div>
+    </t>
+
     <!-- ================================================================ hub -->
     <t t-name="yousentech_wo_v4.FilmsHub">
         <div class="wof_sf wof_fh" dir="rtl">
@@ -382,6 +409,17 @@
                             <div t-if="d.film.inventory and isFilm" class="wof_sf_row wof_fe_nested">
                                 <span class="wof_sf_row_text"><strong class="wof_sf_card_title">اختيار المنتج المخزني إلزامي</strong><span class="wof_sf_muted">لا يكتمل التنفيذ حتى يحدد الفني رول الفيلم المستخدم.</span></span>
                                 <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.film.product_required"/><t t-set="label" t-value="'اختيار المنتج المخزني إلزامي'"/><t t-set="onClick" t-value="() => this.apply('basic', { car_film_product_required: !this.state.data.film.product_required })"/></t>
+                            </div>
+                            <div t-if="d.film.inventory" class="wof_sf_row wof_fe_nested wof_fe_stock">
+                                <span class="wof_sf_row_text"><strong class="wof_sf_card_title">الصنف المخزني الافتراضي</strong><span class="wof_sf_muted">يُقترح في أمر التركيب ويُصرف عبر الشحنة.<t t-if="isFilm and d.grades.length"> ويمكن لكل درجة لون صنف مخصص.</t></span></span>
+                                <t t-call="yousentech_wo_v4.FilmEditor.StockPick"><t t-set="pickTarget" t-value="'film'"/><t t-set="pickValue" t-value="d.film.stock_product"/><t t-set="pickEmpty" t-value="'اختر الصنف'"/></t>
+                            </div>
+                            <div t-if="d.film.inventory and isFilm and d.grades.length" class="wof_fe_grade_stock">
+                                <span class="wof_fe_grade_stock_head">صنف مخصص لدرجة اللون <small class="wof_sf_muted">(اختياري)</small></span>
+                                <div t-foreach="d.grades" t-as="g" t-key="g.id" class="wof_fe_grade_stock_row">
+                                    <span class="wof_fe_grade_chip" t-esc="g.name"/>
+                                    <t t-call="yousentech_wo_v4.FilmEditor.StockPick"><t t-set="pickTarget" t-value="g.id"/><t t-set="pickValue" t-value="g.product"/><t t-set="pickEmpty" t-value="d.film.stock_product ? 'الافتراضي: ' + d.film.stock_product.name : 'بدون صنف'"/></t>
+                                </div>
                             </div>
                         </div>
                         <label class="wof_sf_label">رسالة تنبيه للموظف <span class="wof_sf_hint">(اختياري)</span>

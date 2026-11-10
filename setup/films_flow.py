@@ -251,6 +251,7 @@ class WofFilmCategoryFlow(models.Model):
             'warranty_unit': source.warranty_unit,
             'is_effected_in_inventory': source.is_effected_in_inventory,
             'car_film_product_required': source.car_film_product_required,
+            'default_product_id': source.default_product_id.id,
             'warning_msg': source.warning_msg,
         }
         if options.get('policies'):
@@ -461,6 +462,7 @@ class WofFilmCategoryFlow(models.Model):
                 'item_type': self.item_type, 'active': self.active,
                 'warranty_period': self.warranty_period, 'warranty_unit': self.warranty_unit,
                 'inventory': self.is_effected_in_inventory, 'product_required': self.car_film_product_required,
+                'stock_product': self._wof_product_ref(self.default_product_id),
                 'warning_msg': self.warning_msg or '',
                 'activity': {'id': self.service_type_id.id, 'name': self.service_type_id.name,
                              'type': self.service_type_id.service_options or 'others',
@@ -473,7 +475,8 @@ class WofFilmCategoryFlow(models.Model):
                             'selected': use_all or shade.code in active_codes}
                            for shade in shades],
             },
-            'grades': [{'id': grade.id, 'name': grade.name, 'code': grade.code} for grade in grades],
+            'grades': [{'id': grade.id, 'name': grade.name, 'code': grade.code,
+                        'product': self._wof_product_ref(grade.product_id)} for grade in grades],
             'components': components,
             'policies': self._wof_policies(profile),
             'sizes': [{'id': size.id, 'name': size.name} for size in sizes],
@@ -686,6 +689,7 @@ class WofFilmCategoryFlow(models.Model):
             'comp_reorder': self._wof_op_comp_reorder,
             'comp_tint': self._wof_op_comp_tint,
             'policy': self._wof_op_policy,
+            'stock_product': self._wof_op_stock_product,
             'activate': self._wof_op_activate,
             'deactivate': self._wof_op_deactivate,
         }.get(op)
@@ -693,6 +697,38 @@ class WofFilmCategoryFlow(models.Model):
             raise ValidationError(_('عملية غير معروفة في محرر الفيلم.'))
         handler(payload)
         return self.wof_film_load()
+
+    # ------------------------------------------------------- stock product
+    @api.model
+    def _wof_product_ref(self, product):
+        if not product:
+            return False
+        return {'id': product.id, 'name': product.display_name}
+
+    @api.model
+    def wof_stock_products_search(self, query=''):
+        """Storable / consumable products for the film's default stock product."""
+        self._wof_flow_can_read()
+        domain = [('type', 'in', ('product', 'consu'))]
+        query = (query or '').strip()
+        if query:
+            domain += ['|', '|', ('name', 'ilike', query), ('default_code', 'ilike', query), ('barcode', '=', query)]
+        products = self.env['product.product'].search(domain, limit=20, order='name')
+        return [self._wof_product_ref(product) for product in products]
+
+    def _wof_op_stock_product(self, payload):
+        """Default stock product of the film, or the custom one of a tint grade."""
+        product = self.env['product.product'].browse(int(payload.get('product_id') or 0)).exists()
+        if product and product.type not in ('product', 'consu'):
+            raise ValidationError(_('اختر صنفًا مخزنيًا أو استهلاكيًا.'))
+        grade_id = payload.get('grade_id')
+        if grade_id:
+            grade = self.film_category_line_ids.filtered(lambda rec: rec.id == int(grade_id))
+            if not grade:
+                raise ValidationError(_('درجة اللون غير موجودة في هذا الفيلم.'))
+            grade.write({'product_id': product.id or False})
+        else:
+            self.write({'default_product_id': product.id or False})
 
     def _wof_op_basic(self, payload):
         vals = {key: value for key, value in payload.items() if key in BASIC_FIELDS}

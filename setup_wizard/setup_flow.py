@@ -24,6 +24,7 @@ FLOW_SCALARS = {
     'discount_scope': ('order', 'service'),
     'operation_allow_multiple_technicians': 'bool',
     'commission_event': ('delivery', 'invoice'),
+    'stock_allow_shortage': 'bool',
 }
 
 
@@ -109,6 +110,7 @@ class WofCompanyProfileSetupFlow(models.Model):
             },
             'pricing_policy': self.operation_pricing_policy,
             'invoice': self._wof_flow_invoice_mode(),
+            'stock_allow_shortage': self.stock_allow_shortage,
             'discount': {
                 'enabled': self.discount_enabled,
                 'limit': self.discount_default_limit,

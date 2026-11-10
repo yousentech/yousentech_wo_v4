@@ -26,6 +26,18 @@
                        invisible="not supports_color_grades"
                        optional="show"
                        options="{'no_create': True, 'no_open': True}"/>
+                <field name="film_uses_inventory" column_invisible="True"/>
+                <field name="film_product_required" column_invisible="True"/>
+                <field name="film_product_id"
+                       string="الصنف المخزني"
+                       invisible="not film_uses_inventory"
+                       required="film_uses_inventory and film_product_required"
+                       optional="show"
+                       options="{'no_create': True, 'no_open': True}"/>
+                <field name="film_product_qty"
+                       string="كمية الصنف"
+                       invisible="not film_uses_inventory"
+                       optional="hide"/>
                 <field name="quantity"/>
                 <field name="unit_price" readonly="1"/>
                 <field name="discount_type" optional="hide"/>
@@ -80,9 +92,17 @@
                                    invisible="not supports_color_grades"
                                    readonly="order_state not in ('draft', 'scheduled')"
                                    options="{'no_create': True}"/>
+                            <field name="film_uses_inventory" invisible="1"/>
+                            <field name="film_product_required" invisible="1"/>
                             <field name="film_product_id"
+                                   string="الصنف المخزني"
+                                   invisible="not film_uses_inventory"
+                                   required="film_uses_inventory and film_product_required"
                                    readonly="order_state not in ('draft', 'scheduled')"
                                    options="{'no_create': True}"/>
+                            <field name="film_product_qty"
+                                   invisible="not film_uses_inventory"
+                                   readonly="order_state not in ('draft', 'scheduled', 'intake', 'in_progress')"/>
                         </group>
                         <group string="السعر">
                             <field name="quantity"

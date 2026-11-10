@@ -5,7 +5,7 @@
     'description': 'Foundation, self-service setup and installation order workflow for car care operations.',
     'category': 'Services',
     'author': 'Yousentech Team',
-    'depends': ['base', 'mail', 'product', 'account', 'sale', 'stock', 'hr'],
+    'depends': ['base', 'mail', 'product', 'account', 'sale', 'stock', 'sale_stock', 'hr'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',

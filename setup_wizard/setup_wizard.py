@@ -269,6 +269,11 @@ class WofCompanyProfile(models.Model):
         default='plate_mobile', required=True,
     )
     use_inventory = fields.Boolean(string="صرف المواد من المخزون", default=True)
+    stock_allow_shortage = fields.Boolean(
+        string="السماح بالمتابعة رغم نقص الكمية",
+        help="عند منع البيع بالسالب: تنبيه فقط في أمر التركيب بدل منع التأكيد. "
+             "اعتماد الشحنة لا يصرف بالسالب في كل الأحوال.",
+    )
     use_appointments = fields.Boolean(string="استخدام مواعيد التسليم", default=True)
     advanced_pricing = fields.Boolean(string="تسعير مختلف حسب حجم السيارة")
     advanced_commission = fields.Boolean(string="عمولة مختلفة حسب حجم السيارة")
@@ -337,7 +342,7 @@ class WofCompanyProfile(models.Model):
             'operation_technician_required',
             'payment_policy', 'discount_scope', 'discount_enabled', 'discount_default_limit',
             'discount_allow_override_request', 'discount_reason_required_from', 'commission_event',
-            'required_vehicle_data', 'use_inventory', 'use_appointments',
+            'required_vehicle_data', 'use_inventory', 'use_appointments', 'stock_allow_shortage',
             'advanced_pricing', 'advanced_commission',
         }
         if tracked.intersection(vals):
