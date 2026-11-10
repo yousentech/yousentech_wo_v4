@@ -708,7 +708,7 @@ class WofInstallationOrderLine(models.Model):
                     'price_source': 'manual',
                     'price_source_note': 'سعر استثنائي معتمد: %s' % reason,
                     'tax_id': price.tax_id.id if price.tax_id else False,
-                    'max_discount_percent': price.discount_exceed_limit,
+                    'max_discount_percent': line._wof_discount_limit(part_line),
                     'configured_commission': line._resolved_configured_commission(price, commission),
                 })
                 continue
@@ -725,13 +725,19 @@ class WofInstallationOrderLine(models.Model):
                 'price_source': source,
                 'price_source_note': note,
                 'tax_id': price.tax_id.id if price.tax_id else False,
-                'max_discount_percent': price.discount_exceed_limit,
+                'max_discount_percent': line._wof_discount_limit(part_line),
                 'configured_commission': line._resolved_configured_commission(price, commission),
             }
             if not line.film_product_id and line.film_category_line_id.product_id:
                 values['film_product_id'] = line.film_category_line_id.product_id.id
             line._write_line_internal(values)
         return True
+
+    def _wof_discount_limit(self, part_line):
+        """Most specific discount limit: system -> film -> component -> car size."""
+        self.ensure_one()
+        policy = self.film_category_id.get_discount_policy(part_line, self.car_size_id)
+        return policy['limit'] if policy['enabled'] else 0.0
 
     def _validate_ready_for_confirmation(self):
         for line in self:

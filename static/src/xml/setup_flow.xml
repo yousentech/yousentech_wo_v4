@@ -294,6 +294,7 @@
                     <t t-if="current === 'invoice'">
                         <header class="wof_sf_head"><h2>متى تُنشأ الفاتورة؟</h2><p>اختر ما يناسب طريقة التحصيل في محلك.</p></header>
                         <t t-call="yousentech_wo_v4.SetupFlow.Choice"><t t-set="options" t-value="invoiceOptions"/><t t-set="value" t-value="d.invoice"/><t t-set="label" t-value="'وقت إنشاء الفاتورة'"/><t t-set="pick" t-value="(key) => this.setInvoice(key)"/></t>
+                        <t t-call="yousentech_wo_v4.SetupFlow.Choice"><t t-set="options" t-value="discountModeOptions"/><t t-set="value" t-value="d.invoice_discount"/><t t-set="label" t-value="'ترحيل الخصم إلى الفاتورة'"/><t t-set="pick" t-value="(key) => this.setScalar('invoice_discount_mode', key)"/></t>
                         <section class="wof_sf_card">
                             <div class="wof_sf_card_row">
                                 <span class="wof_sf_row_text"><strong class="wof_sf_card_title">نقص الكمية في المخزن</strong><span class="wof_sf_muted">للمستخدم الممنوع من البيع بالسالب: عند التفعيل يظهر تنبيه ويُسمح بتأكيد الأمر. اعتماد الشحنة لا يصرف بالسالب في كل الأحوال.</span></span>

@@ -139,6 +139,10 @@
                             <field name="max_discount_percent" readonly="1"/>
                             <field name="configured_unit_price" readonly="1"/>
                             <field name="configured_commission" readonly="1"/>
+                            <field name="commission_event" readonly="1"/>
+                            <field name="commission_state" widget="badge" readonly="1"
+                                   decoration-success="commission_state == 'approved'"/>
+                            <field name="commission_approved_at" readonly="1" invisible="not commission_approved_at"/>
                         </group>
                     </group>
                     <group string="التنفيذ">
@@ -371,6 +375,12 @@
                             string="تسليم السيارة وإغلاق الأمر" class="btn-primary"
                             invisible="state != 'ready'"
                             groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor"/>
+                    <button name="action_create_invoice" type="object"
+                            string="إنشاء الفاتورة" icon="fa-file-text-o"
+                            invisible="invoice_id or state in ('draft', 'cancelled')"/>
+                    <button name="action_create_sale_order" type="object"
+                            string="إنشاء أمر البيع" icon="fa-shopping-cart"
+                            invisible="sale_order_id or state in ('draft', 'cancelled')"/>
                     <button name="action_register_payment" type="object"
                             string="تسجيل دفعة" icon="fa-money"
                             invisible="state == 'cancelled' or payment_status == 'paid' or amount_total == 0"/>
@@ -412,6 +422,11 @@
                     </div>
 
                     <div class="oe_button_box" name="button_box">
+                        <button name="action_view_pickings" type="object"
+                                class="oe_stat_button" icon="fa-truck"
+                                invisible="not picking_count">
+                            <field name="picking_count" widget="statinfo" string="الشحنات"/>
+                        </button>
                         <button name="action_view_payments" type="object"
                                 class="oe_stat_button" icon="fa-money"
                                 invisible="not payment_count">

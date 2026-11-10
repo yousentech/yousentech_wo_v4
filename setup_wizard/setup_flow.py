@@ -25,6 +25,7 @@ FLOW_SCALARS = {
     'operation_allow_multiple_technicians': 'bool',
     'commission_event': ('delivery', 'invoice'),
     'stock_allow_shortage': 'bool',
+    'invoice_discount_mode': ('net', 'visible'),
 }
 
 
@@ -65,6 +66,8 @@ class WofCompanyProfileSetupFlow(models.Model):
         ])
 
     def _wof_flow_invoice_mode(self):
+        if self.operation_invoice_by_partner:
+            return 'by_partner'
         if self.payment_policy == 'full_before_invoice':
             return 'after'
         return 'auto' if self.operation_auto_invoice else 'manual'
@@ -111,6 +114,8 @@ class WofCompanyProfileSetupFlow(models.Model):
             'pricing_policy': self.operation_pricing_policy,
             'invoice': self._wof_flow_invoice_mode(),
             'stock_allow_shortage': self.stock_allow_shortage,
+            'invoice_discount': self.invoice_discount_mode,
+            'has_pay_type': 'pay_type' in self.env['res.partner']._fields,
             'discount': {
                 'enabled': self.discount_enabled,
                 'limit': self.discount_default_limit,
@@ -266,12 +271,15 @@ class WofCompanyProfileSetupFlow(models.Model):
 
     def _wof_op_invoice(self, payload):
         mode = payload.get('mode')
-        if mode == 'after':
+        if mode == 'by_partner':
+            self.write({'operation_invoice_by_partner': True})
+        elif mode == 'after':
             self.write({'operation_invoice_after_full_payment': True})
         elif mode == 'auto':
             self.write({'operation_auto_invoice': True})
         elif mode == 'manual':
-            self.write({'operation_auto_invoice': False, 'operation_invoice_after_full_payment': False})
+            self.write({'operation_auto_invoice': False, 'operation_invoice_after_full_payment': False,
+                        'operation_invoice_by_partner': False})
         else:
             raise ValidationError(_('طريقة الفوترة غير صحيحة.'))
 

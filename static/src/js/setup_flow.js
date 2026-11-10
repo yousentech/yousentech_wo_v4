@@ -239,7 +239,7 @@ export class WofSetupFlow extends Component {
             tint: entry("tint", `${shades} ${_t("درجات")} · ${d.tint.method === "percentage" ? _t("بالنسب") : _t("تسلسلي")}`, !shades),
             fields: entry("fields", `${count("req")} ${_t("إجبارية")} · ${count("hid")} ${_t("مخفية")}`),
             tax: entry("tax", !d.tax.enabled ? _t("بدون ضريبة") : (tax ? tax.name : _t("اختر الضريبة"))),
-            invoice: entry("invoice", { manual: _t("يدويًا"), auto: _t("عند التأكيد"), after: _t("بعد اكتمال الدفع") }[d.invoice]),
+            invoice: entry("invoice", { manual: _t("يدويًا"), auto: _t("عند التأكيد"), after: _t("بعد اكتمال الدفع"), by_partner: _t("حسب العميل") }[d.invoice]),
             discount: entry("discount", d.discount.enabled ? `${_t("حتى")} ${fmt(d.discount.limit)}%` : _t("موقوف")),
             tech: entry("tech", d.tech.event === "invoice" ? _t("العمولة عند الفاتورة") : _t("العمولة عند الإنجاز")),
             review: {
@@ -519,15 +519,29 @@ export class WofSetupFlow extends Component {
         return [
             { key: "manual", name: _t("يدويًا"), desc: _t("الموظف ينشئ الفاتورة عند الحاجة من أمر التركيب.") },
             { key: "auto", name: _t("تلقائيًا عند تأكيد الأمر"), desc: _t("تُنشأ الفاتورة فور تأكيد أمر التركيب.") },
-            { key: "after", name: _t("بعد اكتمال الدفع فقط"), desc: _t("لا يمكن إنشاء الفاتورة قبل سداد المبلغ كاملًا.") },
+            { key: "after", name: _t("بعد اكتمال الدفع فقط"), desc: _t("تُنشأ الفاتورة تلقائيًا عند سداد المبلغ كاملًا، ولا تُنشأ قبله.") },
+            {
+                key: "by_partner", name: _t("حسب طبيعة تعامل العميل"),
+                desc: this.state.data.has_pay_type
+                    ? _t("العميل الآجل: عند تأكيد الأمر. العميل النقدي: بعد اكتمال الدفع.")
+                    : _t("يحتاج حقل «طبيعة التعامل» في شاشة العميل. بدونه يُعامل كل العملاء كنقديين."),
+            },
+        ];
+    }
+
+    get discountModeOptions() {
+        return [
+            { key: "visible", name: _t("خصم ظاهر"), desc: _t("السعر الأصلي في الفاتورة، والخصم في عمود الخصم."), ex: _t("مثال: 500 بخصم 10%") },
+            { key: "net", name: _t("صافي"), desc: _t("السعر في الفاتورة بعد الخصم، ولا يظهر خصم."), ex: _t("مثال: 450 بدون خصم ظاهر") },
         ];
     }
 
     get journey() {
-        const at = { manual: -1, auto: 0, after: 2 }[this.state.data.invoice];
+        const mode = this.state.data.invoice;
+        const at = { manual: [], auto: [0], after: [2], by_partner: [0, 2] }[mode] || [];
         return [_t("تأكيد الأمر"), _t("التركيب والتسليم"), _t("اكتمال الدفع")].map((name, i) => ({
             name,
-            pin: at === i ? "here" : (at === -1 ? "any" : "none"),
+            pin: at.includes(i) ? "here" : (mode === "manual" ? "any" : "none"),
         }));
     }
 

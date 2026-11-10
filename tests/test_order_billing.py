@@ -16,7 +16,7 @@ class TestOrderBilling(TransactionCase):
                   'account.group_account_invoice', 'sales_team.group_sale_salesman_all_leads',
                   'stock.group_stock_user']
         cls.user = root['res.users'].with_context(no_reset_password=True).create({
-            'name': 'موظف فوترة التركيب', 'login': 'wof_billing_tester',
+            'name': 'موظف فوترة التركيب', 'login': 'wof_billing_tester', 'email': 'billing@example.com',
             'groups_id': [(6, 0, [root.ref(g).id for g in groups])],
         })
         env = cls.env = root(user=cls.user)
@@ -38,6 +38,7 @@ class TestOrderBilling(TransactionCase):
         cls.film.wof_film_apply('basic', {'is_effected_in_inventory': True})
         cls.film.wof_film_apply('stock_product', {'product_id': cls.roll.id})
         cls.film.wof_film_apply('comp_add', {'part_id': cls.part.id})
+        cls.film.wof_film_apply('policy', {'key': 'discount', 'custom': True, 'enabled': True, 'limit': 20})
         snap = cls.film.wof_matrix_load()
         for line in snap['lines']:
             line['price'] = {'mode': 'uniform', 'general': {'amount': 500, 'readonly': False}, 'sizes': {}}
@@ -49,6 +50,7 @@ class TestOrderBilling(TransactionCase):
         size = self.env['wof.car.size'].search([], limit=1)
         order = self.env['wof.installation.order'].create({
             'partner_id': partner.id, 'vehicle_plate': 'BIL 1', 'car_size_id': size.id,
+            'appointment_at': '2026-12-01 10:00:00',
         })
         self.env['wof.installation.order.line'].create({
             'order_id': order.id, 'service_type_id': self.activity.id,
@@ -87,3 +89,132 @@ class TestOrderBilling(TransactionCase):
         })
         with self.assertRaises(UserError):
             order.with_user(clerk).action_register_payment()
+
+    # ------------------------------------------------- sale order + invoice
+    def set_invoice_mode(self, mode):
+        self.profile.wof_flow_apply('invoice', {'mode': mode})
+
+    def test_manual_invoice_via_sale_order(self):
+        self.set_invoice_mode('manual')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        self.assertFalse(order.invoice_id)
+        order.action_create_invoice()
+        sale = order.sale_order_id
+        self.assertEqual(sale.state, 'sale')
+        self.assertEqual(sale.wof_order_id, order)
+        service = sale.order_line.filtered(lambda line: line.product_id == self.part.product_id)
+        self.assertEqual(service.price_unit, 500)
+        self.assertTrue(sale.order_line.filtered(lambda line: line.display_type == 'line_note' and 'فيلم الفوترة' in line.name))
+        stock = sale.order_line.filtered('wof_stock_only')
+        self.assertEqual(stock.product_id, self.roll)
+        self.assertEqual(stock.price_unit, 0)
+        self.assertIn(self.roll, sale.picking_ids.move_ids.product_id)
+        invoice = order.invoice_id
+        self.assertEqual(invoice.state, 'draft')
+        self.assertEqual(invoice.wof_order_id, order)
+        products = invoice.invoice_line_ids.filtered(lambda line: line.display_type == 'product').product_id
+        self.assertEqual(products, self.part.product_id)
+        self.assertEqual(invoice.amount_untaxed, 500)
+        # Creating again gives the same invoice.
+        self.assertEqual(order._wof_create_invoice(), invoice)
+
+    def _discounted_invoice(self, mode):
+        self.set_invoice_mode('manual')
+        self.profile.wof_flow_apply('set', {
+            'invoice_discount_mode': mode, 'discount_scope': 'order',
+            'discount_enabled': True, 'discount_default_limit': 20,
+        })
+        order = self.make_order()
+        order.order_discount_percent = 10
+        self.assertEqual(order.amount_untaxed, 450)
+        order.action_confirm_arrival()
+        order.action_create_invoice()
+        line = order.invoice_id.invoice_line_ids.filtered(lambda rec: rec.display_type == 'product')
+        self.assertEqual(order.invoice_id.amount_untaxed, 450)
+        return line
+
+    def test_discount_visible(self):
+        line = self._discounted_invoice('visible')
+        self.assertEqual(line.price_unit, 500)
+        self.assertAlmostEqual(line.discount, 10)
+
+    def test_discount_net(self):
+        line = self._discounted_invoice('net')
+        self.assertEqual(line.price_unit, 450)
+        self.assertEqual(line.discount, 0)
+
+    def test_invoice_at_confirmation(self):
+        self.set_invoice_mode('auto')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        self.assertTrue(order.invoice_id)
+
+    def test_invoice_after_full_payment(self):
+        self.set_invoice_mode('after')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        self.assertFalse(order.invoice_id)
+        with self.assertRaises(ValidationError):
+            order.action_create_invoice()
+        self.pay(order, 200)
+        self.assertFalse(order.invoice_id)
+        self.pay(order, 300)
+        self.assertTrue(order.invoice_id)
+
+    def test_by_partner_without_pay_type_acts_as_cash(self):
+        self.set_invoice_mode('by_partner')
+        order = self.make_order()
+        expected = 'confirm' if ('pay_type' in order.partner_id._fields and order.partner_id.pay_type == 'credit') else 'paid'
+        self.assertEqual(order._wof_invoice_moment(), expected)
+
+    def test_payments_matched_when_invoice_posted(self):
+        self.set_invoice_mode('manual')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        self.pay(order, 500)
+        order.action_create_invoice()
+        order.invoice_id.action_post()
+        self.assertIn(order.invoice_id.payment_state, ('paid', 'in_payment'))
+
+    def test_services_locked_after_sale_order(self):
+        self.set_invoice_mode('manual')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        order.action_create_sale_order()
+        with self.assertRaises(ValidationError):
+            order.line_ids.write({'quantity': 2})
+
+    def test_commission_follows_invoice_posting(self):
+        self.set_invoice_mode('manual')
+        self.root['wof.film.category'].browse(self.film.id).write({'commission_event': 'invoice'})
+        order = self.make_order()
+        order.action_confirm_arrival()
+        order.action_create_invoice()
+        self.assertEqual(order.line_ids.commission_state, 'pending')
+        order.invoice_id.action_post()
+        self.assertEqual(order.line_ids.commission_state, 'approved')
+        order.invoice_id.button_draft()
+        self.assertEqual(order.line_ids.commission_state, 'pending')
+
+    def test_accountant_can_post_the_invoice(self):
+        self.set_invoice_mode('manual')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        order.action_create_invoice()
+        accountant = self.root['res.users'].with_context(no_reset_password=True).create({
+            'name': 'محاسب', 'login': 'wof_accountant', 'email': 'acc@example.com',
+            'groups_id': [(6, 0, [self.root.ref('base.group_user').id, self.root.ref('account.group_account_invoice').id])],
+        })
+        order.invoice_id.with_user(accountant).action_post()
+        self.assertEqual(order.invoice_id.state, 'posted')
+
+    def test_cancel_blocked_with_posted_invoice(self):
+        self.set_invoice_mode('manual')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        order.action_create_invoice()
+        order.invoice_id.action_post()
+        order.cancellation_reason = 'تجربة'
+        with self.assertRaises(ValidationError):
+            order.action_cancel()

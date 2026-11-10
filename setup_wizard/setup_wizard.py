@@ -242,6 +242,14 @@ class WofCompanyProfile(models.Model):
         inverse='_inverse_operation_invoice_after_full_payment',
         help='عند تفعيل هذا الخيار يتم إلغاء الإنشاء التلقائي للفاتورة لأن الفاتورة تنتظر اكتمال الدفع.',
     )
+    operation_invoice_by_partner = fields.Boolean(
+        string='وقت الفاتورة حسب طبيعة تعامل العميل',
+        help='العميل الآجل: الفاتورة عند تأكيد الأمر. العميل النقدي: بعد اكتمال الدفع.',
+    )
+    invoice_discount_mode = fields.Selection(
+        [('net', 'صافي: السعر بعد الخصم'), ('visible', 'خصم ظاهر في عمود الخصم')],
+        string='ترحيل الخصم إلى الفاتورة', default='visible', required=True,
+    )
     operation_allow_multiple_technicians = fields.Boolean(
         string='السماح بتعدد الفنيين', default=True,
     )
@@ -339,6 +347,7 @@ class WofCompanyProfile(models.Model):
             'operation_tax_enabled', 'operation_tax_id',
             'operation_price_input_mode', 'operation_pricing_policy',
             'operation_auto_invoice', 'operation_allow_multiple_technicians',
+            'operation_invoice_by_partner', 'invoice_discount_mode',
             'operation_technician_required',
             'payment_policy', 'discount_scope', 'discount_enabled', 'discount_default_limit',
             'discount_allow_override_request', 'discount_reason_required_from', 'commission_event',
@@ -368,11 +377,17 @@ class WofCompanyProfile(models.Model):
                 'طريقة ترقيم درجات اللون مثبتة بعد تفعيل النظام ولا يمكن تغييرها.'
             )
         # Invoice policies are mutually exclusive by business design.
-        if vals.get('operation_invoice_after_full_payment'):
+        if vals.get('operation_invoice_by_partner'):
             vals['operation_auto_invoice'] = False
+            vals['operation_invoice_after_full_payment'] = False
+            vals['payment_policy'] = 'partial'
+        elif vals.get('operation_invoice_after_full_payment'):
+            vals['operation_auto_invoice'] = False
+            vals['operation_invoice_by_partner'] = False
             vals['payment_policy'] = 'full_before_invoice'
         elif vals.get('operation_auto_invoice'):
             vals['operation_invoice_after_full_payment'] = False
+            vals['operation_invoice_by_partner'] = False
             vals['payment_policy'] = 'partial'
         elif 'operation_invoice_after_full_payment' in vals:
             vals['payment_policy'] = 'partial'

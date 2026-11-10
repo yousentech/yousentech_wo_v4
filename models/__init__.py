@@ -7,6 +7,7 @@ from . import installation_order_tint_policy
 from . import installation_material
 from . import installation_stock
 from . import installation_payment
+from . import installation_billing
 from . import installation_event
 
 from . import hr_employee

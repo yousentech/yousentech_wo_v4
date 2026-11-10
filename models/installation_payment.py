@@ -126,7 +126,7 @@ class WofOrderPaymentWizard(models.TransientModel):
     _name = 'wof.order.payment.wizard'
     _description = 'تسجيل دفعة على أمر التركيب'
 
-    order_id = fields.Many2one('wof.installation.order', required=True, readonly=True)
+    order_id = fields.Many2one('wof.installation.order', string='أمر التركيب', required=True, readonly=True)
     partner_id = fields.Many2one(related='order_id.partner_id')
     currency_id = fields.Many2one(related='order_id.currency_id')
     amount_total = fields.Monetary(related='order_id.amount_total', string='إجمالي الأمر')
