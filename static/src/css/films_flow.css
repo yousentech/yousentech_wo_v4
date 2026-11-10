@@ -412,3 +412,13 @@ html[data-wof-density="compact"] .wof_fh_inner { padding: 20px 24px 36px; gap: 1
     .wof_fh_hero { grid-template-areas: "main" "actions" "bar"; }
 }
 .wof_fh_hero .wof_fh_custom_panel .btn-primary { background: var(--sf-teal); border-color: var(--sf-teal); color: #FFFFFF; }
+
+/* Component form: its head (title + save/cancel) stays visible while scrolling. */
+.wof_fe .wof_fe_panel_head {
+    position: sticky; top: -26px; z-index: 3; margin: -20px -20px 0; padding: 14px 20px;
+    background: #FFFFFF; border-bottom: 1px solid var(--sf-line-2); border-radius: 16px 16px 0 0;
+}
+.wof_fe_panel_head > strong { flex: 1; min-width: 0; }
+.wof_fe_panel_actions { display: inline-flex; gap: 8px; order: 3; }
+.wof_fe .wof_fe_panel_actions .btn { min-height: 34px; padding: 0 14px; }
+.wof_fe_panel { overflow: visible; }

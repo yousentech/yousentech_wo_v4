@@ -449,10 +449,6 @@
                                     <button type="button" class="btn btn-light" t-on-click="() => this.openForm(state.adder.type)"><i class="fa fa-plus" aria-hidden="true"/> إنشاء <t t-esc="state.adder.type === 'service_area' ? 'منطقة خدمة جديدة' : 'جزء جديد'"/></button>
                                 </div>
                             </div>
-                            <div class="wof_fe_panel_foot">
-                                <button type="button" class="btn btn-primary" t-att-disabled="state.busy or !state.adder.selected.length" t-on-click="addSelected">إضافة المحدد (<t t-esc="state.adder.selected.length"/>)</button>
-                                <button type="button" class="btn btn-light" t-on-click="() => state.adder = null">إغلاق</button>
-                            </div>
                         </section>
 
                         <!-- component form: create or edit the shared master -->
@@ -460,6 +456,10 @@
                             <t t-set="f" t-value="state.form"/>
                             <div class="wof_fe_panel_head">
                                 <strong><t t-if="f.id">تعديل «<t t-esc="f.name"/>»</t><t t-elif="f.type === 'service_area'">منطقة خدمة جديدة</t><t t-else="">جزء جديد</t></strong>
+                                <span class="wof_fe_panel_actions">
+                                    <button type="button" class="btn btn-light btn-sm" t-on-click="closeForm">إلغاء</button>
+                                    <button type="button" class="btn btn-primary btn-sm" t-att-disabled="state.busy" t-on-click="saveForm"><i class="fa fa-check" aria-hidden="true"/> <t t-if="f.id">حفظ</t><t t-else="">إنشاء</t></button>
+                                </span>
                                 <span t-if="!f.id" class="wof_sf_seg" role="radiogroup" aria-label="نوع المكوّن">
                                     <button type="button" role="radio" t-att-aria-checked="f.type === 'car_part' ? 'true' : 'false'" t-att-class="f.type === 'car_part' ? 'is-opt' : ''" t-on-click="() => this.setFormType('car_part')">جزء</button>
                                     <button type="button" role="radio" t-att-aria-checked="f.type === 'service_area' ? 'true' : 'false'" t-att-class="f.type === 'service_area' ? 'is-opt' : ''" t-on-click="() => this.setFormType('service_area')">منطقة خدمة</button>
@@ -728,14 +728,23 @@
                     </t>
                 </main>
                 <footer class="wof_sf_footer">
-                    <span class="wof_sf_footer_state"><span t-att-class="'wof_sf_state_dot' + (footer.warn ? ' is-warn' : '')"/><span t-esc="footer.text"/></span>
-                    <span class="wof_sf_inline">
-                        <button t-if="prevKey" type="button" class="btn btn-light" t-on-click="() => this.go(prevKey)"><i class="fa fa-arrow-right" aria-hidden="true"/> السابق</button>
-                        <button type="button" class="btn btn-light" t-on-click="close">حفظ والخروج</button>
-                        <button t-if="current !== 'rev'" type="button" class="btn btn-primary" t-on-click="() => this.go(nextKey)"><t t-esc="nextLabel"/> <i class="fa fa-arrow-left" aria-hidden="true"/></button>
-                        <button t-if="current === 'rev' and !d.film.active" type="button" class="btn btn-primary" t-att-disabled="state.busy or !readiness.ready" t-on-click="activate"><i class="fa fa-check" aria-hidden="true"/> تفعيل الفيلم</button>
-                        <button t-if="current === 'rev' and d.film.active and !readiness.ready" type="button" class="btn btn-light" t-att-disabled="state.busy" t-on-click="deactivate">إيقاف الفيلم</button>
-                    </span>
+                    <t t-if="state.form">
+                        <span class="wof_sf_footer_state"><span class="wof_sf_state_dot is-warn"/><span><t t-if="state.form.id">تعديل «<t t-esc="state.form.name"/>» لم يُحفظ بعد</t><t t-else="">مكوّن جديد لم يُحفظ بعد</t></span></span>
+                        <span class="wof_sf_inline">
+                            <button type="button" class="btn btn-light" t-on-click="closeForm">إلغاء</button>
+                            <button type="button" class="btn btn-primary" t-att-disabled="state.busy" t-on-click="saveForm"><i class="fa fa-check" aria-hidden="true"/> <t t-if="state.form.id">حفظ التعديل</t><t t-else="">إنشاء وإضافة للفيلم</t></button>
+                        </span>
+                    </t>
+                    <t t-else="">
+                        <span class="wof_sf_footer_state"><span t-att-class="'wof_sf_state_dot' + (footer.warn ? ' is-warn' : '')"/><span t-esc="footer.text"/></span>
+                        <span class="wof_sf_inline">
+                            <button t-if="prevKey" type="button" class="btn btn-light" t-on-click="() => this.go(prevKey)"><i class="fa fa-arrow-right" aria-hidden="true"/> السابق</button>
+                            <button type="button" class="btn btn-light" t-on-click="close">حفظ والخروج</button>
+                            <button t-if="current !== 'rev'" type="button" class="btn btn-primary" t-on-click="() => this.go(nextKey)"><t t-esc="nextLabel"/> <i class="fa fa-arrow-left" aria-hidden="true"/></button>
+                            <button t-if="current === 'rev' and !d.film.active" type="button" class="btn btn-primary" t-att-disabled="state.busy or !readiness.ready" t-on-click="activate"><i class="fa fa-check" aria-hidden="true"/> تفعيل الفيلم</button>
+                            <button t-if="current === 'rev' and d.film.active and !readiness.ready" type="button" class="btn btn-light" t-att-disabled="state.busy" t-on-click="deactivate">إيقاف الفيلم</button>
+                        </span>
+                    </t>
                 </footer>
                 </section>
             </div>
