@@ -175,35 +175,22 @@
 
 /* ============================================ hero: summary + figures */
 .o_form_view.wof_order_form .wof_order_hero {
-    display: flex; flex-direction: column; gap: 16px; padding: 20px 22px; margin-block-end: 14px; color: #FFFFFF; border-radius: 18px;
-    background: radial-gradient(circle at 8% 150%, rgba(255, 255, 255, .10) 0 120px, transparent 121px),
-                linear-gradient(120deg, #0A5252 0%, #0F6E6E 55%, #148080 100%);
-    box-shadow: 0 6px 18px rgba(15, 110, 110, .16);
+    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center;
+    padding: 14px 18px; margin-block-end: 14px; color: #FFFFFF; border-radius: 16px;
+    background: linear-gradient(120deg, #0A5252 0%, #0F6E6E 55%, #148080 100%);
+    box-shadow: 0 4px 14px rgba(15, 110, 110, .14);
 }
-.o_form_view.wof_order_form .wof_order_hero_top { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; justify-content: space-between; }
-.o_form_view.wof_order_form .wof_order_hero_main { display: flex; gap: 14px; align-items: center; min-width: 0; flex: 1 1 420px; }
+.o_form_view.wof_order_form .wof_order_hero_main { display: flex; gap: 12px; align-items: center; min-width: 0; }
 .o_form_view.wof_order_form .wof_order_hero_icon {
-    flex: 0 0 52px; height: 52px; display: grid; place-items: center; border-radius: 16px;
-    background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .25); font-size: 1.4rem;
+    flex: 0 0 44px; height: 44px; display: grid; place-items: center; border-radius: 14px;
+    background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .25); font-size: 1.2rem;
 }
-.o_form_view.wof_order_form .wof_order_eyebrow { font-size: .8rem; font-weight: 700; opacity: .8; }
-.o_form_view.wof_order_form .wof_order_hero h1 { margin: 2px 0 6px; color: inherit; font-size: 1.75rem; font-weight: 800; letter-spacing: .3px; }
-.o_form_view.wof_order_form .wof_order_hero_meta { display: flex; flex-wrap: wrap; gap: 6px 18px; opacity: .92; }
-.o_form_view.wof_order_form .wof_order_hero_meta a, .o_form_view.wof_order_form .wof_order_hero_meta span { color: #FFFFFF; }
-.o_form_view.wof_order_form .wof_order_hero_state {
-    flex: 0 1 340px; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 12px 16px;
-    border: 1px solid rgba(255, 255, 255, .2); border-radius: 14px; background: rgba(255, 255, 255, .1);
-}
-.o_form_view.wof_order_form .wof_order_hero_state_row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.o_form_view.wof_order_form .wof_order_hero_state small { opacity: .8; }
-.o_form_view.wof_order_form .wof_order_hero_state strong { font-size: 1.1rem; }
-.o_form_view.wof_order_form .wof_order_hero .badge { background: rgba(255, 255, 255, .92) !important; color: var(--wo-teal-dark) !important; }
-.o_form_view.wof_order_form .wof_order_hero .o_progressbar .progress { background: rgba(255, 255, 255, .22); height: 6px; }
-.o_form_view.wof_order_form .wof_order_hero .o_progressbar .bg-primary, .o_form_view.wof_order_form .wof_order_hero .o_progressbar .progress-bar { background-color: #5EEAD4 !important; }
+.o_form_view.wof_order_form .wof_order_eyebrow { font-size: .78rem; font-weight: 700; opacity: .8; }
+.o_form_view.wof_order_form .wof_order_hero h1 { margin: 0; color: inherit; font-size: 1.5rem; font-weight: 800; white-space: nowrap; }
 .o_form_view.wof_order_form .wof_order_kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
 .o_form_view.wof_order_form .wof_order_kpi {
-    --k: #5EEAD4; display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 10px 14px;
-    border-radius: 14px; background: rgba(255, 255, 255, .10); border: 1px solid rgba(255, 255, 255, .16); border-top: 3px solid var(--k);
+    --k: #5EEAD4; display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 8px 12px;
+    border-radius: 12px; background: rgba(255, 255, 255, .10); border: 1px solid rgba(255, 255, 255, .16); border-top: 3px solid var(--k);
 }
 .o_form_view.wof_order_form .wof_order_kpi small { font-size: .78rem; font-weight: 700; opacity: .82; }
 .o_form_view.wof_order_form .wof_order_kpi > .o_field_widget { color: #FFFFFF; font-size: clamp(1rem, 1.2vw, 1.3rem); font-weight: 800; }
@@ -216,7 +203,8 @@
 .o_form_view.wof_order_form .wof_order_kpi.is-paid { --k: #86EFAC; }
 .o_form_view.wof_order_form .wof_order_kpi.is-due { --k: #FCD34D; }
 .o_form_view.wof_order_form .wof_order_kpi.is-refund { --k: #FCA5A5; background: rgba(185, 28, 28, .25); }
-@media (max-width: 1280px) { .o_form_view.wof_order_form .wof_order_kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1200px) { .o_form_view.wof_order_form .wof_order_hero { grid-template-columns: 1fr; gap: 12px; } }
+@media (max-width: 900px) { .o_form_view.wof_order_form .wof_order_kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 576px) {
     .o_form_view.wof_order_form .wof_order_hero { padding: 14px; }
     .o_form_view.wof_order_form .wof_order_kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -407,27 +407,11 @@
                     <field name="supervisor_candidate_ids" invisible="1"/>
                     <field name="finance_to_refund" invisible="1"/>
                     <div class="wof_order_hero">
-                        <div class="wof_order_hero_top">
-                            <div class="wof_order_hero_main">
-                                <span class="wof_order_hero_icon"><i class="fa fa-car" title="أمر تركيب"/></span>
-                                <div>
-                                    <span class="wof_order_eyebrow">ملخص أمر التركيب</span>
-                                    <h1><field name="name" readonly="1"/></h1>
-                                    <div class="wof_order_hero_meta">
-                                        <span><i class="fa fa-user me-1" title="العميل"/><field name="partner_id" readonly="1"/></span>
-                                        <span invisible="not vehicle_plate"><i class="fa fa-id-card-o me-1" title="اللوحة"/><field name="vehicle_plate" readonly="1"/></span>
-                                        <span invisible="not appointment_at"><i class="fa fa-calendar me-1" title="الموعد"/><field name="appointment_at" readonly="1"/></span>
-                                        <span><i class="fa fa-building-o me-1" title="الفرع"/><field name="company_id" readonly="1" options="{'no_open': True}"/></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="wof_order_hero_state">
-                                <div class="wof_order_hero_state_row">
-                                    <field name="state" widget="badge" readonly="1"/>
-                                </div>
-                                <small>الإجراء التالي</small>
-                                <strong><field name="next_action_label" readonly="1"/></strong>
-                                <field name="stage_progress" widget="progressbar" readonly="1" class="wof_order_hero_bar"/>
+                        <div class="wof_order_hero_main">
+                            <span class="wof_order_hero_icon"><i class="fa fa-car" title="أمر تركيب"/></span>
+                            <div>
+                                <span class="wof_order_eyebrow">ملخص أمر التركيب</span>
+                                <h1><field name="name" readonly="1"/></h1>
                             </div>
                         </div>
                         <div class="wof_order_kpis">
