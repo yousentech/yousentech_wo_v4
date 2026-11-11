@@ -60,6 +60,7 @@ EVENT_LABELS = {
     'order.cancelled': 'إلغاء أمر التركيب',
     'order.price_overridden': 'تجاوز السعر المهيأ',
     'order.payment_registered': 'تسجيل دفعة',
+    'order.payment_refunded': 'رد مبلغ للعميل',
     'order.sale_order_created': 'إنشاء أمر البيع',
     'order.invoice_created': 'إنشاء الفاتورة',
 }

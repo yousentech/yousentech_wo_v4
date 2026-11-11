@@ -390,6 +390,11 @@
                             string="إلغاء الأمر" class="btn-secondary"
                             invisible="state in ('delivered', 'cancelled')"
                             groups="yousentech_wo_v4.group_wo_supervisor"/>
+                    <button name="action_cancel" type="object"
+                            string="إلغاء الأمر (مرتجع)" class="btn-secondary"
+                            invisible="state != 'delivered'"
+                            confirm="سيُلغى الأمر المُسلَّم بعد التأكد من الإشعار الدائن ورد المبالغ ومرتجع المخزون. متابعة؟"
+                            groups="yousentech_wo_v4.group_wo_manager"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,scheduled,intake,in_progress,quality,ready,delivered"/>
                 </header>
@@ -418,7 +423,8 @@
                         <div class="wof_order_hero_total">
                             <small>إجمالي الأمر</small>
                             <strong><field name="amount_total" widget="monetary" readonly="1"/></strong>
-                            <small invisible="not amount_paid">المتبقي <field name="amount_residual" widget="monetary" readonly="1"/></small>
+                            <small invisible="not amount_paid or finance_to_refund">المتبقي <field name="amount_residual" widget="monetary" readonly="1"/></small>
+                            <small class="wof_order_hero_refund" invisible="not finance_to_refund">للرد <field name="finance_to_refund" widget="monetary" readonly="1"/></small>
                             <field name="stage_progress" widget="progressbar" readonly="1"/>
                         </div>
                     </div>
@@ -713,24 +719,68 @@
                             </group>
                         </page>
 
-                        <page string="6 · الدفع والفوترة" name="billing">
-                            <div class="wof_order_step_head"><h2>الدفع والفوترة</h2><p>الدفعات على الأمر، ثم أمر البيع والشحنة والفاتورة حسب تهيئة النظام.</p></div>
-                            <div class="wof_order_cards is-two">
-                                <group class="wof_order_card wof_order_pay" string="الدفع" >
-                                <field name="payment_status" widget="badge" readonly="1"
-                                       decoration-success="payment_status == 'paid'"
-                                       decoration-warning="payment_status == 'partial'"/>
-                                <field name="amount_paid" readonly="1"/>
-                                <field name="amount_residual" readonly="1"/>
-                                <div colspan="2" class="wof_order_pay_actions">
-                                    <button name="action_register_payment" type="object" string="تسجيل دفعة"
-                                            class="btn btn-primary"
-                                            invisible="state == 'cancelled' or payment_status == 'paid'"/>
-                                    <button name="action_view_payments" type="object" string="عرض الدفعات"
-                                            class="btn btn-light" invisible="not payment_count"/>
+                        <page string="6 · الأمور المالية" name="billing">
+                            <div class="wof_order_step_head"><h2>الأمور المالية</h2><p>متابعة الفواتير والإشعارات الدائنة والمقبوض والمردود، والمتبقي للتحصيل أو للرد.</p></div>
+                            <field name="finance_access" invisible="1"/>
+                            <div class="wof_fin" invisible="not finance_access">
+                                <div class="wof_fin_head">
+                                    <field name="finance_state" widget="badge" readonly="1"
+                                           decoration-success="finance_state == 'settled'"
+                                           decoration-warning="finance_state == 'due'"
+                                           decoration-danger="finance_state == 'refund'"/>
+                                    <div class="wof_fin_actions">
+                                        <button name="action_register_payment" type="object" string="تسجيل دفعة" icon="fa-plus"
+                                                class="btn btn-primary"
+                                                invisible="state == 'cancelled' or payment_status == 'paid'"/>
+                                        <button name="action_create_invoice" type="object" string="إنشاء الفاتورة" icon="fa-file-text-o"
+                                                class="btn btn-light"
+                                                invisible="invoice_id or state in ('draft', 'cancelled')"/>
+                                        <button name="action_wof_credit_note" type="object" string="إشعار دائن (مرتجع)" icon="fa-undo"
+                                                class="btn btn-light"
+                                                invisible="finance_invoiced &lt;= finance_credited"/>
+                                        <button name="action_wof_refund_payment" type="object" string="رد مبلغ للعميل" icon="fa-reply"
+                                                class="btn btn-warning"
+                                                invisible="finance_to_refund &lt;= 0"/>
+                                    </div>
                                 </div>
-                            </group>
-                                <group class="wof_order_card" string="أمر البيع والفاتورة">
+                                <div class="wof_fin_kpis">
+                                    <div class="wof_fin_kpi is-billed"><small>إجمالي الفواتير</small><field name="finance_invoiced" widget="monetary" readonly="1"/></div>
+                                    <div class="wof_fin_kpi is-credit"><small>الإشعارات الدائنة</small><field name="finance_credited" widget="monetary" readonly="1"/></div>
+                                    <div class="wof_fin_kpi is-paid"><small>المقبوض</small><field name="finance_received" widget="monetary" readonly="1"/></div>
+                                    <div class="wof_fin_kpi is-back"><small>المردود للعميل</small><field name="finance_refunded" widget="monetary" readonly="1"/></div>
+                                    <div class="wof_fin_kpi is-due"><small>المتبقي للتحصيل</small><field name="finance_due" widget="monetary" readonly="1"/></div>
+                                    <div class="wof_fin_kpi is-refund"><small>المتبقي للرد</small><field name="finance_to_refund" widget="monetary" readonly="1"/></div>
+                                </div>
+                                <div class="wof_fin_note text-muted small">
+                                    قبل ترحيل الفاتورة يُحسب المستحق من إجمالي الأمر، فتظهر الدفعة المقدمة مقبوضةً لا مبلغًا للرد. المرتجع: إشعار دائن على الفاتورة، ثم رد المبلغ، ثم مرتجع المخزون من الشحنة إن وُجد صرف.
+                                </div>
+                                <div class="wof_order_cards is-two">
+                                    <div class="wof_order_card wof_fin_list">
+                                        <h3><i class="fa fa-file-text-o me-1" title="المستندات"/> الفواتير والإشعارات الدائنة</h3>
+                                        <field name="finance_move_ids" readonly="1" nolabel="1"
+                                               context="{'tree_view_ref': 'account.view_out_invoice_tree'}"/>
+                                    </div>
+                                    <div class="wof_order_card wof_fin_list">
+                                        <h3><i class="fa fa-money me-1" title="الدفعات"/> حركات الدفع</h3>
+                                        <field name="finance_payment_ids" readonly="1" nolabel="1"
+                                               context="{'tree_view_ref': 'account.view_account_payment_tree'}"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="wof_order_cards is-two">
+                                <group class="wof_order_card wof_order_pay" string="الدفع على الأمر">
+                                    <field name="payment_status" widget="badge" readonly="1"
+                                           decoration-success="payment_status == 'paid'"
+                                           decoration-warning="payment_status == 'partial'"/>
+                                    <field name="amount_paid" readonly="1"/>
+                                    <field name="amount_residual" readonly="1"/>
+                                    <div colspan="2" class="wof_order_pay_actions" invisible="finance_access">
+                                        <button name="action_register_payment" type="object" string="تسجيل دفعة"
+                                                class="btn btn-primary"
+                                                invisible="state == 'cancelled' or payment_status == 'paid'"/>
+                                    </div>
+                                </group>
+                                <group class="wof_order_card" string="أمر البيع والمخزون">
                                     <field name="sale_order_id" readonly="1" string="أمر البيع"/>
                                     <field name="picking_count" readonly="1" string="الشحنات"/>
                                     <field name="invoice_id" readonly="1" string="الفاتورة"/>
@@ -757,7 +807,7 @@
                                 <group string="الإلغاء"
                                        groups="yousentech_wo_v4.group_wo_supervisor">
                                     <field name="cancellation_reason"
-                                           readonly="state in ('delivered', 'cancelled')"/>
+                                           readonly="state == 'cancelled'"/>
                                     <field name="cancelled_at" readonly="1"/>
                                     <field name="cancelled_by_id" readonly="1"/>
                                 </group>
@@ -810,8 +860,10 @@
                         <field name="order_id"/>
                         <field name="partner_id"/>
                         <field name="currency_id" invisible="1"/>
+                        <field name="payment_type" invisible="1"/>
                         <field name="amount_total"/>
-                        <field name="amount_residual"/>
+                        <field name="amount_residual" invisible="payment_type == 'outbound'"/>
+                        <field name="amount_to_refund" invisible="payment_type != 'outbound'"/>
                     </group>
                     <group>
                         <field name="amount"/>
@@ -821,7 +873,10 @@
                     </group>
                 </group>
                 <footer>
-                    <button name="action_confirm" type="object" string="تسجيل الدفعة" class="btn-primary"/>
+                    <button name="action_confirm" type="object" string="تسجيل الدفعة" class="btn-primary"
+                            invisible="payment_type == 'outbound'"/>
+                    <button name="action_confirm" type="object" string="رد المبلغ للعميل" class="btn-primary"
+                            invisible="payment_type != 'outbound'"/>
                     <button special="cancel" string="إلغاء" class="btn-secondary"/>
                 </footer>
             </form>

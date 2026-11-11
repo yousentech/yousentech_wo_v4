@@ -131,6 +131,11 @@ class WofOrderPaymentWizard(models.TransientModel):
     currency_id = fields.Many2one(related='order_id.currency_id')
     amount_total = fields.Monetary(related='order_id.amount_total', string='إجمالي الأمر')
     amount_residual = fields.Monetary(related='order_id.amount_residual', string='المتبقي')
+    payment_type = fields.Selection(
+        [('inbound', 'قبض من العميل'), ('outbound', 'رد مبلغ للعميل')],
+        string='نوع الحركة', required=True, default='inbound', readonly=True,
+    )
+    amount_to_refund = fields.Monetary(related='order_id.finance_to_refund', string='المتبقي للرد')
     amount = fields.Monetary(string='المبلغ', required=True)
     journal_id = fields.Many2one(
         'account.journal', string='طريقة الدفع', required=True,
@@ -144,7 +149,8 @@ class WofOrderPaymentWizard(models.TransientModel):
         values = super().default_get(fields_list)
         order = self.env['wof.installation.order'].browse(values.get('order_id') or self.env.context.get('default_order_id'))
         if order:
-            values.setdefault('amount', order.amount_residual)
+            outbound = (values.get('payment_type') or self.env.context.get('default_payment_type')) == 'outbound'
+            values.setdefault('amount', order.finance_to_refund if outbound else order.amount_residual)
             journal = order._wof_default_payment_journal()
             if journal:
                 values.setdefault('journal_id', journal.id)
@@ -156,10 +162,14 @@ class WofOrderPaymentWizard(models.TransientModel):
         currency = order.currency_id or order.company_id.currency_id
         if float_compare(self.amount, 0.0, precision_rounding=currency.rounding) <= 0:
             raise ValidationError(_('أدخل مبلغًا أكبر من صفر.'))
-        if float_compare(self.amount, order.amount_residual, precision_rounding=currency.rounding) > 0:
+        outbound = self.payment_type == 'outbound'
+        if outbound:
+            if float_compare(self.amount, order.finance_to_refund, precision_rounding=currency.rounding) > 0:
+                raise ValidationError(_('المبلغ أكبر من المتبقي للرد (%s).') % order.finance_to_refund)
+        elif float_compare(self.amount, order.amount_residual, precision_rounding=currency.rounding) > 0:
             raise ValidationError(_('المبلغ أكبر من المتبقي على الأمر (%s).') % order.amount_residual)
         payment = self.env['account.payment'].create({
-            'payment_type': 'inbound',
+            'payment_type': self.payment_type,
             'partner_type': 'customer',
             'partner_id': order.partner_id.commercial_partner_id.id,
             'amount': self.amount,
@@ -171,6 +181,14 @@ class WofOrderPaymentWizard(models.TransientModel):
             'wof_order_id': order.id,
         })
         payment.action_post()
+        if outbound:
+            for refund in order._wof_finance_moves().filtered(
+                    lambda move: move.move_type == 'out_refund' and move.state == 'posted'):
+                order._wof_reconcile_refunds(refund)
+            order._log_business_event('order.payment_refunded', details={
+                'amount': self.amount, 'journal': self.journal_id.name, 'payment': payment.name,
+            })
+            return {'type': 'ir.actions.act_window_close'}
         if order.invoice_id and order.invoice_id.state == 'posted':
             order._wof_reconcile_payments(order.invoice_id)
         order._log_business_event('order.payment_registered', details={

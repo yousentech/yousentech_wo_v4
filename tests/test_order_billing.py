@@ -239,3 +239,72 @@ class TestOrderBilling(TransactionCase):
         catalog = order.wof_service_catalog()
         film = next(film for act in catalog['activities'] for film in act['films'] if film['id'] == self.film.id)
         self.assertTrue(next(comp for comp in film['comps'] if comp['id'] == self.part.id)['added'])
+
+    # ------------------------------------------------- finance and returns
+    def _refund_flow_order(self):
+        self.set_invoice_mode('manual')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        self.pay(order, 200)
+        self.assertEqual(order.finance_state, 'due')
+        self.assertEqual(order.finance_received, 200)
+        self.assertEqual(order.finance_due, 300)
+        self.assertEqual(order.finance_to_refund, 0)
+        self.pay(order, 300)
+        order.action_create_invoice()
+        order.invoice_id.action_post()
+        order.invalidate_recordset()
+        self.assertEqual(order.finance_invoiced, 500)
+        self.assertEqual(order.finance_state, 'settled')
+        return order
+
+    def credit_whole_invoice(self, order):
+        action = order.action_wof_credit_note()
+        wizard = self.env['account.move.reversal'].with_context(action['context']).create({
+            'reason': 'مرتجع', 'journal_id': order.invoice_id.journal_id.id,
+        })
+        wizard.reverse_moves()
+        refund = order._wof_finance_moves().filtered(lambda move: move.move_type == 'out_refund')
+        self.assertEqual(refund.wof_order_id, order)
+        if refund.state == 'draft':
+            refund.action_post()
+        order.invalidate_recordset()
+        return refund
+
+    def test_credit_note_then_refund_payment(self):
+        order = self._refund_flow_order()
+        self.credit_whole_invoice(order)
+        self.assertEqual(order.finance_credited, 500)
+        self.assertEqual(order.finance_state, 'refund')
+        self.assertEqual(order.finance_to_refund, 500)
+        with self.assertRaises(ValidationError):
+            self.env['wof.order.payment.wizard'].with_context(
+                default_order_id=order.id, default_payment_type='outbound').create({'amount': 600}).action_confirm()
+        wizard = self.env['wof.order.payment.wizard'].with_context(
+            default_order_id=order.id, default_payment_type='outbound').create({})
+        self.assertEqual(wizard.amount, 500)
+        wizard.action_confirm()
+        order.invalidate_recordset()
+        self.assertEqual(order.finance_refunded, 500)
+        self.assertEqual(order.finance_state, 'settled')
+        self.assertEqual(order.finance_to_refund, 0)
+
+    def test_cancel_after_full_return(self):
+        order = self._refund_flow_order()
+        order.cancellation_reason = 'مرتجع كامل'
+        with self.assertRaises(ValidationError):
+            order.action_cancel()  # invoice not credited yet
+        self.credit_whole_invoice(order)
+        with self.assertRaises(ValidationError):
+            order.action_cancel()  # money not paid back yet
+        self.env['wof.order.payment.wizard'].with_context(
+            default_order_id=order.id, default_payment_type='outbound').create({}).action_confirm()
+        # Stock went out with the sale order: return it before cancelling.
+        delivered = order.sale_order_id.picking_ids.filtered(lambda pick: pick.state == 'done')
+        if delivered:
+            with self.assertRaises(ValidationError):
+                order.action_cancel()
+            return
+        order.action_cancel()
+        self.assertEqual(order.state, 'cancelled')
+        self.assertEqual(order.sale_order_id.state, 'cancel')

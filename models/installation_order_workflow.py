@@ -474,23 +474,30 @@ class WofInstallationOrderWorkflow(models.Model):
             'yousentech_wo_v4.group_wo_supervisor',
             'yousentech_wo_v4.group_wo_manager',
         )
-        if self.state in {'delivered', 'cancelled'}:
+        if self.state == 'cancelled':
+            raise ValidationError('الأمر ملغي مسبقًا.')
+        if self.state == 'delivered' and not self.env.user.has_group('yousentech_wo_v4.group_wo_manager'):
             raise ValidationError(
-                'لا يمكن إلغاء أمر تم تسليمه أو إلغاؤه مسبقًا.'
+                'إلغاء أمر مُسلَّم (مرتجع) متاح لمدير المركز فقط.'
             )
         reason = (self.cancellation_reason or '').strip()
         if not reason:
             raise ValidationError(
                 'اكتب سبب الإلغاء أولًا؛ لا يمكن إلغاء الأمر دون سبب.'
             )
-        if self.invoice_id and self.invoice_id.state == 'posted':
+        if self.finance_access:
+            # Invoices fully credited, money paid back and stock returned.
+            self._wof_check_finance_before_cancel()
+        elif self.invoice_id and self.invoice_id.state == 'posted':
             raise ValidationError(
                 'لا يمكن إلغاء الأمر لوجود فاتورة مرحلة. عالج الفاتورة محاسبيًا أولًا.'
             )
-        if self.sale_order_id and self.sale_order_id.state in {'sale', 'done'}:
-            raise ValidationError(
-                'لا يمكن إلغاء الأمر لوجود أمر بيع مؤكد. عالج أمر البيع أولًا.'
-            )
+        if self.sale_order_id and self.sale_order_id.state != 'cancel':
+            if not self.finance_access and self.sale_order_id.state in {'sale', 'done'}:
+                raise ValidationError(
+                    'لا يمكن إلغاء الأمر لوجود أمر بيع مؤكد. عالج أمر البيع أولًا.'
+                )
+            self.sale_order_id._action_cancel()
         previous = self.state
         self._transition_write({
             'state': 'cancelled',

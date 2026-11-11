@@ -216,3 +216,33 @@
 }
 .o_form_view.wof_order_form .wof_order_card { align-self: start; }
 .o_form_view.wof_order_form .wof_order_card .o_inner_group, .o_form_view.wof_order_form .wof_order_card.o_inner_group { align-content: start; grid-auto-rows: min-content; }
+
+/* team (technicians) */
+.o_form_view.wof_order_form .wof_team_list { margin-top: 2px; }
+.o_form_view.wof_order_form .wof_team_list .o_list_table thead th { color: var(--wo-muted); font-weight: 600; background: transparent; }
+.o_form_view.wof_order_form .wof_team_list .o_field_x2many_list_row_add a { color: var(--wo-teal); font-weight: 600; }
+.o_form_view.wof_order_form .wof_team_hint { padding-top: 4px; }
+
+/* finance follow-up */
+.o_form_view.wof_order_form .wof_order_hero_refund { color: #FDE68A; font-weight: 700; opacity: 1 !important; }
+.o_form_view.wof_order_form .wof_fin { display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
+.o_form_view.wof_order_form .wof_fin_head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.o_form_view.wof_order_form .wof_fin_head .badge { font-size: .9rem; padding: 6px 12px; border-radius: 99px; }
+.o_form_view.wof_order_form .wof_fin_actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.o_form_view.wof_order_form .wof_fin_actions .btn-primary { background: var(--wo-teal); border-color: var(--wo-teal); }
+.o_form_view.wof_order_form .wof_fin_kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.o_form_view.wof_order_form .wof_fin_kpi {
+    --k: var(--wo-teal); display: flex; flex-direction: column; gap: 4px; padding: 12px 14px;
+    border: 1px solid var(--wo-line); border-inline-start: 4px solid var(--k); border-radius: 14px; background: #FFFFFF;
+}
+.o_form_view.wof_order_form .wof_fin_kpi small { color: var(--wo-muted); font-weight: 600; }
+.o_form_view.wof_order_form .wof_fin_kpi .o_field_widget { color: var(--wo-ink); font-size: 1.15rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_fin_kpi.is-billed { --k: #0F6E6E; }
+.o_form_view.wof_order_form .wof_fin_kpi.is-credit { --k: #6D28D9; }
+.o_form_view.wof_order_form .wof_fin_kpi.is-paid { --k: #15803D; }
+.o_form_view.wof_order_form .wof_fin_kpi.is-back { --k: #475569; }
+.o_form_view.wof_order_form .wof_fin_kpi.is-due { --k: #B45309; background: #FFFBEB; }
+.o_form_view.wof_order_form .wof_fin_kpi.is-refund { --k: #B91C1C; background: #FEF2F2; }
+.o_form_view.wof_order_form .wof_fin_note { padding: 8px 12px; border-radius: 10px; background: var(--wo-teal-tint); }
+.o_form_view.wof_order_form .wof_fin_list h3 { margin: 0 0 8px; font-size: 1rem; font-weight: 700; color: var(--wo-ink); }
+.o_form_view.wof_order_form .wof_order_steps .wof_fin .wof_order_cards { grid-template-columns: 1fr; }
