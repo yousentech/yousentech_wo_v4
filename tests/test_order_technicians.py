@@ -111,3 +111,15 @@ class TestOrderTechnicians(TransactionCase):
         order.write({'technician_ids': [(2, order.technician_ids.id)]})
         self.assertFalse(order.technician_ids)
         self.assertFalse(order.technician_names)
+
+    def test_change_branch_on_draft_order(self):
+        self.manager.company_ids = [(4, self.company_b.id)]
+        env = self.env(context={'allowed_company_ids': [self.company_a.id, self.company_b.id]})
+        order = self.make_order().with_env(env)
+        order.write({'technician_ids': [(0, 0, {'employee_id': self.tech.id})]})
+        with self.assertRaises(ValidationError):
+            order.write({'company_id': self.company_b.id})  # technician of branch A still on it
+        order.write({'company_id': self.company_b.id, 'technician_ids': [(2, order.technician_ids.id)]})
+        self.assertEqual(order.company_id, self.company_b)
+        order.write({'technician_ids': [(0, 0, {'employee_id': self.other_branch_tech.id})]})
+        self.assertEqual(order.technician_names, 'فني الفرع ب')

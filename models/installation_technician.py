@@ -111,6 +111,53 @@ class WofInstallationOrderTeam(models.Model):
     technician_names = fields.Char(
         string='أسماء الفنيين', compute='_compute_technician_names', store=True,
     )
+    amount_gross = fields.Monetary(string='قيمة الخدمات', compute='_compute_order_summary')
+    service_count = fields.Integer(string='عدد الخدمات', compute='_compute_order_summary')
+    technician_count = fields.Integer(string='عدد الفنيين', compute='_compute_order_summary')
+
+    @api.depends('amount_untaxed', 'amount_discount', 'line_ids', 'technician_ids')
+    def _compute_order_summary(self):
+        for order in self:
+            order.amount_gross = order.amount_untaxed + order.amount_discount
+            order.service_count = len(order.line_ids)
+            order.technician_count = len(order.technician_ids)
+
+    # ---------------------------------------------------------------- branch
+    @api.onchange('company_id')
+    def _onchange_wof_branch(self):
+        # Technicians of the previous branch leave the order with it.
+        keep = self.technician_ids.filtered(
+            lambda rec: not rec.employee_id.company_id or rec.employee_id.company_id == self.company_id)
+        if keep != self.technician_ids:
+            self.technician_ids = keep
+            return {'warning': {
+                'title': _('تغيير الفرع'),
+                'message': _('أُزيل فنيو الفرع السابق من الأمر. اختر فنيي الفرع الجديد.'),
+            }}
+
+    def write(self, vals):
+        if 'company_id' not in vals:
+            return super().write(vals)
+        company = self.env['res.company'].browse(vals['company_id']).exists()
+        changing = self.filtered(lambda order: order.company_id != company)
+        if changing:
+            if not company or company not in self.env.companies:
+                raise ValidationError(_('اختر فرعًا من الفروع المسموح لك بالعمل عليها.'))
+            for order in changing:
+                if order.state not in ('draft', 'scheduled'):
+                    raise ValidationError(_('يُغيَّر فرع الأمر قبل إكمال الاستلام فقط.'))
+                paid = self.env['account.payment'].search_count([('wof_order_id', '=', order.id)]) \
+                    if self.env['account.payment'].check_access_rights('read', raise_exception=False) else 0
+                if paid or order.sale_order_id or order.invoice_id:
+                    raise ValidationError(_('لا يمكن تغيير الفرع بعد تسجيل دفعات أو إنشاء أمر بيع أو فاتورة.'))
+        result = super().write(vals)
+        Employee = self.env['hr.employee']
+        for order in changing:
+            outside = order.technician_ids.filtered(lambda rec: not Employee.search_count([
+                ('id', '=', rec.employee_id.id), ('company_id', 'in', [company.id, False])]))
+            if outside:
+                raise ValidationError(_('الفنيون التاليون من فرع آخر، أزلهم أولًا: %s.') % '، '.join(outside.mapped('name')))
+        return result
 
     @api.depends('technician_ids.name')
     def _compute_technician_names(self):

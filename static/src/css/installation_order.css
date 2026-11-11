@@ -14,27 +14,6 @@
 .o_form_view.wof_order_form .o_arrow_button_current { background: var(--wo-teal) !important; color: #FFFFFF !important; }
 .o_form_view.wof_order_form .o_arrow_button_current::after { border-inline-start-color: var(--wo-teal) !important; }
 
-/* hero */
-.o_form_view.wof_order_form .wof_order_hero {
-    display: grid; grid-template-columns: minmax(300px, 1.8fr) minmax(200px, .8fr) minmax(220px, .8fr); gap: 14px; align-items: stretch;
-    padding: 18px 22px; margin-block-end: 14px; color: #FFFFFF; border-radius: 18px;
-    background: radial-gradient(circle at 10% 140%, rgba(255, 255, 255, .10) 0 110px, transparent 111px),
-                linear-gradient(120deg, #0A5252 0%, #0F6E6E 55%, #148080 100%);
-    box-shadow: 0 6px 18px rgba(15, 110, 110, .16);
-}
-.o_form_view.wof_order_form .wof_order_hero h1 { margin: 2px 0 6px; color: inherit; font-size: 1.7rem; font-weight: 700; }
-.o_form_view.wof_order_form .wof_order_eyebrow { display: inline-flex; padding: 2px 10px; border: 1px solid rgba(255, 255, 255, .28); border-radius: 99px; font-size: .78rem; font-weight: 700; }
-.o_form_view.wof_order_form .wof_order_hero_meta { display: flex; flex-wrap: wrap; gap: 6px 18px; opacity: .92; }
-.o_form_view.wof_order_form .wof_order_hero_meta a, .o_form_view.wof_order_form .wof_order_hero_meta span { color: #FFFFFF; }
-.o_form_view.wof_order_form .wof_order_hero_state, .o_form_view.wof_order_form .wof_order_hero_total {
-    display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 12px 16px;
-    border: 1px solid rgba(255, 255, 255, .2); border-radius: 14px; background: rgba(255, 255, 255, .1);
-}
-.o_form_view.wof_order_form .wof_order_hero_state small, .o_form_view.wof_order_form .wof_order_hero_total small { opacity: .8; }
-.o_form_view.wof_order_form .wof_order_hero_state strong, .o_form_view.wof_order_form .wof_order_hero_total strong { font-size: 1.15rem; }
-.o_form_view.wof_order_form .wof_order_hero .o_progressbar .bg-primary, .o_form_view.wof_order_form .wof_order_hero .o_progressbar .progress-bar { background-color: #5EEAD4 !important; }
-.o_form_view.wof_order_form .wof_order_hero .badge { background: rgba(255, 255, 255, .92) !important; color: var(--wo-teal-dark) !important; }
-
 /* stat buttons */
 .o_form_view.wof_order_form .oe_button_box { margin-block-end: 10px; }
 .o_form_view.wof_order_form .oe_stat_button { border-radius: 12px; background: #FFFFFF; border: 1px solid var(--wo-line); }
@@ -53,9 +32,6 @@
 .o_form_view.wof_order_form .wof_order_pay_actions { display: flex; gap: 8px; padding-top: 8px; }
 .o_form_view.wof_order_form .wof_order_pay_actions .btn-primary { background: var(--wo-teal); border-color: var(--wo-teal); flex: 1; }
 
-/* notebook as clean tabs */
-.o_form_view.wof_order_form .wof_order_main .o_notebook_headers .nav-link { border: 0; border-bottom: 3px solid transparent; color: var(--wo-muted); font-weight: 600; }
-.o_form_view.wof_order_form .wof_order_main .o_notebook_headers .nav-link.active { color: var(--wo-teal); border-bottom-color: var(--wo-teal); background: transparent; }
 .o_form_view.wof_order_form .wof_order_hint, .o_form_view.wof_order_form .wof_order_section_intro {
     margin: 6px 0 12px; padding: 10px 14px; border-radius: 12px; background: var(--wo-teal-tint); color: var(--wo-ink); border: 0; font-size: .92rem;
 }
@@ -106,51 +82,11 @@
 .o_kanban_view.wof_order_kanban .wof_order_kanban_footer { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding-block: .8rem; margin-block-start: .75rem; border-top: 1px solid #E3E8E8; font-weight: 700; }
 
 @media (max-width: 992px) {
-    .o_form_view.wof_order_form .wof_order_hero { grid-template-columns: 1fr 1fr; }
-    .o_form_view.wof_order_form .wof_order_hero_main { grid-column: 1 / -1; }
     .o_form_view.wof_order_form .wof_order_side { max-width: none; }
 }
 @media (max-width: 576px) {
-    .o_form_view.wof_order_form .wof_order_hero { grid-template-columns: 1fr; padding: 14px; }
     .o_form_view.wof_order_form .wof_line_card { flex-direction: column; }
     .o_form_view.wof_order_form .wof_line_price { width: auto; align-items: flex-start; border: 0; padding: 0; }
-}
-
-/* ============================================ steps as a side menu
- * The order's tabs become a numbered step rail (customer & car first), like the
- * guided setup; each step shows only its own content. */
-.o_form_view.wof_order_form .wof_order_main { padding: 0; overflow: hidden; }
-.o_form_view.wof_order_form .wof_order_steps.o_notebook { flex-direction: row !important; align-items: stretch; min-height: 560px; }
-.o_form_view.wof_order_form .wof_order_steps > .o_notebook_headers {
-    flex: 0 0 250px; margin: 0 !important; padding: 16px 12px; background: #FAFCFC; border-inline-end: 1px solid var(--wo-line-2); overflow: visible;
-}
-.o_form_view.wof_order_form .wof_order_steps > .o_notebook_headers .nav {
-    flex-direction: column; flex-wrap: nowrap; gap: 4px; border: 0 !important;
-}
-.o_form_view.wof_order_form .wof_order_steps > .o_notebook_headers .nav-item { width: 100%; margin: 0; }
-.o_form_view.wof_order_form .wof_order_steps > .o_notebook_headers .nav-link {
-    display: block; width: 100%; padding: 11px 14px !important; border: 0 !important; border-radius: 12px !important;
-    color: var(--wo-ink) !important; font-weight: 600; background: transparent; text-align: start;
-}
-.o_form_view.wof_order_form .wof_order_steps > .o_notebook_headers .nav-link:hover { background: #EEF5F4; }
-.o_form_view.wof_order_form .wof_order_steps > .o_notebook_headers .nav-link.active {
-    background: var(--wo-teal-tint) !important; color: var(--wo-teal-dark) !important; font-weight: 800;
-    box-shadow: inset -3px 0 0 var(--wo-teal);
-}
-.o_form_view.wof_order_form .wof_order_steps > .o_notebook_headers .nav-item:nth-child(7) { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--wo-line); }
-.o_form_view.wof_order_form .wof_order_steps > .o_notebook_headers .nav-item:nth-child(n+7) .nav-link { color: var(--wo-muted) !important; font-weight: 500; }
-.o_form_view.wof_order_form .wof_order_steps > .tab-content { flex: 1; min-width: 0; padding: 20px 24px 24px; }
-.o_form_view.wof_order_form .wof_order_step_head { margin-bottom: 14px; }
-.o_form_view.wof_order_form .wof_order_step_head h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: var(--wo-ink); }
-.o_form_view.wof_order_form .wof_order_step_head p { margin: 0; color: var(--wo-muted); }
-.o_form_view.wof_order_form .wof_order_steps .wof_order_cards {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin: 0;
-}
-.o_form_view.wof_order_form .wof_order_steps .wof_order_card { background: #FFFFFF; }
-@media (max-width: 860px) {
-    .o_form_view.wof_order_form .wof_order_steps.o_notebook { flex-direction: column !important; }
-    .o_form_view.wof_order_form .wof_order_steps > .o_notebook_headers { flex-basis: auto; border-inline-end: 0; border-bottom: 1px solid var(--wo-line-2); }
-    .o_form_view.wof_order_form .wof_order_steps > .o_notebook_headers .nav { flex-direction: row; overflow-x: auto; }
 }
 
 /* ============================================ add-service window */
@@ -205,15 +141,6 @@
 .o_form_view.wof_order_form .wof_line_tpl { font-size: .85rem; color: var(--wo-muted); }
 .o_form_view.wof_order_form .wof_line_tpl b { color: var(--wo-violet); }
 .o_form_view.wof_order_form .wof_order_add { margin-bottom: 12px; min-height: 42px; border-radius: 12px; font-weight: 700; background: var(--wo-teal); border-color: var(--wo-teal); }
-/* Bootstrap's flex-column/flex-row are !important on the notebook: use a grid. */
-.o_form_view.wof_order_form .o_notebook.wof_order_steps { display: grid !important; grid-template-columns: 250px minmax(0, 1fr); }
-.o_form_view.wof_order_form .o_notebook.wof_order_steps > .o_notebook_headers { width: auto; min-width: 0; overflow: visible; }
-.o_form_view.wof_order_form .o_notebook.wof_order_steps > .o_notebook_headers > .nav { flex-direction: column !important; flex-wrap: nowrap !important; }
-.o_form_view.wof_order_form .o_notebook.wof_order_steps > .o_notebook_content { min-width: 0; padding: 20px 24px 24px; }
-@media (max-width: 860px) {
-    .o_form_view.wof_order_form .o_notebook.wof_order_steps { grid-template-columns: 1fr; }
-    .o_form_view.wof_order_form .o_notebook.wof_order_steps > .o_notebook_headers > .nav { flex-direction: row !important; overflow-x: auto; }
-}
 .o_form_view.wof_order_form .wof_order_card { align-self: start; }
 .o_form_view.wof_order_form .wof_order_card .o_inner_group, .o_form_view.wof_order_form .wof_order_card.o_inner_group { align-content: start; grid-auto-rows: min-content; }
 
@@ -224,7 +151,6 @@
 .o_form_view.wof_order_form .wof_team_hint { padding-top: 4px; }
 
 /* finance follow-up */
-.o_form_view.wof_order_form .wof_order_hero_refund { color: #FDE68A; font-weight: 700; opacity: 1 !important; }
 .o_form_view.wof_order_form .wof_fin { display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
 .o_form_view.wof_order_form .wof_fin_head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 .o_form_view.wof_order_form .wof_fin_head .badge { font-size: .9rem; padding: 6px 12px; border-radius: 99px; }
@@ -245,4 +171,103 @@
 .o_form_view.wof_order_form .wof_fin_kpi.is-refund { --k: #B91C1C; background: #FEF2F2; }
 .o_form_view.wof_order_form .wof_fin_note { padding: 8px 12px; border-radius: 10px; background: var(--wo-teal-tint); }
 .o_form_view.wof_order_form .wof_fin_list h3 { margin: 0 0 8px; font-size: 1rem; font-weight: 700; color: var(--wo-ink); }
-.o_form_view.wof_order_form .wof_order_steps .wof_fin .wof_order_cards { grid-template-columns: 1fr; }
+.o_form_view.wof_order_form .wof_steps .wof_fin .wof_order_cards { grid-template-columns: 1fr; }
+
+/* ============================================ hero: summary + figures */
+.o_form_view.wof_order_form .wof_order_hero {
+    display: flex; flex-direction: column; gap: 16px; padding: 20px 22px; margin-block-end: 14px; color: #FFFFFF; border-radius: 18px;
+    background: radial-gradient(circle at 8% 150%, rgba(255, 255, 255, .10) 0 120px, transparent 121px),
+                linear-gradient(120deg, #0A5252 0%, #0F6E6E 55%, #148080 100%);
+    box-shadow: 0 6px 18px rgba(15, 110, 110, .16);
+}
+.o_form_view.wof_order_form .wof_order_hero_top { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; justify-content: space-between; }
+.o_form_view.wof_order_form .wof_order_hero_main { display: flex; gap: 14px; align-items: center; min-width: 0; flex: 1 1 420px; }
+.o_form_view.wof_order_form .wof_order_hero_icon {
+    flex: 0 0 52px; height: 52px; display: grid; place-items: center; border-radius: 16px;
+    background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .25); font-size: 1.4rem;
+}
+.o_form_view.wof_order_form .wof_order_eyebrow { font-size: .8rem; font-weight: 700; opacity: .8; }
+.o_form_view.wof_order_form .wof_order_hero h1 { margin: 2px 0 6px; color: inherit; font-size: 1.75rem; font-weight: 800; letter-spacing: .3px; }
+.o_form_view.wof_order_form .wof_order_hero_meta { display: flex; flex-wrap: wrap; gap: 6px 18px; opacity: .92; }
+.o_form_view.wof_order_form .wof_order_hero_meta a, .o_form_view.wof_order_form .wof_order_hero_meta span { color: #FFFFFF; }
+.o_form_view.wof_order_form .wof_order_hero_state {
+    flex: 0 1 340px; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 12px 16px;
+    border: 1px solid rgba(255, 255, 255, .2); border-radius: 14px; background: rgba(255, 255, 255, .1);
+}
+.o_form_view.wof_order_form .wof_order_hero_state_row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.o_form_view.wof_order_form .wof_order_hero_state small { opacity: .8; }
+.o_form_view.wof_order_form .wof_order_hero_state strong { font-size: 1.1rem; }
+.o_form_view.wof_order_form .wof_order_hero .badge { background: rgba(255, 255, 255, .92) !important; color: var(--wo-teal-dark) !important; }
+.o_form_view.wof_order_form .wof_order_hero .o_progressbar .progress { background: rgba(255, 255, 255, .22); height: 6px; }
+.o_form_view.wof_order_form .wof_order_hero .o_progressbar .bg-primary, .o_form_view.wof_order_form .wof_order_hero .o_progressbar .progress-bar { background-color: #5EEAD4 !important; }
+.o_form_view.wof_order_form .wof_order_kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+.o_form_view.wof_order_form .wof_order_kpi {
+    --k: #5EEAD4; display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 10px 14px;
+    border-radius: 14px; background: rgba(255, 255, 255, .10); border: 1px solid rgba(255, 255, 255, .16); border-top: 3px solid var(--k);
+}
+.o_form_view.wof_order_form .wof_order_kpi small { font-size: .78rem; font-weight: 700; opacity: .82; }
+.o_form_view.wof_order_form .wof_order_kpi > .o_field_widget { color: #FFFFFF; font-size: clamp(1rem, 1.2vw, 1.3rem); font-weight: 800; }
+.o_form_view.wof_order_form .wof_order_kpi > span { font-size: .78rem; opacity: .8; }
+.o_form_view.wof_order_form .wof_order_kpi > span .o_field_widget { color: inherit; font-size: inherit; }
+.o_form_view.wof_order_form .wof_order_kpi.is-gross { --k: #7DD3FC; }
+.o_form_view.wof_order_form .wof_order_kpi.is-discount { --k: #C4B5FD; }
+.o_form_view.wof_order_form .wof_order_kpi.is-tax { --k: #CBD5E1; }
+.o_form_view.wof_order_form .wof_order_kpi.is-total { --k: #FFFFFF; background: rgba(255, 255, 255, .2); }
+.o_form_view.wof_order_form .wof_order_kpi.is-paid { --k: #86EFAC; }
+.o_form_view.wof_order_form .wof_order_kpi.is-due { --k: #FCD34D; }
+.o_form_view.wof_order_form .wof_order_kpi.is-refund { --k: #FCA5A5; background: rgba(185, 28, 28, .25); }
+@media (max-width: 1280px) { .o_form_view.wof_order_form .wof_order_kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 576px) {
+    .o_form_view.wof_order_form .wof_order_hero { padding: 14px; }
+    .o_form_view.wof_order_form .wof_order_kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ============================================ sections: side menu + «عرض الكل»
+ * Every section is in the page; the checked menu item decides which one shows. */
+.o_form_view.wof_order_form .wof_order_main { padding: 0; overflow: hidden; }
+.o_form_view.wof_order_form .wof_steps { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: 560px; }
+.o_form_view.wof_order_form .wof_steps_nav {
+    display: flex; flex-direction: column; gap: 4px; padding: 16px 12px; background: #FAFCFC; border-inline-end: 1px solid var(--wo-line-2);
+}
+.o_form_view.wof_order_form .wof_steps_caption { padding: 2px 10px 10px; color: var(--wo-muted); font-size: .82rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_steps_opt {
+    position: relative; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px;
+    color: var(--wo-ink); font-weight: 700; cursor: pointer; border-inline-start: 3px solid transparent;
+}
+.o_form_view.wof_order_form .wof_steps_opt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
+.o_form_view.wof_order_form .wof_steps_opt:hover { background: #EEF5F4; }
+.o_form_view.wof_order_form .wof_steps_opt:has(input:checked) { background: var(--wo-teal-soft); color: var(--wo-teal-dark); border-inline-start-color: var(--wo-teal); }
+.o_form_view.wof_order_form .wof_steps_opt:has(input:focus-visible) { outline: 2px solid var(--wo-teal); outline-offset: 2px; }
+.o_form_view.wof_order_form .wof_steps_n {
+    flex: 0 0 26px; height: 26px; display: grid; place-items: center; border-radius: 50%;
+    background: #FFFFFF; border: 1px solid var(--wo-line); color: var(--wo-muted); font-size: .8rem;
+}
+.o_form_view.wof_order_form .wof_steps_opt:has(input:checked) .wof_steps_n { background: var(--wo-teal); border-color: var(--wo-teal); color: #FFFFFF; }
+.o_form_view.wof_order_form .wof_steps_opt.is-extra { font-weight: 500; color: var(--wo-muted); }
+.o_form_view.wof_order_form .wof_steps_opt.is-extra .fa { width: 26px; text-align: center; }
+.o_form_view.wof_order_form .wof_steps_label { flex: 1; min-width: 0; }
+.o_form_view.wof_order_form .wof_steps_now { padding: 1px 8px; border-radius: 99px; background: var(--wo-amber-soft); color: var(--wo-amber); font-size: .72rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_steps_sep { height: 1px; margin: 8px 10px; background: var(--wo-line); }
+.o_form_view.wof_order_form .wof_steps_content { min-width: 0; padding: 20px 24px 24px; }
+.o_form_view.wof_order_form .wof_steps .wof_order_cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin: 0; }
+.o_form_view.wof_order_form .wof_sec { display: none; }
+.o_form_view.wof_order_form .wof_steps:has(input[value="customer"]:checked) .wof_sec_customer,
+.o_form_view.wof_order_form .wof_steps:has(input[value="services"]:checked) .wof_sec_services,
+.o_form_view.wof_order_form .wof_steps:has(input[value="intake"]:checked) .wof_sec_intake,
+.o_form_view.wof_order_form .wof_steps:has(input[value="execution"]:checked) .wof_sec_execution,
+.o_form_view.wof_order_form .wof_steps:has(input[value="quality_delivery"]:checked) .wof_sec_quality_delivery,
+.o_form_view.wof_order_form .wof_steps:has(input[value="billing"]:checked) .wof_sec_billing,
+.o_form_view.wof_order_form .wof_steps:has(input[value="attachments"]:checked) .wof_sec_attachments,
+.o_form_view.wof_order_form .wof_steps:has(input[value="advanced"]:checked) .wof_sec_advanced,
+.o_form_view.wof_order_form .wof_steps:has(input[value="timeline"]:checked) .wof_sec_timeline,
+.o_form_view.wof_order_form .wof_steps:has(input[value="all"]:checked) .wof_sec { display: block; }
+.o_form_view.wof_order_form .wof_steps:has(input[value="all"]:checked) .wof_sec + .wof_sec { margin-top: 26px; padding-top: 22px; border-top: 1px dashed var(--wo-line); }
+.o_form_view.wof_order_form .wof_order_step_head { margin-bottom: 14px; }
+.o_form_view.wof_order_form .wof_order_step_head h2 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 700; color: var(--wo-ink); }
+.o_form_view.wof_order_form .wof_order_step_head p { margin: 0; color: var(--wo-muted); }
+@media (max-width: 860px) {
+    .o_form_view.wof_order_form .wof_steps { grid-template-columns: 1fr; }
+    .o_form_view.wof_order_form .wof_steps_nav { flex-direction: row; overflow-x: auto; border-inline-end: 0; border-bottom: 1px solid var(--wo-line-2); }
+    .o_form_view.wof_order_form .wof_steps_caption, .o_form_view.wof_order_form .wof_steps_sep { display: none; }
+    .o_form_view.wof_order_form .wof_steps_opt { flex: 0 0 auto; white-space: nowrap; }
+}

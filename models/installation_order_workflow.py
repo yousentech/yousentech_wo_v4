@@ -50,7 +50,6 @@ class WofInstallationOrderWorkflow(models.Model):
         protected = {
             'name',
             'state',
-            'company_id',
             'created_by_id',
             'idempotency_key',
             'idempotency_fingerprint',
@@ -81,6 +80,7 @@ class WofInstallationOrderWorkflow(models.Model):
                 'استخدم إجراءات أمر التركيب المعتمدة لتغيير الحالة أو بيانات التدقيق.'
             )
         commercial = {
+            'company_id',
             'partner_id',
             'customer_notes',
             'vehicle_plate',

@@ -35,12 +35,15 @@ class WofInstallationOrderPayment(models.Model):
 
     @api.depends('payment_ids.state', 'payment_ids.amount', 'payment_ids.payment_type', 'amount_total')
     def _compute_wof_payments(self):
+        # Users without accounting rights still open the order: they see the total as remaining.
+        readable = self.env['account.payment'].check_access_rights('read', raise_exception=False)
         for order in self:
-            posted = order.payment_ids.filtered(lambda pay: pay.state == 'posted')
+            posted = order.payment_ids.filtered(lambda pay: pay.state == 'posted') if readable \
+                else self.env['account.payment']
             paid = sum(posted.filtered(lambda pay: pay.payment_type == 'inbound').mapped('amount')) \
                 - sum(posted.filtered(lambda pay: pay.payment_type == 'outbound').mapped('amount'))
             currency = order.currency_id or order.company_id.currency_id
-            order.payment_count = len(order.payment_ids)
+            order.payment_count = len(order.payment_ids) if readable else 0
             order.amount_paid = paid
             order.amount_residual = max(order.amount_total - paid, 0.0)
             if float_is_zero(paid, precision_rounding=currency.rounding):
