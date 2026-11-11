@@ -195,20 +195,10 @@ class WofInstallationOrder(models.Model):
         'res.users', string="مشرف التشغيل", ondelete='restrict',
         index=True,
     )
-    technician_ids = fields.Many2many(
-        'res.users',
-        'wof_installation_order_technician_rel',
-        'order_id',
-        'user_id',
-        string="الفنيون",
-    )
     advisor_candidate_ids = fields.Many2many(
         'res.users', compute='_compute_assignment_candidates',
     )
     supervisor_candidate_ids = fields.Many2many(
-        'res.users', compute='_compute_assignment_candidates',
-    )
-    technician_candidate_ids = fields.Many2many(
         'res.users', compute='_compute_assignment_candidates',
     )
 
@@ -391,10 +381,7 @@ class WofInstallationOrder(models.Model):
         supervisor_group = self.env.ref(
             'yousentech_wo_v4.group_wo_supervisor'
         )
-        technician_group = self.env.ref(
-            'yousentech_wo_v4.group_wo_technician'
-        )
-        # Staff of every branch can be assigned: orders are shared by all branches.
+        # Advisors and supervisors may come from any branch (users can work in several).
         staff_domain = [('active', '=', True)]
         for order in self:
             order.advisor_candidate_ids = self.env['res.users'].search(
@@ -405,11 +392,6 @@ class WofInstallationOrder(models.Model):
             order.supervisor_candidate_ids = self.env['res.users'].search(
                 staff_domain + [
                     ('groups_id', 'in', supervisor_group.ids),
-                ]
-            )
-            order.technician_candidate_ids = self.env['res.users'].search(
-                staff_domain + [
-                    ('groups_id', 'in', technician_group.ids),
                 ]
             )
 
@@ -429,7 +411,6 @@ class WofInstallationOrder(models.Model):
     @api.constrains(
         'advisor_id',
         'supervisor_id',
-        'technician_ids',
     )
     def _check_assigned_users_company(self):
         for order in self:
@@ -446,21 +427,6 @@ class WofInstallationOrder(models.Model):
             ):
                 raise ValidationError(
                     'مشرف التشغيل يجب أن يحمل دور مشرف التشغيل.'
-                )
-            invalid_technicians = (
-                order.technician_ids - order.technician_candidate_ids
-            )
-            if invalid_technicians:
-                raise ValidationError(
-                    'المستخدمون التاليون لا يحملون دور الفني: %s.'
-                    % '، '.join(invalid_technicians.mapped('display_name'))
-                )
-            line_technicians = order.line_ids.mapped('execution_technician_id')
-            removed_assignees = line_technicians - order.technician_ids
-            if removed_assignees:
-                raise ValidationError(
-                    'لا يمكن إزالة فني مسند إلى خدمة. أعد إسناد الخدمات أولًا: %s.'
-                    % '، '.join(removed_assignees.mapped('display_name'))
                 )
 
     @api.constrains('appointment_at', 'expected_delivery_at')

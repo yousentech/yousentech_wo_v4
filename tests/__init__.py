@@ -6,3 +6,4 @@ from . import test_shared_branches
 from . import test_order_fields
 from . import test_stock_product
 from . import test_order_billing
+from . import test_order_technicians

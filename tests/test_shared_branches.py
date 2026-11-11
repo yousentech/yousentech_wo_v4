@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Settings and installation orders are shared by every branch.
+"""Settings are shared by every branch; installation orders belong to their branch.
 
 Run on a test database:
     odoo-bin -d <db> -u yousentech_wo_v4 --test-enable --test-tags /yousentech_wo_v4:TestSharedBranches --stop-after-init
@@ -76,7 +76,7 @@ class TestSharedBranches(TransactionCase):
         film_id = Film.wof_film_create(self.activity.id, 'فيلم من الفرع', 'film')
         self.assertIn(film_id, [card['id'] for card in self.main_env['wof.film.category'].wof_films_hub_load()['films']])
 
-    def test_orders_shared_but_owned_by_branch(self):
+    def test_orders_belong_to_their_branch(self):
         partner = self.env['res.partner'].create({'name': 'عميل مشترك', 'mobile': '0500000000'})
         size = self.main_env['wof.car.size'].search([], limit=1)
         order = self.main_env['wof.installation.order'].create({
@@ -84,8 +84,11 @@ class TestSharedBranches(TransactionCase):
             'advisor_id': self.main_user.id,
         })
         self.assertEqual(order.company_id, self.main)
-        seen = self.branch_env['wof.installation.order'].search([('id', '=', order.id)])
-        self.assertEqual(seen.id, order.id)
-        self.assertEqual(seen.name, order.name)
-        # Staff of other branches can be assigned.
+        # Another branch does not see it (record rule on the user's companies).
+        self.assertFalse(self.branch_env['wof.installation.order'].search([('id', '=', order.id)]))
+        # A user working in both branches sees it once both are active.
+        both = self.main_env(context=dict(self.main_env.context, allowed_company_ids=[self.main.id, self.branch.id]))
+        self.main_user.company_ids = [(4, self.branch.id)]
+        self.assertTrue(both['wof.installation.order'].search([('id', '=', order.id)]))
+        # Staff of other branches can still be the advisor.
         self.assertIn(self.branch_user, order.advisor_candidate_ids)

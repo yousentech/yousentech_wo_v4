@@ -21,6 +21,7 @@ MODULE = "yousentech_wo_v4"
 EXTERNAL_PREFIXES = {
     "account",
     "base",
+    "hr",
     "mail",
     "product",
     "sale",

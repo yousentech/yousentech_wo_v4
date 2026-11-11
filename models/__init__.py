@@ -10,5 +10,6 @@ from . import installation_payment
 from . import installation_billing
 from . import installation_catalog
 from . import installation_event
+from . import installation_technician
 
 from . import hr_employee

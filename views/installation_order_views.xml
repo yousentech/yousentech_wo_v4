@@ -8,6 +8,7 @@
                   decoration-success="execution_progress == 100">
                 <field name="sequence" widget="handle"/>
                 <field name="company_id" column_invisible="True"/>
+                <field name="order_id" column_invisible="True"/>
                 <field name="currency_id" column_invisible="True"/>
                 <field name="available_car_part_ids" column_invisible="True"/>
                 <field name="available_grade_ids" column_invisible="True"/>
@@ -66,7 +67,6 @@
                 </header>
                 <sheet>
                     <field name="order_state" invisible="1"/>
-                    <field name="available_technician_ids" invisible="1"/>
                     <field name="available_car_part_ids" invisible="1"/>
                     <field name="available_grade_ids" invisible="1"/>
                     <field name="supports_color_grades" invisible="1"/>
@@ -154,8 +154,7 @@
                     <group string="التنفيذ">
                         <field name="execution_technician_id"
                                readonly="order_state != 'in_progress'"
-                               domain="[('id', 'in', available_technician_ids)]"
-                               options="{'no_create': True}"/>
+                               options="{'no_create': True, 'no_open': True}"/>
                         <field name="execution_progress" widget="progressbar"
                                readonly="order_state != 'in_progress'"/>
                         <field name="execution_notes"
@@ -182,10 +181,9 @@
                 <field name="service_type_id" readonly="1"/>
                 <field name="film_category_id" readonly="1"/>
                 <field name="car_part_id" readonly="1"/>
+                <field name="order_id" column_invisible="True"/>
                 <field name="execution_technician_id"
-                       domain="[('id', 'in', available_technician_ids)]"
                        options="{'no_create': True, 'no_open': True}"/>
-                <field name="available_technician_ids" column_invisible="True"/>
                 <field name="execution_progress" widget="progressbar"/>
                 <field name="execution_notes"/>
             </tree>
@@ -246,8 +244,7 @@
                 <field name="vehicle_model_id" optional="hide"/>
                 <field name="car_size_id" optional="show"/>
                 <field name="advisor_id" optional="hide"/>
-                <field name="technician_ids" widget="many2many_avatar_user"
-                       optional="hide"/>
+                <field name="technician_names" optional="hide"/>
                 <field name="execution_progress" widget="progressbar"
                        optional="show"/>
                 <field name="currency_id" column_invisible="True"/>
@@ -273,7 +270,7 @@
                 <field name="amount_total"/>
                 <field name="currency_id"/>
                 <field name="execution_progress"/>
-                <field name="technician_ids"/>
+                <field name="technician_names"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_global_click wof_order_kanban_card">
@@ -298,7 +295,7 @@
                             </div>
                             <div class="wof_order_kanban_footer">
                                 <field name="amount_total" widget="monetary"/>
-                                <field name="technician_ids" widget="many2many_avatar_user"/>
+                                <span class="wof_order_kanban_team" t-if="record.technician_names.raw_value"><i class="fa fa-users me-1" title="الفنيون"/><field name="technician_names"/></span>
                             </div>
                             <field name="execution_progress" widget="progressbar"/>
                         </div>
@@ -322,6 +319,8 @@
                 <field name="technician_ids"/>
                 <filter name="my_orders" string="أوامري"
                         domain="[('advisor_id', '=', uid)]"/>
+                <filter name="assigned_to_me" string="مسندة لي كفني"
+                        domain="[('technician_ids.user_id', '=', uid)]"/>
                 <filter name="today" string="مواعيد اليوم"
                         date="appointment_at"/>
                 <separator/>
@@ -401,7 +400,6 @@
                     <field name="use_appointments" invisible="1"/>
                     <field name="advisor_candidate_ids" invisible="1"/>
                     <field name="supervisor_candidate_ids" invisible="1"/>
-                    <field name="technician_candidate_ids" invisible="1"/>
                     <div class="wof_order_hero">
                         <div class="wof_order_hero_main">
                             <span class="wof_order_eyebrow">أمر تركيب</span>
@@ -513,6 +511,8 @@
                                    options="{'no_create': True}"/>
                         </group>
                         <group class="wof_order_card" string="الموعد والمسؤولون">
+                            <field name="company_id" groups="base.group_multi_company"
+                                   readonly="id" options="{'no_create': True, 'no_open': True}"/>
                             <field name="appointment_at"
                                    required="use_appointments"
                                    readonly="state not in ('draft', 'scheduled')"/>
@@ -535,13 +535,26 @@
                                    options="{'no_create': True}"
                                    invisible="',supervisor,' in wof_hidden_fields"
                                    required="',supervisor,' in wof_required_fields"/>
-                            <field name="technician_ids"
-                                   widget="many2many_avatar_user"
+                            <label for="technician_ids" invisible="',technician,' in wof_hidden_fields"/>
+                            <field name="technician_ids" nolabel="1" colspan="2" class="wof_team_list"
+                                   add-label="إضافة فني"
                                    readonly="state in ('quality', 'ready', 'delivered', 'cancelled')"
-                                   domain="[('id', 'in', technician_candidate_ids)]"
-                                   options="{'no_create': True}"
                                    invisible="',technician,' in wof_hidden_fields"
-                                   required="',technician,' in wof_required_fields and state == 'intake'"/>
+                                   required="',technician,' in wof_required_fields and state == 'intake'">
+                                <tree editable="bottom" no_open="1">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="employee_id" string="الفني"
+                                           domain="[('is_wof_technician', '=', True), ('company_id', 'in', [parent.company_id, False])]"
+                                           options="{'no_create': True, 'no_open': True}"
+                                           readonly="id"/>
+                                    <field name="job_title" readonly="1" optional="show"/>
+                                    <field name="service_count" readonly="1" string="خدمات" optional="show"/>
+                                </tree>
+                            </field>
+                            <div class="wof_team_hint text-muted small" colspan="2"
+                                 invisible="',technician,' in wof_hidden_fields or state in ('quality', 'ready', 'delivered', 'cancelled')">
+                                تظهر هنا موظفو فرع الأمر المعلَّمون «فني تركيب» في بيانات الموظف.
+                            </div>
                         </group>
                     </div>
                         </page>

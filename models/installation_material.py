@@ -147,7 +147,7 @@ class WofInstallationMaterialLine(models.Model):
                 'yousentech_wo_v4.group_wo_manager',
             )
         )
-        if not is_supervisor and self.env.user not in order.technician_ids:
+        if not is_supervisor and not order._wof_is_assigned_technician():
             raise AccessError(
                 'يمكن للفني تسجيل مواد الأوامر المسندة إليه فقط.'
             )

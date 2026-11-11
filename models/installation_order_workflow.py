@@ -36,7 +36,7 @@ class WofInstallationOrderWorkflow(models.Model):
                 'yousentech_wo_v4.group_wo_manager',
             )
         )
-        if not is_supervisor and self.env.user not in self.technician_ids:
+        if not is_supervisor and not self._wof_is_assigned_technician():
             raise AccessError(
                 'يمكن للفني تنفيذ الإجراءات على الأوامر المسندة إليه فقط.'
             )
@@ -180,7 +180,7 @@ class WofInstallationOrderWorkflow(models.Model):
                         'yousentech_wo_v4.group_wo_manager',
                     )
                 )
-                if not is_supervisor and self.env.user not in order.technician_ids:
+                if not is_supervisor and not order._wof_is_assigned_technician():
                     raise AccessError(
                         'يمكن للفني تحديث أوامر التركيب المسندة إليه فقط.'
                     )

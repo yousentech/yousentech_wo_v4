@@ -33,9 +33,6 @@ class WofInstallationOrderLine(models.Model):
     order_state = fields.Selection(
         related='order_id.state', store=True, readonly=True,
     )
-    available_technician_ids = fields.Many2many(
-        related='order_id.technician_ids', readonly=True,
-    )
     available_car_part_ids = fields.Many2many(
         'wof.car.parts', compute='_compute_available_configuration',
         string="مكوّنات الخدمة المتاحة",
@@ -141,7 +138,8 @@ class WofInstallationOrderLine(models.Model):
     )
 
     execution_technician_id = fields.Many2one(
-        'res.users', string="فني التنفيذ", ondelete='restrict',
+        'wof.installation.order.technician', string="فني التنفيذ", ondelete='restrict',
+        domain="[('order_id', '=', order_id)]",
     )
     execution_progress = fields.Integer(
         string="الإنجاز %", default=0, copy=False,
@@ -298,7 +296,7 @@ class WofInstallationOrderLine(models.Model):
         for line in self:
             if (
                 line.execution_technician_id
-                and line.execution_technician_id not in line.available_technician_ids
+                and line.execution_technician_id.order_id != line.order_id
             ):
                 raise ValidationError(
                     'فني تنفيذ الخدمة يجب أن يكون ضمن فنيي أمر التركيب.'
@@ -535,16 +533,15 @@ class WofInstallationOrderLine(models.Model):
                         )
                     )
                     if not is_supervisor:
-                        target_user_id = vals.get(
-                            'execution_technician_id',
-                            line.execution_technician_id.id,
+                        target = self.env['wof.installation.order.technician'].browse(
+                            vals.get('execution_technician_id', line.execution_technician_id.id) or []
                         )
                         if (
                             line.execution_technician_id
-                            and line.execution_technician_id != self.env.user
+                            and line.execution_technician_id.user_id != self.env.user
                         ) or (
-                            target_user_id
-                            and target_user_id != self.env.user.id
+                            target
+                            and target.user_id != self.env.user
                         ):
                             raise AccessError(
                                 'يمكن للفني تحديث الخدمات المسندة إليه فقط.'
