@@ -411,35 +411,17 @@
                             <small>أمر تركيب</small>
                             <h1><field name="name" readonly="1"/></h1>
                         </div>
-                        <div class="wof_hero_break">
-                            <div class="wof_hero_line">
-                                <span>قيمة الخدمات <field name="amount_gross" widget="monetary" readonly="1"/></span>
-                                <span>الخصم <field name="amount_discount" widget="monetary" readonly="1"/></span>
-                                <span>الضريبة <field name="amount_tax" widget="monetary" readonly="1"/></span>
-                            </div>
-                            <div class="wof_hero_tags">
-                                <span class="wof_hero_tag is-teal"><field name="service_count" readonly="1"/> خدمة</span>
-                                <field name="payment_status" widget="badge" readonly="1" class="wof_hero_paystate"
-                                       decoration-success="payment_status == 'paid'" decoration-warning="payment_status != 'paid'"/>
-                            </div>
-                        </div>
-                        <div class="wof_hero_fig is-total">
-                            <small>الإجمالي النهائي</small>
-                            <field name="amount_total" widget="monetary" readonly="1"/>
-                        </div>
-                        <div class="wof_hero_fig is-paid">
-                            <small>المدفوع</small>
-                            <field name="amount_paid" widget="monetary" readonly="1"/>
-                            <field name="wof_paid_percent" widget="progressbar" readonly="1" class="wof_hero_paidbar"/>
-                        </div>
-                        <div class="wof_hero_fig is-due" invisible="finance_to_refund">
-                            <small>المتبقي</small>
-                            <field name="amount_residual" widget="monetary" readonly="1"/>
-                        </div>
-                        <div class="wof_hero_fig is-refund" invisible="not finance_to_refund">
-                            <small>المتبقي للرد</small>
-                            <field name="finance_to_refund" widget="monetary" readonly="1"/>
-                        </div>
+                        <span class="wof_hero_tag"><field name="service_count" readonly="1"/> خدمة</span>
+                        <field name="payment_status" widget="badge" readonly="1" class="wof_hero_paystate"
+                               decoration-success="payment_status == 'paid'" decoration-warning="payment_status != 'paid'"/>
+                        <span class="wof_hero_space"/>
+                        <div class="wof_hero_fig"><small>الخدمات</small><field name="amount_gross" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-discount"><small>الخصم</small><field name="amount_discount" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig"><small>الضريبة</small><field name="amount_tax" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-total"><small>الإجمالي</small><field name="amount_total" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-paid"><small>المدفوع</small><field name="amount_paid" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-due" invisible="finance_to_refund"><small>المتبقي</small><field name="amount_residual" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-refund" invisible="not finance_to_refund"><small>المتبقي للرد</small><field name="finance_to_refund" widget="monetary" readonly="1"/></div>
                     </div>
 
                     <div class="oe_button_box" name="button_box">
