@@ -114,13 +114,16 @@ class WofInstallationOrderTeam(models.Model):
     amount_gross = fields.Monetary(string='قيمة الخدمات', compute='_compute_order_summary')
     service_count = fields.Integer(string='عدد الخدمات', compute='_compute_order_summary')
     technician_count = fields.Integer(string='عدد الفنيين', compute='_compute_order_summary')
+    wof_paid_percent = fields.Float(string='نسبة المدفوع', compute='_compute_order_summary')
 
-    @api.depends('amount_untaxed', 'amount_discount', 'line_ids', 'technician_ids')
+    @api.depends('amount_untaxed', 'amount_discount', 'line_ids', 'technician_ids', 'amount_total', 'amount_paid')
     def _compute_order_summary(self):
         for order in self:
             order.amount_gross = order.amount_untaxed + order.amount_discount
             order.service_count = len(order.line_ids)
             order.technician_count = len(order.technician_ids)
+            order.wof_paid_percent = min(100.0, order.amount_paid * 100.0 / order.amount_total) \
+                if order.amount_total > 0 else 0.0
 
     # ---------------------------------------------------------------- branch
     @api.onchange('company_id')

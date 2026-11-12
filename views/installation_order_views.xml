@@ -407,21 +407,38 @@
                     <field name="supervisor_candidate_ids" invisible="1"/>
                     <field name="finance_to_refund" invisible="1"/>
                     <div class="wof_order_hero">
-                        <div class="wof_order_hero_main">
-                            <span class="wof_order_hero_icon"><i class="fa fa-car" title="أمر تركيب"/></span>
-                            <div>
-                                <span class="wof_order_eyebrow">ملخص أمر التركيب</span>
-                                <h1><field name="name" readonly="1"/></h1>
+                        <div class="wof_hero_title">
+                            <small>أمر تركيب</small>
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <div class="wof_hero_break">
+                            <div class="wof_hero_line">
+                                <span>قيمة الخدمات <field name="amount_gross" widget="monetary" readonly="1"/></span>
+                                <span>الخصم <field name="amount_discount" widget="monetary" readonly="1"/></span>
+                                <span>الضريبة <field name="amount_tax" widget="monetary" readonly="1"/></span>
+                            </div>
+                            <div class="wof_hero_tags">
+                                <span class="wof_hero_tag is-teal"><field name="service_count" readonly="1"/> خدمة</span>
+                                <field name="payment_status" widget="badge" readonly="1" class="wof_hero_paystate"
+                                       decoration-success="payment_status == 'paid'" decoration-warning="payment_status != 'paid'"/>
                             </div>
                         </div>
-                        <div class="wof_order_kpis">
-                            <div class="wof_order_kpi is-gross"><small>قيمة الخدمات</small><field name="amount_gross" widget="monetary" readonly="1"/><span><field name="service_count" readonly="1"/> خدمة</span></div>
-                            <div class="wof_order_kpi is-discount"><small>الخصم</small><field name="amount_discount" widget="monetary" readonly="1"/></div>
-                            <div class="wof_order_kpi is-tax"><small>الضريبة</small><field name="amount_tax" widget="monetary" readonly="1"/></div>
-                            <div class="wof_order_kpi is-total"><small>الإجمالي النهائي</small><field name="amount_total" widget="monetary" readonly="1"/></div>
-                            <div class="wof_order_kpi is-paid"><small>المدفوع</small><field name="amount_paid" widget="monetary" readonly="1"/><span><field name="payment_status" readonly="1"/></span></div>
-                            <div class="wof_order_kpi is-due" invisible="finance_to_refund"><small>المتبقي</small><field name="amount_residual" widget="monetary" readonly="1"/></div>
-                            <div class="wof_order_kpi is-refund" invisible="not finance_to_refund"><small>المتبقي للرد</small><field name="finance_to_refund" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-total">
+                            <small>الإجمالي النهائي</small>
+                            <field name="amount_total" widget="monetary" readonly="1"/>
+                        </div>
+                        <div class="wof_hero_fig is-paid">
+                            <small>المدفوع</small>
+                            <field name="amount_paid" widget="monetary" readonly="1"/>
+                            <field name="wof_paid_percent" widget="progressbar" readonly="1" class="wof_hero_paidbar"/>
+                        </div>
+                        <div class="wof_hero_fig is-due" invisible="finance_to_refund">
+                            <small>المتبقي</small>
+                            <field name="amount_residual" widget="monetary" readonly="1"/>
+                        </div>
+                        <div class="wof_hero_fig is-refund" invisible="not finance_to_refund">
+                            <small>المتبقي للرد</small>
+                            <field name="finance_to_refund" widget="monetary" readonly="1"/>
                         </div>
                     </div>
 

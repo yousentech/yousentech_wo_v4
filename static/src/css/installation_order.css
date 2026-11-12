@@ -173,41 +173,50 @@
 .o_form_view.wof_order_form .wof_fin_list h3 { margin: 0 0 8px; font-size: 1rem; font-weight: 700; color: var(--wo-ink); }
 .o_form_view.wof_order_form .wof_steps .wof_fin .wof_order_cards { grid-template-columns: 1fr; }
 
-/* ============================================ hero: summary + figures */
+/* ============================================ hero: order number + three key figures
+ * White strip; only the final total is solid teal, paid is green, remaining amber
+ * (red when money is owed back). Services, discount and tax are one small line. */
 .o_form_view.wof_order_form .wof_order_hero {
-    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center;
-    padding: 14px 18px; margin-block-end: 14px; color: #FFFFFF; border-radius: 16px;
-    background: linear-gradient(120deg, #0A5252 0%, #0F6E6E 55%, #148080 100%);
-    box-shadow: 0 4px 14px rgba(15, 110, 110, .14);
+    display: grid; grid-template-columns: auto minmax(0, 1fr) repeat(3, minmax(150px, auto));
+    align-items: stretch; margin-block-end: 14px; overflow: hidden;
+    background: #FFFFFF; border: 1px solid var(--wo-line); border-radius: 14px;
 }
-.o_form_view.wof_order_form .wof_order_hero_main { display: flex; gap: 12px; align-items: center; min-width: 0; }
-.o_form_view.wof_order_form .wof_order_hero_icon {
-    flex: 0 0 44px; height: 44px; display: grid; place-items: center; border-radius: 14px;
-    background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .25); font-size: 1.2rem;
+.o_form_view.wof_order_form .wof_hero_title { display: flex; flex-direction: column; justify-content: center; padding: 14px 20px; border-inline-end: 1px solid var(--wo-line-2); }
+.o_form_view.wof_order_form .wof_hero_title small { color: var(--wo-muted); font-size: .78rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_hero_title h1 { margin: 0; color: var(--wo-ink); font-size: 1.45rem; font-weight: 800; white-space: nowrap; }
+.o_form_view.wof_order_form .wof_hero_break { display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 10px 20px; min-width: 0; }
+.o_form_view.wof_order_form .wof_hero_line { display: flex; flex-wrap: wrap; gap: 4px 16px; color: var(--wo-muted); font-size: .88rem; }
+.o_form_view.wof_order_form .wof_hero_line .o_field_widget { color: var(--wo-ink); font-weight: 600; margin-inline-start: 4px; }
+.o_form_view.wof_order_form .wof_hero_tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.o_form_view.wof_order_form .wof_hero_tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 99px; font-size: .78rem; font-weight: 700; background: #F1F5F5; color: var(--wo-muted); }
+.o_form_view.wof_order_form .wof_hero_tag.is-teal { background: var(--wo-teal-soft); color: var(--wo-teal-dark); }
+.o_form_view.wof_order_form .wof_hero_paystate .badge { border-radius: 99px; font-size: .78rem; padding: 3px 10px; }
+.o_form_view.wof_order_form .wof_hero_tag .o_field_widget { color: inherit; }
+.o_form_view.wof_order_form .wof_hero_fig { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 12px 20px; border-inline-start: 1px solid var(--wo-line-2); }
+.o_form_view.wof_order_form .wof_hero_fig small { color: var(--wo-muted); font-size: .78rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_hero_fig > .o_field_widget { font-size: 1.4rem; font-weight: 800; color: var(--wo-ink); }
+.o_form_view.wof_order_form .wof_hero_fig.is-total { background: var(--wo-teal); border-color: var(--wo-teal); }
+.o_form_view.wof_order_form .wof_hero_fig.is-total small { color: #CDEBE8; }
+.o_form_view.wof_order_form .wof_hero_fig.is-total > .o_field_widget { color: #FFFFFF; }
+.o_form_view.wof_order_form .wof_hero_fig.is-paid > .o_field_widget { color: #15803D; }
+.o_form_view.wof_order_form .wof_hero_fig.is-due { background: #FFFBEB; }
+.o_form_view.wof_order_form .wof_hero_fig.is-due > .o_field_widget { color: #B45309; }
+.o_form_view.wof_order_form .wof_hero_fig.is-refund { background: #FEF2F2; }
+.o_form_view.wof_order_form .wof_hero_fig.is-refund > .o_field_widget { color: #B91C1C; }
+.o_form_view.wof_order_form .wof_hero_paidbar { margin-top: 6px; width: 100%; }
+.o_form_view.wof_order_form .wof_hero_paidbar .o_progressbar_value { display: none !important; }
+.o_form_view.wof_order_form .wof_hero_paidbar .o_progress { display: flex; width: 100%; height: 5px; border: 0; border-radius: 99px; background: #E8EEEE; }
+.o_form_view.wof_order_form .wof_hero_paidbar .o_progress > div { background-color: #15803D !important; border-radius: 99px; }
+@media (max-width: 1100px) {
+    .o_form_view.wof_order_form .wof_order_hero { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .o_form_view.wof_order_form .wof_hero_title { grid-column: 1 / 2; border-bottom: 1px solid var(--wo-line-2); }
+    .o_form_view.wof_order_form .wof_hero_break { grid-column: 2 / -1; border-bottom: 1px solid var(--wo-line-2); }
+    .o_form_view.wof_order_form .wof_hero_fig.is-total { border-inline-start: 0; }
 }
-.o_form_view.wof_order_form .wof_order_eyebrow { font-size: .78rem; font-weight: 700; opacity: .8; }
-.o_form_view.wof_order_form .wof_order_hero h1 { margin: 0; color: inherit; font-size: 1.5rem; font-weight: 800; white-space: nowrap; }
-.o_form_view.wof_order_form .wof_order_kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
-.o_form_view.wof_order_form .wof_order_kpi {
-    --k: #5EEAD4; display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 8px 12px;
-    border-radius: 12px; background: rgba(255, 255, 255, .10); border: 1px solid rgba(255, 255, 255, .16); border-top: 3px solid var(--k);
-}
-.o_form_view.wof_order_form .wof_order_kpi small { font-size: .78rem; font-weight: 700; opacity: .82; }
-.o_form_view.wof_order_form .wof_order_kpi > .o_field_widget { color: #FFFFFF; font-size: clamp(1rem, 1.2vw, 1.3rem); font-weight: 800; }
-.o_form_view.wof_order_form .wof_order_kpi > span { font-size: .78rem; opacity: .8; }
-.o_form_view.wof_order_form .wof_order_kpi > span .o_field_widget { color: inherit; font-size: inherit; }
-.o_form_view.wof_order_form .wof_order_kpi.is-gross { --k: #7DD3FC; }
-.o_form_view.wof_order_form .wof_order_kpi.is-discount { --k: #C4B5FD; }
-.o_form_view.wof_order_form .wof_order_kpi.is-tax { --k: #CBD5E1; }
-.o_form_view.wof_order_form .wof_order_kpi.is-total { --k: #FFFFFF; background: rgba(255, 255, 255, .2); }
-.o_form_view.wof_order_form .wof_order_kpi.is-paid { --k: #86EFAC; }
-.o_form_view.wof_order_form .wof_order_kpi.is-due { --k: #FCD34D; }
-.o_form_view.wof_order_form .wof_order_kpi.is-refund { --k: #FCA5A5; background: rgba(185, 28, 28, .25); }
-@media (max-width: 1200px) { .o_form_view.wof_order_form .wof_order_hero { grid-template-columns: 1fr; gap: 12px; } }
-@media (max-width: 900px) { .o_form_view.wof_order_form .wof_order_kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 576px) {
-    .o_form_view.wof_order_form .wof_order_hero { padding: 14px; }
-    .o_form_view.wof_order_form .wof_order_kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .o_form_view.wof_order_form .wof_hero_title, .o_form_view.wof_order_form .wof_hero_break { grid-column: 1 / -1; }
+    .o_form_view.wof_order_form .wof_hero_fig { padding: 10px 12px; }
+    .o_form_view.wof_order_form .wof_hero_fig > .o_field_widget { font-size: 1.1rem; }
 }
 
 /* ============================================ sections: side menu + «عرض الكل»
