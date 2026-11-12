@@ -7,8 +7,8 @@
     --wo-amber: #92400E; --wo-amber-soft: #FEF3C7; --wo-violet: #6D28D9; --wo-violet-soft: #F3EEFF;
     background: var(--wo-ground);
 }
-.o_form_view.wof_order_form .o_form_sheet_bg { background: var(--wo-ground); }
-.o_form_view.wof_order_form .wof_order_sheet { max-width: 1560px; background: transparent; border: 0; box-shadow: none; padding-inline: 8px; }
+.o_form_view.wof_order_form .o_form_sheet_bg { background: var(--wo-ground); max-width: none !important; }
+.o_form_view.wof_order_form .wof_order_sheet { max-width: none !important; width: 100%; background: transparent; border: 0; box-shadow: none; padding-inline: 8px; }
 .o_form_view.wof_order_form .o_form_statusbar .btn-primary { background: var(--wo-teal); border-color: var(--wo-teal); }
 .o_form_view.wof_order_form .o_form_statusbar .btn-primary:hover { background: var(--wo-teal-dark); border-color: var(--wo-teal-dark); }
 .o_form_view.wof_order_form .o_arrow_button_current { background: var(--wo-teal) !important; color: #FFFFFF !important; }
@@ -178,13 +178,13 @@
  * (red when money is owed back). Services, discount and tax are one small line. */
 .o_form_view.wof_order_form .wof_order_hero {
     display: grid; grid-template-columns: auto minmax(0, 1fr) repeat(3, minmax(150px, auto));
-    align-items: stretch; margin-block-end: 14px; overflow: hidden;
+    align-items: stretch; margin-block-end: 12px; overflow: hidden;
     background: #FFFFFF; border: 1px solid var(--wo-line); border-radius: 14px;
 }
-.o_form_view.wof_order_form .wof_hero_title { display: flex; flex-direction: column; justify-content: center; padding: 14px 20px; border-inline-end: 1px solid var(--wo-line-2); }
-.o_form_view.wof_order_form .wof_hero_title small { color: var(--wo-muted); font-size: .78rem; font-weight: 700; }
-.o_form_view.wof_order_form .wof_hero_title h1 { margin: 0; color: var(--wo-ink); font-size: 1.45rem; font-weight: 800; white-space: nowrap; }
-.o_form_view.wof_order_form .wof_hero_break { display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 10px 20px; min-width: 0; }
+.o_form_view.wof_order_form .wof_hero_title { display: flex; flex-direction: column; justify-content: center; padding: 8px 18px; border-inline-end: 1px solid var(--wo-line-2); }
+.o_form_view.wof_order_form .wof_hero_title small { color: var(--wo-muted); font-size: .72rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_hero_title h1 { margin: 0; color: var(--wo-ink); font-size: 1.25rem; font-weight: 800; white-space: nowrap; }
+.o_form_view.wof_order_form .wof_hero_break { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 8px 18px; min-width: 0; }
 .o_form_view.wof_order_form .wof_hero_line { display: flex; flex-wrap: wrap; gap: 4px 16px; color: var(--wo-muted); font-size: .88rem; }
 .o_form_view.wof_order_form .wof_hero_line .o_field_widget { color: var(--wo-ink); font-weight: 600; margin-inline-start: 4px; }
 .o_form_view.wof_order_form .wof_hero_tags { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -192,9 +192,9 @@
 .o_form_view.wof_order_form .wof_hero_tag.is-teal { background: var(--wo-teal-soft); color: var(--wo-teal-dark); }
 .o_form_view.wof_order_form .wof_hero_paystate .badge { border-radius: 99px; font-size: .78rem; padding: 3px 10px; }
 .o_form_view.wof_order_form .wof_hero_tag .o_field_widget { color: inherit; }
-.o_form_view.wof_order_form .wof_hero_fig { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 12px 20px; border-inline-start: 1px solid var(--wo-line-2); }
-.o_form_view.wof_order_form .wof_hero_fig small { color: var(--wo-muted); font-size: .78rem; font-weight: 700; }
-.o_form_view.wof_order_form .wof_hero_fig > .o_field_widget { font-size: 1.4rem; font-weight: 800; color: var(--wo-ink); }
+.o_form_view.wof_order_form .wof_hero_fig { display: flex; flex-direction: column; justify-content: center; gap: 0; padding: 7px 18px; border-inline-start: 1px solid var(--wo-line-2); }
+.o_form_view.wof_order_form .wof_hero_fig small { color: var(--wo-muted); font-size: .72rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_hero_fig > .o_field_widget { font-size: 1.2rem; font-weight: 800; color: var(--wo-ink); }
 .o_form_view.wof_order_form .wof_hero_fig.is-total { background: var(--wo-teal); border-color: var(--wo-teal); }
 .o_form_view.wof_order_form .wof_hero_fig.is-total small { color: #CDEBE8; }
 .o_form_view.wof_order_form .wof_hero_fig.is-total > .o_field_widget { color: #FFFFFF; }
@@ -203,9 +203,9 @@
 .o_form_view.wof_order_form .wof_hero_fig.is-due > .o_field_widget { color: #B45309; }
 .o_form_view.wof_order_form .wof_hero_fig.is-refund { background: #FEF2F2; }
 .o_form_view.wof_order_form .wof_hero_fig.is-refund > .o_field_widget { color: #B91C1C; }
-.o_form_view.wof_order_form .wof_hero_paidbar { margin-top: 6px; width: 100%; }
+.o_form_view.wof_order_form .wof_hero_paidbar { margin-top: 3px; width: 100%; }
 .o_form_view.wof_order_form .wof_hero_paidbar .o_progressbar_value { display: none !important; }
-.o_form_view.wof_order_form .wof_hero_paidbar .o_progress { display: flex; width: 100%; height: 5px; border: 0; border-radius: 99px; background: #E8EEEE; }
+.o_form_view.wof_order_form .wof_hero_paidbar .o_progress { display: flex; width: 100%; height: 4px; border: 0; border-radius: 99px; background: #E8EEEE; }
 .o_form_view.wof_order_form .wof_hero_paidbar .o_progress > div { background-color: #15803D !important; border-radius: 99px; }
 @media (max-width: 1100px) {
     .o_form_view.wof_order_form .wof_order_hero { grid-template-columns: repeat(3, minmax(0, 1fr)); }
