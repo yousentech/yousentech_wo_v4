@@ -282,3 +282,10 @@
 .o_form_view.wof_order_form .wof_car_plate { display: flex; justify-content: center; padding: 12px; border-radius: 12px; background: #F3F9F8; }
 .o_form_view.wof_order_form .wof_car_plate .wof_plate { font-size: 1.05rem; }
 .o_form_view.wof_order_form .wof_car_fields { margin: 0; }
+
+/* services toolbar: add + order discount (totals are in the header) */
+.o_form_view.wof_order_form .wof_services_bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.o_form_view.wof_order_form .wof_services_bar .wof_order_add { margin-bottom: 0; }
+.o_form_view.wof_order_form .wof_services_disc { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--wo-line); border-radius: 12px; background: #FFFFFF; }
+.o_form_view.wof_order_form .wof_services_disc .o_form_label { margin: 0; color: var(--wo-muted); font-weight: 600; }
+.o_form_view.wof_order_form .wof_services_disc .o_field_widget { width: 80px; }

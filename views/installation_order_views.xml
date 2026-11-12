@@ -571,9 +571,16 @@
                         
                         <section class="wof_sec wof_sec_services">
                             <div class="wof_order_step_head"><h2>الخدمات</h2><p>السعر يُطبَّق تلقائيًا حسب حجم السيارة. اضغط بطاقة الخدمة لتفاصيلها: الدرجة، والصنف المخزني، والخصم، والفنيين.</p></div>
-                            <button name="action_open_add_services" type="object" string="إضافة خدمة" icon="fa-plus"
-                                    class="btn btn-primary wof_order_add"
-                                    invisible="state not in ('draft', 'scheduled')"/>
+                            <div class="wof_services_bar">
+                                <button name="action_open_add_services" type="object" string="إضافة خدمة" icon="fa-plus"
+                                        class="btn btn-primary wof_order_add"
+                                        invisible="state not in ('draft', 'scheduled')"/>
+                                <div class="wof_services_disc" invisible="discount_scope != 'order'">
+                                    <label for="order_discount_percent" string="خصم على كامل الأمر %"/>
+                                    <field name="order_discount_percent" nolabel="1"
+                                           readonly="state not in ('draft', 'scheduled')"/>
+                                </div>
+                            </div>
                             <field name="line_ids" mode="kanban"
                                    class="wof_line_cards"
                                    add-label="إضافة خدمة يدويًا"
@@ -631,15 +638,6 @@
                                     </templates>
                                 </kanban>
                             </field>
-                            <group class="wof_order_totals">
-                                <field name="amount_untaxed" readonly="1"/>
-                                <field name="amount_discount" readonly="1"/>
-                                <field name="amount_tax" readonly="1"/>
-                                <field name="amount_total" readonly="1"/>
-                                <field name="order_discount_percent"
-                                       invisible="discount_scope != 'order'"
-                                       readonly="state not in ('draft', 'scheduled')"/>
-                            </group>
                         </section>
 
                         <section class="wof_sec wof_sec_intake">
