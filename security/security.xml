@@ -26,6 +26,11 @@
         <field name="implied_ids" eval="[(4, ref('group_wo_employee'))]"/>
     </record>
 
+    <record id="group_wo_change_branch" model="res.groups">
+        <field name="name">تغيير فرع أمر التركيب</field>
+        <field name="comment">يسمح بتغيير فرع (شركة) أمر التركيب قبل إكمال الاستلام.</field>
+    </record>
+
     <record id="group_wo_technician" model="res.groups">
         <field name="name">فني</field>
         <field name="category_id" ref="wo_category_priv"/>
@@ -56,7 +61,8 @@
         <field name="implied_ids" eval="[
             (4, ref('group_wo_supervisor')),
             (4, ref('group_wo_accountant')),
-            (4, ref('group_wo_price_override'))
+            (4, ref('group_wo_price_override')),
+            (4, ref('group_wo_change_branch'))
         ]"/>
     </record>
 

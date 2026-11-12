@@ -23,6 +23,7 @@ EXTERNAL_PREFIXES = {
     "base",
     "hr",
     "mail",
+    "yousentech_invoicing_saleman",
     "product",
     "sale",
     "stock",
@@ -238,6 +239,11 @@ def parse_python(validation):
                 if kind in {"Many2one", "One2many", "Many2many"} and info.get("relation"):
                     relations.append((path, model_name, target.id, info))
 
+    # Core mixins a local model may inherit (their fields are used in chatter views).
+    fields["mail.thread"].update({
+        "message_ids": {"type": "One2many", "keywords": {}},
+        "message_follower_ids": {"type": "One2many", "keywords": {}},
+    })
     # Merge fields/methods from local abstract and classical parents so view
     # checks understand mixins such as wof.api.mixin without requiring fields
     # to be redeclared on every business model.

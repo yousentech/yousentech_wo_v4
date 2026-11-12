@@ -24,6 +24,10 @@ class WofHrEmployeeTechnician(models.Model):
         string='فني تركيب', tracking=True,
         help='يظهر الموظف في قائمة فنيي خدمات أوامر التركيب لفرعه (شركته).',
     )
+    is_wof_supervisor = fields.Boolean(
+        string='مشرف تشغيل', tracking=True,
+        help='يظهر الموظف في قائمة مشرفي التشغيل لأوامر تركيب فرعه.',
+    )
 
 
 class WofInstallationOrderLineTeam(models.Model):
@@ -182,10 +186,13 @@ class WofInstallationOrderTeam(models.Model):
         Employee = self.env['hr.employee']
         for order in self:
             company = order.company_id
-            for key, label in (('advisor_id', _('مستشار الخدمة')), ('supervisor_id', _('مشرف التشغيل'))):
-                if vals.get(key) and not Employee.search_count([
-                        ('id', '=', vals[key]), ('company_id', 'in', [company.id, False])]):
-                    raise ValidationError(_('%s يجب أن يكون من موظفي فرع الأمر.') % label)
+            if vals.get('advisor_id') and not Employee.search_count([
+                    ('id', '=', vals['advisor_id']), ('company_id', 'in', [company.id, False])]):
+                raise ValidationError(_('مستشار الخدمة يجب أن يكون من موظفي فرع الأمر.'))
+            if vals.get('supervisor_id') and not Employee.search_count([
+                    ('id', '=', vals['supervisor_id']), ('is_wof_supervisor', '=', True),
+                    ('company_id', 'in', [company.id, False])]):
+                raise ValidationError(_('مشرف التشغيل يجب أن يكون من موظفي فرع الأمر المعلَّمين «مشرف تشغيل».'))
             if vals.get('salesperson_id') and vals['salesperson_id'] not in order._wof_branch_salesmen(company).ids:
                 raise ValidationError(_('المندوب المختار غير مسند لفرع هذا الأمر.'))
 
@@ -194,7 +201,7 @@ class WofInstallationOrderTeam(models.Model):
         for vals in vals_list:
             if 'advisor_id' not in vals:
                 vals['advisor_id'] = self._wof_default_advisor().id
-            if 'salesperson_id' not in vals:
+            if 'salesperson_id' not in vals or not self._wof_can_change_salesman():
                 vals['salesperson_id'] = self._wof_default_salesman().id
         orders = super().create(vals_list)
         for order, vals in zip(orders, vals_list):
@@ -216,11 +223,19 @@ class WofInstallationOrderTeam(models.Model):
             employees = self.env.user.employee_ids
             self.advisor_id = employees.filtered(lambda emp: emp.company_id == company)[:1]
 
+    def _wof_can_change_salesman(self):
+        return self.env.user.has_group('yousentech_invoicing_saleman.allow_modify_salesman')
+
     def write(self, vals):
+        if 'salesperson_id' in vals and not self.env.su and not self._wof_can_change_salesman():
+            if any(order.salesperson_id.id != vals['salesperson_id'] for order in self):
+                raise ValidationError(_('تغيير المندوب يحتاج صلاحية «Allow Modify Salesman».'))
         changing = self.browse()
         if 'company_id' in vals:
             company = self.env['res.company'].browse(vals['company_id']).exists()
             changing = self.filtered(lambda order: order.company_id != company)
+            if changing and not self.env.su and not self.env.user.has_group('yousentech_wo_v4.group_wo_change_branch'):
+                raise ValidationError(_('تغيير فرع أمر التركيب يحتاج صلاحية «تغيير فرع أمر التركيب».'))
             if changing and (not company or company not in self.env.companies):
                 raise ValidationError(_('اختر فرعًا من الفروع المسموح لك بالعمل عليها.'))
             for order in changing:

@@ -250,27 +250,23 @@
 
 /* ============================================ customer & car: summary strip + four even cards */
 .o_form_view.wof_order_form .wof_cust_hero {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-bottom: 14px; padding: 12px 18px;
-    border: 1px solid var(--wo-line); border-radius: 14px; background: linear-gradient(90deg, #F3F9F8, #FFFFFF);
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center; gap: 0;
+    margin-bottom: 14px; border-radius: 14px; overflow: hidden; background: #DCEFEC; border: 1px solid #BFE0DB;
 }
-.o_form_view.wof_order_form .wof_cust_hero_item { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.o_form_view.wof_order_form .wof_cust_hero_item.is-end { margin-inline-start: auto; }
+.o_form_view.wof_order_form .wof_cust_hero_item { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px 16px; }
+.o_form_view.wof_order_form .wof_cust_hero_item + .wof_cust_hero_item { border-inline-start: 1px solid #BFE0DB; }
 .o_form_view.wof_order_form .wof_cust_hero_item > div { display: flex; flex-direction: column; min-width: 0; }
-.o_form_view.wof_order_form .wof_cust_hero_item small { color: var(--wo-muted); font-size: .72rem; font-weight: 700; }
-.o_form_view.wof_order_form .wof_cust_hero_item b { font-size: 1rem; color: var(--wo-ink); }
+.o_form_view.wof_order_form .wof_cust_hero_item small { color: #3F5E5E; font-size: .72rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_cust_hero_item b { font-size: .95rem; color: var(--wo-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .o_form_view.wof_order_form .wof_cust_hero_item b .o_field_widget { display: inline; }
-.o_form_view.wof_order_form .wof_cust_hero_sub { color: var(--wo-muted); font-size: .82rem; }
+.o_form_view.wof_order_form .wof_cust_hero_sub { color: #3F5E5E; font-size: .78rem; }
 .o_form_view.wof_order_form .wof_cust_hero_icon {
-    flex: 0 0 38px; height: 38px; display: grid; place-items: center; border-radius: 12px;
-    background: var(--wo-teal-soft); color: var(--wo-teal-dark);
+    flex: 0 0 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: #FFFFFF; color: var(--wo-teal-dark);
 }
-.o_form_view.wof_order_form .wof_cust_hero_icon.is-car { background: #E0F2FE; color: #0369A1; }
-.o_form_view.wof_order_form .wof_cust_hero_icon.is-time { background: var(--wo-amber-soft); color: var(--wo-amber); }
-.o_form_view.wof_order_form .wof_cust_plate {
-    padding: 4px 12px; border: 2px solid var(--wo-ink); border-radius: 8px; background: #FFFFFF;
-    font-weight: 800; letter-spacing: 1px; color: var(--wo-ink);
-}
-.o_form_view.wof_order_form .wof_cust_size { padding: 2px 10px; border-radius: 99px; background: #F1F5F5; color: var(--wo-muted); font-size: .8rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_cust_hero_icon.is-car { color: #0369A1; }
+.o_form_view.wof_order_form .wof_cust_hero_icon.is-plate { color: #16232A; }
+.o_form_view.wof_order_form .wof_cust_hero_icon.is-time { color: var(--wo-amber); }
+@media (max-width: 1100px) { .o_form_view.wof_order_form .wof_cust_hero { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .o_form_view.wof_order_form .wof_steps .wof_order_cards.is-four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 @media (max-width: 1500px) { .o_form_view.wof_order_form .wof_steps .wof_order_cards.is-four { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 760px) { .o_form_view.wof_order_form .wof_steps .wof_order_cards.is-four { grid-template-columns: 1fr; } }

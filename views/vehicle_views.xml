@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wof_vehicle_tree" model="ir.ui.view">
+        <field name="name">wof.vehicle.tree</field>
+        <field name="model">wof.vehicle</field>
+        <field name="arch" type="xml">
+            <tree string="السيارات">
+                <field name="plate" widget="wof_plate" readonly="1"/>
+                <field name="manufacturer_id"/>
+                <field name="model_id"/>
+                <field name="year_id"/>
+                <field name="color" optional="show"/>
+                <field name="vin" optional="hide"/>
+                <field name="partner_id"/>
+                <field name="order_count"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_wof_vehicle_form" model="ir.ui.view">
+        <field name="name">wof.vehicle.form</field>
+        <field name="model">wof.vehicle</field>
+        <field name="arch" type="xml">
+            <form string="سيارة">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_orders" type="object" class="oe_stat_button" icon="fa-car">
+                            <field name="order_count" widget="statinfo" string="الأوامر"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="plate"/>
+                        <h1><field name="plate" widget="wof_plate"/></h1>
+                    </div>
+                    <group>
+                        <group string="السيارة">
+                            <field name="manufacturer_id" options="{'no_create': True}"/>
+                            <field name="model_id" options="{'no_create': True}"/>
+                            <field name="year_id" options="{'no_create': True}"/>
+                            <field name="color"/>
+                        </group>
+                        <group string="الهوية والمالك">
+                            <field name="vin"/>
+                            <field name="car_size_id" options="{'no_create': True}"/>
+                            <field name="agency_id" options="{'no_create': True}"/>
+                            <field name="partner_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="سجل الملاك" name="owners">
+                            <field name="owner_ids" readonly="1">
+                                <tree decoration-bf="is_current">
+                                    <field name="partner_id"/>
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
+                                    <field name="order_id"/>
+                                    <field name="is_current" widget="boolean"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="أوامر التركيب" name="orders">
+                            <field name="order_ids" readonly="1">
+                                <tree>
+                                    <field name="company_id" column_invisible="True"/>
+                                    <field name="name"/>
+                                    <field name="appointment_at"/>
+                                    <field name="partner_id"/>
+                                    <field name="vehicle_plate"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="amount_total"/>
+                                    <field name="state" widget="badge"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_wof_vehicle_search" model="ir.ui.view">
+        <field name="name">wof.vehicle.search</field>
+        <field name="model">wof.vehicle</field>
+        <field name="arch" type="xml">
+            <search string="السيارات">
+                <field name="plate"/>
+                <field name="vin"/>
+                <field name="partner_id"/>
+                <field name="manufacturer_id"/>
+                <group expand="0" string="تجميع">
+                    <filter name="group_partner" string="المالك" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_make" string="الماركة" context="{'group_by': 'manufacturer_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wof_vehicles" model="ir.actions.act_window">
+        <field name="name">سيارات العملاء</field>
+        <field name="res_model">wof.vehicle</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">لا توجد سيارات بعد</p>
+            <p>تُسجَّل السيارة لعميلها تلقائيًا عند حفظ أمر تركيب فيه رقم لوحة، مع سجل الملاك وتاريخ الأوامر.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_wof_vehicles"
+              name="سيارات العملاء"
+              parent="menu_wo_v4_operation"
+              action="action_wof_vehicles"
+              groups="yousentech_wo_v4.group_wo_employee"
+              sequence="5"/>
+
+</odoo>

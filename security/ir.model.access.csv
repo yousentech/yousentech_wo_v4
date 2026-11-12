@@ -105,3 +105,12 @@ access_installation_order_invoicing,installation.order.invoicing,model_wof_insta
 access_installation_order_line_invoicing,installation.order.line.invoicing,model_wof_installation_order_line,account.group_account_invoice,1,1,0,0
 access_hr_employee_wo_employee,hr.employee.wo.employee,hr.model_hr_employee,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_hr_employee_wo_settings,hr.employee.wo.settings,hr.model_hr_employee,yousentech_wo_v4.group_wo_settings,1,1,0,0
+access_wof_vehicle_employee,wof.vehicle.employee,model_wof_vehicle,yousentech_wo_v4.group_wo_employee,1,0,0,0
+access_wof_vehicle_reception,wof.vehicle.reception,model_wof_vehicle,yousentech_wo_v4.group_wo_user,1,1,1,0
+access_wof_vehicle_supervisor,wof.vehicle.supervisor,model_wof_vehicle,yousentech_wo_v4.group_wo_supervisor,1,1,1,0
+access_wof_vehicle_manager,wof.vehicle.manager,model_wof_vehicle,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_vehicle_owner_employee,wof.vehicle.owner.employee,model_wof_vehicle_owner,yousentech_wo_v4.group_wo_employee,1,0,0,0
+access_wof_vehicle_owner_reception,wof.vehicle.owner.reception,model_wof_vehicle_owner,yousentech_wo_v4.group_wo_user,1,1,1,0
+access_wof_vehicle_owner_supervisor,wof.vehicle.owner.supervisor,model_wof_vehicle_owner,yousentech_wo_v4.group_wo_supervisor,1,1,1,0
+access_wof_vehicle_owner_manager,wof.vehicle.owner.manager,model_wof_vehicle_owner,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_wof_vehicle_invoicing,wof.vehicle.invoicing,model_wof_vehicle,account.group_account_invoice,1,0,0,0

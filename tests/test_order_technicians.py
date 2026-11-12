@@ -143,8 +143,14 @@ class TestOrderTechnicians(TransactionCase):
         with self.assertRaises(AccessError):
             Orders.browse(order.id).read(['name'])
 
+    def test_change_branch_needs_the_right(self):
+        order = self.make_order()
+        with self.assertRaises(ValidationError):
+            order.write({'company_id': self.company_b.id})
+
     def test_change_branch_on_draft_order(self):
         self.manager.company_ids = [(4, self.company_b.id)]
+        self.manager.groups_id = [(4, self.root.ref('yousentech_wo_v4.group_wo_change_branch').id)]
         env = self.env(context={'allowed_company_ids': [self.company_a.id, self.company_b.id]})
         order = self.make_order().with_env(env)
         order.line_ids.write({'technician_ids': [(4, self.tech_2.id)]})
@@ -169,3 +175,47 @@ class TestOrderTechnicians(TransactionCase):
         self.assertEqual(order.salesperson_id, here)  # default: the user's own salesman
         with self.assertRaises(ValidationError):
             order.salesperson_id = moved
+
+    def test_supervisor_must_be_flagged(self):
+        order = self.make_order()
+        with self.assertRaises(ValidationError):
+            order.supervisor_id = self.manager_employee
+        self.manager_employee.is_wof_supervisor = True
+        order.supervisor_id = self.manager_employee
+        self.assertEqual(order.supervisor_id, self.manager_employee)
+
+    def test_vehicle_record_and_owner_history(self):
+        size = self.env['wof.car.size'].search([], limit=1)
+        first = self.root['res.partner'].create({'name': 'المالك الأول'})
+        second = self.root['res.partner'].create({'name': 'المالك الثاني'})
+        Order = self.env['wof.installation.order']
+        order1 = Order.create({'partner_id': first.id, 'vehicle_plate': 'abj  1234', 'car_size_id': size.id,
+                               'vehicle_color': 'أبيض'})
+        self.assertEqual(order1.vehicle_plate, 'ABJ 1234')
+        vehicle = order1.vehicle_id
+        self.assertTrue(vehicle)
+        self.assertEqual(vehicle.partner_id, first)
+        self.assertEqual(vehicle.color, 'أبيض')
+        self.assertEqual(len(vehicle.owner_ids), 1)
+        # Sold: the same plate on an order of another customer moves ownership.
+        order2 = Order.create({'partner_id': second.id, 'vehicle_plate': 'ABJ 1234', 'car_size_id': size.id})
+        self.assertEqual(order2.vehicle_id, vehicle)
+        self.assertEqual(vehicle.partner_id, second)
+        self.assertEqual(len(vehicle.owner_ids), 2)
+        self.assertTrue(vehicle.owner_ids.filtered(lambda line: line.partner_id == first).date_end)
+        self.assertEqual(vehicle.order_ids, order1 | order2)
+        # The first order keeps its own snapshot.
+        self.assertEqual(order1.partner_id, first)
+        self.assertEqual(order1.vehicle_color, 'أبيض')
+
+    def test_plate_moved_to_another_car(self):
+        size = self.env['wof.car.size'].search([], limit=1)
+        partner = self.root['res.partner'].create({'name': 'عميل اللوحة'})
+        Order = self.env['wof.installation.order']
+        old = Order.create({'partner_id': partner.id, 'vehicle_plate': 'BDR 55', 'vehicle_vin': 'VIN1',
+                            'car_size_id': size.id}).vehicle_id
+        new_order = Order.create({'partner_id': partner.id, 'vehicle_plate': 'BDR 55', 'vehicle_vin': 'VIN2',
+                                  'car_size_id': size.id})
+        self.assertNotEqual(new_order.vehicle_id, old)
+        self.assertFalse(old.plate)
+        self.assertEqual(new_order.vehicle_id.vin, 'VIN2')

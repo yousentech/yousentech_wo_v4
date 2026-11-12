@@ -50,7 +50,7 @@ class TestOrderBilling(TransactionCase):
         size = self.env['wof.car.size'].search([], limit=1)
         order = self.env['wof.installation.order'].create({
             'partner_id': partner.id, 'vehicle_plate': 'BIL 1', 'car_size_id': size.id,
-            'appointment_at': '2026-12-01 10:00:00',
+            'appointment_at': '2026-12-01',
         })
         self.env['wof.installation.order.line'].create({
             'order_id': order.id, 'service_type_id': self.activity.id,

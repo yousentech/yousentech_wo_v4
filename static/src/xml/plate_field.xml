@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Plate drawing shared by the field and the picker preview. -->
+    <t t-name="yousentech_wo_v4.PlateDrawing">
+        <div t-attf-class="wof_plate {{ big ? 'is-big' : '' }}" dir="ltr">
+            <div class="wof_plate_digits">
+                <div class="wof_plate_row is-ar"><t t-foreach="p.digitsAr" t-as="d" t-key="d_index"><span t-esc="d"/></t></div>
+                <div class="wof_plate_row"><t t-foreach="p.digitsEn" t-as="d" t-key="d_index"><span t-esc="d"/></t></div>
+            </div>
+            <div class="wof_plate_letters">
+                <div class="wof_plate_row is-ar"><t t-foreach="p.lettersAr" t-as="l" t-key="l_index"><span t-esc="l"/></t></div>
+                <div class="wof_plate_row"><t t-foreach="p.lettersEn" t-as="l" t-key="l_index"><span t-esc="l"/></t></div>
+            </div>
+            <div class="wof_plate_band"><span>السعودية</span><b>KSA</b></div>
+        </div>
+    </t>
+
+    <t t-name="yousentech_wo_v4.PlateField">
+        <div class="wof_plate_field">
+            <t t-if="plate.valid">
+                <button type="button" class="wof_plate_btn" t-att-disabled="isReadonly" t-on-click="open"
+                        t-att-title="isReadonly ? value : 'تعديل اللوحة'">
+                    <t t-call="yousentech_wo_v4.PlateDrawing"><t t-set="p" t-value="plate"/></t>
+                </button>
+            </t>
+            <t t-elif="isReadonly">
+                <span t-esc="value"/>
+            </t>
+            <t t-else="">
+                <input type="text" class="o_input wof_plate_input" t-att-value="value" t-on-change="onInput"
+                       placeholder="مثال: ABJ 1234" dir="ltr"/>
+            </t>
+            <button t-if="!isReadonly" type="button" class="btn btn-sm btn-light wof_plate_pick" t-on-click="open">
+                <i class="fa fa-th me-1" title="اختيار"/> اختيار اللوحة
+            </button>
+        </div>
+    </t>
+
+    <t t-name="yousentech_wo_v4.PlateDialog">
+        <Dialog title="'لوحة السيارة'" size="'lg'" contentClass="'wof_plate_dialog'">
+            <div class="wof_pd" dir="rtl">
+                <div class="wof_pd_preview">
+                    <t t-call="yousentech_wo_v4.PlateDrawing"><t t-set="p" t-value="preview"/><t t-set="big" t-value="true"/></t>
+                    <small>يُحفظ في الحقل: <b dir="ltr" t-esc="value or '—'"/></small>
+                </div>
+                <div class="wof_pd_cols">
+                    <section class="wof_pd_col">
+                        <div class="wof_pd_head">
+                            <b>الحروف</b>
+                            <span class="wof_pd_slots" dir="ltr"><t t-foreach="letterSlots" t-as="s" t-key="s_index"><span t-attf-class="wof_pd_slot {{ s ? 'is-on' : '' }}" t-esc="s or '·'"/></t></span>
+                            <button type="button" class="btn btn-sm btn-light" t-on-click="backLetter" t-att-disabled="!state.letters.length" title="حذف آخر حرف"><i class="fa fa-arrow-right" title="حذف"/></button>
+                        </div>
+                        <div class="wof_pd_grid is-letters">
+                            <t t-foreach="letters" t-as="l" t-key="l[1]">
+                                <button type="button" class="wof_pd_key" t-att-disabled="state.letters.length >= maxLetters" t-on-click="() => this.addLetter(l[1])">
+                                    <b t-esc="l[0]"/><small t-esc="l[1]"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+                    <section class="wof_pd_col">
+                        <div class="wof_pd_head">
+                            <b>الأرقام</b>
+                            <span class="wof_pd_slots" dir="ltr"><t t-foreach="digitSlots" t-as="s" t-key="s_index"><span t-attf-class="wof_pd_slot {{ s ? 'is-on' : '' }}" t-esc="s or '·'"/></t></span>
+                            <button type="button" class="btn btn-sm btn-light" t-on-click="backDigit" t-att-disabled="!state.digits.length" title="حذف آخر رقم"><i class="fa fa-arrow-right" title="حذف"/></button>
+                        </div>
+                        <div class="wof_pd_grid is-digits" dir="ltr">
+                            <t t-foreach="digitKeys" t-as="d" t-key="d">
+                                <button type="button" class="wof_pd_key" t-att-disabled="state.digits.length >= maxDigits" t-on-click="() => this.addDigit(d)">
+                                    <b t-esc="d"/><small t-esc="AR_DIGITS[d]"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button type="button" class="btn btn-primary" t-att-disabled="!preview.valid" t-on-click="confirm">اعتماد اللوحة</button>
+                <button type="button" class="btn btn-light" t-on-click="clear">مسح</button>
+                <button type="button" class="btn btn-light" t-on-click="props.close">إلغاء</button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

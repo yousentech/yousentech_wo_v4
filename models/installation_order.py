@@ -135,7 +135,7 @@ class WofInstallationOrder(models.Model):
         related='company_id.currency_id', store=True, readonly=True,
     )
     created_by_id = fields.Many2one(
-        'res.users', string="أنشأه", required=True, readonly=True,
+        'res.users', string="المستخدم", required=True, readonly=True,
         default=lambda self: self.env.user, ondelete='restrict', index=True,
     )
     idempotency_key = fields.Char(
@@ -178,8 +178,9 @@ class WofInstallationOrder(models.Model):
     )
     odometer = fields.Integer(string="قراءة العداد", copy=False)
 
-    appointment_at = fields.Datetime(
-        string="الموعد", copy=False, index=True, tracking=True,
+    appointment_at = fields.Date(
+        string="تاريخ الأمر", copy=False, index=True, tracking=True,
+        default=fields.Date.context_today,
     )
     expected_delivery_at = fields.Datetime(
         string="موعد التسليم المتوقع", copy=False, index=True, tracking=True,
@@ -193,7 +194,7 @@ class WofInstallationOrder(models.Model):
     )
     supervisor_id = fields.Many2one(
         'hr.employee', string="مشرف التشغيل", ondelete='restrict', index=True,
-        domain="[('company_id', 'in', [company_id, False])]",
+        domain="[('is_wof_supervisor', '=', True), ('company_id', 'in', [company_id, False])]",
     )
 
     line_ids = fields.One2many(
@@ -384,7 +385,7 @@ class WofInstallationOrder(models.Model):
             if (
                 order.appointment_at
                 and order.expected_delivery_at
-                and order.expected_delivery_at < order.appointment_at
+                and fields.Datetime.context_timestamp(order, order.expected_delivery_at).date() < order.appointment_at
             ):
                 raise ValidationError(
                     'موعد التسليم المتوقع يجب أن يكون بعد موعد الاستلام.'
