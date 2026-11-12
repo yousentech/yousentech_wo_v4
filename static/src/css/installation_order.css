@@ -144,12 +144,6 @@
 .o_form_view.wof_order_form .wof_order_card { align-self: start; }
 .o_form_view.wof_order_form .wof_order_card .o_inner_group, .o_form_view.wof_order_form .wof_order_card.o_inner_group { align-content: start; grid-auto-rows: min-content; }
 
-/* team (technicians) */
-.o_form_view.wof_order_form .wof_team_list { margin-top: 2px; }
-.o_form_view.wof_order_form .wof_team_list .o_list_table thead th { color: var(--wo-muted); font-weight: 600; background: transparent; }
-.o_form_view.wof_order_form .wof_team_list .o_field_x2many_list_row_add a { color: var(--wo-teal); font-weight: 600; }
-.o_form_view.wof_order_form .wof_team_hint { padding-top: 4px; }
-
 /* finance follow-up */
 .o_form_view.wof_order_form .wof_fin { display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
 .o_form_view.wof_order_form .wof_fin_head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
@@ -253,3 +247,32 @@
     .o_form_view.wof_order_form .wof_steps_caption, .o_form_view.wof_order_form .wof_steps_sep { display: none; }
     .o_form_view.wof_order_form .wof_steps_opt { flex: 0 0 auto; white-space: nowrap; }
 }
+
+/* ============================================ customer & car: summary strip + four even cards */
+.o_form_view.wof_order_form .wof_cust_hero {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-bottom: 14px; padding: 12px 18px;
+    border: 1px solid var(--wo-line); border-radius: 14px; background: linear-gradient(90deg, #F3F9F8, #FFFFFF);
+}
+.o_form_view.wof_order_form .wof_cust_hero_item { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.o_form_view.wof_order_form .wof_cust_hero_item.is-end { margin-inline-start: auto; }
+.o_form_view.wof_order_form .wof_cust_hero_item > div { display: flex; flex-direction: column; min-width: 0; }
+.o_form_view.wof_order_form .wof_cust_hero_item small { color: var(--wo-muted); font-size: .72rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_cust_hero_item b { font-size: 1rem; color: var(--wo-ink); }
+.o_form_view.wof_order_form .wof_cust_hero_item b .o_field_widget { display: inline; }
+.o_form_view.wof_order_form .wof_cust_hero_sub { color: var(--wo-muted); font-size: .82rem; }
+.o_form_view.wof_order_form .wof_cust_hero_icon {
+    flex: 0 0 38px; height: 38px; display: grid; place-items: center; border-radius: 12px;
+    background: var(--wo-teal-soft); color: var(--wo-teal-dark);
+}
+.o_form_view.wof_order_form .wof_cust_hero_icon.is-car { background: #E0F2FE; color: #0369A1; }
+.o_form_view.wof_order_form .wof_cust_hero_icon.is-time { background: var(--wo-amber-soft); color: var(--wo-amber); }
+.o_form_view.wof_order_form .wof_cust_plate {
+    padding: 4px 12px; border: 2px solid var(--wo-ink); border-radius: 8px; background: #FFFFFF;
+    font-weight: 800; letter-spacing: 1px; color: var(--wo-ink);
+}
+.o_form_view.wof_order_form .wof_cust_size { padding: 2px 10px; border-radius: 99px; background: #F1F5F5; color: var(--wo-muted); font-size: .8rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_steps .wof_order_cards.is-four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1500px) { .o_form_view.wof_order_form .wof_steps .wof_order_cards.is-four { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .o_form_view.wof_order_form .wof_steps .wof_order_cards.is-four { grid-template-columns: 1fr; } }
+.o_form_view.wof_order_form .wof_line_chip.is-team { background: #EEF2FF; color: #3F4FC4; }
+.o_form_view.wof_order_form .wof_order_cards.is-four > .wof_order_card { align-self: stretch; align-content: start !important; grid-template-rows: none !important; grid-auto-rows: min-content; }

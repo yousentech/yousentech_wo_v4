@@ -33,8 +33,9 @@ class WofInstallationOrderFields(models.Model):
         related='partner_id.category_id', string='فئة العميل', readonly=False,
     )
     salesperson_id = fields.Many2one(
-        'res.users', string='المندوب', ondelete='restrict', index=True,
-        help='يُنقل إلى أمر البيع والفاتورة كمندوب مبيعات.',
+        'salesman', string='المندوب', ondelete='restrict', index=True,
+        domain="[('id', 'in', salesman_candidate_ids)]",
+        help='من مندوبي الفرع المسندين لفرع الأمر؛ يُنقل إلى أمر البيع والفاتورة.',
     )
     sticker_removal = fields.Selection(
         [('not_needed', 'لا تحتاج'), ('needed', 'تحتاج إزالة لواصق'), ('done', 'تمت الإزالة')],

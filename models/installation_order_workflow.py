@@ -94,7 +94,6 @@ class WofInstallationOrderWorkflow(models.Model):
             'expected_delivery_at',
             'advisor_id',
             'supervisor_id',
-            'technician_ids',
             'line_ids',
             'order_discount_percent',
             'agency_id',
@@ -127,7 +126,7 @@ class WofInstallationOrderWorkflow(models.Model):
                     'yousentech_wo_v4.group_wo_supervisor',
                     'yousentech_wo_v4.group_wo_manager',
                 )
-                staff_only = {'supervisor_id', 'technician_ids'}
+                staff_only = {'supervisor_id'}
                 non_staff_fields = commercial - staff_only
                 if non_staff_fields.intersection(vals) and order.state not in {
                     'draft',
@@ -363,13 +362,6 @@ class WofInstallationOrderWorkflow(models.Model):
         )
         self._ensure_assigned_technician_or_supervisor()
         self._wof_check_stage_fields('execute')
-        if len(self.technician_ids) == 1:
-            unassigned = self.line_ids.filtered(
-                lambda line: not line.execution_technician_id
-            )
-            unassigned._write_line_internal({
-                'execution_technician_id': self.technician_ids.id,
-            })
         return self._perform_transition(
             'intake',
             'in_progress',
@@ -389,12 +381,12 @@ class WofInstallationOrderWorkflow(models.Model):
         incomplete = self.line_ids.filtered(
             lambda line: (
                 line.execution_progress != 100
-                or (need_technician and not line.execution_technician_id)
+                or (need_technician and not line.technician_names)
             )
         )
         if incomplete:
             raise ValidationError(
-                'أكمل جميع الخدمات إلى 100٪ وحدد فني التنفيذ لكل خدمة قبل فحص الجودة.'
+                'أكمل جميع الخدمات إلى 100٪ وحدد فنيي كل خدمة قبل فحص الجودة.'
             )
         return self._perform_transition(
             'in_progress',

@@ -5,6 +5,7 @@ Run on a test database:
     odoo-bin -d <db> -u yousentech_wo_v4 --test-enable --test-tags /yousentech_wo_v4:TestSharedBranches --stop-after-init
 """
 
+from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase, tagged
 
 
@@ -81,7 +82,6 @@ class TestSharedBranches(TransactionCase):
         size = self.main_env['wof.car.size'].search([], limit=1)
         order = self.main_env['wof.installation.order'].create({
             'partner_id': partner.id, 'vehicle_plate': 'abc 123', 'car_size_id': size.id,
-            'advisor_id': self.main_user.id,
         })
         self.assertEqual(order.company_id, self.main)
         # Another branch does not see it (record rule on the user's companies).
@@ -90,5 +90,9 @@ class TestSharedBranches(TransactionCase):
         both = self.main_env(context=dict(self.main_env.context, allowed_company_ids=[self.main.id, self.branch.id]))
         self.main_user.company_ids = [(4, self.branch.id)]
         self.assertTrue(both['wof.installation.order'].search([('id', '=', order.id)]))
-        # Staff of other branches can still be the advisor.
-        self.assertIn(self.branch_user, order.advisor_candidate_ids)
+        # The advisor is an employee of the order's branch.
+        advisor = self.env['hr.employee'].create({'name': 'مستشار الرئيسي', 'company_id': self.main.id})
+        other = self.env['hr.employee'].create({'name': 'مستشار جدة', 'company_id': self.branch.id})
+        order.advisor_id = advisor
+        with self.assertRaises(ValidationError):
+            order.advisor_id = other

@@ -188,19 +188,12 @@ class WofInstallationOrder(models.Model):
         string="المواعيد مفعلة", required=True, readonly=True,
     )
     advisor_id = fields.Many2one(
-        'res.users', string="مستشار الخدمة", required=True,
-        default=lambda self: self.env.user, ondelete='restrict',
-        index=True,
+        'hr.employee', string="مستشار الخدمة", ondelete='restrict', index=True,
+        domain="[('company_id', 'in', [company_id, False])]",
     )
     supervisor_id = fields.Many2one(
-        'res.users', string="مشرف التشغيل", ondelete='restrict',
-        index=True,
-    )
-    advisor_candidate_ids = fields.Many2many(
-        'res.users', compute='_compute_assignment_candidates',
-    )
-    supervisor_candidate_ids = fields.Many2many(
-        'res.users', compute='_compute_assignment_candidates',
+        'hr.employee', string="مشرف التشغيل", ondelete='restrict', index=True,
+        domain="[('company_id', 'in', [company_id, False])]",
     )
 
     line_ids = fields.One2many(
@@ -372,30 +365,6 @@ class WofInstallationOrder(models.Model):
                 else 0
             )
 
-    # Not a branch filter: the dependency only makes Odoo compute the
-    # candidates for freshly created orders (x2many caches start empty).
-    @api.depends('company_id')
-    def _compute_assignment_candidates(self):
-        reception_group = self.env.ref(
-            'yousentech_wo_v4.group_wo_user'
-        )
-        supervisor_group = self.env.ref(
-            'yousentech_wo_v4.group_wo_supervisor'
-        )
-        # Advisors and supervisors may come from any branch (users can work in several).
-        staff_domain = [('active', '=', True)]
-        for order in self:
-            order.advisor_candidate_ids = self.env['res.users'].search(
-                staff_domain + [
-                    ('groups_id', 'in', (reception_group | supervisor_group).ids),
-                ]
-            )
-            order.supervisor_candidate_ids = self.env['res.users'].search(
-                staff_domain + [
-                    ('groups_id', 'in', supervisor_group.ids),
-                ]
-            )
-
     @api.constrains('vehicle_manufacturer_id', 'vehicle_model_id')
     def _check_vehicle_model(self):
         for order in self:
@@ -407,27 +376,6 @@ class WofInstallationOrder(models.Model):
             ):
                 raise ValidationError(
                     'موديل السيارة لا يتبع الماركة المحددة.'
-                )
-
-    @api.constrains(
-        'advisor_id',
-        'supervisor_id',
-    )
-    def _check_assigned_users_company(self):
-        for order in self:
-            if (
-                order.advisor_id
-                and order.advisor_id not in order.advisor_candidate_ids
-            ):
-                raise ValidationError(
-                    'مستشار الخدمة يجب أن يحمل دور الاستقبال أو الإشراف.'
-                )
-            if (
-                order.supervisor_id
-                and order.supervisor_id not in order.supervisor_candidate_ids
-            ):
-                raise ValidationError(
-                    'مشرف التشغيل يجب أن يحمل دور مشرف التشغيل.'
                 )
 
     @api.constrains('appointment_at', 'expected_delivery_at')

@@ -69,37 +69,31 @@
     <record id="installation_order_technician_assignment_rule" model="ir.rule">
         <field name="name">الفني يرى أوامر التركيب المسندة إليه</field>
         <field name="model_id" ref="model_wof_installation_order"/>
-        <field name="domain_force">[('technician_ids.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('line_ids.technician_ids.user_id', '=', user.id)]</field>
         <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
     </record>
 
     <record id="installation_order_line_technician_assignment_rule" model="ir.rule">
         <field name="name">الفني يرى خدمات أوامره المسندة</field>
         <field name="model_id" ref="model_wof_installation_order_line"/>
-        <field name="domain_force">[('order_id.technician_ids.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('order_id.line_ids.technician_ids.user_id', '=', user.id)]</field>
         <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
     </record>
 
     <record id="installation_material_technician_assignment_rule" model="ir.rule">
         <field name="name">الفني يرى مواد أوامره المسندة</field>
         <field name="model_id" ref="model_wof_installation_material_line"/>
-        <field name="domain_force">[('order_id.technician_ids.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('order_id.line_ids.technician_ids.user_id', '=', user.id)]</field>
         <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
     </record>
 
     <record id="installation_event_technician_assignment_rule" model="ir.rule">
         <field name="name">الفني يرى أحداث أوامره المسندة</field>
         <field name="model_id" ref="model_wof_installation_order_event"/>
-        <field name="domain_force">[('order_id.technician_ids.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('order_id.line_ids.technician_ids.user_id', '=', user.id)]</field>
         <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
     </record>
 
-    <record id="installation_technician_assignment_rule" model="ir.rule">
-        <field name="name">الفني يرى فنيي أوامره المسندة</field>
-        <field name="model_id" ref="model_wof_installation_order_technician"/>
-        <field name="domain_force">[('order_id.technician_ids.user_id', '=', user.id)]</field>
-        <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
-    </record>
 
     <!-- Branches: every user sees the installation orders of the companies they work in. -->
     <record id="installation_order_company_rule" model="ir.rule">
@@ -123,12 +117,6 @@
     <record id="installation_order_event_company_rule" model="ir.rule">
         <field name="name">سجل أوامر التركيب: حسب شركات المستخدم</field>
         <field name="model_id" ref="model_wof_installation_order_event"/>
-        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
-    </record>
-
-    <record id="installation_order_technician_company_rule" model="ir.rule">
-        <field name="name">فنيو أوامر التركيب: حسب شركات المستخدم</field>
-        <field name="model_id" ref="model_wof_installation_order_technician"/>
         <field name="domain_force">[('company_id', 'in', company_ids)]</field>
     </record>
 

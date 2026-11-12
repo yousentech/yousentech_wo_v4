@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Technicians are HR employees; branches see their own orders; transfers stay safe."""
+"""Technicians per service (HR employees), people of the order, branch rules and transfers."""
 
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests import TransactionCase, tagged
@@ -26,13 +26,16 @@ class TestOrderTechnicians(TransactionCase):
             'company_id': cls.company_a.id, 'company_ids': both,
             'groups_id': [(6, 0, [root.ref('base.group_user').id, root.ref('yousentech_wo_v4.group_wo_technician').id])],
         })
-        cls.tech = root['hr.employee'].create({
+        Employee = root['hr.employee']
+        cls.manager_employee = Employee.create({'name': 'مدير الفرع أ', 'company_id': cls.company_a.id, 'user_id': cls.manager.id})
+        cls.tech = Employee.create({
             'name': 'فني متنقل', 'company_id': cls.company_a.id, 'user_id': cls.tech_user.id, 'is_wof_technician': True,
         })
-        cls.other_branch_tech = root['hr.employee'].create({
+        cls.tech_2 = Employee.create({'name': 'فني ثانٍ', 'company_id': cls.company_a.id, 'is_wof_technician': True})
+        cls.other_branch_tech = Employee.create({
             'name': 'فني الفرع ب', 'company_id': cls.company_b.id, 'is_wof_technician': True,
         })
-        cls.not_tech = root['hr.employee'].create({'name': 'محاسب', 'company_id': cls.company_a.id})
+        cls.not_tech = Employee.create({'name': 'محاسب', 'company_id': cls.company_a.id})
 
         env = cls.env = root(user=cls.manager, context={'allowed_company_ids': [cls.company_a.id]})
         profile = env['wof.company.profile']._wof_get_profile() or env['wof.company.profile'].get_or_create_for_company()
@@ -40,58 +43,93 @@ class TestOrderTechnicians(TransactionCase):
         if profile.state != 'ready':
             profile.wof_flow_apply('set', {'operation_tax_enabled': False})
             profile.wof_flow_apply('activate')
+        profile.operation_allow_multiple_technicians = True
+        cls.profile = profile
+
+        service = root['product.product'].create({'name': 'خدمة فنيين', 'type': 'service'})
+        cls.part = root['wof.car.parts'].create({
+            'code': 'TEC-PART', 'name': 'جزء الفنيين', 'part_type': 'car_part', 'product_id': service.id,
+        })
+        Film = env['wof.film.category']
+        cls.activity = env['wof.service.type'].search([('service_options', '=', 'tint'), ('active', '=', True)], limit=1)
+        cls.film = Film.browse(Film.wof_film_create(cls.activity.id, 'فيلم الفنيين', 'film'))
+        cls.film.wof_film_apply('comp_add', {'part_id': cls.part.id})
+        snap = cls.film.wof_matrix_load()
+        for line in snap['lines']:
+            line['price'] = {'mode': 'uniform', 'general': {'amount': 100, 'readonly': False}, 'sizes': {}}
+        cls.film.wof_matrix_save({'lines': snap['lines']})
+        cls.film.wof_film_apply('activate')
 
     def make_order(self):
         partner = self.root['res.partner'].create({'name': 'عميل الفنيين', 'mobile': '0500000011'})
         size = self.env['wof.car.size'].search([], limit=1)
-        return self.env['wof.installation.order'].create({
+        order = self.env['wof.installation.order'].create({
             'partner_id': partner.id, 'vehicle_plate': 'TEC 1', 'car_size_id': size.id,
         })
+        self.env['wof.installation.order.line'].create({
+            'order_id': order.id, 'service_type_id': self.activity.id,
+            'film_category_id': self.film.id, 'car_part_id': self.part.id,
+        })
+        return order
 
-    def test_only_branch_technicians_can_be_chosen(self):
+    def test_people_defaults(self):
         order = self.make_order()
-        order.write({'technician_ids': [(0, 0, {'employee_id': self.tech.id})]})
-        self.assertEqual(order.technician_ids.employee_id, self.tech)
-        self.assertEqual(order.technician_ids.user_id, self.tech_user)
-        self.assertEqual(order.technician_names, 'فني متنقل')
+        self.assertEqual(order.created_by_id, self.manager)
+        self.assertEqual(order.advisor_id, self.manager_employee)
+
+    def test_technicians_per_service(self):
+        order = self.make_order()
+        line = order.line_ids
+        line.write({'technician_ids': [(4, self.tech.id), (4, self.tech_2.id)]})
+        self.assertEqual(line.technician_ids, self.tech | self.tech_2)
+        self.assertEqual(line.technician_names, 'فني متنقل، فني ثانٍ')
+        self.assertEqual(order.technician_names, 'فني متنقل، فني ثانٍ')
+        self.assertTrue(order._wof_is_assigned_technician(self.tech_user))
         with self.assertRaises(ValidationError):
-            order.write({'technician_ids': [(0, 0, {'employee_id': self.not_tech.id})]})
+            line.write({'technician_ids': [(4, self.not_tech.id)]})
         with self.assertRaises(ValidationError):
-            order.write({'technician_ids': [(0, 0, {'employee_id': self.other_branch_tech.id})]})
-        found = self.env['hr.employee'].search([
-            ('is_wof_technician', '=', True), ('company_id', 'in', [order.company_id.id, False]),
-        ])
-        self.assertIn(self.tech, found)
-        self.assertNotIn(self.other_branch_tech, found)
+            line.write({'technician_ids': [(4, self.other_branch_tech.id)]})
+
+    def test_single_technician_setting(self):
+        self.profile.operation_allow_multiple_technicians = False
+        order = self.make_order()
+        order.line_ids.write({'technician_ids': [(4, self.tech.id)]})
+        with self.assertRaises(ValidationError):
+            order.line_ids.write({'technician_ids': [(4, self.tech_2.id)]})
 
     def test_transfer_keeps_old_orders_working(self):
         order = self.make_order()
-        order.write({'technician_ids': [(0, 0, {'employee_id': self.tech.id})]})
+        line = order.line_ids
+        line.write({'technician_ids': [(4, self.tech.id)]})
         # The technician moves to branch B.
         self.root['hr.employee'].browse(self.tech.id).company_id = self.company_b
-        order.invalidate_recordset()
-        order.technician_ids.invalidate_recordset()
-        # Branch A's manager cannot see branch B employees, yet the order still shows the name.
+        self.env.invalidate_all()
         self.assertFalse(self.env['hr.employee'].search([('id', '=', self.tech.id)]))
-        data = order.web_read({
-            'technician_ids': {'fields': {'display_name': {}, 'employee_id': {'fields': {'display_name': {}}}}},
-            'technician_names': {},
-        })[0]
-        self.assertEqual(data['technician_names'], 'فني متنقل')
-        self.assertEqual(data['technician_ids'][0]['display_name'], 'فني متنقل')
-        self.assertEqual(data['technician_ids'][0]['employee_id']['display_name'], 'فني متنقل')
-        # Saving the order again raises nothing about the other branch.
+        # Stored names still show him; adding another technician keeps him.
+        self.assertEqual(line.technician_names, 'فني متنقل')
+        line.write({'technician_ids': [(4, self.tech_2.id)]})
+        self.assertEqual(line.technician_names, 'فني متنقل، فني ثانٍ')
+        self.env.flush_all()
+        self.env.cr.execute('SELECT employee_id FROM wof_order_line_technician_rel WHERE line_id = %s', (line.id,))
+        self.assertIn(self.tech.id, [row[0] for row in self.env.cr.fetchall()])
         order.write({'customer_notes': 'بعد النقل'})
-        self.assertTrue(order._wof_is_assigned_technician(self.tech_user))
+        self.assertEqual(order.technician_names, 'فني متنقل، فني ثانٍ')
+
+    def test_technician_adds_only_himself(self):
+        order = self.make_order()
+        line = order.line_ids
+        line.write({'technician_ids': [(4, self.tech.id)]})
+        tech_line = line.with_user(self.tech_user).with_context(allowed_company_ids=[self.company_a.id])
+        with self.assertRaises(AccessError):
+            tech_line.write({'technician_ids': [(4, self.tech_2.id)]})
 
     def test_technician_sees_assigned_orders_only(self):
         order = self.make_order()
         other = self.make_order()
-        order.write({'technician_ids': [(0, 0, {'employee_id': self.tech.id})]})
+        order.line_ids.write({'technician_ids': [(4, self.tech.id)]})
         Orders = self.root['wof.installation.order'].with_user(self.tech_user).with_context(
             allowed_company_ids=[self.company_a.id])
-        visible = Orders.search([('id', 'in', (order | other).ids)])
-        self.assertEqual(visible, order)
+        self.assertEqual(Orders.search([('id', 'in', (order | other).ids)]), order)
 
     def test_orders_follow_user_companies(self):
         order = self.make_order()
@@ -105,21 +143,29 @@ class TestOrderTechnicians(TransactionCase):
         with self.assertRaises(AccessError):
             Orders.browse(order.id).read(['name'])
 
-    def test_remove_unused_technician(self):
-        order = self.make_order()
-        order.write({'technician_ids': [(0, 0, {'employee_id': self.tech.id})]})
-        order.write({'technician_ids': [(2, order.technician_ids.id)]})
-        self.assertFalse(order.technician_ids)
-        self.assertFalse(order.technician_names)
-
     def test_change_branch_on_draft_order(self):
         self.manager.company_ids = [(4, self.company_b.id)]
         env = self.env(context={'allowed_company_ids': [self.company_a.id, self.company_b.id]})
         order = self.make_order().with_env(env)
-        order.write({'technician_ids': [(0, 0, {'employee_id': self.tech.id})]})
+        order.line_ids.write({'technician_ids': [(4, self.tech_2.id)]})
         with self.assertRaises(ValidationError):
-            order.write({'company_id': self.company_b.id})  # technician of branch A still on it
-        order.write({'company_id': self.company_b.id, 'technician_ids': [(2, order.technician_ids.id)]})
+            order.write({'company_id': self.company_b.id})  # a service still has a branch A technician
+        order.line_ids.write({'technician_ids': [(3, self.tech_2.id)]})
+        order.write({'company_id': self.company_b.id})
         self.assertEqual(order.company_id, self.company_b)
-        order.write({'technician_ids': [(0, 0, {'employee_id': self.other_branch_tech.id})]})
+        order.line_ids.write({'technician_ids': [(4, self.other_branch_tech.id)]})
         self.assertEqual(order.technician_names, 'فني الفرع ب')
+        with self.assertRaises(ValidationError):
+            order.advisor_id = self.manager_employee  # branch A employee on a branch B order
+
+    def test_salesman_of_the_branch(self):
+        Salesman = self.root['salesman']
+        here = Salesman.create({'name': 'مندوب أ', 'sale_user': self.manager.id})
+        moved = Salesman.create({'name': 'مندوب منقول'})
+        self.root['salesman.assignments'].create({'salesman_id': moved.id, 'company_id': self.company_b.id})
+        order = self.make_order()
+        self.assertIn(here, order.salesman_candidate_ids)
+        self.assertNotIn(moved, order.salesman_candidate_ids)
+        self.assertEqual(order.salesperson_id, here)  # default: the user's own salesman
+        with self.assertRaises(ValidationError):
+            order.salesperson_id = moved

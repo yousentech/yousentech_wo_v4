@@ -86,7 +86,7 @@ FIELD_RULES = {
     'delivery_time': ('expected_delivery_at', 'confirm'),
     'salesperson': ('salesperson_id', 'confirm'),
     'supervisor': ('supervisor_id', 'confirm'),
-    'technician': ('technician_ids', 'execute'),
+    'technician': ('technician_names', 'execute'),
     'odometer': ('odometer', 'intake'),
     'sticker_removal': ('sticker_removal', 'intake'),
     'completion_date': ('completion_date', 'delivery'),

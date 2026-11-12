@@ -48,8 +48,10 @@
                 <field name="tax_id" readonly="1" optional="hide"/>
                 <field name="amount_total" readonly="1" sum="إجمالي الأمر"/>
                 <field name="price_source" widget="badge" optional="show"/>
-                <field name="execution_technician_id" optional="hide"
-                       options="{'no_create': True, 'no_open': True}"/>
+                <field name="order_state" column_invisible="True"/>
+                <field name="technician_ids" widget="many2many_tags" optional="show"
+                       options="{'no_create': True, 'no_open': True}"
+                       readonly="order_state not in ('draft', 'scheduled', 'intake', 'in_progress')"/>
                 <field name="execution_progress" widget="progressbar" optional="hide"/>
             </tree>
         </field>
@@ -152,9 +154,11 @@
                         </group>
                     </group>
                     <group string="التنفيذ">
-                        <field name="execution_technician_id"
-                               readonly="order_state != 'in_progress'"
+                        <field name="technician_ids" widget="many2many_tags"
+                               readonly="order_state not in ('draft', 'scheduled', 'intake', 'in_progress')"
                                options="{'no_create': True, 'no_open': True}"/>
+                        <field name="technician_names" string="سجل الفنيين" readonly="1"
+                               invisible="not technician_names"/>
                         <field name="execution_progress" widget="progressbar"
                                readonly="order_state != 'in_progress'"/>
                         <field name="execution_notes"
@@ -182,7 +186,7 @@
                 <field name="film_category_id" readonly="1"/>
                 <field name="car_part_id" readonly="1"/>
                 <field name="order_id" column_invisible="True"/>
-                <field name="execution_technician_id"
+                <field name="technician_ids" widget="many2many_tags"
                        options="{'no_create': True, 'no_open': True}"/>
                 <field name="execution_progress" widget="progressbar"/>
                 <field name="execution_notes"/>
@@ -316,11 +320,11 @@
                 <field name="vehicle_plate"/>
                 <field name="vehicle_vin"/>
                 <field name="advisor_id"/>
-                <field name="technician_ids"/>
+                <field name="technician_names" string="الفني"/>
                 <filter name="my_orders" string="أوامري"
-                        domain="[('advisor_id', '=', uid)]"/>
+                        domain="[('advisor_id.user_id', '=', uid)]"/>
                 <filter name="assigned_to_me" string="مسندة لي كفني"
-                        domain="[('technician_ids.user_id', '=', uid)]"/>
+                        domain="[('line_ids.technician_ids.user_id', '=', uid)]"/>
                 <filter name="today" string="مواعيد اليوم"
                         date="appointment_at"/>
                 <separator/>
@@ -403,8 +407,6 @@
                     <field name="currency_id" invisible="1"/>
                     <field name="discount_scope" invisible="1"/>
                     <field name="use_appointments" invisible="1"/>
-                    <field name="advisor_candidate_ids" invisible="1"/>
-                    <field name="supervisor_candidate_ids" invisible="1"/>
                     <field name="finance_to_refund" invisible="1"/>
                     <div class="wof_order_hero">
                         <div class="wof_hero_title">
@@ -473,109 +475,65 @@
                     <div class="wof_steps_content">
                         <section class="wof_sec wof_sec_customer">
                             <div class="wof_order_step_head"><h2>العميل والسيارة</h2><p>بيانات الأمر الأساسية. الحقول المعلّمة بنجمة مطلوبة عند تأكيد الأمر.</p></div>
-                            <div class="wof_order_cards">
-                        <group class="wof_order_card" string="العميل والتواصل">
-                            <field name="partner_id"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   options="{'no_quick_create': True}"/>
-                            <field name="partner_mobile" readonly="1"
-                                   invisible="',mobile,' in wof_hidden_fields"/>
-                            <field name="partner_phone" readonly="1"
-                                   invisible="',mobile,' in wof_hidden_fields"/>
-                            <field name="partner_category_ids" widget="many2many_tags"
-                                   options="{'no_create': True, 'color_field': 'color'}"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   invisible="',customer_category,' in wof_hidden_fields"
-                                   required="',customer_category,' in wof_required_fields"/>
-                            <field name="customer_notes"
-                                   readonly="state not in ('draft', 'scheduled')"/>
-                        </group>
-                        <group class="wof_order_card" string="السيارة">
-                            <field name="vehicle_plate"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   invisible="',plate,' in wof_hidden_fields"
-                                   required="',plate,' in wof_required_fields"/>
-                            <field name="vehicle_vin"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   invisible="',vin,' in wof_hidden_fields"
-                                   required="',vin,' in wof_required_fields"/>
-                            <field name="vehicle_manufacturer_id"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"
-                                   invisible="',manufacturer,' in wof_hidden_fields"
-                                   required="',manufacturer,' in wof_required_fields"/>
-                            <field name="vehicle_model_id"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"
-                                   invisible="',model,' in wof_hidden_fields"
-                                   required="',model,' in wof_required_fields"/>
-                            <field name="vehicle_year_id"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"
-                                   invisible="',manufacture_year,' in wof_hidden_fields"
-                                   required="',manufacture_year,' in wof_required_fields"/>
-                            <field name="vehicle_color"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   invisible="',color,' in wof_hidden_fields"
-                                   required="',color,' in wof_required_fields"/>
-                            <field name="agency_id"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"
-                                   invisible="',agency,' in wof_hidden_fields"
-                                   required="',agency,' in wof_required_fields"/>
-                            <field name="car_size_id"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
-                        </group>
-                        <group class="wof_order_card" string="الموعد والمسؤولون">
-                            <field name="company_id" string="الفرع"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   domain="[('id', 'in', context.get('allowed_company_ids', []))]"
-                                   options="{'no_create': True, 'no_open': True}"/>
-                            <field name="appointment_at"
-                                   required="use_appointments"
-                                   readonly="state not in ('draft', 'scheduled')"/>
-                            <field name="expected_delivery_at"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   invisible="',delivery_time,' in wof_hidden_fields"
-                                   required="',delivery_time,' in wof_required_fields"/>
-                            <field name="advisor_id"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   domain="[('id', 'in', advisor_candidate_ids)]"
-                                   options="{'no_create': True}"/>
-                            <field name="salesperson_id"
-                                   readonly="state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"
-                                   invisible="',salesperson,' in wof_hidden_fields"
-                                   required="',salesperson,' in wof_required_fields"/>
-                            <field name="supervisor_id"
-                                   readonly="state in ('quality', 'ready', 'delivered', 'cancelled')"
-                                   domain="[('id', 'in', supervisor_candidate_ids)]"
-                                   options="{'no_create': True}"
-                                   invisible="',supervisor,' in wof_hidden_fields"
-                                   required="',supervisor,' in wof_required_fields"/>
-                            <label for="technician_ids" invisible="',technician,' in wof_hidden_fields"/>
-                            <field name="technician_ids" nolabel="1" colspan="2" class="wof_team_list"
-                                   add-label="إضافة فني"
-                                   readonly="state in ('quality', 'ready', 'delivered', 'cancelled')"
-                                   invisible="',technician,' in wof_hidden_fields"
-                                   required="',technician,' in wof_required_fields and state == 'intake'">
-                                <tree editable="bottom" no_open="1">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="employee_id" string="الفني"
-                                           domain="[('is_wof_technician', '=', True), ('company_id', 'in', [parent.company_id, False])]"
-                                           options="{'no_create': True, 'no_open': True}"
-                                           readonly="id"/>
-                                    <field name="job_title" readonly="1" optional="show"/>
-                                    <field name="service_count" readonly="1" string="خدمات" optional="show"/>
-                                </tree>
-                            </field>
-                            <div class="wof_team_hint text-muted small" colspan="2"
-                                 invisible="',technician,' in wof_hidden_fields or state in ('quality', 'ready', 'delivered', 'cancelled')">
-                                تظهر هنا موظفو فرع الأمر المعلَّمون «فني تركيب» في بيانات الموظف.
+                            <div class="wof_cust_hero">
+                                <div class="wof_cust_hero_item">
+                                    <span class="wof_cust_hero_icon"><i class="fa fa-user" title="العميل"/></span>
+                                    <div><small>العميل</small><b><field name="partner_id" readonly="1" options="{'no_open': True}"/></b>
+                                        <span class="wof_cust_hero_sub" invisible="not partner_mobile"><field name="partner_mobile" readonly="1"/></span></div>
+                                </div>
+                                <div class="wof_cust_hero_item">
+                                    <span class="wof_cust_hero_icon is-car"><i class="fa fa-car" title="السيارة"/></span>
+                                    <div><small>السيارة</small>
+                                        <b><field name="vehicle_manufacturer_id" readonly="1" options="{'no_open': True}"/> <field name="vehicle_model_id" readonly="1" options="{'no_open': True}"/> <field name="vehicle_year_id" readonly="1" options="{'no_open': True}"/></b>
+                                        <span class="wof_cust_hero_sub" invisible="not vehicle_color"><field name="vehicle_color" readonly="1"/></span></div>
+                                </div>
+                                <div class="wof_cust_hero_item" invisible="not vehicle_plate">
+                                    <span class="wof_cust_plate"><field name="vehicle_plate" readonly="1"/></span>
+                                    <span class="wof_cust_size" invisible="not car_size_id"><field name="car_size_id" readonly="1" options="{'no_open': True}"/></span>
+                                </div>
+                                <div class="wof_cust_hero_item is-end">
+                                    <span class="wof_cust_hero_icon is-time"><i class="fa fa-calendar" title="الموعد"/></span>
+                                    <div><small>الموعد</small><b><field name="appointment_at" readonly="1"/></b>
+                                        <span class="wof_cust_hero_sub"><field name="company_id" readonly="1" options="{'no_open': True}"/></span></div>
+                                </div>
                             </div>
-                        </group>
-                    </div>
+                            <div class="wof_order_cards is-four">
+                                <group class="wof_order_card" string="العميل والتواصل">
+                                    <field name="partner_id" readonly="state not in ('draft', 'scheduled')" options="{'no_quick_create': True}"/>
+                                    <field name="partner_mobile" readonly="1" invisible="',mobile,' in wof_hidden_fields"/>
+                                    <field name="partner_phone" readonly="1" invisible="',mobile,' in wof_hidden_fields"/>
+                                    <field name="partner_category_ids" widget="many2many_tags"
+                                           options="{'no_create': True, 'color_field': 'color'}" readonly="state not in ('draft', 'scheduled')"
+                                           invisible="',customer_category,' in wof_hidden_fields" required="',customer_category,' in wof_required_fields"/>
+                                    <field name="customer_notes" readonly="state not in ('draft', 'scheduled')"/>
+                                </group>
+                                <group class="wof_order_card" string="السيارة">
+                                    <field name="vehicle_plate" readonly="state not in ('draft', 'scheduled')" invisible="',plate,' in wof_hidden_fields" required="',plate,' in wof_required_fields"/>
+                                    <field name="car_size_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}"/>
+                                    <field name="vehicle_manufacturer_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}" invisible="',manufacturer,' in wof_hidden_fields" required="',manufacturer,' in wof_required_fields"/>
+                                    <field name="vehicle_model_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}" invisible="',model,' in wof_hidden_fields" required="',model,' in wof_required_fields"/>
+                                    <field name="vehicle_year_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}" invisible="',manufacture_year,' in wof_hidden_fields" required="',manufacture_year,' in wof_required_fields"/>
+                                </group>
+                                <group class="wof_order_card" string="الموعد وتفاصيل السيارة">
+                                    <field name="appointment_at" required="use_appointments" readonly="state not in ('draft', 'scheduled')"/>
+                                    <field name="expected_delivery_at" readonly="state not in ('draft', 'scheduled')" invisible="',delivery_time,' in wof_hidden_fields" required="',delivery_time,' in wof_required_fields"/>
+                                    <field name="vehicle_color" readonly="state not in ('draft', 'scheduled')" invisible="',color,' in wof_hidden_fields" required="',color,' in wof_required_fields"/>
+                                    <field name="vehicle_vin" readonly="state not in ('draft', 'scheduled')" invisible="',vin,' in wof_hidden_fields" required="',vin,' in wof_required_fields"/>
+                                    <field name="agency_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}" invisible="',agency,' in wof_hidden_fields" required="',agency,' in wof_required_fields"/>
+                                </group>
+                                <group class="wof_order_card" string="الفرع والفريق">
+                                    <field name="company_id" string="الفرع" readonly="state not in ('draft', 'scheduled')"
+                                           domain="[('id', 'in', context.get('allowed_company_ids', []))]"
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="advisor_id" readonly="state not in ('draft', 'scheduled')" required="1" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="supervisor_id"
+                                           readonly="state in ('quality', 'ready', 'delivered', 'cancelled')"
+                                           options="{'no_create': True, 'no_open': True}" invisible="',supervisor,' in wof_hidden_fields" required="',supervisor,' in wof_required_fields"/>
+                                    <field name="salesman_candidate_ids" invisible="1"/>
+                                    <field name="salesperson_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True, 'no_open': True}" invisible="',salesperson,' in wof_hidden_fields" required="',salesperson,' in wof_required_fields"/>
+                                    <field name="created_by_id" readonly="1" options="{'no_open': True}"/>
+                                </group>
+                            </div>
                         </section>
                         
                         <section class="wof_sec wof_sec_services">
@@ -608,6 +566,7 @@
                                     <field name="currency_id"/>
                                     <field name="service_area_template_id"/>
                                     <field name="template_part_names"/>
+                                    <field name="technician_names"/>
                                     <templates>
                                         <t t-name="kanban-box">
                                             <div t-attf-class="oe_kanban_global_click wof_line_card wof_act_{{ record.activity_type.raw_value or 'others' }} {{ record.part_kind.raw_value == 'service_area' ? 'is-area' : '' }}">
@@ -625,6 +584,7 @@
                                                         <span t-if="record.film_category_line_id.raw_value" class="wof_line_chip">الدرجة <b><field name="film_category_line_id"/></b></span>
                                                         <span t-if="record.film_uses_inventory.raw_value and record.film_product_id.raw_value" class="wof_line_chip is-stock"><i class="fa fa-cube" title="الصنف المخزني"/> <field name="film_product_id"/> · <field name="film_product_qty"/></span>
                                                         <span t-if="record.film_uses_inventory.raw_value and !record.film_product_id.raw_value" class="wof_line_chip is-warn">بدون صنف مخزني</span>
+                                                        <span t-if="record.technician_names.raw_value" class="wof_line_chip is-team"><i class="fa fa-users" title="الفنيون"/> <field name="technician_names"/></span>
                                                     </div>
                                                 </div>
                                                 <div class="wof_line_price">

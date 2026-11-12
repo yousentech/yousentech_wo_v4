@@ -921,13 +921,13 @@ def check_installation_order(validation, models, methods, fields):
         "wof.installation.order": {
             "public_uuid", "operation_source", "company_id", "state",
             "idempotency_key", "line_ids", "event_ids", "amount_total",
-            "technician_ids", "sale_order_id", "invoice_id",
+            "technician_names", "sale_order_id", "invoice_id",
         },
         "wof.installation.order.line": {
             "public_uuid", "company_id", "service_type_id",
             "film_category_id", "car_part_id", "price_source",
             "unit_price", "execution_progress", "available_car_part_ids",
-            "available_grade_ids", "supports_color_grades",
+            "available_grade_ids", "supports_color_grades", "technician_ids",
         },
         "wof.installation.order.event": {
             "public_uuid", "operation_source", "company_id",

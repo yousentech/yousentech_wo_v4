@@ -137,10 +137,7 @@ class WofInstallationOrderLine(models.Model):
         compute='_compute_line_amounts', store=True,
     )
 
-    execution_technician_id = fields.Many2one(
-        'wof.installation.order.technician', string="فني التنفيذ", ondelete='restrict',
-        domain="[('order_id', '=', order_id)]",
-    )
+
     execution_progress = fields.Integer(
         string="الإنجاز %", default=0, copy=False,
     )
@@ -291,17 +288,6 @@ class WofInstallationOrderLine(models.Model):
                     % line.max_discount_percent
                 )
 
-    @api.constrains('execution_technician_id')
-    def _check_execution_technician_company(self):
-        for line in self:
-            if (
-                line.execution_technician_id
-                and line.execution_technician_id.order_id != line.order_id
-            ):
-                raise ValidationError(
-                    'فني تنفيذ الخدمة يجب أن يكون ضمن فنيي أمر التركيب.'
-                )
-
     @api.onchange('service_type_id')
     def _onchange_service_type_id(self):
         self.film_category_id = False
@@ -400,7 +386,6 @@ class WofInstallationOrderLine(models.Model):
                 'tax_id',
                 'max_discount_percent',
                 'configured_commission',
-                'execution_technician_id',
                 'execution_progress',
                 'execution_notes',
             ):
@@ -496,7 +481,6 @@ class WofInstallationOrderLine(models.Model):
             'price_override_reason',
         }
         execution = {
-            'execution_technician_id',
             'execution_progress',
             'execution_notes',
         }
@@ -519,33 +503,18 @@ class WofInstallationOrderLine(models.Model):
                         raise ValidationError(
                             'لا يمكن تعديل الخدمة أو سعرها بعد إكمال الاستلام.'
                         )
+                if 'technician_ids' in vals:
+                    line._wof_check_team_write(vals['technician_ids'])
                 if execution.intersection(vals):
                     self._ensure_execution_editor(line.order_id)
                     if line.order_id.state != 'in_progress':
                         raise ValidationError(
-                            'تحديث فني الخدمة أو تقدمها متاح أثناء التنفيذ فقط.'
+                            'تحديث تقدم الخدمة متاح أثناء التنفيذ فقط.'
                         )
-                    is_supervisor = any(
-                        self.env.user.has_group(group)
-                        for group in (
-                            'yousentech_wo_v4.group_wo_supervisor',
-                            'yousentech_wo_v4.group_wo_manager',
+                    if not self._wof_is_team_lead() and not (line.technician_ids & self.env.user.employee_ids):
+                        raise AccessError(
+                            'يمكن للفني تحديث الخدمات المسندة إليه فقط.'
                         )
-                    )
-                    if not is_supervisor:
-                        target = self.env['wof.installation.order.technician'].browse(
-                            vals.get('execution_technician_id', line.execution_technician_id.id) or []
-                        )
-                        if (
-                            line.execution_technician_id
-                            and line.execution_technician_id.user_id != self.env.user
-                        ) or (
-                            target
-                            and target.user_id != self.env.user
-                        ):
-                            raise AccessError(
-                                'يمكن للفني تحديث الخدمات المسندة إليه فقط.'
-                            )
         before_manual = {
             line.id: (line.price_source, line.unit_price)
             for line in self
@@ -593,6 +562,37 @@ class WofInstallationOrderLine(models.Model):
             raise AccessError(
                 'تعديل خدمات وتسعير الأمر متاح للاستقبال أو المشرف أو مدير المركز.'
             )
+
+    @api.model
+    def _wof_is_team_lead(self):
+        return any(self.env.user.has_group(group) for group in (
+            'yousentech_wo_v4.group_wo_user',
+            'yousentech_wo_v4.group_wo_supervisor',
+            'yousentech_wo_v4.group_wo_manager',
+        ))
+
+    def _wof_check_team_write(self, commands):
+        """Reception and supervisors set a service's technicians until quality
+        check; a technician may only add or remove himself during the work."""
+        self.ensure_one()
+        state = self.order_id.state
+        if state not in ('draft', 'scheduled', 'intake', 'in_progress'):
+            raise ValidationError('لا يمكن تغيير فنيي الخدمة بعد إرسال الأمر إلى فحص الجودة.')
+        if self._wof_is_team_lead():
+            return
+        if not self.env.user.has_group('yousentech_wo_v4.group_wo_technician') or state not in ('intake', 'in_progress'):
+            raise AccessError('تحديد فنيي الخدمة متاح للاستقبال أو المشرف، وللفني لنفسه أثناء التنفيذ.')
+        mine = set(self.env.user.employee_ids.ids)
+        for command in commands:
+            code = command[0]
+            if code in (3, 4):
+                ids = [command[1]]
+            elif code == 6:
+                ids = list(set(command[2]) ^ set(self.technician_ids.ids))
+            else:
+                ids = [None]
+            if any(i not in mine for i in ids):
+                raise AccessError('يمكن للفني إضافة نفسه إلى الخدمة أو إزالة نفسه منها فقط.')
 
     @api.model
     def _ensure_execution_editor(self, order):

@@ -1,11 +1,11 @@
 {
     'name': 'Yousentech Car Care',
-    'version': '17.0.4.0.102',
+    'version': '17.0.4.0.103',
     'summary': 'Self-service setup and installation orders for car care centers',
     'description': 'Foundation, self-service setup and installation order workflow for car care operations.',
     'category': 'Services',
     'author': 'Yousentech Team',
-    'depends': ['base', 'mail', 'product', 'account', 'sale', 'stock', 'sale_stock', 'hr'],
+    'depends': ['base', 'mail', 'product', 'account', 'sale', 'stock', 'sale_stock', 'hr', 'yousentech_invoicing_saleman'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
