@@ -25,6 +25,7 @@ FLOW_SCALARS = {
     'operation_allow_multiple_technicians': 'bool',
     'commission_event': ('delivery', 'invoice'),
     'stock_allow_shortage': 'bool',
+    'vin_validation': 'bool',
     'invoice_discount_mode': ('net', 'visible'),
 }
 
@@ -114,6 +115,7 @@ class WofCompanyProfileSetupFlow(models.Model):
             'pricing_policy': self.operation_pricing_policy,
             'invoice': self._wof_flow_invoice_mode(),
             'stock_allow_shortage': self.stock_allow_shortage,
+            'vin_validation': self.vin_validation,
             'invoice_discount': self.invoice_discount_mode,
             'has_pay_type': 'pay_type' in self.env['res.partner']._fields,
             'discount': {

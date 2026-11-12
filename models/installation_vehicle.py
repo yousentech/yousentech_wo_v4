@@ -36,7 +36,7 @@ VEHICLE_SPEC_FIELDS = {
     'vehicle_manufacturer_id': 'manufacturer_id',
     'vehicle_model_id': 'model_id',
     'vehicle_year_id': 'year_id',
-    'vehicle_color': 'color',
+    'vehicle_color_id': 'color_id',
     'car_size_id': 'car_size_id',
     'agency_id': 'agency_id',
 }
@@ -64,7 +64,7 @@ class WofVehicle(models.Model):
         'wof.car.type', string='الموديل', tracking=True, ondelete='restrict',
         domain="[('manufactory_id', '=', manufacturer_id)]")
     year_id = fields.Many2one('wof.car.manufactory.year', string='السنة', tracking=True, ondelete='restrict')
-    color = fields.Char(string='اللون', tracking=True)
+    color_id = fields.Many2one('wof.car.color', string='اللون', tracking=True, ondelete='restrict')
     car_size_id = fields.Many2one('wof.car.size', string='حجم السيارة', tracking=True, ondelete='restrict')
     agency_id = fields.Many2one('wof.car.agency', string='الوكالة', ondelete='restrict')
     owner_ids = fields.One2many('wof.vehicle.owner', 'vehicle_id', string='سجل الملاك')
@@ -234,3 +234,28 @@ class WofInstallationOrderVehicle(models.Model):
         if watched & set(vals) and not self.env.context.get('wof_skip_vehicle_sync'):
             self._wof_sync_vehicle()
         return result
+
+
+VIN_RE = re.compile(r'^[A-HJ-NPR-Z0-9]{17}$')
+
+
+class WofInstallationOrderVin(models.Model):
+    _inherit = 'wof.installation.order'
+
+    @api.constrains('vehicle_vin')
+    def _check_vin(self):
+        profile = self.env['wof.company.profile']._wof_get_profile()
+        if profile and not profile.vin_validation:
+            return
+        for order in self.filtered('vehicle_vin'):
+            if not VIN_RE.match(order.vehicle_vin):
+                raise ValidationError(_(
+                    'رقم الهيكل «%s» غير صحيح: يجب أن يكون 17 خانة من الأحرف الإنجليزية والأرقام بدون I وO وQ. '
+                    'يمكن إيقاف هذا التحقق من الإعدادات للسيارات غير القياسية.') % order.vehicle_vin)
+
+
+class ResPartnerMobileHistory(models.Model):
+    _inherit = 'res.partner'
+
+    # Changes from installation orders (or anywhere) appear in the customer's history with the user.
+    mobile = fields.Char(tracking=True)

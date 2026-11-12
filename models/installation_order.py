@@ -149,11 +149,9 @@ class WofInstallationOrder(models.Model):
         'res.partner', string="العميل", required=True,
         ondelete='restrict', check_company=True, index=True, tracking=True,
     )
+    # Editable: a change here updates the customer card (tracked there with the user).
     partner_mobile = fields.Char(
-        string="جوال العميل", related='partner_id.mobile', readonly=True,
-    )
-    partner_phone = fields.Char(
-        string="هاتف العميل", related='partner_id.phone', readonly=True,
+        string="جوال العميل", related='partner_id.mobile', readonly=False, tracking=True,
     )
     customer_notes = fields.Text(string="ملاحظات العميل")
 
@@ -171,7 +169,7 @@ class WofInstallationOrder(models.Model):
     vehicle_year_id = fields.Many2one(
         'wof.car.manufactory.year', string="السنة", ondelete='restrict',
     )
-    vehicle_color = fields.Char(string="اللون")
+    vehicle_color_id = fields.Many2one('wof.car.color', string="اللون", ondelete='restrict')
     car_size_id = fields.Many2one(
         'wof.car.size', string="حجم السيارة", required=True,
         ondelete='restrict', index=True,

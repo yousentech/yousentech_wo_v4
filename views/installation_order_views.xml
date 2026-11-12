@@ -488,7 +488,7 @@
                                     <span class="wof_cust_hero_icon is-car"><i class="fa fa-car" title="السيارة"/></span>
                                     <div><small>السيارة</small>
                                         <b><field name="vehicle_manufacturer_id" readonly="1" options="{'no_open': True}"/> <field name="vehicle_model_id" readonly="1" options="{'no_open': True}"/> <field name="vehicle_year_id" readonly="1" options="{'no_open': True}"/></b>
-                                        <span class="wof_cust_hero_sub"><field name="vehicle_color" readonly="1"/></span></div>
+                                        <span class="wof_cust_hero_sub"><field name="vehicle_color_id" readonly="1" options="{'no_open': True}"/></span></div>
                                 </div>
                                 <div class="wof_cust_hero_item">
                                     <span class="wof_cust_hero_icon is-plate"><i class="fa fa-id-card-o" title="اللوحة"/></span>
@@ -504,11 +504,12 @@
                             <div class="wof_order_cards is-four">
                                 <group class="wof_order_card" string="العميل والتواصل">
                                     <field name="partner_id" readonly="state not in ('draft', 'scheduled')" options="{'no_quick_create': True}"/>
-                                    <field name="partner_mobile" readonly="1" invisible="',mobile,' in wof_hidden_fields"/>
-                                    <field name="partner_phone" readonly="1" invisible="',mobile,' in wof_hidden_fields"/>
+                                    <field name="partner_mobile" readonly="state not in ('draft', 'scheduled')" invisible="',mobile,' in wof_hidden_fields or not partner_id"
+                                           widget="phone" placeholder="يُحدَّث في بطاقة العميل"/>
                                     <field name="partner_category_ids" widget="many2many_tags"
                                            options="{'no_create': True, 'color_field': 'color'}" readonly="state not in ('draft', 'scheduled')"
                                            invisible="',customer_category,' in wof_hidden_fields" required="',customer_category,' in wof_required_fields"/>
+                                    <field name="car_size_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}"/>
                                     <field name="customer_notes" readonly="state not in ('draft', 'scheduled')"/>
                                 </group>
                                 <div class="wof_order_card wof_car_card">
@@ -525,16 +526,22 @@
                                         <field name="vehicle_id" string="من سيارات العميل" readonly="state not in ('draft', 'scheduled')"
                                                options="{'no_create': True, 'no_open': True}"
                                                placeholder="اختر، أو اكتب سيارة جديدة"/>
-                                        <field name="car_size_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}"/>
-                                        <field name="vehicle_manufacturer_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}" invisible="',manufacturer,' in wof_hidden_fields" required="',manufacturer,' in wof_required_fields"/>
-                                        <field name="vehicle_model_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}" invisible="',model,' in wof_hidden_fields" required="',model,' in wof_required_fields"/>
+                                        <field name="vehicle_manufacturer_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True, 'no_open': True}" invisible="',manufacturer,' in wof_hidden_fields" required="',manufacturer,' in wof_required_fields"
+                                               groups="!yousentech_wo_v4.group_wo_car_catalog"/>
+                                        <field name="vehicle_manufacturer_id" readonly="state not in ('draft', 'scheduled')" options="{'no_open': True}" invisible="',manufacturer,' in wof_hidden_fields" required="',manufacturer,' in wof_required_fields"
+                                               groups="yousentech_wo_v4.group_wo_car_catalog"/>
+                                        <field name="vehicle_model_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True, 'no_open': True}" invisible="',model,' in wof_hidden_fields" required="',model,' in wof_required_fields"
+                                               groups="!yousentech_wo_v4.group_wo_car_catalog"/>
+                                        <field name="vehicle_model_id" readonly="state not in ('draft', 'scheduled')" options="{'no_open': True}" invisible="',model,' in wof_hidden_fields" required="',model,' in wof_required_fields"
+                                               context="{'default_manufactory_id': vehicle_manufacturer_id}"
+                                               groups="yousentech_wo_v4.group_wo_car_catalog"/>
                                         <field name="vehicle_year_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}" invisible="',manufacture_year,' in wof_hidden_fields" required="',manufacture_year,' in wof_required_fields"/>
                                     </group>
                                 </div>
                                 <group class="wof_order_card" string="الموعد وتفاصيل السيارة">
                                     <field name="appointment_at" required="use_appointments" readonly="state not in ('draft', 'scheduled')"/>
                                     <field name="expected_delivery_at" readonly="state not in ('draft', 'scheduled')" invisible="',delivery_time,' in wof_hidden_fields" required="',delivery_time,' in wof_required_fields"/>
-                                    <field name="vehicle_color" readonly="state not in ('draft', 'scheduled')" invisible="',color,' in wof_hidden_fields" required="',color,' in wof_required_fields"/>
+                                    <field name="vehicle_color_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True, 'no_open': True}" invisible="',color,' in wof_hidden_fields" required="',color,' in wof_required_fields"/>
                                     <field name="vehicle_vin" readonly="state not in ('draft', 'scheduled')" invisible="',vin,' in wof_hidden_fields" required="',vin,' in wof_required_fields"/>
                                     <field name="agency_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}" invisible="',agency,' in wof_hidden_fields" required="',agency,' in wof_required_fields"/>
                                 </group>

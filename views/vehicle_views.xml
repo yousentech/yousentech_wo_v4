@@ -10,7 +10,7 @@
                 <field name="manufacturer_id"/>
                 <field name="model_id"/>
                 <field name="year_id"/>
-                <field name="color" optional="show"/>
+                <field name="color_id" optional="show"/>
                 <field name="vin" optional="hide"/>
                 <field name="partner_id"/>
                 <field name="order_count"/>
@@ -38,7 +38,7 @@
                             <field name="manufacturer_id" options="{'no_create': True}"/>
                             <field name="model_id" options="{'no_create': True}"/>
                             <field name="year_id" options="{'no_create': True}"/>
-                            <field name="color"/>
+                            <field name="color_id" options="{'no_create': True}"/>
                         </group>
                         <group string="الهوية والمالك">
                             <field name="vin"/>
@@ -116,5 +116,32 @@
               action="action_wof_vehicles"
               groups="yousentech_wo_v4.group_wo_employee"
               sequence="1"/>
+
+    <record id="view_wof_car_color_tree" model="ir.ui.view">
+        <field name="name">wof.car.color.tree</field>
+        <field name="model">wof.car.color</field>
+        <field name="arch" type="xml">
+            <tree string="ألوان السيارات" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="color_hex" widget="color"/>
+                <field name="code" optional="hide"/>
+                <field name="active" widget="boolean_toggle" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_wof_car_colors" model="ir.actions.act_window">
+        <field name="name">ألوان السيارات</field>
+        <field name="res_model">wof.car.color</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <menuitem id="menu_wof_car_colors"
+              name="ألوان السيارات"
+              parent="menu_wo_v4_inputs"
+              action="action_wof_car_colors"
+              groups="yousentech_wo_v4.group_wo_car_catalog"
+              sequence="24"/>
 
 </odoo>

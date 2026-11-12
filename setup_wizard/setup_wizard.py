@@ -81,7 +81,7 @@ FIELD_RULES = {
     'manufacturer': ('vehicle_manufacturer_id', 'confirm'),
     'model': ('vehicle_model_id', 'confirm'),
     'manufacture_year': ('vehicle_year_id', 'confirm'),
-    'color': ('vehicle_color', 'confirm'),
+    'color': ('vehicle_color_id', 'confirm'),
     'agency': ('agency_id', 'confirm'),
     'delivery_time': ('expected_delivery_at', 'confirm'),
     'salesperson': ('salesperson_id', 'confirm'),
@@ -277,6 +277,11 @@ class WofCompanyProfile(models.Model):
         default='plate_mobile', required=True,
     )
     use_inventory = fields.Boolean(string="صرف المواد من المخزون", default=True)
+    vin_validation = fields.Boolean(
+        string="التحقق من رقم الهيكل", default=True,
+        help="رقم الهيكل (VIN) حسب المعيار الدولي ISO 3779: 17 خانة من الأحرف والأرقام بدون I وO وQ. "
+             "أوقفه إذا كانت لديكم سيارات قديمة أو بأرقام هيكل غير قياسية.",
+    )
     stock_allow_shortage = fields.Boolean(
         string="السماح بالمتابعة رغم نقص الكمية",
         help="عند منع البيع بالسالب: تنبيه فقط في أمر التركيب بدل منع التأكيد. "
@@ -351,7 +356,7 @@ class WofCompanyProfile(models.Model):
             'operation_technician_required',
             'payment_policy', 'discount_scope', 'discount_enabled', 'discount_default_limit',
             'discount_allow_override_request', 'discount_reason_required_from', 'commission_event',
-            'required_vehicle_data', 'use_inventory', 'use_appointments', 'stock_allow_shortage',
+            'required_vehicle_data', 'use_inventory', 'use_appointments', 'stock_allow_shortage', 'vin_validation',
             'advanced_pricing', 'advanced_commission',
         }
         if tracked.intersection(vals):

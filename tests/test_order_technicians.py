@@ -190,18 +190,22 @@ class TestOrderTechnicians(TransactionCase):
         order.supervisor_id = self.manager_employee
         self.assertEqual(order.supervisor_id, self.manager_employee)
 
+    @property
+    def white(self):
+        return self.root['wof.car.color'].search([('code', '=', 'WHITE')], limit=1)
+
     def test_vehicle_record_and_owner_history(self):
         size = self.env['wof.car.size'].search([], limit=1)
         first = self.root['res.partner'].create({'name': 'المالك الأول'})
         second = self.root['res.partner'].create({'name': 'المالك الثاني'})
         Order = self.env['wof.installation.order']
         order1 = Order.create({'partner_id': first.id, 'vehicle_plate': 'abj  1234', 'car_size_id': size.id,
-                               'vehicle_color': 'أبيض'})
+                               'vehicle_color_id': self.white.id})
         self.assertEqual(order1.vehicle_plate, 'ABJ 1234')
         vehicle = order1.vehicle_id
         self.assertTrue(vehicle)
         self.assertEqual(vehicle.partner_id, first)
-        self.assertEqual(vehicle.color, 'أبيض')
+        self.assertEqual(vehicle.color_id, self.white)
         self.assertEqual(len(vehicle.owner_ids), 1)
         # Sold: the same plate on an order of another customer moves ownership.
         order2 = Order.create({'partner_id': second.id, 'vehicle_plate': 'ABJ 1234', 'car_size_id': size.id})
@@ -212,19 +216,19 @@ class TestOrderTechnicians(TransactionCase):
         self.assertEqual(vehicle.order_ids, order1 | order2)
         # The first order keeps its own snapshot.
         self.assertEqual(order1.partner_id, first)
-        self.assertEqual(order1.vehicle_color, 'أبيض')
+        self.assertEqual(order1.vehicle_color_id, self.white)
 
     def test_plate_moved_to_another_car(self):
         size = self.env['wof.car.size'].search([], limit=1)
         partner = self.root['res.partner'].create({'name': 'عميل اللوحة'})
         Order = self.env['wof.installation.order']
-        old = Order.create({'partner_id': partner.id, 'vehicle_plate': 'BDR 55', 'vehicle_vin': 'VIN1',
+        old = Order.create({'partner_id': partner.id, 'vehicle_plate': 'BDR 55', 'vehicle_vin': 'JTMHV05J604123451',
                             'car_size_id': size.id}).vehicle_id
-        new_order = Order.create({'partner_id': partner.id, 'vehicle_plate': 'BDR 55', 'vehicle_vin': 'VIN2',
+        new_order = Order.create({'partner_id': partner.id, 'vehicle_plate': 'BDR 55', 'vehicle_vin': 'JTMHV05J604123452',
                                   'car_size_id': size.id})
         self.assertNotEqual(new_order.vehicle_id, old)
         self.assertFalse(old.plate)
-        self.assertEqual(new_order.vehicle_id.vin, 'VIN2')
+        self.assertEqual(new_order.vehicle_id.vin, 'JTMHV05J604123452')
 
     def test_team_member_needs_a_role(self):
         with self.assertRaises(ValidationError):
@@ -246,3 +250,34 @@ class TestOrderTechnicians(TransactionCase):
                             'car_size_id': size.id})
         self.assertNotEqual(saudi.vehicle_id, uae.vehicle_id)
         self.assertEqual(uae.vehicle_id.plate_country, 'AE')
+
+    def test_catalog_loaded_and_rerunnable(self):
+        Make = self.root['wof.car.manufactory']
+        toyota = Make.search([('code', '=', 'TOYOTA')])
+        self.assertTrue(toyota)
+        self.assertTrue(self.root['wof.car.type'].search([('code', '=', 'CAMRY'), ('manufactory_id', '=', toyota.id)]))
+        self.assertTrue(self.white)
+        count = Make.search_count([])
+        Make._wof_load_catalog()
+        self.assertEqual(Make.search_count([]), count)
+
+    def test_quick_created_make_gets_a_code(self):
+        make = self.root['wof.car.manufactory'].create({'name': 'Test Motors'})
+        self.assertEqual(make.code, 'TESTMOTORS')
+
+    def test_vin_rule(self):
+        size = self.env['wof.car.size'].search([], limit=1)
+        partner = self.root['res.partner'].create({'name': 'عميل الشاصي'})
+        Order = self.env['wof.installation.order']
+        with self.assertRaises(ValidationError):
+            Order.create({'partner_id': partner.id, 'vehicle_plate': 'ABJ 9', 'vehicle_vin': 'SHORT1',
+                          'car_size_id': size.id})
+        self.profile.vin_validation = False
+        order = Order.create({'partner_id': partner.id, 'vehicle_plate': 'ABJ 9', 'vehicle_vin': 'SHORT1',
+                              'car_size_id': size.id})
+        self.assertEqual(order.vehicle_vin, 'SHORT1')
+
+    def test_mobile_updates_customer(self):
+        order = self.make_order()
+        order.partner_mobile = '0555000111'
+        self.assertEqual(order.partner_id.mobile, '0555000111')

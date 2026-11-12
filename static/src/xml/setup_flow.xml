@@ -258,6 +258,12 @@
                                     </div>
                                 </t>
                             </div>
+                        <section class="wof_sf_card">
+                            <div class="wof_sf_card_row">
+                                <span class="wof_sf_row_text"><strong class="wof_sf_card_title">التحقق من رقم الهيكل (VIN)</strong><span class="wof_sf_muted">17 خانة حسب المعيار الدولي، بدون الأحرف I وO وQ. أوقفه للسيارات القديمة أو أرقام الهيكل غير القياسية.</span></span>
+                                <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.vin_validation"/><t t-set="label" t-value="'التحقق من رقم الهيكل'"/><t t-set="onClick" t-value="() => this.setScalar('vin_validation', !this.state.data.vin_validation)"/></t>
+                            </div>
+                        </section>
                     </t>
 
                     <!-- 4b. Tax and pricing -->

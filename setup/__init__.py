@@ -11,5 +11,6 @@ from . import component_tint_policy
 from . import car_types
 from . import car_manufactory_year
 from . import car_agency
+from . import car_catalog
 
 from . import tint_degree

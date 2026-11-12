@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Ready colours, makes and models: missing ones are added on every install/upgrade. -->
+    <function model="wof.car.manufactory" name="_wof_load_catalog"/>
+</odoo>

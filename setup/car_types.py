@@ -1,6 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models
+import re
+
+from odoo import api, fields, models
+
+
+def _auto_code(name, model, extra=None):
+    """Code for a record created from a dropdown: from the name, unique."""
+    base = re.sub(r'[^A-Z0-9]', '', (name or '').upper())[:16] or 'CAR'
+    code, n = base, 1
+    while model.with_context(active_test=False).search_count([('code', '=', code)] + (extra or [])):
+        n += 1
+        code = '%s%s' % (base, n)
+    return code
 
 
 class CarManufactory(models.Model):
@@ -9,11 +21,18 @@ class CarManufactory(models.Model):
     _description = 'الشركة المصنعة للسيارة'
     _order = 'name'
 
-    code = fields.Char(string="الكود", required=True, index=True, copy=False)
+    code = fields.Char(string="الكود", index=True, copy=False, help="يُولَّد تلقائيًا من الاسم إذا تُرك فارغًا.")
     name = fields.Char(
         string="الاسم", required=True, index=True, translate=True,
     )
     active = fields.Boolean(string="تفعيل", default=True)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('code'):
+                vals['code'] = _auto_code(vals.get('name'), self)
+        return super().create(vals_list)
 
     _sql_constraints = [
         ('car_manufactory_code_unique', 'unique(code)',
@@ -29,7 +48,7 @@ class CarType(models.Model):
     _description = 'طراز السيارة'
     _order = 'manufactory_id, name'
 
-    code = fields.Char(string="الكود", required=True, index=True, copy=False)
+    code = fields.Char(string="الكود", index=True, copy=False, help="يُولَّد تلقائيًا من الاسم إذا تُرك فارغًا.")
     name = fields.Char(
         string="الاسم", required=True, index=True, translate=True,
     )
@@ -38,6 +57,13 @@ class CarType(models.Model):
         required=True, ondelete='restrict', index=True,
     )
     active = fields.Boolean(string="تفعيل", default=True)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('code'):
+                vals['code'] = _auto_code(vals.get('name'), self, [('manufactory_id', '=', vals.get('manufactory_id'))])
+        return super().create(vals_list)
 
     _sql_constraints = [
         ('car_type_code_manufactory_unique',

@@ -115,4 +115,8 @@ access_wof_vehicle_owner_manager,wof.vehicle.owner.manager,model_wof_vehicle_own
 access_wof_vehicle_invoicing,wof.vehicle.invoicing,model_wof_vehicle,account.group_account_invoice,1,0,0,0
 access_wof_team_member_employee,wof.team.member.employee,model_wof_team_member,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_wof_team_member_settings,wof.team.member.settings,model_wof_team_member,yousentech_wo_v4.group_wo_settings,1,1,1,1
-
+access_car_manufactory_catalog,car.manufactory.catalog,model_wof_car_manufactory,yousentech_wo_v4.group_wo_car_catalog,1,1,1,0
+access_car_type_catalog,car.type.catalog,model_wof_car_type,yousentech_wo_v4.group_wo_car_catalog,1,1,1,0
+access_car_color_user,car.color.user,model_wof_car_color,yousentech_wo_v4.group_wo_employee,1,0,0,0
+access_car_color_catalog,car.color.catalog,model_wof_car_color,yousentech_wo_v4.group_wo_car_catalog,1,1,1,0
+access_car_color_manager,car.color.manager,model_wof_car_color,yousentech_wo_v4.group_wo_manager,1,1,1,1
