@@ -64,7 +64,7 @@ OPERATION_FIELD_DEFAULTS = [
     ('color', 'اللون', False, False, 50),
     ('agency', 'الوكالة', False, True, 60),
     ('delivery_time', 'وقت التسليم', False, False, 70),
-    ('salesperson', 'المندوب', False, True, 80),
+    ('salesperson', 'المندوب', False, False, 80),
     ('supervisor', 'المشرف', False, False, 85),
     ('technician', 'الفني', True, False, 90),
     ('odometer', 'العداد', False, True, 100),
