@@ -112,9 +112,9 @@
 
     <menuitem id="menu_wof_vehicles"
               name="سيارات العملاء"
-              parent="menu_wo_v4_operation"
+              parent="menu_wo_v4_inputs"
               action="action_wof_vehicles"
               groups="yousentech_wo_v4.group_wo_employee"
-              sequence="5"/>
+              sequence="1"/>
 
 </odoo>

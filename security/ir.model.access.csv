@@ -34,7 +34,7 @@ access_film_parts_price_lines_manager,film.parts.price.lines.manager,model_wof_f
 access_film_parts_price_lines_user,film.parts.price.lines.user,model_wof_film_parts_price_lines,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_film_parts_commission_lines_manager,film.parts.commission.lines.manager,model_wof_film_parts_commission_lines,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_film_parts_commission_lines_supervisor,film.parts.commission.lines.supervisor,model_wof_film_parts_commission_lines,yousentech_wo_v4.group_wo_supervisor,1,0,0,0
-access_film_parts_commission_lines_accountant,film.parts.commission.lines.accountant,model_wof_film_parts_commission_lines,yousentech_wo_v4.group_wo_accountant,1,0,0,0
+access_film_parts_commission_lines_accountant,film.parts.commission.lines.accountant,model_wof_film_parts_commission_lines,account.group_account_invoice,1,0,0,0
 access_car_size_user,car.size.user,model_wof_car_size,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_car_size_manager,car.size.manager,model_wof_car_size,yousentech_wo_v4.group_wo_manager,1,1,1,0
 access_car_parts_user,car.parts.user,model_wof_car_parts,yousentech_wo_v4.group_wo_employee,1,0,0,0
@@ -104,7 +104,6 @@ access_order_payment_wizard_employee,order.payment.wizard.employee,model_wof_ord
 access_installation_order_invoicing,installation.order.invoicing,model_wof_installation_order,account.group_account_invoice,1,0,0,0
 access_installation_order_line_invoicing,installation.order.line.invoicing,model_wof_installation_order_line,account.group_account_invoice,1,1,0,0
 access_hr_employee_wo_employee,hr.employee.wo.employee,hr.model_hr_employee,yousentech_wo_v4.group_wo_employee,1,0,0,0
-access_hr_employee_wo_settings,hr.employee.wo.settings,hr.model_hr_employee,yousentech_wo_v4.group_wo_settings,1,1,0,0
 access_wof_vehicle_employee,wof.vehicle.employee,model_wof_vehicle,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_wof_vehicle_reception,wof.vehicle.reception,model_wof_vehicle,yousentech_wo_v4.group_wo_user,1,1,1,0
 access_wof_vehicle_supervisor,wof.vehicle.supervisor,model_wof_vehicle,yousentech_wo_v4.group_wo_supervisor,1,1,1,0
@@ -114,3 +113,6 @@ access_wof_vehicle_owner_reception,wof.vehicle.owner.reception,model_wof_vehicle
 access_wof_vehicle_owner_supervisor,wof.vehicle.owner.supervisor,model_wof_vehicle_owner,yousentech_wo_v4.group_wo_supervisor,1,1,1,0
 access_wof_vehicle_owner_manager,wof.vehicle.owner.manager,model_wof_vehicle_owner,yousentech_wo_v4.group_wo_manager,1,1,1,1
 access_wof_vehicle_invoicing,wof.vehicle.invoicing,model_wof_vehicle,account.group_account_invoice,1,0,0,0
+access_wof_team_member_employee,wof.team.member.employee,model_wof_team_member,yousentech_wo_v4.group_wo_employee,1,0,0,0
+access_wof_team_member_settings,wof.team.member.settings,model_wof_team_member,yousentech_wo_v4.group_wo_settings,1,1,1,1
+

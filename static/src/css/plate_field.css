@@ -2,8 +2,15 @@
 .wof_plate_field { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .wof_plate_btn { padding: 0; border: 0; background: transparent; cursor: pointer; }
 .wof_plate_btn:disabled { cursor: default; }
-.wof_plate_input { width: 140px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-.wof_plate_pick { border-radius: 8px; font-weight: 600; color: #0A5252; }
+.wof_plate_input { width: 160px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.wof_plate_text { font-weight: 700; letter-spacing: 1px; }
+.wof_plate_empty {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; min-width: 190px; justify-content: center;
+    border: 2px dashed #9FB3B8; border-radius: 10px; background: #F7FAFA; color: #0A5252; font-weight: 700; cursor: pointer;
+}
+.wof_plate_empty:hover { border-color: #0F6E6E; background: #EEF7F6; }
+.wof_plate_edit { width: 30px; height: 30px; border: 1px solid #E3E8E8; border-radius: 8px; background: #FFFFFF; color: #0A5252; cursor: pointer; }
+.wof_plate_country { padding: 3px 10px; border-radius: 99px; background: #E0F2FE; color: #0369A1; font-size: .8rem; font-weight: 700; }
 
 .wof_plate {
     display: inline-grid; grid-template-columns: auto auto 22px; align-items: stretch;

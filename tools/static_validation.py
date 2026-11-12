@@ -745,7 +745,7 @@ def parse_acl(validation, declared, models):
         model_name = model_ref.removeprefix("model_").replace("_", ".")
         validation.require(
             model_name in models or model_name in {
-                "product.template", "product.product", "account.tax",
+                "product.template", "product.product", "account.tax", "hr.employee",
             },
             f"ACL {row['id']} targets undefined model {model_name}",
         )

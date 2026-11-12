@@ -194,7 +194,7 @@ class WofInstallationOrder(models.Model):
     )
     supervisor_id = fields.Many2one(
         'hr.employee', string="مشرف التشغيل", ondelete='restrict', index=True,
-        domain="[('is_wof_supervisor', '=', True), ('company_id', 'in', [company_id, False])]",
+        domain="[('id', 'in', available_supervisor_ids)]",
     )
 
     line_ids = fields.One2many(

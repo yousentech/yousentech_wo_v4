@@ -4,6 +4,25 @@
 from odoo import api, SUPERUSER_ID
 
 
+def _mark_team(env, employee, company, role='technician'):
+    """Record the employee as technician/supervisor with whatever this version has."""
+    if not employee:
+        return
+    if 'wof.team.member' in env:
+        Team = env['wof.team.member'].with_context(active_test=False)
+        field = 'is_technician' if role == 'technician' else 'is_supervisor'
+        member = Team.search([('employee_id', '=', employee.id), ('company_id', '=', company.id)], limit=1)
+        if member:
+            member.write({field: True, 'active': True})
+        else:
+            Team.create({'employee_id': employee.id, 'company_id': company.id,
+                         'is_technician': role == 'technician', 'is_supervisor': role != 'technician'})
+        return
+    flag = 'is_wof_technician' if role == 'technician' else 'is_wof_supervisor'
+    if flag in employee._fields:
+        employee.write({flag: True})
+
+
 def _employee_for(env, user, company, cache):
     key = (user.id, company.id)
     if key in cache:
@@ -13,8 +32,7 @@ def _employee_for(env, user, company, cache):
         or Employee.search([('user_id', '=', user.id)], limit=1)
     if not employee:
         employee = Employee.create({'name': user.name, 'user_id': user.id, 'company_id': company.id})
-    if not employee.is_wof_technician:
-        employee.is_wof_technician = True
+    _mark_team(env, employee, company)
     cache[key] = employee
     return employee
 

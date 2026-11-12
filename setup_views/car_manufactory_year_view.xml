@@ -130,7 +130,8 @@
 
     <menuitem id="menu_car_manufactory_year_wo_v4"
               name="سنة الصنع للسيارات"
-              parent="menu_wo_v4_configuration"
+              parent="menu_wo_v4_inputs"
               action="action_car_manufactory_year_wo_v4"
-              sequence="60"/>
+              sequence="22"
+              groups="yousentech_wo_v4.group_wo_manager"/>
 </odoo>

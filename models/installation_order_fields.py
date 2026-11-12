@@ -34,6 +34,7 @@ class WofInstallationOrderFields(models.Model):
     )
     salesperson_id = fields.Many2one(
         'salesman', string='المندوب', ondelete='restrict', index=True,
+        default=lambda self: self._wof_default_salesman(),
         domain="[('id', 'in', salesman_candidate_ids)]",
         help='من مندوبي الفرع المسندين لفرع الأمر؛ يُنقل إلى أمر البيع والفاتورة.',
     )

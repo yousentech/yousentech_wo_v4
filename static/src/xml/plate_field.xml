@@ -18,22 +18,27 @@
 
     <t t-name="yousentech_wo_v4.PlateField">
         <div class="wof_plate_field">
-            <t t-if="plate.valid">
-                <button type="button" class="wof_plate_btn" t-att-disabled="isReadonly" t-on-click="open"
+            <!-- Saudi plate: drawn, chosen by clicking -->
+            <t t-if="isSaudi">
+                <button t-if="plate.valid" type="button" class="wof_plate_btn" t-att-disabled="isReadonly" t-on-click="open"
                         t-att-title="isReadonly ? value : 'تعديل اللوحة'">
                     <t t-call="yousentech_wo_v4.PlateDrawing"><t t-set="p" t-value="plate"/></t>
                 </button>
+                <span t-elif="value" class="wof_plate_text" t-esc="value"/>
+                <button t-elif="!isReadonly" type="button" class="wof_plate_empty" t-on-click="open">
+                    <i class="fa fa-hand-pointer-o" title="اختيار"/> اضغط لاختيار اللوحة
+                </button>
+                <button t-if="!isReadonly and value" type="button" class="wof_plate_edit" t-on-click="open" title="تعديل اللوحة">
+                    <i class="fa fa-pencil" title="تعديل"/>
+                </button>
             </t>
-            <t t-elif="isReadonly">
-                <span t-esc="value"/>
-            </t>
+            <!-- Other countries: typed as written on the plate -->
             <t t-else="">
-                <input type="text" class="o_input wof_plate_input" t-att-value="value" t-on-change="onInput"
-                       placeholder="مثال: ABJ 1234" dir="ltr"/>
+                <span class="wof_plate_country" t-esc="countryLabel"/>
+                <span t-if="isReadonly" class="wof_plate_text" t-esc="value"/>
+                <input t-else="" type="text" class="o_input wof_plate_input" t-att-value="value" t-on-change="onInput"
+                       placeholder="رقم اللوحة كما هو" dir="ltr"/>
             </t>
-            <button t-if="!isReadonly" type="button" class="btn btn-sm btn-light wof_plate_pick" t-on-click="open">
-                <i class="fa fa-th me-1" title="اختيار"/> اختيار اللوحة
-            </button>
         </div>
     </t>
 

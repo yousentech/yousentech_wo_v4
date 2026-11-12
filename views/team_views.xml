@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_wof_team_member_tree" model="ir.ui.view">
+        <field name="name">wof.team.member.tree</field>
+        <field name="model">wof.team.member</field>
+        <field name="arch" type="xml">
+            <tree string="فريق التركيب" editable="bottom" decoration-muted="not active">
+                <field name="employee_id" options="{'no_create': True}" widget="many2one_avatar_employee"/>
+                <field name="job_title" optional="show"/>
+                <field name="company_id" options="{'no_create': True}"/>
+                <field name="is_technician" widget="boolean_toggle"/>
+                <field name="is_supervisor" widget="boolean_toggle"/>
+                <field name="commission_ratio" invisible="not is_technician"/>
+                <field name="user_id" optional="hide" widget="many2one_avatar_user"/>
+                <field name="active" widget="boolean_toggle" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_wof_team_member_search" model="ir.ui.view">
+        <field name="name">wof.team.member.search</field>
+        <field name="model">wof.team.member</field>
+        <field name="arch" type="xml">
+            <search string="فريق التركيب">
+                <field name="employee_id"/>
+                <field name="company_id"/>
+                <filter name="technicians" string="الفنيون" domain="[('is_technician', '=', True)]"/>
+                <filter name="supervisors" string="مشرفو التشغيل" domain="[('is_supervisor', '=', True)]"/>
+                <separator/>
+                <filter name="archived" string="المؤرشفون" domain="[('active', '=', False)]"/>
+                <group expand="1" string="تجميع">
+                    <filter name="group_branch" string="الفرع" context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wof_team_members" model="ir.actions.act_window">
+        <field name="name">فريق التركيب</field>
+        <field name="res_model">wof.team.member</field>
+        <field name="view_mode">tree</field>
+        <field name="context">{'search_default_group_branch': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">أضف أول عضو في فريق التركيب</p>
+            <p>اختر الموظف وفرعه، وحدد إن كان فنيًا أو مشرف تشغيل (أو الاثنين). الفني يظهر في خدمات أوامر فرعه، والمشرف في حقل مشرف التشغيل. عند نقل فني لفرع آخر عدّل فرعه هنا؛ أوامره السابقة تبقى كما هي.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_wof_team_members"
+              name="فريق التركيب"
+              parent="yousentech_wo_v4.menu_wo_v4_inputs"
+              action="action_wof_team_members"
+              groups="yousentech_wo_v4.group_wo_settings"
+              sequence="2"/>
+
+</odoo>

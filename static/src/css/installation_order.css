@@ -272,3 +272,13 @@
 @media (max-width: 760px) { .o_form_view.wof_order_form .wof_steps .wof_order_cards.is-four { grid-template-columns: 1fr; } }
 .o_form_view.wof_order_form .wof_line_chip.is-team { background: #EEF2FF; color: #3F4FC4; }
 .o_form_view.wof_order_form .wof_order_cards.is-four > .wof_order_card { align-self: stretch; align-content: start !important; grid-template-rows: none !important; grid-auto-rows: min-content; }
+
+/* car card: plate first, then the car */
+.o_form_view.wof_order_form .wof_car_card { display: flex; flex-direction: column; gap: 10px; }
+.o_form_view.wof_order_form .wof_car_head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--wo-line); }
+.o_form_view.wof_order_form .wof_car_title { font-weight: 700; font-size: 1.05rem; color: var(--wo-ink); }
+.o_form_view.wof_order_form .wof_car_country { max-width: 150px; }
+.o_form_view.wof_order_form .wof_car_country select { border-radius: 99px; padding: 2px 10px; background: #F1F5F5; font-size: .85rem; }
+.o_form_view.wof_order_form .wof_car_plate { display: flex; justify-content: center; padding: 12px; border-radius: 12px; background: #F3F9F8; }
+.o_form_view.wof_order_form .wof_car_plate .wof_plate { font-size: 1.05rem; }
+.o_form_view.wof_order_form .wof_car_fields { margin: 0; }

@@ -17,33 +17,27 @@ from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
 
-class WofHrEmployeeTechnician(models.Model):
-    _inherit = 'hr.employee'
-
-    is_wof_technician = fields.Boolean(
-        string='فني تركيب', tracking=True,
-        help='يظهر الموظف في قائمة فنيي خدمات أوامر التركيب لفرعه (شركته).',
-    )
-    is_wof_supervisor = fields.Boolean(
-        string='مشرف تشغيل', tracking=True,
-        help='يظهر الموظف في قائمة مشرفي التشغيل لأوامر تركيب فرعه.',
-    )
-
-
 class WofInstallationOrderLineTeam(models.Model):
     _inherit = 'wof.installation.order.line'
 
     technician_ids = fields.Many2many(
         'hr.employee', 'wof_order_line_technician_rel', 'line_id', 'employee_id',
         string='الفنيون', copy=False,
-        domain="[('is_wof_technician', '=', True), ('company_id', 'in', [company_id, False])]",
-        help='الفنيون الذين نفّذوا هذا المكوّن. يظهر فنيو فرع الأمر فقط.',
+        domain="[('id', 'in', available_technician_ids)]",
+        help='الفنيون الذين نفّذوا هذا المكوّن. يظهر فنيو فريق التركيب لفرع الأمر فقط.',
     )
+    available_technician_ids = fields.Many2many('hr.employee', compute='_compute_available_technicians')
     # compute_sudo: the stored names keep every technician, including one who
     # moved to a branch the current user cannot see.
     technician_names = fields.Char(
         string='أسماء الفنيين', compute='_compute_technician_names', store=True, compute_sudo=True,
     )
+
+    @api.depends('company_id')
+    def _compute_available_technicians(self):
+        Team = self.env['wof.team.member']
+        for line in self:
+            line.available_technician_ids = Team._wof_employees(line.order_id.company_id or line.company_id, 'technician')
 
     @api.depends('technician_ids.name')
     def _compute_technician_names(self):
@@ -85,16 +79,13 @@ class WofInstallationOrderLineTeam(models.Model):
         """Technicians being added must be flagged and belong to the order's branch."""
         if not added or self.env.context.get('wof_skip_technician_check'):
             return
-        Employee = self.env['hr.employee']
+        Team = self.env['wof.team.member']
         profile = self.env['wof.company.profile']._wof_get_profile()
         for line, employee_ids in added.items():
-            for employee_id in employee_ids:
-                if not Employee.search_count([
-                    ('id', '=', employee_id), ('is_wof_technician', '=', True),
-                    ('company_id', 'in', [line.order_id.company_id.id, False]),
-                ]):
-                    raise ValidationError(_(
-                        'الموظف المختار ليس فني تركيب في فرع هذا الأمر. اختر من فنيي الفرع المعلَّمين «فني تركيب».'))
+            allowed = set(Team._wof_employees(line.order_id.company_id, 'technician').ids)
+            if set(employee_ids) - allowed:
+                raise ValidationError(_(
+                    'الموظف المختار ليس فنيًا في فريق التركيب لفرع هذا الأمر. أضفه من «فريق التركيب».'))
             count = (counts or {}).get(line, len(employee_ids))
             if profile and not profile.operation_allow_multiple_technicians and count > 1:
                 raise ValidationError(_('الإعدادات تسمح بفني واحد لكل خدمة (%s).') % line.display_name)
@@ -129,6 +120,13 @@ class WofInstallationOrderTeam(models.Model):
     service_count = fields.Integer(string='عدد الخدمات', compute='_compute_order_summary')
     wof_paid_percent = fields.Float(string='نسبة المدفوع', compute='_compute_order_summary')
     salesman_candidate_ids = fields.Many2many('salesman', compute='_compute_salesman_candidates')
+    available_supervisor_ids = fields.Many2many('hr.employee', compute='_compute_available_supervisors')
+
+    @api.depends('company_id')
+    def _compute_available_supervisors(self):
+        Team = self.env['wof.team.member']
+        for order in self:
+            order.available_supervisor_ids = Team._wof_employees(order.company_id, 'supervisor')
 
     @api.depends('line_ids.technician_names')
     def _compute_technician_names(self):
@@ -155,10 +153,12 @@ class WofInstallationOrderTeam(models.Model):
         Salesman = self.env['salesman']
         if not company:
             return Salesman
+        # A branch also uses the salesmen of its parent company.
+        branch = self.env['res.company'].search([('id', 'parent_of', company.id)])
         current = self.env['salesman.assignments'].search([('state', '=', 'current')])
-        assigned_here = current.filtered(lambda rec: rec.company_id == company).salesman_id
-        assigned_elsewhere = current.filtered(lambda rec: rec.company_id != company).salesman_id
-        own = Salesman.search([('company_id', '=', company.id)]) - assigned_elsewhere
+        assigned_here = current.filtered(lambda rec: rec.company_id in branch).salesman_id
+        assigned_elsewhere = current.filtered(lambda rec: rec.company_id not in branch).salesman_id
+        own = Salesman.search([('company_id', 'in', branch.ids)]) - assigned_elsewhere
         return assigned_here | own
 
     @api.depends('company_id')
@@ -169,7 +169,8 @@ class WofInstallationOrderTeam(models.Model):
     @api.model
     def _wof_default_salesman(self):
         salesmen = self._wof_branch_salesmen(self.env.company)
-        return salesmen.filtered(lambda rec: rec.sale_user == self.env.user)[:1]
+        return salesmen.filtered(lambda rec: rec.sale_user == self.env.user)[:1] \
+            or self.env['salesman'].search([('sale_user', '=', self.env.user.id)], limit=1)
 
     @api.model
     def _wof_default_advisor(self):
@@ -189,11 +190,11 @@ class WofInstallationOrderTeam(models.Model):
             if vals.get('advisor_id') and not Employee.search_count([
                     ('id', '=', vals['advisor_id']), ('company_id', 'in', [company.id, False])]):
                 raise ValidationError(_('مستشار الخدمة يجب أن يكون من موظفي فرع الأمر.'))
-            if vals.get('supervisor_id') and not Employee.search_count([
-                    ('id', '=', vals['supervisor_id']), ('is_wof_supervisor', '=', True),
-                    ('company_id', 'in', [company.id, False])]):
-                raise ValidationError(_('مشرف التشغيل يجب أن يكون من موظفي فرع الأمر المعلَّمين «مشرف تشغيل».'))
-            if vals.get('salesperson_id') and vals['salesperson_id'] not in order._wof_branch_salesmen(company).ids:
+            if vals.get('supervisor_id') and vals['supervisor_id'] not in \
+                    self.env['wof.team.member']._wof_employees(company, 'supervisor').ids:
+                raise ValidationError(_('مشرف التشغيل يجب أن يكون مشرفًا في فريق التركيب لفرع الأمر.'))
+            if vals.get('salesperson_id') and vals['salesperson_id'] != self._wof_default_salesman().id \
+                    and vals['salesperson_id'] not in order._wof_branch_salesmen(company).ids:
                 raise ValidationError(_('المندوب المختار غير مسند لفرع هذا الأمر.'))
 
     @api.model_create_multi

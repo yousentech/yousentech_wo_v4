@@ -138,7 +138,8 @@
 
     <menuitem id="menu_car_type_wo_v4"
               name="طرازات السيارات"
-              parent="menu_wo_v4_configuration"
+              parent="menu_wo_v4_inputs"
               action="action_car_type_wo_v4"
-              sequence="50"/>
+              sequence="21"
+              groups="yousentech_wo_v4.group_wo_manager"/>
 </odoo>

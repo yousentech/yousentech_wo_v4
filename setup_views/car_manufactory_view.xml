@@ -60,7 +60,8 @@
 
     <menuitem id="menu_car_manufactory_wo_v4"
               name="الشركات المصنعة"
-              parent="menu_wo_v4_configuration"
+              parent="menu_wo_v4_inputs"
               action="action_car_manufactory_wo_v4"
-              sequence="45"/>
+              sequence="20"
+              groups="yousentech_wo_v4.group_wo_manager"/>
 </odoo>

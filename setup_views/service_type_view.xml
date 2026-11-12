@@ -5,6 +5,9 @@
               groups="yousentech_wo_v4.group_wo_employee" sequence="4"/>
     <menuitem id="menu_wo_v4_operation" name="العمليات"
               parent="menu_wo_v4" sequence="1"/>
+    <menuitem id="menu_wo_v4_inputs" name="المدخلات"
+              parent="menu_wo_v4" groups="yousentech_wo_v4.group_wo_employee"
+              sequence="2"/>
     <menuitem id="menu_wo_v4_products" name="المنتجات"
               parent="menu_wo_v4" groups="yousentech_wo_v4.group_wo_manager"
               sequence="2"/>

@@ -25,8 +25,13 @@ SAUDI_PLATE_LETTERS = [
     ('ص', 'X'), ('ط', 'T'), ('ع', 'E'), ('ق', 'G'), ('ك', 'K'), ('ل', 'L'),
     ('م', 'Z'), ('ن', 'N'), ('هـ', 'H'), ('و', 'U'), ('ى', 'V'),
 ]
+PLATE_COUNTRIES = [
+    ('SA', 'السعودية'), ('AE', 'الإمارات'), ('KW', 'الكويت'), ('BH', 'البحرين'), ('QA', 'قطر'),
+    ('OM', 'عُمان'), ('YE', 'اليمن'), ('JO', 'الأردن'), ('IQ', 'العراق'), ('EG', 'مصر'), ('OTHER', 'دولة أخرى'),
+]
 VEHICLE_SPEC_FIELDS = {
     # order field -> vehicle field
+    'vehicle_plate_country': 'plate_country',
     'vehicle_vin': 'vin',
     'vehicle_manufacturer_id': 'manufacturer_id',
     'vehicle_model_id': 'model_id',
@@ -50,6 +55,7 @@ class WofVehicle(models.Model):
 
     name = fields.Char(string='السيارة', compute='_compute_name', store=True)
     plate = fields.Char(string='رقم اللوحة', index=True, tracking=True)
+    plate_country = fields.Selection(PLATE_COUNTRIES, string='دولة اللوحة', default='SA', required=True, tracking=True)
     vin = fields.Char(string='رقم الهيكل', index=True, tracking=True)
     partner_id = fields.Many2one(
         'res.partner', string='المالك الحالي', index=True, tracking=True, ondelete='restrict')
@@ -148,6 +154,9 @@ class ResPartnerVehicles(models.Model):
 class WofInstallationOrderVehicle(models.Model):
     _inherit = 'wof.installation.order'
 
+    vehicle_plate_country = fields.Selection(
+        PLATE_COUNTRIES, string='دولة اللوحة', default='SA', required=True,
+        help='اللوحات السعودية تُختار بالنقر؛ لوحات الدول الأخرى تُكتب كما هي.')
     vehicle_id = fields.Many2one(
         'wof.vehicle', string='سيارة العميل', index=True, ondelete='restrict', copy=False,
         domain="[('partner_id', '=', partner_id)]",
@@ -167,6 +176,7 @@ class WofInstallationOrderVehicle(models.Model):
         if not vehicle:
             return
         self.vehicle_plate = vehicle.plate
+        self.vehicle_plate_country = vehicle.plate_country
         for order_field, vehicle_field in VEHICLE_SPEC_FIELDS.items():
             if vehicle[vehicle_field]:
                 self[order_field] = vehicle[vehicle_field]
@@ -183,7 +193,7 @@ class WofInstallationOrderVehicle(models.Model):
                      for order_field, vehicle_field in VEHICLE_SPEC_FIELDS.items() if order[order_field]}
             vehicle = order.vehicle_id
             if not vehicle:
-                vehicle = Vehicle.search([('plate', '=', plate)], limit=1)
+                vehicle = Vehicle.search([('plate', '=', plate), ('plate_country', '=', order.vehicle_plate_country)], limit=1)
                 vin = specs.get('vin')
                 if vehicle and vin and vehicle.vin and vehicle.vin != vin:
                     # Same plate, different car: the plate moved; the old car keeps its history.

@@ -11,7 +11,7 @@ from . import installation_billing
 from . import installation_catalog
 from . import installation_finance
 from . import installation_event
+from . import installation_team
 from . import installation_technician
 from . import installation_vehicle
 
-from . import hr_employee

@@ -109,9 +109,26 @@ export class WofPlateDialog extends Component {
     }
 }
 
+const COUNTRY_LABELS = {
+    SA: "السعودية", AE: "الإمارات", KW: "الكويت", BH: "البحرين", QA: "قطر",
+    OM: "عُمان", YE: "اليمن", JO: "الأردن", IQ: "العراق", EG: "مصر", OTHER: "دولة أخرى",
+};
+
 export class WofPlateField extends Component {
     static template = "yousentech_wo_v4.PlateField";
-    static props = { ...standardFieldProps };
+    static props = { ...standardFieldProps, countryField: { type: String, optional: true } };
+
+    get country() {
+        return (this.props.countryField && this.props.record.data[this.props.countryField]) || "SA";
+    }
+
+    get isSaudi() {
+        return this.country === "SA";
+    }
+
+    get countryLabel() {
+        return COUNTRY_LABELS[this.country] || this.country;
+    }
 
     setup() {
         this.dialog = useService("dialog");
@@ -130,7 +147,7 @@ export class WofPlateField extends Component {
     }
 
     open() {
-        if (this.isReadonly) {
+        if (this.isReadonly || !this.isSaudi) {
             return;
         }
         this.dialog.add(WofPlateDialog, {
@@ -146,6 +163,7 @@ export class WofPlateField extends Component {
 
 export const wofPlateField = {
     component: WofPlateField,
+    extractProps: ({ options }) => ({ countryField: options.country_field }),
     displayName: _t("لوحة سعودية"),
     supportedTypes: ["char"],
 };

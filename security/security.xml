@@ -28,6 +28,7 @@
 
     <record id="group_wo_change_branch" model="res.groups">
         <field name="name">تغيير فرع أمر التركيب</field>
+        <field name="category_id" ref="wo_category_priv"/>
         <field name="comment">يسمح بتغيير فرع (شركة) أمر التركيب قبل إكمال الاستلام.</field>
     </record>
 
@@ -43,12 +44,6 @@
         <field name="implied_ids" eval="[(4, ref('group_wo_employee'))]"/>
     </record>
 
-    <record id="group_wo_accountant" model="res.groups">
-        <field name="name">محاسب نظام العناية</field>
-        <field name="category_id" ref="wo_category_priv"/>
-        <field name="implied_ids" eval="[(4, ref('group_wo_employee'))]"/>
-    </record>
-
     <record id="group_wo_price_override" model="res.groups">
         <field name="name">اعتماد تجاوز سعر أمر التركيب</field>
         <field name="category_id" ref="wo_category_priv"/>
@@ -60,7 +55,6 @@
         <field name="category_id" ref="wo_category_priv"/>
         <field name="implied_ids" eval="[
             (4, ref('group_wo_supervisor')),
-            (4, ref('group_wo_accountant')),
             (4, ref('group_wo_price_override')),
             (4, ref('group_wo_change_branch'))
         ]"/>
@@ -123,6 +117,12 @@
     <record id="installation_order_event_company_rule" model="ir.rule">
         <field name="name">سجل أوامر التركيب: حسب شركات المستخدم</field>
         <field name="model_id" ref="model_wof_installation_order_event"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="team_member_company_rule" model="ir.rule">
+        <field name="name">فريق التركيب: حسب شركات المستخدم</field>
+        <field name="model_id" ref="model_wof_team_member"/>
         <field name="domain_force">[('company_id', 'in', company_ids)]</field>
     </record>
 

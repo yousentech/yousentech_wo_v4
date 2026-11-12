@@ -29,13 +29,17 @@ class TestOrderTechnicians(TransactionCase):
         Employee = root['hr.employee']
         cls.manager_employee = Employee.create({'name': 'مدير الفرع أ', 'company_id': cls.company_a.id, 'user_id': cls.manager.id})
         cls.tech = Employee.create({
-            'name': 'فني متنقل', 'company_id': cls.company_a.id, 'user_id': cls.tech_user.id, 'is_wof_technician': True,
+            'name': 'فني متنقل', 'company_id': cls.company_a.id, 'user_id': cls.tech_user.id,
         })
-        cls.tech_2 = Employee.create({'name': 'فني ثانٍ', 'company_id': cls.company_a.id, 'is_wof_technician': True})
+        cls.tech_2 = Employee.create({'name': 'فني ثانٍ', 'company_id': cls.company_a.id})
         cls.other_branch_tech = Employee.create({
-            'name': 'فني الفرع ب', 'company_id': cls.company_b.id, 'is_wof_technician': True,
+            'name': 'فني الفرع ب', 'company_id': cls.company_b.id,
         })
         cls.not_tech = Employee.create({'name': 'محاسب', 'company_id': cls.company_a.id})
+        Team = root['wof.team.member']
+        for employee, company in ((cls.tech, cls.company_a), (cls.tech_2, cls.company_a),
+                                  (cls.other_branch_tech, cls.company_b)):
+            Team.create({'employee_id': employee.id, 'company_id': company.id, 'is_technician': True})
 
         env = cls.env = root(user=cls.manager, context={'allowed_company_ids': [cls.company_a.id]})
         profile = env['wof.company.profile']._wof_get_profile() or env['wof.company.profile'].get_or_create_for_company()
@@ -103,6 +107,7 @@ class TestOrderTechnicians(TransactionCase):
         line.write({'technician_ids': [(4, self.tech.id)]})
         # The technician moves to branch B.
         self.root['hr.employee'].browse(self.tech.id).company_id = self.company_b
+        self.root['wof.team.member'].search([('employee_id', '=', self.tech.id)]).company_id = self.company_b
         self.env.invalidate_all()
         self.assertFalse(self.env['hr.employee'].search([('id', '=', self.tech.id)]))
         # Stored names still show him; adding another technician keeps him.
@@ -180,7 +185,8 @@ class TestOrderTechnicians(TransactionCase):
         order = self.make_order()
         with self.assertRaises(ValidationError):
             order.supervisor_id = self.manager_employee
-        self.manager_employee.is_wof_supervisor = True
+        self.root['wof.team.member'].create({'employee_id': self.manager_employee.id, 'company_id': self.company_a.id,
+                                             'is_technician': False, 'is_supervisor': True})
         order.supervisor_id = self.manager_employee
         self.assertEqual(order.supervisor_id, self.manager_employee)
 
@@ -219,3 +225,24 @@ class TestOrderTechnicians(TransactionCase):
         self.assertNotEqual(new_order.vehicle_id, old)
         self.assertFalse(old.plate)
         self.assertEqual(new_order.vehicle_id.vin, 'VIN2')
+
+    def test_team_member_needs_a_role(self):
+        with self.assertRaises(ValidationError):
+            self.root['wof.team.member'].create({'employee_id': self.not_tech.id, 'company_id': self.company_a.id,
+                                                 'is_technician': False, 'is_supervisor': False})
+
+    def test_salesman_default_in_new_form(self):
+        Salesman = self.root['salesman']
+        mine = Salesman.create({'name': 'مندوب المدير', 'sale_user': self.manager.id})
+        defaults = self.env['wof.installation.order'].default_get(['salesperson_id'])
+        self.assertEqual(defaults.get('salesperson_id'), mine.id)
+
+    def test_foreign_plate_is_its_own_vehicle(self):
+        size = self.env['wof.car.size'].search([], limit=1)
+        partner = self.root['res.partner'].create({'name': 'عميل خليجي'})
+        Order = self.env['wof.installation.order']
+        saudi = Order.create({'partner_id': partner.id, 'vehicle_plate': 'ABJ 12', 'car_size_id': size.id})
+        uae = Order.create({'partner_id': partner.id, 'vehicle_plate': 'abj 12', 'vehicle_plate_country': 'AE',
+                            'car_size_id': size.id})
+        self.assertNotEqual(saudi.vehicle_id, uae.vehicle_id)
+        self.assertEqual(uae.vehicle_id.plate_country, 'AE')

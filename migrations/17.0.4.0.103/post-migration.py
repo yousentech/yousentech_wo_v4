@@ -17,6 +17,25 @@ def _has_column(cr, table, column):
     return bool(cr.fetchone())
 
 
+def _mark_team(env, employee, company, role='technician'):
+    """Record the employee as technician/supervisor with whatever this version has."""
+    if not employee:
+        return
+    if 'wof.team.member' in env:
+        Team = env['wof.team.member'].with_context(active_test=False)
+        field = 'is_technician' if role == 'technician' else 'is_supervisor'
+        member = Team.search([('employee_id', '=', employee.id), ('company_id', '=', company.id)], limit=1)
+        if member:
+            member.write({field: True, 'active': True})
+        else:
+            Team.create({'employee_id': employee.id, 'company_id': company.id,
+                         'is_technician': role == 'technician', 'is_supervisor': role != 'technician'})
+        return
+    flag = 'is_wof_technician' if role == 'technician' else 'is_wof_supervisor'
+    if flag in employee._fields:
+        employee.write({flag: True})
+
+
 def _employee(env, user, company, cache):
     key = (user.id, company.id)
     if key not in cache:
@@ -92,8 +111,15 @@ def migrate(cr, version):
             user = env['res.users'].browse(user_id).exists()
             if order and user and line_id not in line_tech:
                 line_tech[line_id] = _employee(env, user, order.company_id, cache).id
-    for employee_id in {e for ids in by_order.values() for e in ids} | set(line_tech.values()):
-        env['hr.employee'].browse(employee_id).exists().write({'is_wof_technician': True})
+    line_orders = {}
+    if line_tech:
+        cr.execute('SELECT id, order_id FROM wof_installation_order_line WHERE id IN %s', (tuple(line_tech),))
+        line_orders = dict(cr.fetchall())
+    marks = {(e, o) for o, ids in by_order.items() for e in ids} | {(e, line_orders.get(l)) for l, e in line_tech.items()}
+    for employee_id, order_id in marks:
+        order = Order.browse(order_id).exists()
+        if order:
+            _mark_team(env, env['hr.employee'].browse(employee_id).exists(), order.company_id)
     if by_order or line_tech:
         cr.execute('SELECT id, order_id FROM wof_installation_order_line')
         pairs = []
