@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="yousentech_wo_v4.ServiceRows">
+        <div class="wof_srows">
+            <div t-if="!rows.length" class="wof_srows_empty">لا توجد خدمات بعد. اضغط «إضافة خدمة».</div>
+            <t t-foreach="rows" t-as="row" t-key="row.rec.id">
+                <div t-attf-class="wof_srow {{ row.area ? 'is-area' : '' }} {{ row.open ? 'is-open' : '' }}" t-attf-style="--act: {{ row.color }}">
+                    <div class="wof_srow_main">
+                        <span class="wof_srow_icon" t-esc="row.letter"/>
+                        <div class="wof_srow_title">
+                            <b><t t-esc="row.title"/> <span>· <t t-esc="row.film"/></span></b>
+                            <small>
+                                <t t-esc="row.activity"/> ·
+                                <t t-if="row.area">منطقة خدمة<t t-if="row.template"> · نموذج «<t t-esc="row.template"/>» (<t t-esc="row.partCount"/> أجزاء)</t></t>
+                                <t t-else="">جزء</t>
+                            </small>
+                        </div>
+                        <div class="wof_srow_cell"><small>الدرجة</small><b t-esc="row.grade"/></div>
+                        <div class="wof_srow_cell">
+                            <small>الصنف</small>
+                            <b t-if="!row.usesInventory" class="is-muted">لا يُصرف</b>
+                            <b t-elif="row.area and row.missing" class="is-warn">ناقص <t t-esc="row.missing"/> من <t t-esc="row.partCount"/></b>
+                            <b t-elif="row.area">مكتمل · <t t-esc="row.partCount"/> أجزاء</b>
+                            <b t-elif="row.product"><t t-esc="row.product"/> · <t t-esc="row.productQty"/></b>
+                            <b t-else="" class="is-warn">غير محدد</b>
+                        </div>
+                        <div class="wof_srow_cell"><small>الفنيون</small><b t-if="row.team" t-esc="row.team"/><b t-else="" class="is-muted">—</b></div>
+                        <div class="wof_srow_end">
+                            <div class="wof_srow_price">
+                                <b><t t-esc="fmt(row.price)"/> <small t-esc="currency"/></b>
+                                <small t-if="row.discount" class="wof_srow_disc">خصم <t t-esc="fmt(row.discount)"/></small>
+                            </div>
+                            <button t-if="row.area" type="button" class="wof_srow_btn is-icon" t-att-title="row.open ? 'إخفاء الأجزاء' : 'عرض الأجزاء'" t-on-click="() => this.toggle(row)">
+                                <i t-attf-class="fa {{ row.open ? 'fa-chevron-up' : 'fa-chevron-down' }}" title="الأجزاء"/>
+                            </button>
+                            <button type="button" class="wof_srow_btn" t-on-click="() => this.openDetails(row)">التفاصيل</button>
+                            <button t-if="editable and !props.readonly" type="button" class="wof_srow_btn is-icon is-danger" title="حذف الخدمة" t-on-click="() => this.removeRow(row)">
+                                <i class="fa fa-trash-o" title="حذف"/>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Parts of a service area -->
+                    <t t-if="row.area and row.open">
+                        <t t-set="area" t-value="state.areas[row.id]"/>
+                        <div t-if="!area" class="wof_spart_loading">جارٍ التحميل…</div>
+                        <div t-else="" class="wof_sparts">
+                            <div t-if="area.templates.length" class="wof_sparts_tpl">
+                                <small>النموذج:</small>
+                                <t t-foreach="area.templates" t-as="tpl" t-key="tpl.id">
+                                    <button type="button" t-attf-class="wof_sparts_opt {{ tpl.id === area.template_id ? 'is-on' : '' }}"
+                                            t-att-disabled="!area.can_template or state.busy or tpl.id === area.template_id"
+                                            t-on-click="() => this.setTemplate(row.id, tpl.id)">
+                                        <t t-esc="tpl.name"/><t t-if="tpl.is_default"> (افتراضي)</t>
+                                    </button>
+                                </t>
+                                <small t-if="area.can_template" class="wof_sparts_note">تغيير النموذج يعيد بناء الأجزاء بالقيم الافتراضية</small>
+                            </div>
+                            <table class="wof_sparts_table">
+                                <thead>
+                                    <tr>
+                                        <th>الجزء</th>
+                                        <th t-if="area.grades.length">الدرجة</th>
+                                        <th t-if="area.uses_inventory">الصنف المخزني</th>
+                                        <th t-if="area.uses_inventory" class="is-qty">الكمية</th>
+                                        <th>الفنيون</th>
+                                        <th class="is-progress">التقدم</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="area.parts" t-as="part" t-key="part.id">
+                                        <tr>
+                                            <td class="is-name" t-esc="part.name"/>
+                                            <td t-if="area.grades.length">
+                                                <select class="wof_sparts_sel" t-att-disabled="!area.can_setup or state.busy" t-on-change="(ev) => this.onSelect(row.id, part, 'grade_id', ev)">
+                                                    <option value="">—</option>
+                                                    <t t-foreach="area.grades" t-as="g" t-key="g.id"><option t-att-value="g.id" t-att-selected="g.id === part.grade_id" t-esc="g.name"/></t>
+                                                </select>
+                                            </td>
+                                            <td t-if="area.uses_inventory">
+                                                <select t-attf-class="wof_sparts_sel {{ part.product_id ? '' : 'is-warn' }}" t-att-disabled="!area.can_setup or state.busy" t-on-change="(ev) => this.onSelect(row.id, part, 'product_id', ev)">
+                                                    <option value="">اختر الصنف</option>
+                                                    <t t-foreach="area.products" t-as="p" t-key="p.id"><option t-att-value="p.id" t-att-selected="p.id === part.product_id" t-esc="p.name"/></t>
+                                                </select>
+                                            </td>
+                                            <td t-if="area.uses_inventory" class="is-qty">
+                                                <input type="number" min="0" step="0.1" class="wof_sparts_num" t-att-value="part.product_qty" t-att-disabled="!area.can_setup or state.busy" t-on-change="(ev) => this.onQty(row.id, part, ev)"/>
+                                            </td>
+                                            <td class="is-team">
+                                                <span class="wof_sparts_tags">
+                                                    <t t-if="part.technician_names"><t t-foreach="part.technician_names.split('، ')" t-as="n" t-key="n_index"><span class="wof_sparts_tag" t-esc="n"/></t></t>
+                                                    <span t-else="" class="is-muted">—</span>
+                                                    <button t-if="area.can_team" type="button" class="wof_sparts_add" t-att-disabled="state.busy" title="الفنيون" t-on-click="() => this.techPicker(row.id, part)"><i class="fa fa-user-plus" title="الفنيون"/></button>
+                                                </span>
+                                                <div t-if="isTechOpen(row.id, part)" class="wof_sparts_pick">
+                                                    <t t-foreach="area.technicians" t-as="t" t-key="t.id">
+                                                        <button type="button" t-attf-class="wof_sparts_chip {{ part.technician_ids.includes(t.id) ? 'is-on' : '' }}"
+                                                                t-att-disabled="!canToggleTech(area, t.id) or state.busy" t-on-click="() => this.toggleTech(row.id, part, t.id)">
+                                                            <t t-esc="t.name"/>
+                                                        </button>
+                                                    </t>
+                                                    <small t-if="!area.technicians.length">لا يوجد فنيون في فريق فرع الأمر.</small>
+                                                </div>
+                                            </td>
+                                            <td class="is-progress">
+                                                <span class="wof_sparts_prog">
+                                                    <span class="wof_sparts_meter"><i t-attf-style="width: {{ part.progress }}%"/></span>
+                                                    <input t-if="area.can_progress" type="number" min="0" max="100" step="10" class="wof_sparts_num is-small" t-att-value="part.progress" t-att-disabled="state.busy" t-on-change="(ev) => this.onProgress(row.id, part, ev)"/>
+                                                    <span t-elif="part.progress === 100" class="is-ok">✓</span>
+                                                    <span t-else=""><t t-esc="part.progress"/>٪</span>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <div t-if="area.can_setup or area.can_team" class="wof_sparts_bulk">
+                                <small>تطبيق على كل الأجزاء:</small>
+                                <select t-if="area.can_setup and area.grades.length" class="wof_sparts_sel" t-att-disabled="state.busy" t-on-change="(ev) => this.applyAll(row.id, 'grade_id', ev)">
+                                    <option value="">الدرجة</option>
+                                    <t t-foreach="area.grades" t-as="g" t-key="g.id"><option t-att-value="g.id" t-esc="g.name"/></t>
+                                </select>
+                                <select t-if="area.can_setup and area.uses_inventory" class="wof_sparts_sel" t-att-disabled="state.busy" t-on-change="(ev) => this.applyAll(row.id, 'product_id', ev)">
+                                    <option value="">الصنف</option>
+                                    <t t-foreach="area.products" t-as="p" t-key="p.id"><option t-att-value="p.id" t-esc="p.name"/></t>
+                                </select>
+                                <select t-if="area.can_setup" class="wof_sparts_sel" t-att-disabled="state.busy" t-on-change="(ev) => this.applyAll(row.id, 'technician_ids', ev)">
+                                    <option value="">الفني</option>
+                                    <t t-foreach="area.technicians" t-as="t" t-key="t.id"><option t-att-value="t.id" t-esc="t.name"/></t>
+                                </select>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

@@ -134,4 +134,51 @@
         <field name="domain_force">[('company_id', 'in', company_ids)]</field>
     </record>
 
+    <record id="line_part_company_rule" model="ir.rule">
+        <field name="name">أجزاء خدمات أوامر التركيب: حسب شركات المستخدم</field>
+        <field name="model_id" ref="model_wof_installation_order_line_part"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="line_part_technician_rule" model="ir.rule">
+        <field name="name">الفني يرى أجزاء أوامره المسندة</field>
+        <field name="model_id" ref="model_wof_installation_order_line_part"/>
+        <field name="domain_force">[('order_id.line_ids.technician_ids.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
+    </record>
+
+    <!-- Reception and supervisors see every order of their branches, even when they
+         are also technicians (group rules add up; without these the technician
+         rule alone would hide the other orders). -->
+    <record id="installation_order_staff_all_rule" model="ir.rule">
+        <field name="name">أوامر التركيب: الاستقبال والمشرفون يرون الكل</field>
+        <field name="model_id" ref="model_wof_installation_order"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_wo_user')), (4, ref('group_wo_supervisor'))]"/>
+    </record>
+    <record id="installation_order_line_staff_all_rule" model="ir.rule">
+        <field name="name">خدمات الأوامر: الاستقبال والمشرفون يرون الكل</field>
+        <field name="model_id" ref="model_wof_installation_order_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_wo_user')), (4, ref('group_wo_supervisor'))]"/>
+    </record>
+    <record id="installation_material_line_staff_all_rule" model="ir.rule">
+        <field name="name">مواد الأوامر: الاستقبال والمشرفون يرون الكل</field>
+        <field name="model_id" ref="model_wof_installation_material_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_wo_user')), (4, ref('group_wo_supervisor'))]"/>
+    </record>
+    <record id="installation_order_event_staff_all_rule" model="ir.rule">
+        <field name="name">سجل الأوامر: الاستقبال والمشرفون يرون الكل</field>
+        <field name="model_id" ref="model_wof_installation_order_event"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_wo_user')), (4, ref('group_wo_supervisor'))]"/>
+    </record>
+    <record id="installation_order_line_part_staff_all_rule" model="ir.rule">
+        <field name="name">أجزاء الخدمات: الاستقبال والمشرفون يرون الكل</field>
+        <field name="model_id" ref="model_wof_installation_order_line_part"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_wo_user')), (4, ref('group_wo_supervisor'))]"/>
+    </record>
+
 </odoo>

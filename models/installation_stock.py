@@ -41,8 +41,9 @@ class WofInstallationOrderStock(models.Model):
         self.ensure_one()
         warehouse = self._wof_stock_warehouse()
         needed = {}
-        for line in self.line_ids.filtered(lambda rec: rec.film_product_id and rec.film_uses_inventory):
-            needed[line.film_product_id] = needed.get(line.film_product_id, 0.0) + (line.film_product_qty or 0.0)
+        for line in self.line_ids:
+            for product, qty in line._wof_stock_needs():
+                needed[product] = needed.get(product, 0.0) + (qty or 0.0)
         shortages = []
         for product, qty in needed.items():
             if product.type != 'product':
@@ -56,7 +57,9 @@ class WofInstallationOrderStock(models.Model):
         """Called when the order is confirmed."""
         self.ensure_one()
         missing = self.line_ids.filtered(
-            lambda rec: rec.film_uses_inventory and rec.film_product_required and not rec.film_product_id
+            lambda rec: rec.film_uses_inventory and rec.film_product_required and (
+                rec.part_line_ids.filtered(lambda part: not part.product_id) if rec.part_line_ids
+                else not rec.film_product_id)
         )
         if missing:
             raise ValidationError(_('حدد الصنف المخزني للخدمات التالية: %s.') % '، '.join(

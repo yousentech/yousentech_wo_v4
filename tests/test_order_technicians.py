@@ -281,3 +281,40 @@ class TestOrderTechnicians(TransactionCase):
         order = self.make_order()
         order.partner_mobile = '0555000111'
         self.assertEqual(order.partner_id.mobile, '0555000111')
+
+    def test_area_part_technicians_and_progress(self):
+        kids = self.root['wof.car.parts']
+        for code in ('TA-1', 'TA-2'):
+            kids |= self.root['wof.car.parts'].create({
+                'code': code, 'name': code, 'part_type': 'car_part',
+                'product_id': self.root['product.product'].create({'name': code, 'type': 'service'}).id})
+        area = self.root['wof.car.parts'].create({
+            'code': 'TA-AREA', 'name': 'منطقة الفنيين', 'part_type': 'service_area',
+            'product_id': self.root['product.product'].create({'name': 'TA-AREA', 'type': 'service'}).id})
+        self.root['wof.service.area.template'].create({'name': 'كامل', 'service_area_id': area.id,
+                                                       'component_ids': [(6, 0, kids.ids)], 'is_default': True})
+        film = self.film
+        film.wof_film_apply('comp_add', {'part_id': area.id})
+        snap = film.wof_matrix_load()
+        for line in snap['lines']:
+            line['price'] = {'mode': 'uniform', 'general': {'amount': 300, 'readonly': False}, 'sizes': {}}
+        film.wof_matrix_save({'lines': snap['lines']})
+        order = self.make_order()
+        order.wof_add_services([{'film_id': self.film.id, 'part_id': area.id}])
+        line = order.line_ids.filtered(lambda rec: rec.car_part_id == area)
+        first, second = line.part_line_ids
+        line.wof_area_update(first.ids, {'technician_ids': [self.tech.id]})
+        line.wof_area_update(second.ids, {'technician_ids': [self.tech_2.id]})
+        self.assertEqual(line.technician_ids, self.tech | self.tech_2)
+        self.assertIn('فني متنقل', line.technician_names)
+        with self.assertRaises(ValidationError):
+            line.wof_area_update(first.ids, {'technician_ids': [self.other_branch_tech.id]})
+        with self.assertRaises(ValidationError):
+            line.write({'execution_progress': 50})
+
+    def test_supervisor_who_is_also_technician_sees_all(self):
+        order = self.make_order()
+        self.tech_user.groups_id = [(4, self.root.ref('yousentech_wo_v4.group_wo_supervisor').id)]
+        Orders = self.root['wof.installation.order'].with_user(self.tech_user).with_context(
+            allowed_company_ids=[self.company_a.id])
+        self.assertTrue(Orders.search([('id', '=', order.id)]))

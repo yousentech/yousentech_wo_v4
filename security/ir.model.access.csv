@@ -120,3 +120,8 @@ access_car_type_catalog,car.type.catalog,model_wof_car_type,yousentech_wo_v4.gro
 access_car_color_user,car.color.user,model_wof_car_color,yousentech_wo_v4.group_wo_employee,1,0,0,0
 access_car_color_catalog,car.color.catalog,model_wof_car_color,yousentech_wo_v4.group_wo_car_catalog,1,1,1,0
 access_car_color_manager,car.color.manager,model_wof_car_color,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_line_part_employee,line.part.employee,model_wof_installation_order_line_part,yousentech_wo_v4.group_wo_employee,1,0,0,0
+access_line_part_technician,line.part.technician,model_wof_installation_order_line_part,yousentech_wo_v4.group_wo_technician,1,1,0,0
+access_line_part_reception,line.part.reception,model_wof_installation_order_line_part,yousentech_wo_v4.group_wo_user,1,1,1,1
+access_line_part_supervisor,line.part.supervisor,model_wof_installation_order_line_part,yousentech_wo_v4.group_wo_supervisor,1,1,1,1
+access_line_part_invoicing,line.part.invoicing,model_wof_installation_order_line_part,account.group_account_invoice,1,0,0,0

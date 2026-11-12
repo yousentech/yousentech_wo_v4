@@ -171,7 +171,10 @@ class WofInstallationOrderBilling(models.Model):
         if line.film_category_line_id:
             title = '%s · %s' % (title, line.film_category_line_id.name)
         description = (line.film_category_id.description or '').strip()
-        return '\n'.join(part for part in (title, description) if part)
+        parts = ''
+        if line.part_line_ids:
+            parts = _('الأجزاء: %s') % '، '.join(line.part_line_ids.part_id.mapped('name'))
+        return '\n'.join(part for part in (title, description, parts) if part)
 
     def _wof_stock_line_values(self, product, qty, **link):
         values = {
@@ -197,9 +200,11 @@ class WofInstallationOrderBilling(models.Model):
             note = self._wof_note_text(line)
             if note:
                 commands.append((0, 0, {'display_type': 'line_note', 'name': note}))
-            if line.film_uses_inventory and line.film_product_id and line.film_product_qty > 0:
-                commands.append((0, 0, self._wof_stock_line_values(
-                    line.film_product_id, line.film_product_qty, wof_order_line_id=line.id)))
+            needs = {}
+            for product, qty in line._wof_stock_needs():
+                needs[product] = needs.get(product, 0.0) + qty
+            for product, qty in needs.items():
+                commands.append((0, 0, self._wof_stock_line_values(product, qty, wof_order_line_id=line.id)))
         for material in self.material_line_ids.filtered(lambda rec: rec.product_id and rec.quantity > 0):
             commands.append((0, 0, self._wof_stock_line_values(
                 material.product_id, material.quantity, wof_material_line_id=material.id)))

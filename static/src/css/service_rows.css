@@ -1,0 +1,69 @@
+/* the field takes the whole section width */
+.o_field_widget.o_field_wof_service_rows { display: block; width: 100%; }
+/* Services as compact rows; service areas open a parts table */
+.wof_srows { display: flex; flex-direction: column; gap: 8px; }
+.wof_srows_empty { padding: 18px; border: 1px dashed #C9D3D3; border-radius: 12px; text-align: center; color: #5B6B70; }
+.wof_srow { --act: #64748B; border: 1px solid #E3E8E8; border-radius: 14px; background: #FFFFFF; overflow: hidden; }
+.wof_srow.is-area { border-color: #B9DCF3; }
+.wof_srow_main { display: grid; grid-template-columns: 46px minmax(0, 1.7fr) minmax(0, .8fr) minmax(0, 1fr) minmax(0, 1fr) auto; align-items: center; }
+.wof_srow_main > div { padding: 10px 14px; min-width: 0; }
+.wof_srow_icon {
+    align-self: stretch; display: grid; place-items: center; font-weight: 800; font-size: 1.15rem;
+    color: var(--act); background: color-mix(in srgb, var(--act) 12%, #FFFFFF);
+}
+.wof_srow_title { display: flex; flex-direction: column; gap: 2px; }
+.wof_srow_title b { font-size: .98rem; color: #16232A; }
+.wof_srow_title b span { color: #5B6B70; font-weight: 600; }
+.wof_srow_title small, .wof_srow_cell small { color: #5B6B70; font-size: .76rem; }
+.wof_srow_cell { display: flex; flex-direction: column; gap: 1px; }
+.wof_srow_cell b { font-size: .9rem; color: #16232A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wof_srows .is-warn { color: #B45309; }
+.wof_srows .is-muted { color: #94A3A8; }
+.wof_srows .is-ok { color: #15803D; font-weight: 800; }
+.wof_srow_end { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 8px 12px !important; }
+.wof_srow_price { display: flex; flex-direction: column; align-items: flex-end; }
+.wof_srow_price b { font-size: 1.1rem; font-weight: 800; white-space: nowrap; }
+.wof_srow_price b small { color: #5B6B70; font-size: .75rem; }
+.wof_srow_disc { color: #6D28D9; font-size: .75rem; }
+.wof_srow_btn {
+    border: 1px solid #CFE3E0; background: #F3F9F8; color: #0A5252; border-radius: 10px;
+    padding: 5px 12px; font-weight: 700; font-size: .82rem; white-space: nowrap; cursor: pointer;
+}
+.wof_srow_btn.is-icon { width: 32px; height: 32px; padding: 0; display: grid; place-items: center; }
+.wof_srow_btn.is-danger { border-color: #F3D3D3; background: #FFF5F5; color: #B91C1C; }
+
+.wof_sparts { border-top: 1px solid #E3EEF6; }
+.wof_spart_loading { padding: 10px 16px; color: #5B6B70; border-top: 1px solid #E3EEF6; }
+.wof_sparts_tpl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 16px; background: #F4FAFE; }
+.wof_sparts_tpl small { color: #0369A1; font-weight: 700; }
+.wof_sparts_opt { padding: 3px 12px; border-radius: 99px; border: 1px solid #C9DDEA; background: #FFFFFF; font-size: .8rem; font-weight: 700; color: #334155; cursor: pointer; }
+.wof_sparts_opt.is-on { background: #0369A1; border-color: #0369A1; color: #FFFFFF; }
+.wof_sparts_opt:disabled:not(.is-on) { opacity: .55; cursor: default; }
+.wof_sparts_note { margin-inline-start: auto; color: #5B6B70 !important; font-weight: 400 !important; }
+.wof_sparts_table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.wof_sparts_table th { padding: 7px 14px; background: #FAFCFC; color: #5B6B70; font-weight: 700; font-size: .78rem; text-align: start; border-top: 1px solid #EEF1F1; }
+.wof_sparts_table td { padding: 7px 14px; border-top: 1px solid #F1F4F4; vertical-align: middle; }
+.wof_sparts_table td.is-name { font-weight: 700; color: #16232A; }
+.wof_sparts_table .is-qty { width: 90px; }
+.wof_sparts_table .is-progress { width: 160px; }
+.wof_sparts_sel { min-width: 120px; max-width: 220px; padding: 3px 8px; border: 1px solid #E3E8E8; border-radius: 8px; background: #FFFFFF; font-size: .84rem; }
+.wof_sparts_sel.is-warn { border-color: #F2C46B; background: #FFFBEB; }
+.wof_sparts_num { width: 72px; padding: 3px 6px; border: 1px solid #E3E8E8; border-radius: 8px; }
+.wof_sparts_num.is-small { width: 60px; }
+.wof_sparts_tags { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.wof_sparts_tag { padding: 1px 8px; border-radius: 99px; background: #EEF2FF; color: #3F4FC4; font-size: .78rem; font-weight: 700; }
+.wof_sparts_add { width: 26px; height: 26px; border: 1px dashed #A5B4FC; border-radius: 8px; background: #FFFFFF; color: #3F4FC4; cursor: pointer; }
+.wof_sparts_pick { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; padding: 6px; border: 1px solid #E0E7FF; border-radius: 10px; background: #F8F9FF; }
+.wof_sparts_chip { padding: 2px 10px; border-radius: 99px; border: 1px solid #C7D2FE; background: #FFFFFF; color: #3F4FC4; font-size: .78rem; font-weight: 700; cursor: pointer; }
+.wof_sparts_chip.is-on { background: #3F4FC4; border-color: #3F4FC4; color: #FFFFFF; }
+.wof_sparts_chip:disabled { opacity: .5; cursor: default; }
+.wof_sparts_prog { display: inline-flex; align-items: center; gap: 6px; }
+.wof_sparts_meter { width: 70px; height: 5px; border-radius: 9px; background: #E8EEEE; overflow: hidden; display: flex; }
+.wof_sparts_meter i { display: block; height: 5px; background: #15803D; }
+.wof_sparts_bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 14px; background: #FAFCFC; border-top: 1px solid #EEF1F1; }
+.wof_sparts_bulk small { color: #5B6B70; }
+@media (max-width: 1100px) {
+    .wof_srow_main { grid-template-columns: 46px minmax(0, 1fr) auto; }
+    .wof_srow_cell { display: none !important; }
+    .wof_sparts { overflow-x: auto; }
+}

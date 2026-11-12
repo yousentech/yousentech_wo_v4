@@ -38,6 +38,22 @@ class TestOrderBilling(TransactionCase):
         cls.film.wof_film_apply('basic', {'is_effected_in_inventory': True})
         cls.film.wof_film_apply('stock_product', {'product_id': cls.roll.id})
         cls.film.wof_film_apply('comp_add', {'part_id': cls.part.id})
+        kids = root['wof.car.parts']
+        for code in ('BIL-HOOD', 'BIL-BUMP'):
+            kids |= root['wof.car.parts'].create({
+                'code': code, 'name': 'جزء %s' % code, 'part_type': 'car_part',
+                'product_id': root['product.product'].create({'name': code, 'type': 'service'}).id,
+            })
+        cls.area = root['wof.car.parts'].create({
+            'code': 'BIL-AREA', 'name': 'منطقة الفوترة', 'part_type': 'service_area',
+            'product_id': root['product.product'].create({'name': 'خدمة منطقة', 'type': 'service', 'invoice_policy': 'order'}).id,
+        })
+        root['wof.service.area.template'].create({
+            'name': 'نموذج المنطقة', 'service_area_id': cls.area.id,
+            'component_ids': [(6, 0, kids.ids)], 'is_default': True,
+        })
+        cls.area_kids = kids
+        cls.film.wof_film_apply('comp_add', {'part_id': cls.area.id})
         cls.film.wof_film_apply('policy', {'key': 'discount', 'custom': True, 'enabled': True, 'limit': 20})
         snap = cls.film.wof_matrix_load()
         for line in snap['lines']:
@@ -308,3 +324,31 @@ class TestOrderBilling(TransactionCase):
         order.action_cancel()
         self.assertEqual(order.state, 'cancelled')
         self.assertEqual(order.sale_order_id.state, 'cancel')
+
+    # ------------------------------------------------- service-area parts
+    def test_service_area_parts(self):
+        self.set_invoice_mode('manual')
+        partner = self.root['res.partner'].create({'name': 'عميل المنطقة', 'mobile': '0500000044'})
+        size = self.env['wof.car.size'].search([], limit=1)
+        order = self.env['wof.installation.order'].create({
+            'partner_id': partner.id, 'vehicle_plate': 'BIL 9', 'car_size_id': size.id,
+        })
+        order.wof_add_services([{'film_id': self.film.id, 'part_id': self.area.id}])
+        line = order.line_ids
+        self.assertEqual(line.part_line_ids.part_id, self.area_kids)
+        self.assertEqual(line.part_line_ids.product_id, self.roll)
+        data = line.wof_area_load()
+        self.assertEqual(len(data['parts']), 2)
+        # Quantity per part; the stock line sums the parts.
+        line.wof_area_update(line.part_line_ids.ids, {'product_qty': 1.5})
+        self.assertEqual(line._wof_stock_needs(), [(self.roll, 1.5), (self.roll, 1.5)])
+        # One part without product -> counted as missing.
+        line.wof_area_update(line.part_line_ids[:1].ids, {'product_id': False})
+        self.assertEqual(line.part_missing_product, 1)
+        line.wof_area_update(line.part_line_ids[:1].ids, {'product_id': self.roll.id})
+        order.action_confirm_arrival()
+        order.action_create_sale_order()
+        stock = order.sale_order_id.order_line.filtered('wof_stock_only')
+        self.assertEqual(stock.product_uom_qty, 3.0)
+        note = order.sale_order_id.order_line.filtered(lambda rec: rec.display_type == 'line_note')
+        self.assertIn('جزء BIL-HOOD', note.name)
