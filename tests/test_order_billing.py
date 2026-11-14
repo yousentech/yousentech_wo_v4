@@ -534,3 +534,35 @@ class TestOrderBilling(TransactionCase):
             with self.assertRaises(ValidationError) as caught:
                 order._wof_check_stock_products()
         self.assertIn(order.stock_location_id.complete_name, str(caught.exception))
+
+    def test_stock_check_error_explains_where_it_looked(self):
+        order = self.make_order()
+        order.action_confirm_arrival()
+        Sale = type(self.env['sale.order'])
+        from unittest.mock import patch
+
+        def refuse(records):
+            raise ValidationError('لا يمكن إتمام العملية، الكمية المطلوبة (1.0) أكبر من الكمية المتاحة (0)')
+        with patch.object(Sale, 'action_confirm', refuse):
+            with self.assertRaises(ValidationError) as caught:
+                order.action_create_sale_order()
+        message = str(caught.exception)
+        self.assertIn('تفاصيل المخزون', message)
+        self.assertIn(self.roll.display_name, message)
+        self.assertFalse(order.sale_order_id)
+
+    def test_payment_kept_when_invoice_fails(self):
+        self.set_invoice_mode('after')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        Order = type(self.env['wof.installation.order'])
+        from unittest.mock import patch
+
+        def fail(records):
+            raise ValidationError('مخزون غير كافٍ')
+        with patch.object(Order, '_wof_create_invoice', fail):
+            wizard = self.env['wof.order.payment.wizard'].with_context(default_order_id=order.id).create({'amount': 500})
+            result = wizard.action_confirm()
+        self.assertEqual(result['tag'], 'display_notification')
+        self.assertEqual(order.payment_status, 'paid')
+        self.assertFalse(order.invoice_id)

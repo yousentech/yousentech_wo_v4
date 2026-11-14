@@ -274,7 +274,22 @@ class WofOrderPaymentWizard(models.TransientModel):
             'amount': total, 'journal': journals_text,
             'payment': '، '.join(payment.mapped('name')),
         })
-        order._wof_after_payment()
+        try:
+            with self.env.cr.savepoint():
+                order._wof_after_payment()
+        except (UserError, ValidationError) as error:
+            # The payment stays recorded; what follows it (invoice / sale order) waits.
+            reason = str(error.args[0] if error.args else error)
+            order._log_business_event('order.payment_followup_failed', details={'reason': reason})
+            return {
+                'type': 'ir.actions.client', 'tag': 'display_notification',
+                'params': {
+                    'type': 'warning', 'sticky': True,
+                    'title': _('سُجّلت الدفعة، لكن تعذّر إنشاء الفاتورة'),
+                    'message': reason,
+                    'next': {'type': 'ir.actions.act_window_close'},
+                },
+            }
         return {'type': 'ir.actions.act_window_close'}
 
 

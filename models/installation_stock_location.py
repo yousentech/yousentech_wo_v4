@@ -96,20 +96,70 @@ class WofOrderStockLocation(models.Model):
                 vals['picking_type_id'] = ptype.id
             if location and picking.location_id != location:
                 vals['location_id'] = location.id
-            if vals:
-                picking.write(vals)
-                if 'location_id' in vals:
-                    picking.move_ids.filtered(lambda m: m.state not in ('done', 'cancel')).write(
-                        {'location_id': location.id})
+            if not vals:
+                continue
+            moving = 'location_id' in vals
+            if moving:
+                # Reservations were made in the old place: release them first.
+                picking.do_unreserve()
+            picking.write(vals)
+            if moving:
+                picking.move_ids.filtered(lambda m: m.state not in ('done', 'cancel')).write(
+                    {'location_id': location.id})
                 picking.action_assign()
 
+    def _wof_sale_warehouse(self):
+        location = self._wof_stock_location()
+        return location.warehouse_id or self.picking_type_id.warehouse_id
+
+    def _wof_stock_diagnosis(self, sale=None):
+        """Lines explaining the stock of the order's products where the check looks."""
+        self.ensure_one()
+        location = self._wof_stock_location()
+        warehouse = (sale.warehouse_id if sale else False) or self._wof_sale_warehouse()
+        products = self.env['product.product']
+        for line in self.line_ids:
+            for product, _qty in line._wof_stock_needs():
+                products |= product
+        products |= self.material_line_ids.product_id
+        lines = []
+        for product in products.filtered(lambda rec: rec.type == 'product'):
+            in_wh = product.with_context(warehouse=warehouse.id) if warehouse else product
+            in_loc = product.with_context(location=location.id) if location else product
+            moves = self.env['stock.move.line'].search([
+                ('product_id', '=', product.id), ('state', 'not in', ('done', 'cancel')),
+                ('location_id', 'child_of', (warehouse.view_location_id.id if warehouse else location.id)),
+            ], limit=5)
+            holders = ', '.join(sorted(set(moves.mapped(lambda rec: rec.picking_id.name or rec.reference or ''))))
+            lines.append(_('• %(p)s: في المستودع «%(w)s» موجود %(on)s، محجوز %(res)s، الحر %(free)s؛ '
+                           'في الموقع «%(l)s» الحر %(lfree)s%(by)s') % {
+                'p': product.display_name, 'w': warehouse.name if warehouse else '-',
+                'on': in_wh.qty_available, 'res': in_wh.qty_available - in_wh.free_qty, 'free': in_wh.free_qty,
+                'l': location.complete_name if location else '-', 'lfree': in_loc.free_qty,
+                'by': (_(' — محجوز في: %s') % holders) if holders else '',
+            })
+        return lines
+
     def _wof_ensure_sale_order(self):
-        if not self.sale_order_id and self.picking_type_id.warehouse_id:
-            sale = super(WofOrderStockLocation, self.with_context(
-                wof_sale_warehouse_id=self.picking_type_id.warehouse_id.id))._wof_ensure_sale_order()
-        else:
-            sale = super()._wof_ensure_sale_order()
-        self._wof_apply_stock_place(sale)
+        warehouse = self._wof_sale_warehouse()
+        try:
+            with self.env.cr.savepoint():
+                if not self.sale_order_id and warehouse:
+                    sale = super(WofOrderStockLocation, self.with_context(
+                        wof_sale_warehouse_id=warehouse.id,
+                        wof_sale_picking_type_id=self.picking_type_id.id))._wof_ensure_sale_order()
+                else:
+                    sale = super()._wof_ensure_sale_order()
+                self._wof_apply_stock_place(sale)
+        except ValidationError as error:
+            message = str(error.args[0] if error.args else error)
+            if 'available quantity' not in message and 'الكمية المتاحة' not in message:
+                raise
+            details = self._wof_stock_diagnosis()
+            raise ValidationError('%s\n\n%s\n%s\n\n%s' % (
+                message, _('تفاصيل المخزون حيث يتم الفحص:'), '\n'.join(details),
+                _('الفحص يطرح الكميات المحجوزة لشحنات أخرى لم تُسلَّم بعد. سلّم أو ألغِ تلك الشحنات، '
+                  'أو غيّر موقع المخزن في كارد «الفرع والفريق».'))) from error
         return sale
 
 
@@ -119,9 +169,13 @@ class SaleOrderWofWarehouse(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         warehouse = self.env.context.get('wof_sale_warehouse_id')
+        ptype = self.env.context.get('wof_sale_picking_type_id')
         if warehouse:
             for vals in vals_list:
                 vals.setdefault('warehouse_id', warehouse)
+                # Some installed modules add a delivery type on the sale order.
+                if ptype and 'picking_type_id' in self._fields:
+                    vals.setdefault('picking_type_id', ptype)
         return super().create(vals_list)
 
 

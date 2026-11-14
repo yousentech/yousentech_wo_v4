@@ -61,6 +61,7 @@ EVENT_LABELS = {
     'order.price_overridden': 'تجاوز السعر المهيأ',
     'order.payment_registered': 'تسجيل دفعة',
     'order.services_completed': 'إكمال الخدمات 100٪ قبل الجودة',
+    'order.payment_followup_failed': 'تعذّر إنشاء الفاتورة بعد الدفع',
     'order.payment_refunded': 'رد مبلغ للعميل',
     'order.sale_order_created': 'إنشاء أمر البيع',
     'order.invoice_created': 'إنشاء الفاتورة',
