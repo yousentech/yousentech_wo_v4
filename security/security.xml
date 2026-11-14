@@ -57,12 +57,19 @@
         <field name="implied_ids" eval="[(4, ref('group_wo_employee'))]"/>
     </record>
 
+    <record id="group_wo_split_payment" model="res.groups">
+        <field name="name">دفع متعدد في أمر التركيب (أكثر من طريقة دفع)</field>
+        <field name="category_id" ref="wo_category_priv"/>
+        <field name="implied_ids" eval="[(4, ref('group_wo_employee'))]"/>
+    </record>
+
     <record id="group_wo_manager" model="res.groups">
         <field name="name">مدير مركز العناية</field>
         <field name="category_id" ref="wo_category_priv"/>
         <field name="implied_ids" eval="[
             (4, ref('group_wo_supervisor')),
             (4, ref('group_wo_price_override')),
+            (4, ref('group_wo_split_payment')),
             (4, ref('group_wo_change_branch')),
             (4, ref('group_wo_car_catalog'))
         ]"/>

@@ -125,3 +125,8 @@ access_line_part_technician,line.part.technician,model_wof_installation_order_li
 access_line_part_reception,line.part.reception,model_wof_installation_order_line_part,yousentech_wo_v4.group_wo_user,1,1,1,1
 access_line_part_supervisor,line.part.supervisor,model_wof_installation_order_line_part,yousentech_wo_v4.group_wo_supervisor,1,1,1,1
 access_line_part_invoicing,line.part.invoicing,model_wof_installation_order_line_part,account.group_account_invoice,1,0,0,0
+access_car_part_stock_qty_user,car.part.stock.qty.user,model_wof_car_part_stock_qty,yousentech_wo_v4.group_wo_employee,1,0,0,0
+access_car_part_stock_qty_manager,car.part.stock.qty.manager,model_wof_car_part_stock_qty,yousentech_wo_v4.group_wo_manager,1,1,1,1
+access_car_part_stock_qty_settings,car.part.stock.qty.settings,model_wof_car_part_stock_qty,yousentech_wo_v4.group_wo_settings,1,1,1,1
+access_order_payment_wizard_line_employee,order.payment.wizard.line.employee,model_wof_order_payment_wizard_line,yousentech_wo_v4.group_wo_employee,1,1,1,1
+access_quality_send_wizard_employee,quality.send.wizard.employee,model_wof_quality_send_wizard,yousentech_wo_v4.group_wo_employee,1,1,1,1

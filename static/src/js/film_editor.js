@@ -431,6 +431,8 @@ export class WofFilmEditor extends Component {
             options_required: part ? part.options_required : false,
             notes: part ? part.notes : "",
             warning_msg: part ? part.warning_msg : "",
+            stock_qty: part && part.stock_qty ? String(part.stock_qty) : "",
+            size_qty: part ? Object.fromEntries(Object.entries(part.size_qty || {}).map(([k, v]) => [k, String(v)])) : {},
             other_films: part ? part.other_films : 0,
             templates: templates.map((t) => ({ ...t, key: ++key, component_ids: [...t.component_ids] })),
             nextKey: key,
@@ -579,6 +581,7 @@ export class WofFilmEditor extends Component {
             priority: parseInt(digits(f.priority) || "0", 10),
             option_ids: f.option_ids, options_required: f.options_required,
             notes: f.notes, warning_msg: f.warning_msg,
+            stock_qty: f.stock_qty || 0, size_qty: f.size_qty,
             templates: f.type === "service_area"
                 ? f.templates.map((t) => ({ id: t.id, name: t.name, is_default: t.is_default, component_ids: t.component_ids }))
                 : [],

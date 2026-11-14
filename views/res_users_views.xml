@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_users_form_wof_stock" model="ir.ui.view">
+        <field name="name">res.users.form.wof.stock</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="مركز العناية" name="wof_care_center">
+                    <group string="صرف الأفلام من المخزون (للفرع الحالي)">
+                        <field name="wof_picking_type_id" options="{'no_create': True}"/>
+                        <field name="wof_stock_location_id" options="{'no_create': True}"/>
+                    </group>
+                    <p class="text-muted">إذا تُركت فارغة يُستخدم نوع التسليم في مستودع الفرع وموقعه الافتراضي.</p>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

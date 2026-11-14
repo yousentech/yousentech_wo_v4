@@ -16,4 +16,7 @@ from . import installation_technician
 from . import installation_vehicle
 from . import installation_line_parts
 from . import installation_line_options
+from . import installation_commission_split
+from . import installation_stock_location
+from . import installation_quality_send
 

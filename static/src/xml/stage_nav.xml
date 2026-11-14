@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="yousentech_wo_v4.StageNav"><span t-ref="root" class="d-none"/></t>
+</templates>

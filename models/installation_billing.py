@@ -273,7 +273,10 @@ class WofInstallationOrderBilling(models.Model):
         if self.state in ('draft', 'cancelled'):
             raise ValidationError(_('أكّد الأمر قبل إنشاء الفاتورة.'))
         if self._wof_invoice_moment() == 'paid' and not self._wof_is_fully_paid():
-            raise ValidationError(_('لا تُنشأ الفاتورة قبل اكتمال الدفع. المتبقي: %s.') % self.amount_residual)
+            # The setup asks for full payment first: open the payment, the invoice follows it.
+            action = self.action_register_payment()
+            action['name'] = _('سجّل الدفع أولًا — تُنشأ الفاتورة بعد اكتمال الدفع (المتبقي %s)') % self.amount_residual
+            return action
         self._wof_create_invoice()
         return self.action_open_invoice()
 

@@ -31,6 +31,7 @@ class TestOrderBilling(TransactionCase):
         service = root['product.product'].create({'name': 'خدمة زجاج فوترة', 'type': 'service', 'invoice_policy': 'order'})
         cls.part = root['wof.car.parts'].create({
             'code': 'BIL-FRONT', 'name': 'زجاج فوترة', 'part_type': 'car_part', 'product_id': service.id,
+            'stock_qty': 1.0,
         })
         Film = env['wof.film.category']
         cls.activity = env['wof.service.type'].search([('service_options', '=', 'tint'), ('active', '=', True)], limit=1)
@@ -171,8 +172,9 @@ class TestOrderBilling(TransactionCase):
         order = self.make_order()
         order.action_confirm_arrival()
         self.assertFalse(order.invoice_id)
-        with self.assertRaises(ValidationError):
-            order.action_create_invoice()
+        # Payment comes first: the invoice button opens the payment dialog.
+        action = order.action_create_invoice()
+        self.assertEqual(action['res_model'], 'wof.order.payment.wizard')
         self.pay(order, 200)
         self.assertFalse(order.invoice_id)
         self.pay(order, 300)
@@ -463,3 +465,72 @@ class TestOrderBilling(TransactionCase):
         self.film.wof_film_apply('stock_product', {'product_id': dark.id, 'action': 'remove'})
         self.assertNotIn(dark, self.film.stock_product_ids)
         self.assertIn(self.film.default_product_id, self.film.stock_product_ids)
+
+
+    # ------------------------------------------- quantity rule, commission, quality, payments
+    def test_stock_qty_follows_component_rule_and_car_size(self):
+        sizes = self.env['wof.car.size'].search([], limit=2)
+        if len(sizes) < 2:
+            self.skipTest('needs two car sizes')
+        self.part.write({'stock_qty': 2.0, 'stock_qty_size_ids': [(0, 0, {'car_size_id': sizes[1].id, 'qty': 3.5})]})
+        order = self.make_order()
+        line = order.line_ids
+        self.assertEqual(line.film_product_qty, 2.0 if order.car_size_id != sizes[1] else 3.5)
+        order.car_size_id = sizes[1] if order.car_size_id != sizes[1] else sizes[0]
+        self.assertEqual(line.film_product_qty, line.car_part_id._wof_stock_qty(order.car_size_id))
+        # A film that does not use stock keeps 0.
+        self.film.wof_film_apply('basic', {'is_effected_in_inventory': False})
+        other = self.make_order()
+        self.assertEqual(other.line_ids.film_product_qty, 0.0)
+        self.film.wof_film_apply('basic', {'is_effected_in_inventory': True})
+
+    def test_commission_split_shown_by_rule(self):
+        order = self.make_order()
+        line = order.line_ids
+        techs = self.root['hr.employee'].create([{'name': 'فني أ'}, {'name': 'فني ب'}])
+        line._write_line_internal({'configured_commission': 30.0})
+        line.with_context(wof_skip_technician_check=True)._write_line_internal({'technician_ids': [(6, 0, techs.ids)]})
+        line.invalidate_recordset(['commission_split', 'commission_distribution'])
+        self.assertEqual(line.commission_distribution, 'equal')
+        self.assertIn('فني أ 15.00', line.commission_split)
+
+    def test_quality_send_opens_completion_dialog(self):
+        order = self.make_order()
+        tech = self.root['hr.employee'].create({'name': 'فني الجودة', 'user_id': self.user.id})
+        order.line_ids.with_context(wof_skip_technician_check=True)._write_line_internal(
+            {'technician_ids': [(6, 0, tech.ids)]})
+        order._transition_write({'state': 'in_progress'})
+        action = order.action_submit_quality()
+        self.assertEqual(action['res_model'], 'wof.quality.send.wizard')
+        wizard = self.env['wof.quality.send.wizard'].create({'order_id': order.id})
+        self.assertIn(order.line_ids.car_part_id.name, wizard.summary)
+        wizard.action_complete_and_send()
+        self.assertEqual(order.line_ids.execution_progress, 100)
+        self.assertEqual(order.state, 'quality')
+
+    def test_split_payment_and_allowed_journals(self):
+        order = self.make_order()
+        journals = self.env['account.journal'].search([('type', 'in', ('bank', 'cash')),
+                                                       ('company_id', '=', order.company_id.id)], limit=2)
+        if len(journals) < 2:
+            self.skipTest('needs two payment journals')
+        wizard = self.env['wof.order.payment.wizard'].with_context(default_order_id=order.id).create({
+            'split': True, 'line_ids': [(0, 0, {'journal_id': journals[0].id, 'amount': 100}),
+                                        (0, 0, {'journal_id': journals[1].id, 'amount': 150})]})
+        self.assertEqual(wizard.lines_total, 250)
+        self.assertEqual(wizard.remaining_after, 250)
+        # The tester is a manager, who has the split-payment right.
+        self.assertTrue(self.user.has_group('yousentech_wo_v4.group_wo_split_payment'))
+        wizard.action_confirm()
+        self.assertEqual(len(order.payment_ids), 2)
+        self.assertEqual(order.amount_paid, 250)
+
+    def test_shortage_message_names_the_location(self):
+        order = self.make_order()
+        self.assertTrue(order.stock_location_id)
+        Order = type(self.env['wof.installation.order'])
+        from unittest.mock import patch
+        with patch.object(Order, '_wof_negative_blocked', return_value=True):
+            with self.assertRaises(ValidationError) as caught:
+                order._wof_check_stock_products()
+        self.assertIn(order.stock_location_id.complete_name, str(caught.exception))

@@ -61,22 +61,48 @@ class WofInstallationOrderPayment(models.Model):
         self.ensure_one()
         return self.amount_total > 0 and self.payment_status == 'paid'
 
-    def _wof_default_payment_journal(self):
-        """User's default customer payment journal, else the company's, else the first bank/cash."""
-        self.ensure_one()
+    def _wof_user_payment_settings(self):
+        """The user's customer-payment journal settings for the order's branch
+        (yousentech_invoicing_payment_journal), when that module is installed."""
         company = self.company_id or self.env.company
         user = self.env.user
-        if 'journals_ids' in user._fields:
-            journal = user.journals_ids.filtered(
-                lambda rec: rec.company_id == company and rec.journal_type == 'payment_customer'
-            ).mapped('default_journal_id')[:1]
-            if journal:
+        if 'journals_ids' not in user._fields:
+            return None
+        return user.journals_ids.filtered(
+            lambda rec: rec.company_id == company and rec.journal_type == 'payment_customer')
+
+    def _wof_allowed_payment_journals(self):
+        """Bank / cash journals the user may receive on: the journals allowed in the
+        user's payment settings when defined, else every bank / cash journal of the
+        branch (the accounting access rules still apply)."""
+        self.ensure_one()
+        company = self.company_id or self.env.company
+        journals = self.env['account.journal'].search([
+            ('type', 'in', ('bank', 'cash')), ('company_id', '=', company.id)])
+        settings = self._wof_user_payment_settings()
+        if settings:
+            allowed = self.env['account.journal']
+            for name in ('journal_ids', 'allowed_journal_ids', 'default_journal_id'):
+                if name in settings._fields:
+                    allowed |= settings.mapped(name)
+            if allowed:
+                journals &= allowed
+        return journals
+
+    def _wof_default_payment_journal(self):
+        """User's default customer payment journal, else the company's, else the first allowed."""
+        self.ensure_one()
+        company = self.company_id or self.env.company
+        allowed = self._wof_allowed_payment_journals()
+        settings = self._wof_user_payment_settings()
+        if settings and 'default_journal_id' in settings._fields:
+            journal = settings.mapped('default_journal_id')[:1]
+            if journal and journal in allowed:
                 return journal
-        if 'payment_sale_journal_id' in company._fields and company.payment_sale_journal_id:
+        if 'payment_sale_journal_id' in company._fields and company.payment_sale_journal_id \
+                and company.payment_sale_journal_id in allowed:
             return company.payment_sale_journal_id
-        return self.env['account.journal'].search([
-            ('type', 'in', ('bank', 'cash')), ('company_id', '=', company.id),
-        ], limit=1)
+        return allowed[:1]
 
     def action_register_payment(self):
         self.ensure_one()
@@ -139,11 +165,35 @@ class WofOrderPaymentWizard(models.TransientModel):
         string='نوع الحركة', required=True, default='inbound', readonly=True,
     )
     amount_to_refund = fields.Monetary(related='order_id.finance_to_refund', string='المتبقي للرد')
-    amount = fields.Monetary(string='المبلغ', required=True)
+    amount_paid = fields.Monetary(related='order_id.amount_paid', string='المدفوع')
+    amount = fields.Monetary(string='المبلغ')
+    allowed_journal_ids = fields.Many2many('account.journal', compute='_compute_allowed_journals')
     journal_id = fields.Many2one(
-        'account.journal', string='طريقة الدفع', required=True,
-        domain="[('type', 'in', ('bank', 'cash'))]",
+        'account.journal', string='طريقة الدفع',
+        domain="[('id', 'in', allowed_journal_ids)]",
     )
+    split = fields.Boolean(string='الدفع بأكثر من طريقة')
+    line_ids = fields.One2many('wof.order.payment.wizard.line', 'wizard_id', string='طرق الدفع')
+    lines_total = fields.Monetary(string='مجموع الدفعات', compute='_compute_totals')
+    remaining_after = fields.Monetary(string='المتبقي بعد الدفع', compute='_compute_totals')
+
+    @api.depends('order_id')
+    def _compute_allowed_journals(self):
+        for wizard in self:
+            wizard.allowed_journal_ids = wizard.order_id._wof_allowed_payment_journals() if wizard.order_id else False
+
+    @api.depends('split', 'amount', 'line_ids.amount', 'payment_type', 'amount_residual', 'amount_to_refund')
+    def _compute_totals(self):
+        for wizard in self:
+            total = sum(wizard.line_ids.mapped('amount')) if wizard.split else (wizard.amount or 0.0)
+            base = wizard.amount_to_refund if wizard.payment_type == 'outbound' else wizard.amount_residual
+            wizard.lines_total = total
+            wizard.remaining_after = max((base or 0.0) - total, 0.0)
+
+    @api.onchange('split')
+    def _onchange_split(self):
+        if self.split and not self.line_ids:
+            self.line_ids = [(0, 0, {'journal_id': self.journal_id.id, 'amount': self.amount})]
     date = fields.Date(string='التاريخ', required=True, default=fields.Date.context_today)
     memo = fields.Char(string='ملاحظة')
 
@@ -159,43 +209,83 @@ class WofOrderPaymentWizard(models.TransientModel):
                 values.setdefault('journal_id', journal.id)
         return values
 
+    def _wof_payment_parts(self):
+        """[(journal, amount, memo)] to post: the split lines, else the single payment."""
+        if self.split:
+            if not self.env.user.has_group('yousentech_wo_v4.group_wo_split_payment'):
+                raise ValidationError(_('الدفع بأكثر من طريقة يحتاج صلاحية «دفع متعدد في أمر التركيب».'))
+            parts = [(line.journal_id, line.amount, line.memo) for line in self.line_ids if line.amount]
+            if not parts:
+                raise ValidationError(_('أضف طريقة دفع واحدة على الأقل بمبلغ.'))
+            return parts
+        return [(self.journal_id, self.amount, self.memo)]
+
     def action_confirm(self):
         self.ensure_one()
         order = self.order_id
         currency = order.currency_id or order.company_id.currency_id
-        if float_compare(self.amount, 0.0, precision_rounding=currency.rounding) <= 0:
-            raise ValidationError(_('أدخل مبلغًا أكبر من صفر.'))
+        parts = self._wof_payment_parts()
+        allowed = order._wof_allowed_payment_journals()
+        total = 0.0
+        for journal, amount, _memo in parts:
+            if not journal:
+                raise ValidationError(_('اختر طريقة الدفع.'))
+            if journal not in allowed:
+                raise ValidationError(_('طريقة الدفع «%s» غير مسموحة لك في هذا الفرع.') % journal.display_name)
+            if float_compare(amount or 0.0, 0.0, precision_rounding=currency.rounding) <= 0:
+                raise ValidationError(_('أدخل مبلغًا أكبر من صفر.'))
+            total += amount
         outbound = self.payment_type == 'outbound'
         if outbound:
-            if float_compare(self.amount, order.finance_to_refund, precision_rounding=currency.rounding) > 0:
+            if float_compare(total, order.finance_to_refund, precision_rounding=currency.rounding) > 0:
                 raise ValidationError(_('المبلغ أكبر من المتبقي للرد (%s).') % order.finance_to_refund)
-        elif float_compare(self.amount, order.amount_residual, precision_rounding=currency.rounding) > 0:
+        elif float_compare(total, order.amount_residual, precision_rounding=currency.rounding) > 0:
             raise ValidationError(_('المبلغ أكبر من المتبقي على الأمر (%s).') % order.amount_residual)
-        payment = self.env['account.payment'].create({
-            'payment_type': self.payment_type,
-            'partner_type': 'customer',
-            'partner_id': order.partner_id.commercial_partner_id.id,
-            'amount': self.amount,
-            'currency_id': currency.id,
-            'journal_id': self.journal_id.id,
-            'date': self.date,
-            'ref': ' - '.join(filter(None, [order.name, self.memo])),
-            'company_id': order.company_id.id,
-            'wof_order_id': order.id,
-        })
-        payment.action_post()
+        payments = self.env['account.payment']
+        for journal, amount, memo in parts:
+            payment = self.env['account.payment'].create({
+                'payment_type': self.payment_type,
+                'partner_type': 'customer',
+                'partner_id': order.partner_id.commercial_partner_id.id,
+                'amount': amount,
+                'currency_id': currency.id,
+                'journal_id': journal.id,
+                'date': self.date,
+                'ref': ' - '.join(filter(None, [order.name, memo])),
+                'company_id': order.company_id.id,
+                'wof_order_id': order.id,
+            })
+            payment.action_post()
+            payments |= payment
+        payment = payments
+        journals_text = '، '.join(payments.journal_id.mapped('name'))
         if outbound:
             for refund in order._wof_finance_moves().filtered(
                     lambda move: move.move_type == 'out_refund' and move.state == 'posted'):
                 order._wof_reconcile_refunds(refund)
             order._log_business_event('order.payment_refunded', details={
-                'amount': self.amount, 'journal': self.journal_id.name, 'payment': payment.name,
+                'amount': total, 'journal': journals_text,
+                'payment': '، '.join(payment.mapped('name')),
             })
             return {'type': 'ir.actions.act_window_close'}
         if order.invoice_id and order.invoice_id.state == 'posted':
             order._wof_reconcile_payments(order.invoice_id)
         order._log_business_event('order.payment_registered', details={
-            'amount': self.amount, 'journal': self.journal_id.name, 'payment': payment.name,
+            'amount': total, 'journal': journals_text,
+            'payment': '، '.join(payment.mapped('name')),
         })
         order._wof_after_payment()
         return {'type': 'ir.actions.act_window_close'}
+
+
+class WofOrderPaymentWizardLine(models.TransientModel):
+    _name = 'wof.order.payment.wizard.line'
+    _description = 'طريقة دفع في تسجيل دفعة أمر التركيب'
+
+    wizard_id = fields.Many2one('wof.order.payment.wizard', required=True, ondelete='cascade')
+    currency_id = fields.Many2one(related='wizard_id.currency_id')
+    allowed_journal_ids = fields.Many2many(related='wizard_id.allowed_journal_ids')
+    journal_id = fields.Many2one('account.journal', string='طريقة الدفع', required=True,
+                                 domain="[('id', 'in', allowed_journal_ids)]")
+    amount = fields.Monetary(string='المبلغ')
+    memo = fields.Char(string='ملاحظة')

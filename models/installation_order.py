@@ -60,6 +60,7 @@ EVENT_LABELS = {
     'order.cancelled': 'إلغاء أمر التركيب',
     'order.price_overridden': 'تجاوز السعر المهيأ',
     'order.payment_registered': 'تسجيل دفعة',
+    'order.services_completed': 'إكمال الخدمات 100٪ قبل الجودة',
     'order.payment_refunded': 'رد مبلغ للعميل',
     'order.sale_order_created': 'إنشاء أمر البيع',
     'order.invoice_created': 'إنشاء الفاتورة',
@@ -277,21 +278,21 @@ class WofInstallationOrder(models.Model):
     delivery_notes = fields.Text(string="ملاحظات التسليم", copy=False)
     cancellation_reason = fields.Text(string="سبب الإلغاء", copy=False)
 
-    arrival_confirmed_at = fields.Datetime(readonly=True, copy=False)
-    intake_completed_at = fields.Datetime(readonly=True, copy=False)
-    execution_started_at = fields.Datetime(readonly=True, copy=False)
-    execution_completed_at = fields.Datetime(readonly=True, copy=False)
-    quality_checked_at = fields.Datetime(readonly=True, copy=False)
+    arrival_confirmed_at = fields.Datetime(string="وقت تأكيد الوصول", readonly=True, copy=False)
+    intake_completed_at = fields.Datetime(string="وقت إكمال الاستلام", readonly=True, copy=False)
+    execution_started_at = fields.Datetime(string="بدء التنفيذ", readonly=True, copy=False)
+    execution_completed_at = fields.Datetime(string="انتهاء التنفيذ", readonly=True, copy=False)
+    quality_checked_at = fields.Datetime(string="وقت فحص الجودة", readonly=True, copy=False)
     quality_checked_by_id = fields.Many2one(
-        'res.users', readonly=True, copy=False, ondelete='restrict',
+        'res.users', string="فحصها", readonly=True, copy=False, ondelete='restrict',
     )
-    delivered_at = fields.Datetime(readonly=True, copy=False)
+    delivered_at = fields.Datetime(string="وقت التسليم", readonly=True, copy=False)
     delivered_by_id = fields.Many2one(
-        'res.users', readonly=True, copy=False, ondelete='restrict',
+        'res.users', string="سلّمها", readonly=True, copy=False, ondelete='restrict',
     )
-    cancelled_at = fields.Datetime(readonly=True, copy=False)
+    cancelled_at = fields.Datetime(string="وقت الإلغاء", readonly=True, copy=False)
     cancelled_by_id = fields.Many2one(
-        'res.users', readonly=True, copy=False, ondelete='restrict',
+        'res.users', string="ألغاها", readonly=True, copy=False, ondelete='restrict',
     )
 
     sale_order_id = fields.Many2one(

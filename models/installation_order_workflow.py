@@ -386,8 +386,20 @@ class WofInstallationOrderWorkflow(models.Model):
             )
         )
         if incomplete:
+            no_team = incomplete.filtered(lambda line: need_technician and not line.technician_names)
+            if no_team:
+                raise ValidationError(
+                    'حدد الفنيين قبل فحص الجودة للخدمات التالية:\n%s'
+                    % '\n'.join('• %s / %s' % (line.film_category_id.name, line.car_part_id.name) for line in no_team)
+                )
+            if not self.env.context.get('wof_quality_no_wizard'):
+                return {
+                    'type': 'ir.actions.act_window', 'name': 'إرسال لفحص الجودة',
+                    'res_model': 'wof.quality.send.wizard', 'view_mode': 'form', 'target': 'new',
+                    'context': {'default_order_id': self.id},
+                }
             raise ValidationError(
-                'أكمل جميع الخدمات إلى 100٪ وحدد فنيي كل خدمة قبل فحص الجودة.'
+                'أكمل جميع الخدمات إلى 100٪ قبل فحص الجودة.'
             )
         return self._perform_transition(
             'in_progress',

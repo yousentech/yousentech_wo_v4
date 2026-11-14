@@ -39,7 +39,7 @@ class WofInstallationOrderStock(models.Model):
     def _wof_stock_shortages(self):
         """[(product, needed, available)] for stock products the order lacks."""
         self.ensure_one()
-        warehouse = self._wof_stock_warehouse()
+        location = self._wof_stock_location()
         needed = {}
         for line in self.line_ids:
             for product, qty in line._wof_stock_needs():
@@ -48,7 +48,7 @@ class WofInstallationOrderStock(models.Model):
         for product, qty in needed.items():
             if product.type != 'product':
                 continue
-            available = product.with_context(warehouse=warehouse.id).free_qty if warehouse else product.free_qty
+            available = product.with_context(location=location.id).free_qty if location else product.free_qty
             if float_compare(qty, available, precision_rounding=product.uom_id.rounding) > 0:
                 shortages.append((product, qty, available))
         return shortages
@@ -72,9 +72,11 @@ class WofInstallationOrderStock(models.Model):
         profile = self.env['wof.company.profile']._wof_get_profile()
         if profile and profile.stock_allow_shortage:
             return
-        raise ValidationError(_('الكمية المتاحة لا تكفي في المخزن: %s.') % '، '.join(
-            '%s (المطلوب %s، المتاح %s)' % (product.display_name, qty, available)
-            for product, qty, available in shortages))
+        location = self._wof_stock_location()
+        raise ValidationError(_('الكمية المتاحة لا تكفي في الموقع «%s»:\n%s\nغيّر موقع المخزن من كارد «الفرع والفريق» أو اطلب تحويل الكمية.') % (
+            location.complete_name if location else _('المخزن'), '\n'.join(
+                '• %s: المطلوب %s، المتاح %s' % (product.display_name, qty, available)
+                for product, qty, available in shortages)))
 
     def _validate_order_basics(self):
         result = super()._validate_order_basics()
@@ -89,7 +91,7 @@ class WofInstallationOrderLineStock(models.Model):
     part_kind = fields.Selection(related='car_part_id.part_type', string='نوع المكوّن')
     film_uses_inventory = fields.Boolean(related='film_category_id.is_effected_in_inventory')
     film_product_required = fields.Boolean(related='film_category_id.car_film_product_required')
-    film_product_qty = fields.Float(string='كمية الصنف المخزني', default=1.0, digits='Product Unit of Measure')
+    film_product_qty = fields.Float(string='كمية الصنف المخزني', default=0.0, digits='Product Unit of Measure')
 
     @api.model
     def _wof_default_stock_product(self, film, grade):
@@ -111,18 +113,25 @@ class WofInstallationOrderLineStock(models.Model):
         order = self.order_id
         if not order._wof_negative_blocked():
             return
-        warehouse = order._wof_stock_warehouse()
-        available = product.with_context(warehouse=warehouse.id).free_qty if warehouse else product.free_qty
+        location = order._wof_stock_location()
+        available = product.with_context(location=location.id).free_qty if location else product.free_qty
         if float_compare(self.film_product_qty or 0.0, available, precision_rounding=product.uom_id.rounding) > 0:
             return {'warning': {
                 'title': _('الكمية غير كافية'),
-                'message': _('المتاح من «%s» في %s هو %s فقط. لن يُصرف بالسالب عند اعتماد الشحنة.') % (
-                    product.display_name, warehouse.name if warehouse else _('المخزن'), available),
+                'message': _('المتاح من «%s» في الموقع «%s» هو %s فقط. لن يُصرف بالسالب عند اعتماد الشحنة.') % (
+                    product.display_name, location.complete_name if location else _('المخزن'), available),
             }}
 
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
+        # Quantity from the component's rule (by car size) when the film is taken from stock.
+        for line, vals in zip(records, vals_list):
+            if 'film_product_qty' not in vals and line.film_uses_inventory and line.car_part_id \
+                    and line.car_part_id.part_type == 'car_part':
+                qty = line.car_part_id._wof_stock_qty(line.order_id.car_size_id)
+                if qty:
+                    line._write_line_internal({'film_product_qty': qty})
         # The grade may be resolved by the base create, so suggest afterwards.
         for line in records.filtered(lambda rec: not rec.film_product_id):
             product = line._wof_default_stock_product(line.film_category_id, line.film_category_line_id)

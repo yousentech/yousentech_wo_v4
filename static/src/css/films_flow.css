@@ -454,3 +454,4 @@ html[data-wof-density="compact"] .wof_fh_inner { padding: 20px 24px 36px; gap: 1
 .wof_fe_stockchip .wof_fe_stockchip_star { color: #D97706; }
 .wof_fe_stockchip button:disabled { cursor: default; }
 .wof_fe_stockchip_x:hover { color: #B91C1C; }
+.wof_fe_qty_grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }

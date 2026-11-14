@@ -111,3 +111,33 @@ class WofOrderGradeWarnings(models.Model):
     def action_print_order(self):
         self.ensure_one()
         return self.env.ref('yousentech_wo_v4.action_report_installation_order').report_action(self)
+
+
+class WofOrderStockQtyBySize(models.Model):
+    _inherit = 'wof.installation.order'
+
+    def write(self, vals):
+        if 'car_size_id' not in vals:
+            return super().write(vals)
+        before = {}
+        for order in self.filtered(lambda rec: rec.state in ('draft', 'scheduled')):
+            for line in order.line_ids.filtered('film_uses_inventory'):
+                if line.part_line_ids:
+                    for part in line.part_line_ids:
+                        before[('part', part.id)] = part.part_id._wof_stock_qty(order.car_size_id)
+                elif line.car_part_id.part_type == 'car_part':
+                    before[('line', line.id)] = line.car_part_id._wof_stock_qty(order.car_size_id)
+        result = super().write(vals)
+        # Follow the new size, but keep quantities the user changed by hand.
+        for (kind, rec_id), old in before.items():
+            if kind == 'line':
+                line = self.env['wof.installation.order.line'].browse(rec_id)
+                new = line.car_part_id._wof_stock_qty(line.order_id.car_size_id)
+                if line.film_product_qty == old and new != old:
+                    line._write_line_internal({'film_product_qty': new})
+            else:
+                part = self.env['wof.installation.order.line.part'].browse(rec_id)
+                new = part.part_id._wof_stock_qty(part.line_id.order_id.car_size_id)
+                if part.product_qty == old and new != old:
+                    part.with_context(wof_part_internal=True).write({'product_qty': new})
+        return result

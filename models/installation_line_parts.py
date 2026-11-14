@@ -28,7 +28,7 @@ class WofInstallationOrderLinePart(models.Model):
     part_id = fields.Many2one('wof.car.parts', string='الجزء', required=True, ondelete='restrict')
     grade_id = fields.Many2one('wof.film.category.lines', string='الدرجة', ondelete='restrict')
     product_id = fields.Many2one('product.product', string='الصنف المخزني', ondelete='restrict')
-    product_qty = fields.Float(string='الكمية', default=1.0, digits='Product Unit of Measure')
+    product_qty = fields.Float(string='الكمية', default=0.0, digits='Product Unit of Measure')
     technician_ids = fields.Many2many('hr.employee', 'wof_order_line_part_technician_rel', 'part_line_id',
                                       'employee_id', string='الفنيون', copy=False)
     technician_names = fields.Char(string='أسماء الفنيين', compute='_compute_technician_names',
@@ -125,10 +125,13 @@ class WofInstallationOrderLineParts(models.Model):
         for line in self.filtered(lambda rec: rec.part_kind == 'service_area'):
             line.part_line_ids.with_context(wof_part_internal=True).unlink()
             template = line.service_area_template_id or line.car_part_id.default_template_id
-            product = line.film_product_id if line.film_uses_inventory else self.env['product.product']
+            stock = line.film_uses_inventory
+            product = line.film_product_id if stock else self.env['product.product']
+            size = line.order_id.car_size_id
             Part.create([{
                 'line_id': line.id, 'sequence': index * 10, 'part_id': part.id,
-                'grade_id': line.film_category_line_id.id, 'product_id': product.id, 'product_qty': 1.0,
+                'grade_id': line.film_category_line_id.id, 'product_id': product.id,
+                'product_qty': part._wof_stock_qty(size) if stock else 0.0,
             } for index, part in enumerate(template.component_ids, start=1)])
             line._wof_sync_from_parts()
 

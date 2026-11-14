@@ -33,6 +33,7 @@ class TestStockProduct(TransactionCase):
         service = root['product.product'].create({'name': 'زجاج مخزون', 'type': 'service'})
         cls.part = root['wof.car.parts'].create({
             'code': 'STK-FRONT', 'name': 'زجاج أمامي مخزون', 'part_type': 'car_part', 'product_id': service.id,
+            'stock_qty': 1.0,
         })
         Film = env['wof.film.category']
         cls.activity = env['wof.service.type'].search([('service_options', '=', 'tint'), ('active', '=', True)], limit=1)

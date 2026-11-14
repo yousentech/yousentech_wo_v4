@@ -16,7 +16,7 @@ class WofInstallationMaterialLine(models.Model):
         ondelete='cascade', check_company=True, index=True,
     )
     order_line_id = fields.Many2one(
-        'wof.installation.order.line', string="الخدمة المرتبطة",
+        'wof.installation.order.line', string="للخدمة (اختياري)",
         ondelete='restrict', check_company=True,
         domain="[('order_id', '=', order_id)]",
     )

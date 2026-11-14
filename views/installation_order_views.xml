@@ -98,15 +98,6 @@
                                     منطقة خدمة · <field name="service_area_template_id" readonly="1" options="{'no_open': True}"/>
                                 </span>
                                 <span class="wof_lf_chip" invisible="part_kind == 'service_area'">جزء</span>
-                                <span class="wof_lf_chip" invisible="not film_category_line_id">
-                                    الدرجة <field name="film_category_line_id" readonly="1" options="{'no_open': True}"/>
-                                </span>
-                                <span class="wof_lf_chip is-stock" invisible="not film_uses_inventory or not film_product_id">
-                                    <field name="film_product_id" readonly="1" options="{'no_open': True}"/>
-                                </span>
-                            </div>
-                            <div class="wof_lf_parts" invisible="part_kind != 'service_area' or not template_part_names">
-                                <small>الأجزاء:</small> <field name="template_part_names" readonly="1"/>
                             </div>
                         </div>
                         <div class="wof_lf_figs">
@@ -115,6 +106,39 @@
                             <div class="wof_lf_fig is-disc"><small>الخصم</small><field name="discount_amount" readonly="1"/></div>
                             <div class="wof_lf_fig"><small>الضريبة <field name="tax_id" readonly="1" class="wof_lf_tax" options="{'no_open': True}"/></small><field name="amount_tax" readonly="1"/></div>
                             <div class="wof_lf_fig is-total"><small>الإجمالي</small><field name="amount_total" readonly="1"/></div>
+                        </div>
+                        <div class="wof_lf_strip">
+                            <div class="wof_lf_item" invisible="not film_category_line_id and not part_grade_summary">
+                                <small>الدرجة</small>
+                                <field name="film_category_line_id" readonly="1" options="{'no_open': True}" invisible="part_kind == 'service_area'"/>
+                                <field name="part_grade_summary" readonly="1" invisible="part_kind != 'service_area'"/>
+                            </div>
+                            <div class="wof_lf_item" invisible="not film_uses_inventory">
+                                <small>الصنف المخزني</small>
+                                <span invisible="part_kind == 'service_area' or not film_product_id">
+                                    <field name="film_product_id" readonly="1" options="{'no_open': True}" class="d-inline"/> ×
+                                    <field name="film_product_qty" readonly="1" class="d-inline"/>
+                                </span>
+                                <span invisible="part_kind != 'service_area'"><field name="part_count" readonly="1" class="d-inline"/> أجزاء · ناقص <field name="part_missing_product" readonly="1" class="d-inline"/></span>
+                                <span class="is-muted" invisible="part_kind == 'service_area' or film_product_id">غير محدد</span>
+                            </div>
+                            <div class="wof_lf_item" invisible="not option_names">
+                                <small>الخيارات الإضافية</small>
+                                <field name="option_names" readonly="1"/>
+                            </div>
+                            <div class="wof_lf_item is-parts" invisible="part_kind != 'service_area' or not template_part_names">
+                                <small>الأجزاء</small>
+                                <field name="template_part_names" readonly="1"/>
+                            </div>
+                        </div>
+                        <field name="has_tint_warning" invisible="1"/>
+                        <div class="wof_lf_warn" invisible="not tint_warning_count">
+                            <i class="fa fa-exclamation-triangle" title="تحذير"/>
+                            <span><b>تحذير درجة اللون:</b>
+                                <field name="tint_warning" readonly="1" class="d-inline" invisible="not has_tint_warning"/>
+                                <span invisible="has_tint_warning">درجة غير مسموحة في <field name="tint_warning_count" readonly="1" class="d-inline"/> من الأجزاء (التفاصيل في كارد الخدمة).</span>
+                            </span>
+                            <small>يُطبع في أمر التركيب لتوقيع العميل.</small>
                         </div>
                     </div>
 
@@ -155,6 +179,8 @@
                             <h3><i class="fa fa-percent me-1" title="العمولة"/> العمولة</h3>
                             <div class="wof_lf_kv">
                                 <span>عمولة الفني المهيأة</span><field name="configured_commission" readonly="1"/>
+                                <span>طريقة التوزيع</span><field name="commission_distribution" readonly="1"/>
+                                <span>نصيب كل فني</span><span><field name="commission_split" readonly="1" invisible="not commission_split"/><span class="text-muted" invisible="commission_split">يظهر بعد تحديد الفنيين</span></span>
                                 <span>تُستحق</span><field name="commission_event" readonly="1"/>
                                 <span>الحالة</span>
                                 <field name="commission_state" widget="badge" readonly="1"
@@ -409,6 +435,11 @@
                             string="تسليم السيارة وإغلاق الأمر" class="btn-primary"
                             invisible="state != 'ready'"
                             groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor"/>
+                    <field name="payment_status" invisible="1"/>
+                    <button name="action_register_payment" type="object"
+                            string="تسجيل دفعة" icon="fa-money" class="btn-primary"
+                            invisible="state in ('draft', 'cancelled') or payment_status == 'paid'"
+                            groups="account.group_account_invoice"/>
                     <button name="action_create_invoice" type="object"
                             string="إنشاء الفاتورة" icon="fa-file-text-o"
                             invisible="invoice_id or state in ('draft', 'cancelled')"/>
@@ -485,6 +516,7 @@
                     <div class="wof_order_main">
                     <div class="wof_steps">
                     <nav class="wof_steps_nav" aria-label="أقسام أمر التركيب">
+                        <field name="state" widget="wof_stage_nav" nolabel="1" class="d-none"/>
                         <div class="wof_steps_caption"><i class="fa fa-th-large me-1" title="الأقسام"/> أقسام أمر التركيب</div>
                         <div class="wof_steps_opt is-customer"><input type="radio" name="wof_order_section" value="customer" aria-label="العميل والسيارة" checked="checked"/><span class="wof_steps_n">1</span><span class="wof_steps_label">العميل والسيارة</span><span class="wof_steps_now" invisible="not (state == 'draft')">الآن</span></div>
                         <div class="wof_steps_opt is-services"><input type="radio" name="wof_order_section" value="services" aria-label="الخدمات"/><span class="wof_steps_n">2</span><span class="wof_steps_label">الخدمات</span></div>
@@ -588,6 +620,12 @@
                                            groups="yousentech_invoicing_saleman.allow_modify_salesman"
                                            invisible="',salesperson,' in wof_hidden_fields" required="',salesperson,' in wof_required_fields"/>
                                     <field name="created_by_id" readonly="1" options="{'no_open': True}"/>
+                                    <field name="wof_uses_stock" invisible="1"/>
+                                    <field name="sale_order_id" invisible="1"/>
+                                    <field name="picking_type_id" string="نوع الشحنة" invisible="not wof_uses_stock"
+                                           readonly="sale_order_id" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="stock_location_id" string="موقع المخزن" invisible="not wof_uses_stock"
+                                           readonly="sale_order_id" options="{'no_create': True, 'no_open': True}"/>
                                 </group>
                             </div>
                         </section>
@@ -683,10 +721,12 @@
                             <field name="line_ids" mode="tree,form"
                                    readonly="state != 'in_progress'"
                                    context="{'tree_view_ref': 'yousentech_wo_v4.view_wof_installation_order_line_execution_tree'}"/>
-                            <separator string="المواد المستخدمة"/>
-                            <div class="alert alert-warning" role="status">
-                                يسجل هذا القسم الاستهلاك التشغيلي الآن. إنشاء حركات المخزون الفعلية مؤجل لمرحلة تكامل المخزون.
+                            <div invisible="not wof_uses_stock">
+                                <separator string="أصناف المخزون من الخدمات"/>
+                                <field name="stock_summary_html" nolabel="1" readonly="1"/>
                             </div>
+                            <separator string="مواد إضافية"/>
+                            <p class="text-muted mb-2">لأي مادة استُهلكت خارج أصناف الخدمات أعلاه (مثل منظف أو رول إضافي). تُضاف لأمر البيع وتُصرف مع الشحنة عند التسليم. ربطها بخدمة اختياري للتوضيح فقط.</p>
                             <field name="material_line_ids" mode="tree"
                                    readonly="state != 'in_progress'"/>
                         </section>
@@ -855,28 +895,76 @@
               groups="yousentech_wo_v4.group_wo_employee"
               sequence="1"/>
 
+    <record id="view_wof_quality_send_wizard_form" model="ir.ui.view">
+        <field name="name">wof.quality.send.wizard.form</field>
+        <field name="model">wof.quality.send.wizard</field>
+        <field name="arch" type="xml">
+            <form string="إرسال لفحص الجودة">
+                <div class="alert alert-warning" role="alert">
+                    <i class="fa fa-exclamation-triangle me-1" title="تنبيه"/>
+                    لا يُرسل الأمر لفحص الجودة حتى تكتمل كل الخدمات. الخدمات التالية لم تصل 100٪:
+                </div>
+                <field name="order_id" invisible="1"/>
+                <field name="summary" nolabel="1" readonly="1"/>
+                <p class="text-muted">إذا انتهى العمل فعليًا اضغط «إكمال الخدمات وإرسال»: يُسجَّل التقدم 100٪ لكل خدمة وجزء ثم يُرسل الأمر. أو أغلق النافذة وحدّث التقدم من قسم التنفيذ.</p>
+                <footer>
+                    <button name="action_complete_and_send" type="object" string="إكمال الخدمات وإرسال للجودة" class="btn-primary"/>
+                    <button special="cancel" string="رجوع" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <record id="view_wof_order_payment_wizard_form" model="ir.ui.view">
         <field name="name">wof.order.payment.wizard.form</field>
         <field name="model">wof.order.payment.wizard</field>
         <field name="arch" type="xml">
-            <form string="تسجيل دفعة">
-                <group>
-                    <group>
-                        <field name="order_id"/>
-                        <field name="partner_id"/>
-                        <field name="currency_id" invisible="1"/>
-                        <field name="payment_type" invisible="1"/>
-                        <field name="amount_total"/>
-                        <field name="amount_residual" invisible="payment_type == 'outbound'"/>
-                        <field name="amount_to_refund" invisible="payment_type != 'outbound'"/>
-                    </group>
-                    <group>
-                        <field name="amount"/>
-                        <field name="journal_id" options="{'no_create': True}"/>
-                        <field name="date"/>
-                        <field name="memo" placeholder="مثال: دفعة مقدمة"/>
-                    </group>
-                </group>
+            <form string="تسجيل دفعة" class="wof_pay_form">
+                <field name="currency_id" invisible="1"/>
+                <field name="payment_type" invisible="1"/>
+                <field name="allowed_journal_ids" invisible="1"/>
+                <field name="split" invisible="1"/>
+                <div class="wof_pay_head">
+                    <div class="wof_pay_who">
+                        <small><field name="order_id" readonly="1" options="{'no_open': True}"/></small>
+                        <b><field name="partner_id" readonly="1" options="{'no_open': True}"/></b>
+                    </div>
+                    <div class="wof_pay_fig"><small>إجمالي الأمر</small><field name="amount_total" readonly="1"/></div>
+                    <div class="wof_pay_fig is-paid" invisible="payment_type == 'outbound'"><small>المدفوع</small><field name="amount_paid" readonly="1"/></div>
+                    <div class="wof_pay_fig is-due" invisible="payment_type == 'outbound'"><small>المتبقي</small><field name="amount_residual" readonly="1"/></div>
+                    <div class="wof_pay_fig is-due" invisible="payment_type != 'outbound'"><small>المتبقي للرد</small><field name="amount_to_refund" readonly="1"/></div>
+                </div>
+
+                <div class="wof_pay_body">
+                    <div class="wof_pay_single" invisible="split">
+                        <label for="amount" string="المبلغ"/>
+                        <field name="amount" required="not split" class="wof_pay_amount"/>
+                        <label for="journal_id" string="طريقة الدفع"/>
+                        <field name="journal_id" required="not split" widget="radio" options="{'horizontal': true}"/>
+                    </div>
+                    <div class="wof_pay_split_toggle" groups="yousentech_wo_v4.group_wo_split_payment" invisible="payment_type == 'outbound'">
+                        <field name="split" widget="boolean_toggle" options="{'autosave': false}" nolabel="1" groups="yousentech_wo_v4.group_wo_split_payment"/>
+                        <span>الدفع بأكثر من طريقة (مثل جزء نقدًا وجزء شبكة)</span>
+                    </div>
+                    <field name="line_ids" invisible="not split" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="currency_id" column_invisible="True"/>
+                            <field name="allowed_journal_ids" column_invisible="True"/>
+                            <field name="journal_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="amount" sum="المجموع"/>
+                            <field name="memo"/>
+                        </tree>
+                    </field>
+                    <div class="wof_pay_meta">
+                        <div><label for="date" string="التاريخ"/><field name="date"/></div>
+                        <div class="is-wide"><label for="memo" string="ملاحظة"/><field name="memo" placeholder="مثال: دفعة مقدمة"/></div>
+                    </div>
+                    <div class="wof_pay_total">
+                        <span>مجموع هذه الدفعة</span><field name="lines_total" readonly="1"/>
+                        <span>المتبقي بعد الدفع</span><field name="remaining_after" readonly="1"/>
+                    </div>
+                    <p class="wof_pay_hint" invisible="allowed_journal_ids">لا توجد طريقة دفع مسموحة لك في هذا الفرع. اطلب من المسؤول ضبط دفاتر الدفع.</p>
+                </div>
                 <footer>
                     <button name="action_confirm" type="object" string="تسجيل الدفعة" class="btn-primary"
                             invisible="payment_type == 'outbound'"/>

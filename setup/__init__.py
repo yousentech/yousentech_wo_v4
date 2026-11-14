@@ -3,6 +3,7 @@ from . import additional_models
 from . import service_type
 from . import car_size
 from . import car_parts
+from . import part_stock_qty
 from . import service_area_template
 from . import film_category
 from . import film_matrix

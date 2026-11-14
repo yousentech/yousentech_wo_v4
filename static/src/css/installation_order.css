@@ -340,3 +340,39 @@
     .o_form_view.wof_line_form .wof_lf_figs { flex-wrap: wrap; }
     .o_form_view.wof_line_form .wof_lf_grid { grid-template-columns: 1fr; }
 }
+.o_form_view.wof_line_form .wof_lf_strip { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px 28px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.12); }
+.o_form_view.wof_line_form .wof_lf_item { display: flex; flex-direction: column; gap: 2px; min-width: 120px; }
+.o_form_view.wof_line_form .wof_lf_item > small { color: #8FB3B0; font-size: .74rem; font-weight: 600; }
+.o_form_view.wof_line_form .wof_lf_item, .o_form_view.wof_line_form .wof_lf_item .o_field_widget, .o_form_view.wof_line_form .wof_lf_item span { color: #FFFFFF; font-weight: 700; }
+.o_form_view.wof_line_form .wof_lf_item .is-muted { color: #FCD34D; }
+.o_form_view.wof_line_form .wof_lf_item.is-parts { flex: 1 1 260px; }
+.o_form_view.wof_line_form .wof_lf_warn { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 12px; border-radius: 10px; background: #FEE2E2; color: #991B1B; }
+.o_form_view.wof_line_form .wof_lf_warn .o_field_widget, .o_form_view.wof_line_form .wof_lf_warn span { color: #991B1B; }
+.o_form_view.wof_line_form .wof_lf_warn small { color: #B91C1C; opacity: .85; }
+
+/* ============================================ payment dialog */
+.o_form_view.wof_pay_form .o_form_sheet_bg, .wof_pay_form.o_form_view { background: #FFFFFF; }
+.wof_pay_form .wof_pay_head { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 12px; align-items: center; padding: 14px 18px; margin-bottom: 16px; border-radius: 14px; background: #16232A; color: #FFFFFF; }
+.wof_pay_form .wof_pay_head .o_field_widget, .wof_pay_form .wof_pay_head span { color: inherit; }
+.wof_pay_form .wof_pay_who { display: flex; flex-direction: column; gap: 2px; }
+.wof_pay_form .wof_pay_who small { color: #8FB3B0; }
+.wof_pay_form .wof_pay_who b { font-size: 1.1rem; }
+.wof_pay_form .wof_pay_fig { display: flex; flex-direction: column; gap: 2px; padding-inline-start: 12px; border-inline-start: 1px solid rgba(255,255,255,.12); }
+.wof_pay_form .wof_pay_fig small { color: #8FB3B0; font-size: .75rem; }
+.wof_pay_form .wof_pay_fig .o_field_widget { font-size: 1.05rem; font-weight: 800; }
+.wof_pay_form .wof_pay_fig.is-paid .o_field_widget { color: #6EE7B7; }
+.wof_pay_form .wof_pay_fig.is-due .o_field_widget { color: #FCD34D; }
+.wof_pay_form .wof_pay_body { display: flex; flex-direction: column; gap: 14px; }
+.wof_pay_form .wof_pay_single { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px 14px; align-items: center; }
+.wof_pay_form .wof_pay_single .o_form_label, .wof_pay_form .wof_pay_meta .o_form_label { font-weight: 700; color: #334155; margin: 0; }
+.wof_pay_form .wof_pay_amount input { font-size: 1.4rem; font-weight: 800; max-width: 240px; }
+.wof_pay_form .wof_pay_single .o_radio_item { margin-inline-end: 22px; font-weight: 700; }
+.wof_pay_form .wof_pay_split_toggle { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px dashed #C9DDEA; border-radius: 10px; background: #F8FBFD; font-weight: 600; }
+.wof_pay_form .wof_pay_meta { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; }
+.wof_pay_form .wof_pay_meta > div { display: flex; flex-direction: column; gap: 4px; }
+.wof_pay_form .wof_pay_total { display: grid; grid-template-columns: auto auto; justify-content: end; gap: 4px 18px; padding: 10px 14px; border-radius: 10px; background: #F1F5F9; font-weight: 700; }
+.wof_pay_form .wof_pay_total .o_field_widget { text-align: start; }
+.wof_pay_form .wof_pay_hint { margin: 0; color: #B91C1C; }
+.wof_q_table td { vertical-align: middle; }
+.wof_q_meter { display: inline-block; width: 90px; height: 6px; border-radius: 99px; background: #E2E8F0; overflow: hidden; vertical-align: middle; }
+.wof_q_meter i { display: block; height: 100%; background: #0F766E; }

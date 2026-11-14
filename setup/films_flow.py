@@ -546,6 +546,8 @@ class WofFilmCategoryFlow(models.Model):
                 'priority': part.priority_part, 'options_required': part.part_options_required,
                 'option_ids': part.part_options_ids.ids, 'notes': part.notes or '',
                 'warning_msg': part.warning_msg or '',
+                'stock_qty': part.stock_qty,
+                'size_qty': {str(rule.car_size_id.id): rule.qty for rule in part.stock_qty_size_ids},
                 'templates': [{
                     'id': template.id, 'name': template.name, 'is_default': template.is_default,
                     'component_ids': template.component_ids.ids,
@@ -554,6 +556,7 @@ class WofFilmCategoryFlow(models.Model):
             } if part else False,
             'car_parts': [{'id': rec.id, 'name': rec.name, 'code': rec.code} for rec in car_parts if rec != part],
             'options': [{'id': rec.id, 'name': rec.name} for rec in options],
+            'sizes': [{'id': size.id, 'name': size.name} for size in self.env['wof.car.size'].search([('active', '=', True)])],
         }
 
     def wof_service_products(self, query=''):
@@ -636,6 +639,22 @@ class WofFilmCategoryFlow(models.Model):
             option.active = True
         return {'id': option.id, 'name': option.name}
 
+    @api.model
+    def _wof_stock_qty_vals(self, part, payload):
+        def number(value):
+            try:
+                value = float(value or 0)
+            except (TypeError, ValueError):
+                raise ValidationError(_('كمية الصرف يجب أن تكون رقمًا.'))
+            if value < 0:
+                raise ValidationError(_('كمية الصرف لا يمكن أن تكون سالبة.'))
+            return value
+        sizes = self.env['wof.car.size'].search([('active', '=', True)])
+        given = {int(k): number(v) for k, v in (payload.get('size_qty') or {}).items() if v not in ('', None, False)}
+        commands = [(5, 0, 0)] + [(0, 0, {'car_size_id': size.id, 'qty': given[size.id]})
+                                  for size in sizes if size.id in given]
+        return {'stock_qty': number(payload.get('stock_qty')), 'stock_qty_size_ids': commands}
+
     def wof_component_save(self, payload):
         """Create (and add to this film) or edit a component master."""
         self.ensure_one()
@@ -681,6 +700,8 @@ class WofFilmCategoryFlow(models.Model):
             'notes': (payload.get('notes') or '').strip() or False,
             'warning_msg': (payload.get('warning_msg') or '').strip() or False,
         }
+        if part_type == 'car_part' and 'stock_qty' in payload:
+            vals.update(self._wof_stock_qty_vals(part, payload))
         if part:
             part.write(vals)
         else:

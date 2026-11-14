@@ -616,9 +616,24 @@
 
                             <div class="wof_fe_grid">
                                 <label class="wof_sf_label">ملاحظات <span class="wof_sf_hint">(اختياري)</span><input class="wof_sf_input" t-att-value="f.notes" t-on-input="(ev) => this.onForm('notes', ev)"/></label>
-                                <label class="wof_sf_label">رسالة تحذير للفني <span class="wof_sf_hint">(اختياري)</span><input class="wof_sf_input" t-att-value="f.warning_msg" t-on-input="(ev) => this.onForm('warning_msg', ev)"/></label>
+                                <label class="wof_sf_label">رسالة تحذير الدرجة غير المسموحة <span class="wof_sf_hint">(تظهر بالأحمر في الأمر وتُطبع لتوقيع العميل)</span><input class="wof_sf_input" t-att-value="f.warning_msg" t-on-input="(ev) => this.onForm('warning_msg', ev)"/></label>
                             </div>
-                            <div t-if="(f.warning_msg or '').trim()" class="wof_fe_warnbox"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> تظهر للفني: <t t-esc="f.warning_msg"/></div>
+                            <div t-if="(f.warning_msg or '').trim()" class="wof_fe_warnbox"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> هكذا تظهر: <t t-esc="f.warning_msg"/></div>
+
+                            <div t-if="f.type === 'car_part'" class="wof_sf_section wof_fe_qty">
+                                <span class="wof_sf_card_title">كمية الصرف من المخزون <span class="wof_sf_hint">تُقترح في أمر التركيب حين يُصرف الفيلم من المخزون؛ وإلا تبقى صفرًا.</span></span>
+                                <div class="wof_fe_qty_grid">
+                                    <label class="wof_sf_label is-narrow">الافتراضية (كل الأحجام)
+                                        <input type="number" min="0" step="0.1" class="wof_sf_input" placeholder="0" t-att-value="f.stock_qty" t-on-input="(ev) => this.onForm('stock_qty', ev)"/>
+                                    </label>
+                                    <t t-foreach="f.choices.sizes" t-as="sz" t-key="sz.id">
+                                        <label class="wof_sf_label is-narrow"><t t-esc="sz.name"/>
+                                            <input type="number" min="0" step="0.1" class="wof_sf_input" t-att-placeholder="f.stock_qty or '0'"
+                                                   t-att-value="f.size_qty[sz.id] or ''" t-on-input="(ev) => f.size_qty[sz.id] = ev.target.value"/>
+                                        </label>
+                                    </t>
+                                </div>
+                            </div>
 
                         </section>
 
