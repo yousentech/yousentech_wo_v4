@@ -92,8 +92,10 @@
                                     <small>الصنف المخزني</small>
                                     <select t-attf-class="wof_sparts_sel {{ data.product_id ? '' : 'is-warn' }}" t-att-disabled="!data.can_commercial or state.busy" t-on-change="(ev) => this.onLineSelect(row.id, 'film_product_id', ev)">
                                         <option value="">اختر الصنف</option>
-                                        <t t-foreach="data.products" t-as="p" t-key="p.id"><option t-att-value="p.id" t-att-selected="p.id === data.product_id" t-esc="p.name"/></t>
+                                        <t t-foreach="data.products" t-as="p" t-key="p.id"><option t-att-value="p.id" t-att-selected="p.id === data.product_id" t-esc="productLabel(p)"/></t>
                                     </select>
+                                    <t t-set="stk" t-value="stockInfo(data, data.product_id, data.product_qty)"/>
+                                    <span t-if="stk" t-attf-class="wof_sstock {{ stk.cls }}" t-att-title="data.stock_location"><i t-attf-class="fa {{ stk.icon }}" title="المخزون"/> <t t-esc="stk.text"/></span>
                                 </label>
                                 <label t-if="data.uses_inventory" class="wof_sedit_f is-small">
                                     <small>الكمية</small>
@@ -160,8 +162,10 @@
                                                 <td t-if="data.uses_inventory">
                                                     <select t-attf-class="wof_sparts_sel {{ part.product_id ? '' : 'is-warn' }}" t-att-disabled="!data.can_setup or state.busy" t-on-change="(ev) => this.onSelect(row.id, part, 'product_id', ev)">
                                                         <option value="">اختر الصنف</option>
-                                                        <t t-foreach="data.products" t-as="p" t-key="p.id"><option t-att-value="p.id" t-att-selected="p.id === part.product_id" t-esc="p.name"/></t>
+                                                        <t t-foreach="data.products" t-as="p" t-key="p.id"><option t-att-value="p.id" t-att-selected="p.id === part.product_id" t-esc="productLabel(p)"/></t>
                                                     </select>
+                                                    <t t-set="pstk" t-value="stockInfo(data, part.product_id, partNeed(data, part.product_id))"/>
+                                                    <span t-if="pstk" t-attf-class="wof_sstock {{ pstk.cls }}" t-att-title="data.stock_location"><i t-attf-class="fa {{ pstk.icon }}" title="المخزون"/> <t t-esc="pstk.text"/></span>
                                                 </td>
                                                 <td t-if="data.uses_inventory" class="is-qty">
                                                     <input type="number" min="0" step="0.1" class="wof_sparts_num" t-att-value="part.product_qty" t-att-disabled="!data.can_setup or state.busy" t-on-change="(ev) => this.onQty(row.id, part, ev)"/>
@@ -191,7 +195,7 @@
                                     </select>
                                     <select t-if="data.uses_inventory" class="wof_sparts_sel" t-att-disabled="state.busy" t-on-change="(ev) => this.applyAll(row.id, 'product_id', ev)">
                                         <option value="">الصنف</option>
-                                        <t t-foreach="data.products" t-as="p" t-key="p.id"><option t-att-value="p.id" t-esc="p.name"/></t>
+                                        <t t-foreach="data.products" t-as="p" t-key="p.id"><option t-att-value="p.id" t-esc="productLabel(p)"/></t>
                                     </select>
                                     <select class="wof_sparts_sel" t-att-disabled="state.busy" t-on-change="(ev) => this.applyAll(row.id, 'technician_ids', ev)">
                                         <option value="">الفني</option>

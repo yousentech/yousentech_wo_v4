@@ -188,6 +188,32 @@ export class WofServiceRows extends Component {
         return this.updateLine(lineId, { [key]: ev.target.value ? Number(ev.target.value) : false });
     }
 
+    // ------------------------------------------------------- stock on hand
+    productLabel(p) {
+        return p.stocked ? `${p.name} — متاح ${this.qty(p.available)}` : p.name;
+    }
+
+    qty(value) {
+        return Number(value || 0).toLocaleString("ar-SA-u-nu-latn", { maximumFractionDigits: 3 });
+    }
+
+    partNeed(data, productId) {
+        // Parts of one service area draw on the same stock: compare with their sum.
+        return (data.parts || []).filter((p) => p.product_id === productId).reduce((sum, p) => sum + (p.product_qty || 0), 0);
+    }
+
+    stockInfo(data, productId, needed) {
+        const p = productId && (data.products || []).find((x) => x.id === productId);
+        if (!p || !p.stocked) {
+            return null;
+        }
+        const where = data.stock_location ? ` في ${data.stock_location}` : "";
+        if (needed > p.available) {
+            return { cls: "is-bad", icon: "fa-exclamation-circle", text: `المتاح ${this.qty(p.available)} ${p.uom} — أقل من المطلوب ${this.qty(needed)}` };
+        }
+        return { cls: "is-ok", icon: "fa-cubes", text: `المتاح ${this.qty(p.available)} ${p.uom}${where}` };
+    }
+
     toggleOption(lineId, optionId) {
         const data = this.state.areas[lineId];
         if (!data || !data.options.can_edit) {

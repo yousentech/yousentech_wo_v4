@@ -248,16 +248,18 @@
         <field name="name">wof.installation.material.line.tree</field>
         <field name="model">wof.installation.material.line</field>
         <field name="arch" type="xml">
-            <tree string="المواد المستخدمة" editable="bottom">
+            <tree string="المواد الإضافية" editable="bottom" decoration-danger="is_short">
                 <field name="company_id" column_invisible="True"/>
                 <field name="order_id" column_invisible="True"/>
-                <field name="order_line_id"
-                       options="{'no_create': True, 'no_open': True}"/>
+                <field name="is_short" column_invisible="True"/>
                 <field name="product_id"
                        domain="[('type', '!=', 'service')]"
                        options="{'no_create': True, 'no_open': True}"/>
                 <field name="quantity"/>
                 <field name="uom_id" readonly="1"/>
+                <field name="available_qty" readonly="1"/>
+                <field name="order_line_id" optional="show"
+                       options="{'no_create': True, 'no_open': True}"/>
                 <field name="note"/>
                 <field name="recorded_by_id" readonly="1" optional="hide"/>
                 <field name="recorded_at" readonly="1" optional="hide"/>
@@ -707,33 +709,66 @@
                         </section>
 
                         <section class="wof_sec wof_sec_execution">
-                            <group>
-                                <group>
+                            <div class="wof_order_step_head"><h2>التنفيذ</h2><p>تابع تقدم كل خدمة وفنييها، وراجع أصناف المخزون، وسجّل أي مادة إضافية استُهلكت.</p></div>
+
+                            <div class="wof_ex_kpis">
+                                <div class="wof_ex_kpi is-progress">
+                                    <small>تقدم التنفيذ</small>
                                     <field name="execution_progress" widget="progressbar" readonly="1"/>
-                                    <field name="execution_started_at" readonly="1"/>
-                                    <field name="execution_completed_at" readonly="1"/>
+                                </div>
+                                <div class="wof_ex_kpi"><small>بدء التنفيذ</small><field name="execution_started_at" readonly="1"/></div>
+                                <div class="wof_ex_kpi"><small>انتهاء التنفيذ</small><field name="execution_completed_at" readonly="1"/></div>
+                                <div class="wof_ex_kpi" invisible="',completion_date,' in wof_hidden_fields">
+                                    <small>تاريخ الإنجاز</small>
                                     <field name="completion_date"
                                            readonly="state not in ('quality', 'ready')"
-                                           invisible="',completion_date,' in wof_hidden_fields"
                                            required="',completion_date,' in wof_required_fields and state == 'ready'"/>
-                                </group>
-                                <group>
-                                    <field name="execution_notes"
-                                           readonly="state not in ('in_progress', 'quality')"/>
-                                </group>
-                            </group>
-                            <separator string="تقدم الخدمات"/>
-                            <field name="line_ids" mode="tree,form"
-                                   readonly="state != 'in_progress'"
-                                   context="{'tree_view_ref': 'yousentech_wo_v4.view_wof_installation_order_line_execution_tree'}"/>
-                            <div invisible="not wof_uses_stock">
-                                <separator string="أصناف المخزون من الخدمات"/>
-                                <field name="stock_summary_html" nolabel="1" readonly="1"/>
+                                </div>
                             </div>
-                            <separator string="مواد إضافية"/>
-                            <p class="text-muted mb-2">لأي مادة استُهلكت خارج أصناف الخدمات أعلاه (مثل منظف أو رول إضافي). تُضاف لأمر البيع وتُصرف مع الشحنة عند التسليم. ربطها بخدمة اختياري للتوضيح فقط.</p>
-                            <field name="material_line_ids" mode="tree"
-                                   readonly="state != 'in_progress'"/>
+
+                            <div class="wof_ex_card">
+                                <div class="wof_ex_card_head">
+                                    <h3><i class="fa fa-tasks" title="الخدمات"/> تقدم الخدمات</h3>
+                                    <span class="wof_ex_hint">يُعدَّل أثناء «قيد التنفيذ»؛ تقدم منطقة الخدمة يُحسب من أجزائها في كارد الخدمة.</span>
+                                </div>
+                                <field name="line_ids" mode="tree,form" nolabel="1"
+                                       readonly="state != 'in_progress'"
+                                       context="{'tree_view_ref': 'yousentech_wo_v4.view_wof_installation_order_line_execution_tree'}"/>
+                            </div>
+
+                            <div class="wof_ex_grid">
+                                <div class="wof_ex_card" invisible="not wof_uses_stock">
+                                    <div class="wof_ex_card_head">
+                                        <h3><i class="fa fa-cubes" title="المخزون"/> أصناف المخزون من الخدمات</h3>
+                                        <span class="wof_ex_tag">تلقائي</span>
+                                    </div>
+                                    <field name="stock_summary_html" nolabel="1" readonly="1"/>
+                                </div>
+                                <div class="wof_ex_card">
+                                    <div class="wof_ex_card_head">
+                                        <h3><i class="fa fa-sticky-note-o" title="ملاحظات"/> ملاحظات التنفيذ</h3>
+                                    </div>
+                                    <field name="execution_notes" nolabel="1" class="wof_ex_notes"
+                                           placeholder="ما يحتاج المشرف أو فحص الجودة معرفته…"
+                                           readonly="state not in ('in_progress', 'quality')"/>
+                                </div>
+                            </div>
+
+                            <div class="wof_ex_card is-extra">
+                                <div class="wof_ex_card_head">
+                                    <h3><i class="fa fa-plus-square-o" title="مواد إضافية"/> مواد إضافية</h3>
+                                    <span class="wof_ex_tag is-soft">اختياري</span>
+                                </div>
+                                <div class="wof_ex_callout">
+                                    <i class="fa fa-info-circle" title="معلومة"/>
+                                    <div>
+                                        <b>متى أستخدمها؟</b> لأي مادة استُهلكت خارج أصناف الخدمات (مثل منظف، رول إضافي، شريط حواف).
+                                        <br/>تُضاف لأمر البيع بسعر صفر وتُصرف مع الشحنة عند التسليم. الصف الأحمر يعني أن المتاح في الموقع أقل من الكمية.
+                                    </div>
+                                </div>
+                                <field name="material_line_ids" mode="tree" nolabel="1"
+                                       readonly="state != 'in_progress'"/>
+                            </div>
                         </section>
 
                         <section class="wof_sec wof_sec_quality_delivery">

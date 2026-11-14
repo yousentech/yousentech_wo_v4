@@ -73,6 +73,18 @@ class WofOrderStockLocation(models.Model):
             order.stock_location_id = location or ptype.default_location_src_id \
                 or (ptype.warehouse_id.lot_stock_id if ptype else False)
 
+    def _wof_product_choices(self, products):
+        """Products for a picker with what is free in the order's location."""
+        self.ensure_one()
+        location = self._wof_stock_location()
+        result = []
+        for product in products:
+            stocked = product.type == 'product'
+            free = (product.with_context(location=location.id) if location else product).free_qty if stocked else 0.0
+            result.append({'id': product.id, 'name': product.display_name, 'stocked': stocked,
+                           'available': round(free, 3), 'uom': product.uom_id.name or ''})
+        return result
+
     def _wof_stock_location(self):
         self.ensure_one()
         return self.stock_location_id or self.picking_type_id.default_location_src_id \
@@ -186,28 +198,43 @@ class WofOrderStockSummary(models.Model):
                                      sanitize=False)
 
     @api.depends('line_ids.film_product_id', 'line_ids.film_product_qty', 'line_ids.part_line_ids.product_id',
-                 'line_ids.part_line_ids.product_qty', 'stock_location_id')
+                 'line_ids.part_line_ids.product_qty', 'stock_location_id', 'material_line_ids.quantity')
     def _compute_stock_summary_html(self):
         from markupsafe import Markup, escape
         for order in self:
             rows = []
+            totals = {}
+            for line in order.line_ids.filtered('film_uses_inventory'):
+                for product, qty in line._wof_stock_needs():
+                    totals[product] = totals.get(product, 0.0) + qty
+            for material in order.material_line_ids.filtered('product_id'):
+                totals[material.product_id] = totals.get(material.product_id, 0.0) + (material.quantity or 0.0)
             for line in order.line_ids.filtered('film_uses_inventory'):
                 if line.part_line_ids:
                     items = [('%s / %s' % (line.car_part_id.name, part.part_id.name), part.product_id, part.product_qty)
                              for part in line.part_line_ids]
                 else:
                     items = [(line.car_part_id.name, line.film_product_id, line.film_product_qty)]
+                location = order._wof_stock_location()
                 for label, product, qty in items:
-                    rows.append(Markup('<tr><td>%s</td><td>%s</td><td>%s</td></tr>') % (
+                    free = None
+                    if product and product.type == 'product':
+                        free = (product.with_context(location=location.id) if location else product).free_qty
+                    # Lines sharing a product draw on the same stock: compare the total.
+                    short = free is not None and qty and totals.get(product, qty) > free
+                    rows.append(Markup('<tr class="%s"><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>') % (
+                        'is-short' if short else ('is-zero' if not qty else ''),
                         escape(label or ''),
-                        escape(product.display_name) if product else Markup('<span class="text-warning">غير محدد</span>'),
-                        qty or 0))
+                        escape(product.display_name) if product else Markup('<span class="wof_ex_warn">غير محدد</span>'),
+                        Markup('<span class="wof_ex_warn">0 — حدّد الكمية</span>') if not qty else qty,
+                        '—' if free is None else Markup('<span class="%s">%s</span>') % (
+                            'wof_ex_bad' if short else 'wof_ex_ok', round(free, 3))))
             if not rows:
                 order.stock_summary_html = Markup('<p class="text-muted">لا تصرف خدمات هذا الأمر من المخزون.</p>')
                 continue
             location = order._wof_stock_location()
             order.stock_summary_html = Markup(
                 '<table class="table table-sm wof_stock_sum"><thead><tr><th>الخدمة / الجزء</th><th>الصنف</th>'
-                '<th>الكمية</th></tr></thead><tbody>%s</tbody></table>'
+                '<th>الكمية</th><th>المتاح في الموقع</th></tr></thead><tbody>%s</tbody></table>'
                 '<small class="text-muted">تُصرف من «%s» عبر شحنة أمر البيع عند التسليم. عدّل الصنف والكمية من كارد الخدمة.</small>'
             ) % (Markup('').join(rows), escape(location.complete_name if location else 'المخزن'))

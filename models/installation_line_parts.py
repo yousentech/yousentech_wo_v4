@@ -242,6 +242,7 @@ class WofInstallationOrderLineParts(models.Model):
             },
             'can_commercial': lead and order.state in ('draft', 'scheduled'),
             'tint_warning': self.tint_warning if self.has_tint_warning else '',
+            'stock_location': (order._wof_stock_location().complete_name or '') if self.film_uses_inventory else '',
             'options': {
                 'available': [{'id': o.id, 'name': o.name} for o in self.available_option_ids.filtered('active')],
                 'selected': self.option_ids.ids,
@@ -261,7 +262,7 @@ class WofInstallationOrderLineParts(models.Model):
         if not defined:
             products |= self.env['product.product'].search(
                 [('type', '=', 'product'), ('company_id', 'in', [self.company_id.id, False])], limit=200, order='name')
-        return [{'id': p.id, 'name': p.display_name} for p in products]
+        return self.order_id._wof_product_choices(products)
 
     def wof_line_update(self, vals):
         """Change one service row from the order screen (normal write: every rule applies)."""

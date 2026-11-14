@@ -115,3 +115,7 @@
 .wof_sopts_req { margin-inline-start: 6px; padding: 0 7px; border-radius: 99px; background: #FEF3C7; color: #B45309; font-size: .72rem; }
 .wof_sopts_list { display: flex; flex-wrap: wrap; gap: 6px; }
 .wof_sopts_hint { flex-basis: 100%; color: #B45309; }
+.wof_sstock { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 1px 8px; border-radius: 99px; font-size: .72rem; font-weight: 700; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.wof_sstock.is-ok { background: #ECFDF5; color: #047857; }
+.wof_sstock.is-bad { background: #FEE2E2; color: #B91C1C; }
+.wof_sedit_f .wof_sstock, td .wof_sstock { display: flex; width: fit-content; }

@@ -33,6 +33,26 @@ class WofInstallationMaterialLine(models.Model):
         store=True, readonly=True,
     )
     note = fields.Char(string="ملاحظة")
+    available_qty = fields.Float(string="المتاح في الموقع", compute='_compute_available_qty',
+                                 digits='Product Unit of Measure')
+    is_short = fields.Boolean(compute='_compute_available_qty')
+
+    @api.depends('product_id', 'quantity', 'order_id.stock_location_id')
+    def _compute_available_qty(self):
+        for line in self:
+            product = line.product_id
+            if not product or product.type != 'product' or not line.order_id:
+                line.available_qty = 0.0
+                line.is_short = False
+                continue
+            location = line.order_id._wof_stock_location()
+            free = (product.with_context(location=location.id) if location else product).free_qty
+            line.available_qty = free
+            # Compare with everything the order takes of this product (services + materials).
+            needed = sum(q for order_line in line.order_id.line_ids
+                         for prod, q in order_line._wof_stock_needs() if prod == product)
+            needed += sum(line.order_id.material_line_ids.filtered(lambda rec: rec.product_id == product).mapped('quantity'))
+            line.is_short = needed > free
     recorded_by_id = fields.Many2one(
         'res.users', string="سجلها", required=True, readonly=True,
         default=lambda self: self.env.user, ondelete='restrict',
