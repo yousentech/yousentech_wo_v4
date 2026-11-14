@@ -44,6 +44,8 @@ class WofInstallationOrderStock(models.Model):
         for line in self.line_ids:
             for product, qty in line._wof_stock_needs():
                 needed[product] = needed.get(product, 0.0) + (qty or 0.0)
+        for extra in self.extra_line_ids:
+            needed[extra.product_id] = needed.get(extra.product_id, 0.0) + (extra.quantity or 0.0)
         shortages = []
         for product, qty in needed.items():
             if product.type != 'product':

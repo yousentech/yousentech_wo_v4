@@ -480,6 +480,7 @@
                                decoration-info="payment_status == 'refunded'"/>
                         <span class="wof_hero_space"/>
                         <div class="wof_hero_fig"><small>الخدمات</small><field name="amount_gross" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig" invisible="not amount_extras"><small>الملحقات</small><field name="amount_extras" widget="monetary" readonly="1"/></div>
                         <div class="wof_hero_fig is-discount"><small>الخصم</small><field name="amount_discount" widget="monetary" readonly="1"/></div>
                         <div class="wof_hero_fig"><small>الضريبة</small><field name="amount_tax" widget="monetary" readonly="1"/></div>
                         <div class="wof_hero_fig is-total"><small>الإجمالي</small><field name="amount_total" widget="monetary" readonly="1"/></div>
@@ -680,32 +681,99 @@
                                     <field name="currency_id"/>
                                 </tree>
                             </field>
+
+                            <div class="wof_ex_card is-sales">
+                                <div class="wof_ex_card_head">
+                                    <h3><i class="fa fa-shopping-bag" title="ملحقات"/> ملحقات ومبيعات إضافية</h3>
+                                    <span class="wof_ex_hint">أي صنف يُباع مع الأمر غير الخدمات (خدمة أو صنف مخزني) بسعر بيع، ويُضاف للفاتورة. يُعدَّل حتى تأكيد أمر البيع.</span>
+                                </div>
+                                <field name="extra_line_ids" nolabel="1"
+                                       readonly="state in ('delivered', 'cancelled') or sale_order_id">
+                                    <tree editable="bottom" decoration-danger="is_short">
+                                        <field name="company_id" column_invisible="True"/>
+                                        <field name="currency_id" column_invisible="True"/>
+                                        <field name="is_short" column_invisible="True"/>
+                                        <field name="product_type" column_invisible="True"/>
+                                        <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="name" optional="show"/>
+                                        <field name="quantity"/>
+                                        <field name="uom_id" readonly="1" optional="show"/>
+                                        <field name="available_qty" readonly="1" invisible="product_type != 'product'"/>
+                                        <field name="price_unit"/>
+                                        <field name="tax_ids" widget="many2many_tags" options="{'no_create': True}" optional="show"/>
+                                        <field name="amount_total" readonly="1" sum="المجموع"/>
+                                    </tree>
+                                </field>
+                            </div>
                         </section>
 
                         <section class="wof_sec wof_sec_intake">
-                            <div class="wof_order_section_intro">
-                                وثّق حالة السيارة قبل بدء العمل. عند وجود ضرر سابق تصبح الملاحظة إلزامية.
+                            <div class="wof_order_step_head"><h2>الاستلام والفحص</h2><p>وثّق حالة السيارة عند وصولها وقبل أي عمل، لحماية المركز والعميل.</p></div>
+
+                            <div class="wof_st_guide">
+                                <div class="wof_st_who"><i class="fa fa-user-circle-o" title="المسؤول"/> <span>يقوم بها: <b>الاستقبال أو المشرف</b></span></div>
+                                <span class="wof_st_pill is-now" invisible="state != 'scheduled'">الآن</span>
+                                <span class="wof_st_pill is-done" invisible="state in ('draft', 'scheduled', 'cancelled')">تم الاستلام</span>
+                                <span class="wof_st_pill is-later" invisible="state != 'draft'">بعد تأكيد الموعد / الوصول</span>
+                                <ol class="wof_st_steps">
+                                    <li><b>سجّل قراءة العداد</b> وحالة اللواصق إن طُلبت.</li>
+                                    <li><b>اختر حالة السيارة.</b> عند وجود ضرر سابق أو حاجة لمراجعة تصبح الملاحظة إلزامية.</li>
+                                    <li><b>صوّر السيارة</b> من كل الجهات قبل البدء.</li>
+                                    <li>اضغط <b>«إكمال الاستلام والفحص»</b> لتنتقل السيارة للتنفيذ.</li>
+                                </ol>
                             </div>
-                            <group>
-                                <group>
-                                    <field name="odometer"
-                                           readonly="state not in ('draft', 'scheduled')"
-                                   invisible="',odometer,' in wof_hidden_fields"
-                                   required="',odometer,' in wof_required_fields and state == 'scheduled'"/>
-                                    <field name="intake_condition"
+
+                            <div class="wof_ex_grid is-even">
+                                <div class="wof_ex_card">
+                                    <div class="wof_ex_card_head"><h3><i class="fa fa-car" title="الحالة"/> حالة السيارة</h3></div>
+                                    <field name="intake_condition" widget="radio" nolabel="1" class="wof_st_radio"
                                            readonly="state not in ('draft', 'scheduled')"/>
-                                    <field name="sticker_removal"
-                                           readonly="state not in ('draft', 'scheduled')"
-                                           invisible="',sticker_removal,' in wof_hidden_fields"
-                                           required="',sticker_removal,' in wof_required_fields and state == 'scheduled'"/>
-                                    <field name="intake_notes"
+                                    <div class="wof_st_alert" invisible="intake_condition not in ('existing_damage', 'needs_review')">
+                                        <i class="fa fa-exclamation-triangle" title="تنبيه"/> صف الضرر أو سبب المراجعة بدقة (المكان والنوع)، فهي إلزامية.
+                                    </div>
+                                    <label for="intake_notes" string="ملاحظات الاستلام" class="wof_st_label"/>
+                                    <field name="intake_notes" nolabel="1" class="wof_ex_notes"
+                                           placeholder="مثال: خدش في الباب الخلفي الأيمن، شرخ صغير في الزجاج الأمامي…"
                                            readonly="state not in ('draft', 'scheduled')"/>
-                                </group>
-                                <group>
-                                    <field name="arrival_confirmed_at" readonly="1"/>
-                                    <field name="intake_completed_at" readonly="1"/>
-                                </group>
-                            </group>
+                                </div>
+                                <div class="wof_ex_card">
+                                    <div class="wof_ex_card_head"><h3><i class="fa fa-tachometer" title="العداد"/> العداد واللواصق</h3></div>
+                                    <div class="wof_st_fields">
+                                        <div invisible="',odometer,' in wof_hidden_fields">
+                                            <label for="odometer" string="قراءة العداد (كم)" class="wof_st_label"/>
+                                            <field name="odometer" nolabel="1"
+                                                   readonly="state not in ('draft', 'scheduled')"
+                                                   required="',odometer,' in wof_required_fields and state == 'scheduled'"/>
+                                        </div>
+                                        <div invisible="',sticker_removal,' in wof_hidden_fields">
+                                            <label for="sticker_removal" string="إزالة اللواصق" class="wof_st_label"/>
+                                            <field name="sticker_removal" widget="radio" nolabel="1" class="wof_st_radio"
+                                                   readonly="state not in ('draft', 'scheduled')"
+                                                   required="',sticker_removal,' in wof_required_fields and state == 'scheduled'"/>
+                                        </div>
+                                    </div>
+                                    <p class="text-muted small mb-0" invisible="',odometer,' not in wof_hidden_fields or ',sticker_removal,' not in wof_hidden_fields">العداد واللواصق مخفية في «إعدادات الحقول» بالتهيئة.</p>
+                                    <div class="wof_st_times">
+                                        <div><small>تأكيد الوصول</small><field name="arrival_confirmed_at" readonly="1"/></div>
+                                        <div><small>إكمال الاستلام</small><field name="intake_completed_at" readonly="1"/></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="wof_ex_card">
+                                <div class="wof_ex_card_head">
+                                    <h3><i class="fa fa-camera" title="صور"/> صور السيارة قبل التنفيذ</h3>
+                                    <span class="wof_ex_hint">تُرفع قبل إكمال الاستلام، وتظهر أيضًا في «الصور والمرفقات».</span>
+                                </div>
+                                <field name="before_attachment_ids" widget="many2many_binary" nolabel="1"
+                                       readonly="state not in ('draft', 'scheduled')"/>
+                            </div>
+
+                            <div class="wof_st_action" invisible="state != 'scheduled'">
+                                <button name="action_complete_intake" type="object" string="إكمال الاستلام والفحص" icon="fa-check"
+                                        class="btn btn-primary" groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor"/>
+                                <span>بعدها يبدأ الفني التنفيذ من قسم «التنفيذ».</span>
+                            </div>
                         </section>
 
                         <section class="wof_sec wof_sec_execution">
@@ -772,32 +840,100 @@
                         </section>
 
                         <section class="wof_sec wof_sec_quality_delivery">
-                            <group>
-                                <group string="فحص الجودة">
-                                    <field name="quality_passed"
-                                           readonly="state != 'quality'"/>
-                                    <field name="quality_notes"
-                                           readonly="state != 'quality'"/>
-                                    <field name="quality_checked_at" readonly="1"/>
-                                    <field name="quality_checked_by_id" readonly="1"/>
-                                </group>
-                                <group string="التسليم">
-                                    <field name="customer_approved"
-                                           readonly="state != 'ready'"/>
-                                    <field name="customer_approval_reference"
-                                           readonly="state != 'ready'"/>
-                                    <field name="delivery_notes"
-                                           readonly="state != 'ready'"/>
-                                    <field name="delivered_at" readonly="1"/>
-                                    <field name="delivered_by_id" readonly="1"/>
-                                </group>
-                            </group>
-                            <group string="الضمان والروابط">
-                                <field name="warranty_status" readonly="1"/>
-                                <field name="warranty_reference" readonly="1"/>
-                                <field name="sale_order_id" readonly="1"/>
-                                <field name="invoice_id" readonly="1"/>
-                            </group>
+                            <div class="wof_order_step_head"><h2>الجودة والتسليم</h2><p>مرحلتان متتاليتان: يفحص المشرف العمل ويعتمده، ثم يسلّم الاستقبال السيارة للعميل بعد موافقته.</p></div>
+
+                            <div class="wof_ex_grid is-even">
+                                <!-- Quality -->
+                                <div class="wof_ex_card wof_st_stage">
+                                    <div class="wof_ex_card_head">
+                                        <h3><span class="wof_st_num">1</span> فحص الجودة</h3>
+                                        <span class="wof_st_pill is-now" invisible="state != 'quality'">الآن</span>
+                                        <span class="wof_st_pill is-done" invisible="state not in ('ready', 'delivered')">اجتاز الفحص</span>
+                                        <span class="wof_st_pill is-later" invisible="state in ('quality', 'ready', 'delivered')">بعد انتهاء التنفيذ</span>
+                                    </div>
+                                    <div class="wof_st_who"><i class="fa fa-user-circle-o" title="المسؤول"/> <span>يقوم به: <b>المشرف</b></span></div>
+                                    <ol class="wof_st_steps">
+                                        <li>افحص كل خدمة على السيارة وصوّر النتيجة.</li>
+                                        <li>إذا كان العمل سليمًا فعّل <b>«اجتاز فحص الجودة»</b> ثم <b>«اعتماد الجودة»</b>.</li>
+                                        <li>إذا وُجد ما يُصلَح اكتب الملاحظة ثم <b>«إعادة للتنفيذ»</b>.</li>
+                                    </ol>
+                                    <div class="wof_st_toggle">
+                                        <field name="quality_passed" widget="boolean_toggle" nolabel="1" readonly="state != 'quality'"/>
+                                        <span>اجتاز فحص الجودة</span>
+                                    </div>
+                                    <label for="quality_notes" string="ملاحظات الجودة" class="wof_st_label"/>
+                                    <field name="quality_notes" nolabel="1" class="wof_ex_notes"
+                                           placeholder="ما يجب إصلاحه، أو ملاحظة على جودة التنفيذ…" readonly="state != 'quality'"/>
+                                    <div class="wof_st_times">
+                                        <div><small>وقت الفحص</small><field name="quality_checked_at" readonly="1"/></div>
+                                        <div><small>فحصها</small><field name="quality_checked_by_id" readonly="1" options="{'no_open': True}"/></div>
+                                    </div>
+                                    <div class="wof_st_action is-inline" invisible="state != 'quality'">
+                                        <button name="action_pass_quality" type="object" string="اعتماد الجودة" icon="fa-check"
+                                                class="btn btn-primary" groups="yousentech_wo_v4.group_wo_supervisor"/>
+                                        <button name="action_return_to_execution" type="object" string="إعادة للتنفيذ" icon="fa-undo"
+                                                class="btn btn-light" groups="yousentech_wo_v4.group_wo_supervisor"/>
+                                    </div>
+                                </div>
+
+                                <!-- Delivery -->
+                                <div class="wof_ex_card wof_st_stage">
+                                    <div class="wof_ex_card_head">
+                                        <h3><span class="wof_st_num">2</span> التسليم للعميل</h3>
+                                        <span class="wof_st_pill is-now" invisible="state != 'ready'">الآن</span>
+                                        <span class="wof_st_pill is-done" invisible="state != 'delivered'">تم التسليم</span>
+                                        <span class="wof_st_pill is-later" invisible="state in ('ready', 'delivered')">بعد اعتماد الجودة</span>
+                                    </div>
+                                    <div class="wof_st_who"><i class="fa fa-user-circle-o" title="المسؤول"/> <span>يقوم به: <b>الاستقبال</b></span></div>
+                                    <ol class="wof_st_steps">
+                                        <li>اعرض العمل على العميل، واطبع أمر التركيب ليوقّع عليه (يتضمن تنبيهات درجات اللون إن وُجدت).</li>
+                                        <li>فعّل <b>«موافقة العميل»</b> وسجّل مرجعها (رقم الإيصال أو اسم المستلم).</li>
+                                        <li>اضغط <b>«تسليم السيارة وإغلاق الأمر»</b>: يُصرف المخزون وتُعتمد العمولة.</li>
+                                    </ol>
+                                    <div class="wof_st_toggle">
+                                        <field name="customer_approved" widget="boolean_toggle" nolabel="1" readonly="state != 'ready'"/>
+                                        <span>موافقة العميل على الأعمال والتسليم</span>
+                                    </div>
+                                    <div class="wof_st_fields">
+                                        <div>
+                                            <label for="customer_approval_reference" string="مرجع الموافقة" class="wof_st_label"/>
+                                            <field name="customer_approval_reference" nolabel="1" placeholder="رقم الإيصال أو اسم المستلم"
+                                                   readonly="state != 'ready'"/>
+                                        </div>
+                                    </div>
+                                    <label for="delivery_notes" string="ملاحظات التسليم" class="wof_st_label"/>
+                                    <field name="delivery_notes" nolabel="1" class="wof_ex_notes"
+                                           placeholder="تعليمات العناية للعميل، موعد المراجعة…" readonly="state != 'ready'"/>
+                                    <div class="wof_st_times">
+                                        <div><small>وقت التسليم</small><field name="delivered_at" readonly="1"/></div>
+                                        <div><small>سلّمها</small><field name="delivered_by_id" readonly="1" options="{'no_open': True}"/></div>
+                                    </div>
+                                    <div class="wof_st_action is-inline" invisible="state != 'ready'">
+                                        <button name="action_deliver" type="object" string="تسليم السيارة وإغلاق الأمر" icon="fa-flag-checkered"
+                                                class="btn btn-primary" groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor"/>
+                                        <button name="action_print_order" type="object" string="طباعة أمر التركيب" icon="fa-print" class="btn btn-light"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="wof_ex_card">
+                                <div class="wof_ex_card_head">
+                                    <h3><i class="fa fa-camera" title="صور"/> صور السيارة بعد التنفيذ</h3>
+                                    <span class="wof_ex_hint">تُرفع أثناء التنفيذ أو الفحص.</span>
+                                </div>
+                                <field name="after_attachment_ids" widget="many2many_binary" nolabel="1"
+                                       readonly="state not in ('in_progress', 'quality')"/>
+                            </div>
+
+                            <div class="wof_ex_card">
+                                <div class="wof_ex_card_head"><h3><i class="fa fa-shield" title="الضمان"/> الضمان والمستندات</h3></div>
+                                <div class="wof_st_times is-wide">
+                                    <div><small>حالة الضمان</small><field name="warranty_status" readonly="1"/></div>
+                                    <div><small>مرجع الضمان</small><field name="warranty_reference" readonly="1"/></div>
+                                    <div><small>أمر البيع</small><field name="sale_order_id" readonly="1"/></div>
+                                    <div><small>الفاتورة</small><field name="invoice_id" readonly="1"/></div>
+                                </div>
+                            </div>
                         </section>
 
                         <section class="wof_sec wof_sec_billing">

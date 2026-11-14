@@ -698,3 +698,28 @@ class TestOrderBilling(TransactionCase):
         # Commercial changes stay locked.
         with self.assertRaises(ValidationError):
             order.write({'line_ids': [(1, line.id, {'quantity': 2})]})
+
+    # ------------------------------------------------ accessories / extra sales
+    def test_extras_priced_on_total_and_invoice(self):
+        self.set_invoice_mode('manual')
+        order = self.make_order()
+        cover = self.root['product.product'].create({'name': 'غطاء مقاعد', 'type': 'product', 'list_price': 150, 'sale_ok': True})
+        wash = self.root['product.product'].create({'name': 'غسيل', 'type': 'service', 'list_price': 50, 'sale_ok': True})
+        Extra = self.env['wof.installation.extra.line']
+        Extra.create([{'order_id': order.id, 'product_id': cover.id, 'quantity': 2, 'price_unit': 150},
+                      {'order_id': order.id, 'product_id': wash.id, 'quantity': 1, 'price_unit': 50}])
+        self.assertEqual(order.amount_extras, 350)
+        self.assertEqual(order.amount_total, 500 + 350)
+        self.assertEqual(order.amount_gross, 500)
+        order.action_confirm_arrival()
+        order.action_create_invoice()
+        lines = order.invoice_id.invoice_line_ids.filtered(lambda line: line.display_type == 'product')
+        self.assertEqual(lines.filtered(lambda line: line.product_id == cover).quantity, 2)
+        self.assertEqual(lines.filtered(lambda line: line.product_id == cover).price_unit, 150)
+        self.assertIn(wash, lines.product_id)
+        self.assertEqual(order.invoice_id.amount_untaxed, 850)
+        # Locked once the sale order is confirmed.
+        with self.assertRaises(ValidationError):
+            order.extra_line_ids[:1].quantity = 3
+        with self.assertRaises(ValidationError):
+            Extra.create({'order_id': order.id, 'product_id': wash.id, 'quantity': 1, 'price_unit': 50})

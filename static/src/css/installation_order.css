@@ -409,3 +409,38 @@
     .o_form_view.wof_order_form .wof_ex_kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .o_form_view.wof_order_form .wof_ex_grid { grid-template-columns: 1fr; }
 }
+.o_form_view.wof_order_form .wof_sec_services .wof_ex_card.is-sales { margin-top: 18px; border-inline-start: 4px solid #0369A1; }
+.o_form_view.wof_order_form .wof_sec_services .wof_ex_card.is-sales .wof_ex_card_head h3 .fa { color: #0369A1; }
+
+/* ============================================ stage guides (intake, quality, delivery) */
+.o_form_view.wof_order_form .wof_st_guide { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 16px; padding: 14px 18px; border-radius: 16px; background: var(--wo-teal-tint); border: 1px solid #CFE3E3; }
+.o_form_view.wof_order_form .wof_st_who { display: flex; align-items: center; gap: 6px; color: var(--wo-ink); font-size: .9rem; }
+.o_form_view.wof_order_form .wof_st_who .fa { color: var(--wo-teal); font-size: 1.1rem; }
+.o_form_view.wof_order_form .wof_st_steps { flex-basis: 100%; margin: 4px 0 0; padding-inline-start: 22px; color: #334155; line-height: 1.9; font-size: .9rem; }
+.o_form_view.wof_order_form .wof_st_stage .wof_st_steps { margin: 6px 0 12px; padding: 10px 14px 10px 10px; padding-inline-start: 30px; border-radius: 12px; background: var(--wo-ground); }
+.o_form_view.wof_order_form .wof_st_pill { padding: 2px 10px; border-radius: 99px; font-size: .74rem; font-weight: 700; }
+.o_form_view.wof_order_form .wof_st_pill.is-now { background: #FEF3C7; color: #92400E; }
+.o_form_view.wof_order_form .wof_st_pill.is-done { background: #DCFCE7; color: #166534; }
+.o_form_view.wof_order_form .wof_st_pill.is-later { background: #F1F5F9; color: #64748B; }
+.o_form_view.wof_order_form .wof_st_num { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--wo-teal); color: #FFFFFF; font-size: .8rem; }
+.o_form_view.wof_order_form .wof_ex_grid.is-even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.o_form_view.wof_order_form .wof_st_label { display: block; margin: 12px 0 4px; color: var(--wo-muted); font-weight: 600; font-size: .82rem; }
+.o_form_view.wof_order_form .wof_st_radio .o_radio_item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin-bottom: 6px; border: 1px solid var(--wo-line); border-radius: 10px; background: #FFFFFF; }
+.o_form_view.wof_order_form .wof_st_radio .o_radio_item .form-check-input { float: none; margin: 0; flex: none; }
+.o_form_view.wof_order_form .wof_st_radio .o_radio_item .form-check-label { margin: 0; }
+.o_form_view.wof_order_form .wof_st_radio .o_radio_item:has(input:checked) { border-color: var(--wo-teal); background: var(--wo-teal-tint); font-weight: 700; }
+.o_form_view.wof_order_form .wof_st_alert { margin-top: 8px; padding: 8px 12px; border-radius: 10px; background: #FEF3C7; color: #92400E; font-size: .85rem; }
+.o_form_view.wof_order_form .wof_st_fields { display: grid; gap: 4px; }
+.o_form_view.wof_order_form .wof_st_fields input { border: 1px solid var(--wo-line); border-radius: 8px; padding: 6px 10px; background: var(--wo-ground); }
+.o_form_view.wof_order_form .wof_st_toggle { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px dashed #BFDDDA; font-weight: 700; color: var(--wo-ink); }
+.o_form_view.wof_order_form .wof_st_times { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--wo-line-2); }
+.o_form_view.wof_order_form .wof_st_times.is-wide { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 0; padding-top: 0; border-top: 0; }
+.o_form_view.wof_order_form .wof_st_times > div { display: flex; flex-direction: column; gap: 2px; }
+.o_form_view.wof_order_form .wof_st_times small { color: var(--wo-muted); font-size: .76rem; }
+.o_form_view.wof_order_form .wof_st_times .o_field_widget { font-weight: 700; color: var(--wo-ink); min-height: 1.2em; }
+.o_form_view.wof_order_form .wof_st_action { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 4px 0 16px; padding: 12px 16px; border-radius: 14px; background: #ECFDF5; color: #166534; font-weight: 600; }
+.o_form_view.wof_order_form .wof_st_action.is-inline { margin: 14px 0 0; background: transparent; padding: 0; }
+.o_form_view.wof_order_form .wof_st_action .btn-primary { background: var(--wo-teal); border-color: var(--wo-teal); }
+@media (max-width: 1100px) {
+    .o_form_view.wof_order_form .wof_ex_grid.is-even, .o_form_view.wof_order_form .wof_st_times.is-wide { grid-template-columns: 1fr; }
+}

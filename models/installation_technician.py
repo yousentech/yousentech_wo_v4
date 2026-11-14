@@ -138,10 +138,11 @@ class WofInstallationOrderTeam(models.Model):
                         names.append(name)
             order.technician_names = '، '.join(names) or False
 
-    @api.depends('amount_untaxed', 'amount_discount', 'line_ids', 'amount_total', 'amount_paid')
+    @api.depends('amount_untaxed', 'amount_discount', 'line_ids', 'amount_total', 'amount_paid', 'amount_extras')
     def _compute_order_summary(self):
         for order in self:
-            order.amount_gross = order.amount_untaxed + order.amount_discount
+            # Services before discount (accessories shown apart).
+            order.amount_gross = order.amount_untaxed - order.amount_extras + order.amount_discount
             order.service_count = len(order.line_ids)
             order.wof_paid_percent = min(100.0, order.amount_paid * 100.0 / order.amount_total) \
                 if order.amount_total > 0 else 0.0

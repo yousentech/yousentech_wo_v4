@@ -67,6 +67,15 @@
                                 </tr>
                             </t>
                         </t>
+                        <t t-if="o.extra_line_ids">
+                            <tr style="background: #F1F5F9;"><td colspan="5"><b>ملحقات ومبيعات إضافية</b></td></tr>
+                            <tr t-foreach="o.extra_line_ids" t-as="extra">
+                                <td><span t-esc="extra.name or extra.product_id.display_name"/></td>
+                                <td colspan="2"><span t-esc="extra.quantity"/> <span t-esc="extra.uom_id.name or ''"/></td>
+                                <td/>
+                                <td class="text-start"><span t-field="extra.amount_total"/></td>
+                            </tr>
+                        </t>
                     </tbody>
                 </table>
 

@@ -169,6 +169,23 @@
         <field name="domain_force">[(1, '=', 1)]</field>
         <field name="groups" eval="[(4, ref('group_wo_user')), (4, ref('group_wo_supervisor'))]"/>
     </record>
+    <record id="installation_extra_line_company_rule" model="ir.rule">
+        <field name="name">ملحقات أوامر التركيب: حسب شركات المستخدم</field>
+        <field name="model_id" ref="model_wof_installation_extra_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="installation_extra_technician_assignment_rule" model="ir.rule">
+        <field name="name">الفني يرى ملحقات أوامره المسندة</field>
+        <field name="model_id" ref="model_wof_installation_extra_line"/>
+        <field name="domain_force">[('order_id.line_ids.technician_ids.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_wo_technician'))]"/>
+    </record>
+    <record id="installation_extra_line_staff_all_rule" model="ir.rule">
+        <field name="name">ملحقات الأوامر: الاستقبال والمشرفون يرون الكل</field>
+        <field name="model_id" ref="model_wof_installation_extra_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_wo_user')), (4, ref('group_wo_supervisor'))]"/>
+    </record>
     <record id="installation_material_line_staff_all_rule" model="ir.rule">
         <field name="name">مواد الأوامر: الاستقبال والمشرفون يرون الكل</field>
         <field name="model_id" ref="model_wof_installation_material_line"/>
