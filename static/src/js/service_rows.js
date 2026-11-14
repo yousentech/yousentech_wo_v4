@@ -126,12 +126,13 @@ export class WofServiceRows extends Component {
             return;
         }
         this.state.open[row.id] = true;
+        this.state.techFor = null;
         await this.loadArea(row.id);
     }
 
     async loadArea(lineId) {
         try {
-            this.state.areas[lineId] = await this.orm.call("wof.installation.order.line", "wof_area_load", [[lineId]]);
+            this.state.areas[lineId] = await this.orm.call("wof.installation.order.line", "wof_line_load", [[lineId]]);
         } catch (error) {
             this.notifyError(error);
         }
@@ -174,6 +175,74 @@ export class WofServiceRows extends Component {
         return this.run(lineId, "wof_area_update", [ids, vals]);
     }
 
+    // ------------------------------------------------- single service row
+    updateLine(lineId, vals) {
+        return this.run(lineId, "wof_line_update", [vals]);
+    }
+
+    onLineSelect(lineId, key, ev) {
+        return this.updateLine(lineId, { [key]: ev.target.value ? Number(ev.target.value) : false });
+    }
+
+    onLineQty(lineId, ev) {
+        return this.updateLine(lineId, { film_product_qty: Number(ev.target.value || 0) });
+    }
+
+    onLineProgress(lineId, ev) {
+        return this.updateLine(lineId, { execution_progress: Math.max(0, Math.min(100, Number(ev.target.value || 0))) });
+    }
+
+    onDiscountType(lineId, ev) {
+        return this.updateLine(lineId, { discount_type: ev.target.value });
+    }
+
+    onDiscountValue(lineId, ev) {
+        // An emptied box clears the discount.
+        return this.updateLine(lineId, { discount_value: ev.target.value === "" ? 0 : Number(ev.target.value) });
+    }
+
+    toggleLineTech(lineId, data, techId) {
+        const ids = data.technician_ids.includes(techId)
+            ? data.technician_ids.filter((i) => i !== techId)
+            : [...data.technician_ids, techId];
+        return this.updateLine(lineId, { technician_ids: ids });
+    }
+
+    /** Tags shown for a service or a part: removable ones (current branch team)
+     * and names only (e.g. a technician who moved to another branch). */
+    techTags(data, holder) {
+        const tags = holder.technician_ids
+            .map((id) => ({ id, name: this.techName(data, id) }))
+            .filter((t) => t.name);
+        const known = new Set(tags.map((t) => t.name));
+        for (const name of (holder.technician_names || "").split("، ")) {
+            if (name && !known.has(name)) {
+                tags.push({ id: null, name });
+            }
+        }
+        return tags;
+    }
+
+    onTeamToggle(lineId, part, techId) {
+        if (part) {
+            return this.toggleTech(lineId, part, techId);
+        }
+        return this.toggleLineTech(lineId, this.state.areas[lineId], techId);
+    }
+
+    pickerKey(lineId, part) {
+        return `${lineId}:${part ? part.id : "line"}`;
+    }
+
+    openPicker(lineId, part) {
+        const key = this.pickerKey(lineId, part);
+        this.state.techFor = this.state.techFor === key ? null : key;
+    }
+
+    isPickerOpen(lineId, part) {
+        return this.state.techFor === this.pickerKey(lineId, part);
+    }
+
     onSelect(lineId, part, key, ev) {
         return this.updatePart(lineId, part, { [key]: ev.target.value ? Number(ev.target.value) : false });
     }
@@ -192,15 +261,6 @@ export class WofServiceRows extends Component {
             ? part.technician_ids.filter((i) => i !== techId)
             : [...part.technician_ids, techId];
         return this.updatePart(lineId, part, { technician_ids: ids });
-    }
-
-    techPicker(lineId, part) {
-        const key = `${lineId}:${part.id}`;
-        this.state.techFor = this.state.techFor === key ? null : key;
-    }
-
-    isTechOpen(lineId, part) {
-        return this.state.techFor === `${lineId}:${part.id}`;
     }
 
     canToggleTech(area, techId) {

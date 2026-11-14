@@ -318,3 +318,12 @@ class TestOrderTechnicians(TransactionCase):
         Orders = self.root['wof.installation.order'].with_user(self.tech_user).with_context(
             allowed_company_ids=[self.company_a.id])
         self.assertTrue(Orders.search([('id', '=', order.id)]))
+
+    def test_line_row_update_and_clear_discount(self):
+        order = self.make_order()
+        line = order.line_ids
+        data = line.wof_line_update({'technician_ids': [self.tech.id, self.tech_2.id]})
+        self.assertEqual(set(data['technician_ids']), {self.tech.id, self.tech_2.id})
+        data = line.wof_line_update({'technician_ids': [self.tech.id]})
+        self.assertEqual(data['technician_ids'], [self.tech.id])
+        self.assertFalse(data['area'])

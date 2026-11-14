@@ -67,3 +67,34 @@
     .wof_srow_cell { display: none !important; }
     .wof_sparts { overflow-x: auto; }
 }
+
+/* open row: tinted so it is clear which service is being edited */
+.wof_srow_main { cursor: pointer; }
+.wof_srow:not(.is-open) .wof_srow_main:hover { background: #FAFCFC; }
+.wof_srow.is-open { border-color: var(--act); box-shadow: 0 4px 14px color-mix(in srgb, var(--act) 18%, transparent); }
+.wof_srow.is-open .wof_srow_main { background: color-mix(in srgb, var(--act) 9%, #FFFFFF); }
+.wof_srow.is-open .wof_srow_btn.is-toggle { background: var(--act); border-color: var(--act); color: #FFFFFF; }
+.wof_srow.is-open .wof_sparts { border-top-color: color-mix(in srgb, var(--act) 30%, #FFFFFF); background: color-mix(in srgb, var(--act) 3%, #FFFFFF); }
+
+/* single-part editing strip */
+.wof_sedit { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 14px 22px; padding: 12px 16px; }
+.wof_sedit_f { display: flex; flex-direction: column; gap: 4px; margin: 0; min-width: 160px; }
+.wof_sedit_f.is-small { min-width: 90px; }
+.wof_sedit_f.is-team { flex: 1 1 260px; }
+.wof_sedit_f > small { color: #5B6B70; font-size: .76rem; font-weight: 700; }
+
+/* technician tags with × */
+.wof_sparts_tag { display: inline-flex; align-items: center; gap: 4px; }
+.wof_sparts_x { border: 0; background: transparent; color: #3F4FC4; font-weight: 800; line-height: 1; padding: 0 2px; cursor: pointer; opacity: .65; }
+.wof_sparts_x:hover { opacity: 1; color: #B91C1C; }
+.wof_sparts_done { margin-inline-start: auto; border: 0; border-radius: 8px; padding: 2px 12px; background: #3F4FC4; color: #FFFFFF; font-size: .78rem; font-weight: 700; cursor: pointer; }
+
+/* footer: discount + advanced */
+.wof_sfoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 16px; border-top: 1px solid #EEF1F1; background: #FFFFFF; }
+.wof_sdisc { display: flex; align-items: center; gap: 8px; }
+.wof_sdisc > small { color: #5B6B70; font-weight: 700; }
+.wof_sdisc_hint { color: #6D28D9 !important; font-weight: 600 !important; white-space: nowrap; }
+.wof_sdisc .wof_sparts_sel.is-tiny { min-width: 70px; width: 80px; }
+.wof_sparts_sel.is-tiny { min-width: 70px; }
+.wof_sadv { margin-inline-start: auto; border: 0; background: transparent; color: #0A5252; font-weight: 600; font-size: .82rem; cursor: pointer; }
+.wof_sadv:hover { text-decoration: underline; }

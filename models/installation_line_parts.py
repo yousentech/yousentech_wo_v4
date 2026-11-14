@@ -205,6 +205,70 @@ class WofInstallationOrderLineParts(models.Model):
             } for p in self.part_line_ids],
         }
 
+    def wof_line_load(self):
+        """Editable data of one service row (any service, area or single part)."""
+        self.ensure_one()
+        order = self.order_id
+        lead = self._wof_is_team_lead()
+        products = self.film_product_id | self.film_category_id.default_product_id \
+            | self.film_category_id.film_category_line_ids.product_id
+        base = self.wof_area_load() if self.part_line_ids else {
+            'line_id': self.id, 'templates': [], 'parts': [],
+            'grades': [{'id': g.id, 'name': g.display_name} for g in self.available_grade_ids],
+            'products': [{'id': p.id, 'name': p.display_name} for p in products.filtered('active')],
+            'technicians': [{'id': e.id, 'name': e.name} for e in self.available_technician_ids],
+            'uses_inventory': bool(self.film_uses_inventory),
+            'can_setup': lead and order.state in SETUP_STATES,
+            'can_template': False,
+            'can_team': order.state in SETUP_STATES and (
+                lead or (self.env.user.has_group('yousentech_wo_v4.group_wo_technician')
+                         and order.state in ('intake', 'in_progress'))),
+            'can_progress': order.state == 'in_progress',
+            'my_employee_ids': self.env.user.employee_ids.ids,
+        }
+        base.update({
+            'area': bool(self.part_line_ids),
+            'grade_id': self.film_category_line_id.id,
+            'product_id': self.film_product_id.id,
+            'product_qty': self.film_product_qty,
+            'technician_ids': self.technician_ids.ids,
+            'technician_names': self.technician_names or '',
+            'progress': self.execution_progress,
+            'discount': {
+                'allowed': self.discount_scope == 'service' and order.state in ('draft', 'scheduled') and lead,
+                'shown': self.discount_scope == 'service',
+                'type': self.discount_type, 'value': self.discount_value,
+                'max_percent': self.max_discount_percent, 'amount': self.discount_amount,
+            },
+            'can_commercial': lead and order.state in ('draft', 'scheduled'),
+        })
+        return base
+
+    def wof_line_update(self, vals):
+        """Change one service row from the order screen (normal write: every rule applies)."""
+        self.ensure_one()
+        allowed = {'film_category_line_id', 'film_product_id', 'film_product_qty', 'technician_ids',
+                   'discount_type', 'discount_value', 'execution_progress'}
+        vals = {key: value for key, value in (vals or {}).items() if key in allowed}
+        if self.part_line_ids and {'technician_ids', 'execution_progress', 'film_product_id', 'film_product_qty'} & set(vals):
+            raise ValidationError(_('فنيو منطقة الخدمة وتقدمها وأصنافها تُحدَّد لكل جزء.'))
+        for key in ('film_category_line_id', 'film_product_id'):
+            if key in vals:
+                vals[key] = int(vals[key] or 0) or False
+        if 'discount_value' in vals:
+            # An emptied box means no discount.
+            vals['discount_value'] = float(vals['discount_value'] or 0.0)
+        if 'technician_ids' in vals:
+            ids = [int(i) for i in vals['technician_ids'] or []]
+            current = set(self.technician_ids.ids)
+            commands = [(4, i) for i in ids if i not in current] + [(3, i) for i in current if i not in ids]
+            vals['technician_ids'] = commands
+            if not commands:
+                vals.pop('technician_ids')
+        if vals:
+            self.write(vals)
+        return self.wof_line_load()
+
     def wof_area_set_template(self, template_id):
         self.ensure_one()
         if self.order_id.state not in ('draft', 'scheduled') or not self._wof_is_team_lead():
@@ -213,7 +277,7 @@ class WofInstallationOrderLineParts(models.Model):
         if not template:
             raise ValidationError(_('النموذج غير متاح لهذه المنطقة.'))
         self._write_line_internal({'service_area_template_id': template.id})
-        return self.wof_area_load()
+        return self.wof_line_load()
 
     def wof_area_update(self, part_ids, vals):
         """Update one or several parts (several = «تطبيق على كل الأجزاء»)."""
@@ -221,7 +285,7 @@ class WofInstallationOrderLineParts(models.Model):
         vals = {key: value for key, value in (vals or {}).items() if key in PART_KEYS}
         parts = self.part_line_ids.filtered(lambda rec: rec.id in (part_ids or []))
         if not parts or not vals:
-            return self.wof_area_load()
+            return self.wof_line_load()
         for key in ('grade_id', 'product_id'):
             if key in vals:
                 vals[key] = int(vals[key] or 0) or False
@@ -235,4 +299,4 @@ class WofInstallationOrderLineParts(models.Model):
             vals.pop('technician_ids')
         if vals:
             parts.write(vals)
-        return self.wof_area_load()
+        return self.wof_line_load()

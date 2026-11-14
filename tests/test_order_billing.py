@@ -352,3 +352,15 @@ class TestOrderBilling(TransactionCase):
         self.assertEqual(stock.product_uom_qty, 3.0)
         note = order.sale_order_id.order_line.filtered(lambda rec: rec.display_type == 'line_note')
         self.assertIn('جزء BIL-HOOD', note.name)
+
+    def test_row_discount_can_be_cleared(self):
+        self.profile.wof_flow_apply('set', {'discount_scope': 'service', 'discount_enabled': True,
+                                            'discount_default_limit': 20})
+        order = self.make_order()
+        line = order.line_ids
+        line.wof_line_update({'discount_type': 'percent', 'discount_value': 10})
+        self.assertEqual(line.discount_amount, 50)
+        data = line.wof_line_update({'discount_value': ''})
+        self.assertEqual(line.discount_value, 0)
+        self.assertEqual(line.discount_amount, 0)
+        self.assertTrue(data['discount']['shown'])

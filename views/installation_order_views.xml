@@ -573,7 +573,7 @@
                         </section>
                         
                         <section class="wof_sec wof_sec_services">
-                            <div class="wof_order_step_head"><h2>الخدمات</h2><p>السعر يُطبَّق تلقائيًا حسب حجم السيارة. «التفاصيل» للسعر والخصم والدرجة والصنف والفنيين؛ ومنطقة الخدمة تُفتح بالسهم لتحديد ذلك لكل جزء.</p></div>
+                            <div class="wof_order_step_head"><h2>الخدمات</h2><p>السعر يُطبَّق تلقائيًا حسب حجم السيارة. اضغط الخدمة لفتحها وتحديد الدرجة والصنف والفنيين والخصم، ثم أغلقها؛ منطقة الخدمة تُحدَّد لكل جزء.</p></div>
                             <div class="wof_services_bar">
                                 <button name="action_open_add_services" type="object" string="إضافة خدمة" icon="fa-plus"
                                         class="btn btn-primary wof_order_add"
