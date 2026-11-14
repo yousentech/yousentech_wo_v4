@@ -411,11 +411,20 @@
                                 <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.film.product_required"/><t t-set="label" t-value="'اختيار المنتج المخزني إلزامي'"/><t t-set="onClick" t-value="() => this.apply('basic', { car_film_product_required: !this.state.data.film.product_required })"/></t>
                             </div>
                             <div t-if="d.film.inventory" class="wof_sf_row wof_fe_nested wof_fe_stock">
-                                <span class="wof_sf_row_text"><strong class="wof_sf_card_title">الصنف المخزني الافتراضي</strong><span class="wof_sf_muted">يُقترح في أمر التركيب ويُصرف عبر الشحنة.<t t-if="isFilm and d.grades.length"> ويمكن لكل درجة لون صنف مخصص.</t></span></span>
-                                <t t-call="yousentech_wo_v4.FilmEditor.StockPick"><t t-set="pickTarget" t-value="'film'"/><t t-set="pickValue" t-value="d.film.stock_product"/><t t-set="pickEmpty" t-value="'اختر الصنف'"/></t>
+                                <span class="wof_sf_row_text"><strong class="wof_sf_card_title">الأصناف المخزنية للفيلم</strong><span class="wof_sf_muted">تظهر وحدها في قائمة الصنف بأمر التركيب (مثل رول لكل درجة). ★ الصنف الافتراضي حين لا يكون للدرجة صنف.</span></span>
+                                <div class="wof_fe_stocklist">
+                                    <t t-foreach="d.film.stock_products" t-as="sp" t-key="sp.id">
+                                        <span t-attf-class="wof_fe_stockchip {{ sp.is_default ? 'is-default' : '' }}">
+                                            <button type="button" class="wof_fe_stockchip_star" t-att-title="sp.is_default ? 'الصنف الافتراضي' : 'اجعله الافتراضي'" t-att-aria-label="sp.is_default ? 'الصنف الافتراضي' : 'اجعله الافتراضي'" t-att-disabled="state.busy or sp.is_default" t-on-click="() => this.apply('stock_product', { product_id: sp.id, action: 'default' })"><i t-attf-class="fa {{ sp.is_default ? 'fa-star' : 'fa-star-o' }}" aria-hidden="true"/></button>
+                                            <span t-esc="sp.name"/>
+                                            <button type="button" class="wof_fe_stockchip_x" title="إزالة" t-att-aria-label="'إزالة ' + sp.name" t-att-disabled="state.busy" t-on-click="() => this.apply('stock_product', { product_id: sp.id, action: 'remove' })"><i class="fa fa-times" aria-hidden="true"/></button>
+                                        </span>
+                                    </t>
+                                    <t t-call="yousentech_wo_v4.FilmEditor.StockPick"><t t-set="pickTarget" t-value="'film'"/><t t-set="pickValue" t-value="false"/><t t-set="pickEmpty" t-value="d.film.stock_products.length ? 'إضافة صنف' : 'اختر الصنف'"/></t>
+                                </div>
                             </div>
                             <div t-if="d.film.inventory and isFilm and d.grades.length" class="wof_fe_grade_stock">
-                                <span class="wof_fe_grade_stock_head">صنف مخصص لدرجة اللون <small class="wof_sf_muted">(اختياري)</small></span>
+                                <span class="wof_fe_grade_stock_head">الصنف الافتراضي لكل درجة لون <small class="wof_sf_muted">(صنف واحد، يُختار تلقائيًا في الأمر عند اختيار الدرجة)</small></span>
                                 <div t-foreach="d.grades" t-as="g" t-key="g.id" class="wof_fe_grade_stock_row">
                                     <span class="wof_fe_grade_chip" t-esc="g.name"/>
                                     <t t-call="yousentech_wo_v4.FilmEditor.StockPick"><t t-set="pickTarget" t-value="g.id"/><t t-set="pickValue" t-value="g.product"/><t t-set="pickEmpty" t-value="d.film.stock_product ? 'الافتراضي: ' + d.film.stock_product.name : 'بدون صنف'"/></t>

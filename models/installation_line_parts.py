@@ -249,13 +249,13 @@ class WofInstallationOrderLineParts(models.Model):
         return base
 
     def _wof_stock_choices(self):
-        """Stock products offered for this service: the film's default product, its
+        """Stock products offered for this service: the film's stock products, its
         grades' products and the ones already chosen; when the film defines none,
         the storable products of the company (so the list is never empty)."""
-        products = self.part_line_ids.product_id | self.film_product_id \
-            | self.film_category_id.default_product_id | self.film_category_id.film_category_line_ids.product_id
-        products = products.filtered('active')
-        if not (self.film_category_id.default_product_id | self.film_category_id.film_category_line_ids.product_id):
+        film = self.film_category_id
+        defined = film.stock_product_ids | film.default_product_id | film.film_category_line_ids.product_id
+        products = (self.part_line_ids.product_id | self.film_product_id | defined).filtered('active')
+        if not defined:
             products |= self.env['product.product'].search(
                 [('type', '=', 'product'), ('company_id', 'in', [self.company_id.id, False])], limit=200, order='name')
         return [{'id': p.id, 'name': p.display_name} for p in products]
@@ -276,6 +276,10 @@ class WofInstallationOrderLineParts(models.Model):
             vals['discount_value'] = float(vals['discount_value'] or 0.0)
         if 'option_ids' in vals:
             vals['option_ids'] = [(6, 0, [int(i) for i in vals['option_ids'] or []])]
+        if vals.get('film_category_line_id') and 'film_product_id' not in vals and self.film_uses_inventory:
+            grade = self.env['wof.film.category.lines'].browse(int(vals['film_category_line_id']))
+            if grade.product_id:
+                vals['film_product_id'] = grade.product_id.id
         if 'technician_ids' in vals:
             ids = [int(i) for i in vals['technician_ids'] or []]
             current = set(self.technician_ids.ids)
@@ -307,6 +311,10 @@ class WofInstallationOrderLineParts(models.Model):
         for key in ('grade_id', 'product_id'):
             if key in vals:
                 vals[key] = int(vals[key] or 0) or False
+        if vals.get('grade_id') and 'product_id' not in vals and self.film_uses_inventory:
+            grade = self.env['wof.film.category.lines'].browse(vals['grade_id'])
+            if grade.product_id:
+                vals['product_id'] = grade.product_id.id
         if 'technician_ids' in vals:
             ids = [int(i) for i in vals['technician_ids'] or []]
             for part in parts:

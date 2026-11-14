@@ -36,6 +36,11 @@ class FilmCategory(models.Model):
         domain="[('type', 'in', ('product', 'consu'))]",
         help="يُقترح في أمر التركيب عند صرف الفيلم من المخزون، ما لم تحدد درجة اللون صنفًا مخصصًا.",
     )
+    stock_product_ids = fields.Many2many(
+        'product.product', 'wof_film_stock_product_rel', 'film_id', 'product_id',
+        string="الأصناف المخزنية", domain="[('type', 'in', ('product', 'consu'))]",
+        help="الأصناف التي يمكن صرفها لهذا الفيلم (مثل رول لكل درجة). تظهر وحدها في قائمة الصنف بأمر التركيب.",
+    )
     warning_msg = fields.Char(string="رسالة تنبيه")
     active = fields.Boolean(default=True)
 

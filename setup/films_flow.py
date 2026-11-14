@@ -252,6 +252,7 @@ class WofFilmCategoryFlow(models.Model):
             'is_effected_in_inventory': source.is_effected_in_inventory,
             'car_film_product_required': source.car_film_product_required,
             'default_product_id': source.default_product_id.id,
+            'stock_product_ids': [(6, 0, source.stock_product_ids.ids)],
             'warning_msg': source.warning_msg,
         }
         if options.get('policies'):
@@ -464,6 +465,8 @@ class WofFilmCategoryFlow(models.Model):
                 'warranty_period': self.warranty_period, 'warranty_unit': self.warranty_unit,
                 'inventory': self.is_effected_in_inventory, 'product_required': self.car_film_product_required,
                 'stock_product': self._wof_product_ref(self.default_product_id),
+                'stock_products': [dict(self._wof_product_ref(product), is_default=product == self.default_product_id)
+                                   for product in self.stock_product_ids],
                 'warning_msg': self.warning_msg or '',
                 'activity': {'id': self.service_type_id.id, 'name': self.service_type_id.name,
                              'type': self.service_type_id.service_options or 'others',
@@ -739,7 +742,13 @@ class WofFilmCategoryFlow(models.Model):
         return [self._wof_product_ref(product) for product in products]
 
     def _wof_op_stock_product(self, payload):
-        """Default stock product of the film, or the custom one of a tint grade."""
+        """Stock products of the film (a list; one marked default) and the single
+        default product of a tint grade.
+
+        payload: ``product_id`` (+ ``grade_id`` for a grade); ``action`` for the
+        film list: ``add`` (default), ``remove`` or ``default``. ``product_id``
+        False on the film clears the list.
+        """
         product = self.env['product.product'].browse(int(payload.get('product_id') or 0)).exists()
         if product and product.type not in ('product', 'consu'):
             raise ValidationError(_('اختر صنفًا مخزنيًا أو استهلاكيًا.'))
@@ -749,8 +758,29 @@ class WofFilmCategoryFlow(models.Model):
             if not grade:
                 raise ValidationError(_('درجة اللون غير موجودة في هذا الفيلم.'))
             grade.write({'product_id': product.id or False})
+            if product and product not in self.stock_product_ids:
+                self.write({'stock_product_ids': [(4, product.id)]})
+            return
+        action = payload.get('action') or 'add'
+        if not product:
+            if action == 'add':
+                self.write({'stock_product_ids': [(5, 0, 0)], 'default_product_id': False})
+            return
+        if action == 'remove':
+            if product in self.film_category_line_ids.product_id:
+                raise ValidationError(_('الصنف مستخدم كصنف افتراضي لدرجة لون؛ غيّره من الدرجة أولًا.'))
+            remaining = self.stock_product_ids - product
+            vals = {'stock_product_ids': [(3, product.id)]}
+            if self.default_product_id == product:
+                vals['default_product_id'] = remaining[:1].id or False
+            self.write(vals)
+        elif action == 'default':
+            self.write({'stock_product_ids': [(4, product.id)], 'default_product_id': product.id})
         else:
-            self.write({'default_product_id': product.id or False})
+            vals = {'stock_product_ids': [(4, product.id)]}
+            if not self.default_product_id:
+                vals['default_product_id'] = product.id
+            self.write(vals)
 
     def _wof_op_basic(self, payload):
         vals = {key: value for key, value in payload.items() if key in BASIC_FIELDS}

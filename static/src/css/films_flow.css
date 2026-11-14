@@ -447,3 +447,10 @@ html[data-wof-density="compact"] .wof_fh_inner { padding: 20px 24px 36px; gap: 1
 .wof_fe_grade_stock_head { font-weight: 700; font-size: calc(13.5px * var(--wof-fs, 0.92)); }
 .wof_fe_grade_stock_row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .wof_fe_grade_chip { min-width: 56px; text-align: center; padding: 6px 12px; border-radius: 10px; background: #FFFFFF; border: 1px solid var(--sf-line); font-weight: 800; font-variant-numeric: tabular-nums; }
+.wof_fe_stocklist { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1 1 380px; justify-content: flex-end; }
+.wof_fe_stockchip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px 4px 10px; border: 1px solid #CFE3E3; border-radius: 99px; background: #FFFFFF; font-weight: 600; font-size: .85rem; color: #1F3B3D; }
+.wof_fe_stockchip.is-default { border-color: #0F766E; background: #ECFDF5; }
+.wof_fe_stockchip button { border: 0; background: transparent; padding: 0 4px; color: #64748B; cursor: pointer; }
+.wof_fe_stockchip .wof_fe_stockchip_star { color: #D97706; }
+.wof_fe_stockchip button:disabled { cursor: default; }
+.wof_fe_stockchip_x:hover { color: #B91C1C; }

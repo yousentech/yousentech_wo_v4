@@ -437,3 +437,29 @@ class TestOrderBilling(TransactionCase):
         self.film.film_category_line_ids.write({'product_id': False})
         choices = [p['id'] for p in line._wof_stock_choices()]
         self.assertIn(self.roll.id, choices)
+
+    def test_film_stock_products_list_and_grade_default(self):
+        dark = self.root['product.product'].create({'name': 'رول داكن', 'type': 'product'})
+        clear = self.root['product.product'].create({'name': 'رول شفاف', 'type': 'product'})
+        snap = self.film.wof_film_apply('stock_product', {'product_id': dark.id})
+        self.assertEqual({p['id'] for p in snap['film']['stock_products']}, {self.roll.id, dark.id})
+        self.assertEqual(self.film.default_product_id, self.roll)
+        self.film.wof_film_apply('stock_product', {'product_id': dark.id, 'action': 'default'})
+        self.assertEqual(self.film.default_product_id, dark)
+        grades = self.film.film_category_line_ids.filtered('active')
+        if not grades:
+            self.skipTest('film has no grades')
+        # The grade's single default product joins the film list.
+        self.film.wof_film_apply('stock_product', {'product_id': clear.id, 'grade_id': grades[0].id})
+        self.assertIn(clear, self.film.stock_product_ids)
+        with self.assertRaises(ValidationError):
+            self.film.wof_film_apply('stock_product', {'product_id': clear.id, 'action': 'remove'})
+        order = self.make_order()
+        line = order.line_ids
+        choices = {p['id'] for p in line._wof_stock_choices()}
+        self.assertEqual(choices & {self.roll.id, dark.id, clear.id}, {self.roll.id, dark.id, clear.id})
+        line.wof_line_update({'film_category_line_id': grades[0].id})
+        self.assertEqual(line.film_product_id, clear)
+        self.film.wof_film_apply('stock_product', {'product_id': dark.id, 'action': 'remove'})
+        self.assertNotIn(dark, self.film.stock_product_ids)
+        self.assertIn(self.film.default_product_id, self.film.stock_product_ids)
