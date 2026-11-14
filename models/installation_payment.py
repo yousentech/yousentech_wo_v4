@@ -250,6 +250,7 @@ class WofOrderPaymentWizard(models.TransientModel):
             'amount': total, 'journal': journals_text,
             'payment': '، '.join(payment.mapped('name')),
         })
+        invoice_before = order.invoice_id
         try:
             with self.env.cr.savepoint():
                 order._wof_after_payment()
@@ -266,6 +267,9 @@ class WofOrderPaymentWizard(models.TransientModel):
                     'next': {'type': 'ir.actions.act_window_close'},
                 },
             }
+        if order.invoice_id and order.invoice_id != invoice_before:
+            # The payment completed the order and its invoice was created: open it.
+            return order.action_open_invoice()
         return {'type': 'ir.actions.act_window_close'}
 
 

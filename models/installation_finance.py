@@ -70,6 +70,8 @@ class WofInstallationOrderFinance(models.Model):
     amount_residual = fields.Monetary(string='المتبقي', compute='_compute_wof_finance')
     payment_status = fields.Selection(PAYMENT_STATES, string='حالة الدفع', compute='_compute_wof_finance')
     can_register_payment = fields.Boolean(compute='_compute_wof_finance')
+    invoice_count = fields.Integer(string='الفواتير', compute='_compute_wof_finance')
+    refund_count = fields.Integer(string='المرتجعات', compute='_compute_wof_finance')
 
     # ------------------------------------------------------------ documents
     def _wof_finance_moves(self):
@@ -118,6 +120,7 @@ class WofInstallationOrderFinance(models.Model):
                 'finance_owed': 0.0, 'payment_count': 0, 'amount_paid': 0.0,
                 'amount_residual': 0.0 if order.state == 'cancelled' else order.amount_total,
                 'payment_status': 'not_paid', 'can_register_payment': False,
+                'invoice_count': 0, 'refund_count': 0,
             }
             if not readable or not order.id:
                 order.update(values)
@@ -165,6 +168,8 @@ class WofInstallationOrderFinance(models.Model):
                 'finance_owed': owed, 'payment_count': len(payments), 'amount_paid': paid,
                 'amount_residual': due, 'payment_status': pay_state,
                 'can_register_payment': order.state != 'cancelled' and not zero(due),
+                'invoice_count': len(moves.filtered(lambda move: move.move_type == 'out_invoice' and move.state != 'cancel')),
+                'refund_count': len(moves.filtered(lambda move: move.move_type == 'out_refund' and move.state != 'cancel')),
             })
             order.update(values)
 
@@ -227,6 +232,43 @@ class WofInstallationOrderFinance(models.Model):
             'view_mode': 'form',
             'target': 'new',
             'context': {'default_order_id': self.id, 'default_payment_type': 'outbound'},
+        }
+
+    def _wof_moves_action(self, moves, move_type):
+        """Open the order's invoices or credit notes in the customer invoice screens:
+        the document itself when there is one, else the list."""
+        xmlid = 'account.action_move_out_invoice_type' if move_type == 'out_invoice' \
+            else 'account.action_move_out_refund_type'
+        action = self.env['ir.actions.act_window']._for_xml_id(xmlid)
+        action['context'] = {'default_move_type': move_type, 'create': False}
+        if len(moves) == 1:
+            action.update({'views': [(self.env.ref('account.view_move_form').id, 'form')],
+                           'view_mode': 'form', 'res_id': moves.id})
+        else:
+            action['domain'] = [('id', 'in', moves.ids)]
+        return action
+
+    def action_wof_view_invoices(self):
+        self.ensure_one()
+        moves = self._wof_finance_moves().filtered(
+            lambda move: move.move_type == 'out_invoice' and move.state != 'cancel')
+        return self._wof_moves_action(moves or self.invoice_id, 'out_invoice')
+
+    def action_wof_view_refunds(self):
+        self.ensure_one()
+        moves = self._wof_finance_moves().filtered(
+            lambda move: move.move_type == 'out_refund' and move.state != 'cancel')
+        return self._wof_moves_action(moves, 'out_refund')
+
+    def action_view_payments(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('دفعات أمر التركيب'),
+            'res_model': 'account.payment',
+            'view_mode': 'tree,form',
+            'domain': [('id', 'in', self.finance_payment_ids.ids or self.payment_ids.ids)],
+            'context': {'create': False},
         }
 
     def action_wof_view_finance_moves(self):

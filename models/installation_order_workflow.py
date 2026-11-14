@@ -533,13 +533,7 @@ class WofInstallationOrderWorkflow(models.Model):
         self.ensure_one()
         if not self.invoice_id:
             raise UserError('لا توجد فاتورة مرتبطة حتى الآن.')
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('الفاتورة'),
-            'res_model': 'account.move',
-            'view_mode': 'form',
-            'res_id': self.invoice_id.id,
-        }
+        return self._wof_moves_action(self.invoice_id, 'out_invoice')
 
     @api.model
     def open_main_menu(self):

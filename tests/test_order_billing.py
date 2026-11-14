@@ -641,3 +641,31 @@ class TestOrderBilling(TransactionCase):
         order.action_create_invoice()
         self.assertEqual(order.invoice_id, direct)
         self.assertEqual(len(sale.invoice_ids), 1)
+
+    def test_invoice_opens_and_smart_buttons_count(self):
+        self.set_invoice_mode('manual')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        action = order.action_create_invoice()
+        self.assertEqual(action['res_model'], 'account.move')
+        self.assertEqual(action['res_id'], order.invoice_id.id)
+        self.assertEqual(action['context']['default_move_type'], 'out_invoice')
+        if order.invoice_id.state == 'draft':
+            order.invoice_id.action_post()
+        order.invalidate_recordset()
+        self.assertEqual((order.invoice_count, order.refund_count), (1, 0))
+        self.credit_whole_invoice(order)
+        order.invalidate_recordset()
+        self.assertEqual(order.refund_count, 1)
+        refunds = order.action_wof_view_refunds()
+        self.assertEqual(refunds['context']['default_move_type'], 'out_refund')
+        self.assertTrue(refunds.get('res_id'))
+
+    def test_payment_that_completes_opens_the_invoice(self):
+        self.set_invoice_mode('after')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        wizard = self.env['wof.order.payment.wizard'].with_context(default_order_id=order.id).create({'amount': 500})
+        action = wizard.action_confirm()
+        self.assertTrue(order.invoice_id)
+        self.assertEqual(action.get('res_id'), order.invoice_id.id)
