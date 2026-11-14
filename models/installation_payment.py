@@ -25,41 +25,12 @@ class WofInstallationOrderPayment(models.Model):
     _inherit = 'wof.installation.order'
 
     payment_ids = fields.One2many('account.payment', 'wof_order_id', string='الدفعات', readonly=True)
-    payment_count = fields.Integer(compute='_compute_wof_payments')
-    amount_paid = fields.Monetary(string='المدفوع', compute='_compute_wof_payments')
-    amount_residual = fields.Monetary(string='المتبقي', compute='_compute_wof_payments')
-    payment_status = fields.Selection(
-        [('not_paid', 'غير مدفوع'), ('partial', 'مدفوع جزئيًا'), ('paid', 'مدفوع بالكامل')],
-        string='حالة الدفع', compute='_compute_wof_payments',
-    )
-
-    @api.depends('payment_ids.state', 'payment_ids.amount', 'payment_ids.payment_type', 'amount_total')
-    def _compute_wof_payments(self):
-        # Users without accounting rights still open the order: they see the total as remaining.
-        readable = self.env['account.payment'].check_access_rights('read', raise_exception=False)
-        for order in self:
-            posted = order.payment_ids.filtered(lambda pay: pay.state == 'posted') if readable \
-                else self.env['account.payment']
-            paid = sum(posted.filtered(lambda pay: pay.payment_type == 'inbound').mapped('amount')) \
-                - sum(posted.filtered(lambda pay: pay.payment_type == 'outbound').mapped('amount'))
-            currency = order.currency_id or order.company_id.currency_id
-            order.payment_count = len(order.payment_ids) if readable else 0
-            order.amount_paid = paid
-            order.amount_residual = max(order.amount_total - paid, 0.0)
-            if float_is_zero(paid, precision_rounding=currency.rounding):
-                order.payment_status = 'not_paid'
-            elif float_compare(paid, order.amount_total, precision_rounding=currency.rounding) >= 0:
-                order.payment_status = 'paid'
-            else:
-                order.payment_status = 'partial'
+    # payment_count, amount_paid, amount_residual and payment_status are computed
+    # with the rest of the money position in installation_finance.py.
 
     def _wof_after_payment(self):
         """Hook: what follows a recorded payment (see the invoicing flow)."""
         return True
-
-    def _wof_is_fully_paid(self):
-        self.ensure_one()
-        return self.amount_total > 0 and self.payment_status == 'paid'
 
     def _wof_user_payment_settings(self):
         """The user's customer-payment journal settings for the order's branch
@@ -110,8 +81,13 @@ class WofInstallationOrderPayment(models.Model):
             raise ValidationError(_('لا يمكن تسجيل دفعة على أمر ملغي.'))
         if not self.env['account.payment'].check_access_rights('create', raise_exception=False):
             raise UserError(_('لا تملك صلاحية تسجيل الدفعات. اطلب صلاحية «الفوترة» من مسؤول النظام.'))
-        if self.amount_residual <= 0:
-            raise ValidationError(_('الأمر مدفوع بالكامل.'))
+        if not self.can_register_payment:
+            if self.finance_to_refund > 0:
+                raise ValidationError(_('لا يوجد مبلغ للتحصيل؛ على المركز رد %s للعميل («رد مبلغ للعميل»).')
+                                      % self.finance_to_refund)
+            if self.payment_status == 'refunded':
+                raise ValidationError(_('الأمر مرتجع بالكامل؛ لا يوجد مبلغ للتحصيل.'))
+            raise ValidationError(_('لا يوجد مبلغ متبقٍ للتحصيل على هذا الأمر.'))
         return {
             'type': 'ir.actions.act_window',
             'name': _('تسجيل دفعة'),

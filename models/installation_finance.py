@@ -17,6 +17,13 @@ FINANCE_STATES = [
     ('due', 'متبقٍ للتحصيل'),
     ('settled', 'مسدد'),
     ('refund', 'متبقٍ للرد'),
+    ('returned', 'مرتجع ومسوّى'),
+]
+PAYMENT_STATES = [
+    ('not_paid', 'غير مدفوع'),
+    ('partial', 'مدفوع جزئيًا'),
+    ('paid', 'مدفوع بالكامل'),
+    ('refunded', 'مرتجع'),
 ]
 
 
@@ -56,6 +63,13 @@ class WofInstallationOrderFinance(models.Model):
     finance_state = fields.Selection(FINANCE_STATES, string='الحالة المالية', compute='_compute_wof_finance')
     finance_draft_count = fields.Integer(compute='_compute_wof_finance')
     finance_access = fields.Boolean(compute='_compute_wof_finance')
+    finance_owed = fields.Monetary(string='المستحق على العميل', compute='_compute_wof_finance')
+    # One source for every money figure of the order (the payment fields too).
+    payment_count = fields.Integer(compute='_compute_wof_finance')
+    amount_paid = fields.Monetary(string='المدفوع', compute='_compute_wof_finance')
+    amount_residual = fields.Monetary(string='المتبقي', compute='_compute_wof_finance')
+    payment_status = fields.Selection(PAYMENT_STATES, string='حالة الدفع', compute='_compute_wof_finance')
+    can_register_payment = fields.Boolean(compute='_compute_wof_finance')
 
     # ------------------------------------------------------------ documents
     def _wof_finance_moves(self):
@@ -80,9 +94,18 @@ class WofInstallationOrderFinance(models.Model):
         currency = self.currency_id or self.company_id.currency_id
         return payment.currency_id._convert(payment.amount, currency, self.company_id, payment.date)
 
-    @api.depends('payment_ids.state', 'payment_ids.amount', 'sale_order_id.invoice_ids.state',
+    @api.depends('payment_ids.state', 'payment_ids.amount', 'payment_ids.payment_type',
+                 'sale_order_id.invoice_ids.state', 'sale_order_id.invoice_ids.amount_residual',
                  'invoice_id.state', 'amount_total', 'state')
     def _compute_wof_finance(self):
+        """Money position of the order, the single source of every figure:
+
+        owed     = before any posted invoice: the order total (0 once cancelled);
+                   after: posted invoices − posted credit notes
+        paid     = received − paid back (payments linked to the order or matched
+                   with its invoices / credit notes)
+        balance  = owed − paid  → > 0 to collect, < 0 to pay back
+        """
         readable = self.env['account.move'].check_access_rights('read', raise_exception=False) \
             and self.env['account.payment'].check_access_rights('read', raise_exception=False)
         for order in self:
@@ -92,6 +115,9 @@ class WofInstallationOrderFinance(models.Model):
                 'finance_invoiced': 0.0, 'finance_credited': 0.0, 'finance_received': 0.0,
                 'finance_refunded': 0.0, 'finance_due': 0.0, 'finance_to_refund': 0.0,
                 'finance_state': 'none', 'finance_draft_count': 0, 'finance_access': bool(readable),
+                'finance_owed': 0.0, 'payment_count': 0, 'amount_paid': 0.0,
+                'amount_residual': 0.0 if order.state == 'cancelled' else order.amount_total,
+                'payment_status': 'not_paid', 'can_register_payment': False,
             }
             if not readable or not order.id:
                 order.update(values)
@@ -99,30 +125,54 @@ class WofInstallationOrderFinance(models.Model):
             moves = order._wof_finance_moves()
             posted = moves.filtered(lambda move: move.state == 'posted')
             payments = order._wof_finance_payments(posted)
-            invoiced = sum(posted.filtered(lambda move: move.move_type == 'out_invoice').mapped('amount_total'))
+            invoices = posted.filtered(lambda move: move.move_type == 'out_invoice')
+            invoiced = sum(invoices.mapped('amount_total'))
             credited = sum(posted.filtered(lambda move: move.move_type == 'out_refund').mapped('amount_total'))
             received = sum(order._wof_amount(pay) for pay in payments.filtered(lambda pay: pay.payment_type == 'inbound'))
             refunded = sum(order._wof_amount(pay) for pay in payments.filtered(lambda pay: pay.payment_type == 'outbound'))
-            if posted.filtered(lambda move: move.move_type == 'out_invoice'):
+            if invoices:
                 owed = invoiced - credited
             else:
                 owed = 0.0 if order.state == 'cancelled' else order.amount_total
-            balance = owed - (received - refunded)
-            if float_is_zero(balance, precision_rounding=currency.rounding):
-                state = 'settled' if (posted or payments) else 'none'
+            paid = received - refunded
+            balance = owed - paid
+            zero = lambda amount: float_is_zero(amount, precision_rounding=currency.rounding)  # noqa: E731
+            active = bool(posted or payments)
+            if zero(balance):
+                state = 'returned' if invoices and zero(owed) else ('settled' if active else 'none')
             elif balance > 0:
-                state = 'due' if (posted or payments) else 'none'
+                state = 'due' if active else 'none'
             else:
                 state = 'refund'
+            if invoices and zero(owed):
+                pay_state = 'refunded'
+            elif zero(owed) and not zero(paid):
+                pay_state = 'refunded'
+            elif not zero(owed) and balance <= 0:
+                pay_state = 'paid'
+            elif zero(paid):
+                pay_state = 'not_paid'
+            else:
+                pay_state = 'partial'
+            due = max(balance, 0.0)
             values.update({
                 'finance_move_ids': [(6, 0, moves.ids)], 'finance_payment_ids': [(6, 0, payments.ids)],
                 'finance_invoiced': invoiced, 'finance_credited': credited,
                 'finance_received': received, 'finance_refunded': refunded,
-                'finance_due': max(balance, 0.0), 'finance_to_refund': max(-balance, 0.0),
+                'finance_due': due, 'finance_to_refund': max(-balance, 0.0),
                 'finance_state': state,
                 'finance_draft_count': len(moves.filtered(lambda move: move.state == 'draft')),
+                'finance_owed': owed, 'payment_count': len(payments), 'amount_paid': paid,
+                'amount_residual': due, 'payment_status': pay_state,
+                'can_register_payment': order.state != 'cancelled' and not zero(due),
             })
             order.update(values)
+
+    def _wof_is_fully_paid(self):
+        self.ensure_one()
+        currency = self.currency_id or self.company_id.currency_id
+        return float_compare(self.finance_owed, 0.0, precision_rounding=currency.rounding) > 0 \
+            and self.payment_status == 'paid'
 
     # ------------------------------------------------------------- matching
     def _wof_reconcile_refunds(self, refund):

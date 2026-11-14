@@ -304,8 +304,16 @@ class TestOrderBilling(TransactionCase):
         wizard.action_confirm()
         order.invalidate_recordset()
         self.assertEqual(order.finance_refunded, 500)
-        self.assertEqual(order.finance_state, 'settled')
+        self.assertEqual(order.finance_state, 'returned')
         self.assertEqual(order.finance_to_refund, 0)
+        # Fully returned: nothing to collect, no payment button, no new payment.
+        self.assertEqual(order.payment_status, 'refunded')
+        self.assertEqual(order.amount_residual, 0)
+        self.assertFalse(order.can_register_payment)
+        with self.assertRaises(ValidationError):
+            order.action_register_payment()
+        with self.assertRaises(ValidationError):
+            self.pay(order, 100)
 
     def test_cancel_after_full_return(self):
         order = self._refund_flow_order()
@@ -582,3 +590,54 @@ class TestOrderBilling(TransactionCase):
         self.assertIn(self.film.name, service['name'])
         self.assertIn('تغطية الحواف', service['name'])
         self.profile.wof_flow_apply('set', {'sale_detail_mode': 'note'})
+
+
+    def test_money_position_through_the_whole_flow(self):
+        self.set_invoice_mode('manual')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        # Advance before the invoice: owed is the order total.
+        self.pay(order, 200)
+        order.invalidate_recordset()
+        self.assertEqual((order.payment_status, order.amount_paid, order.amount_residual), ('partial', 200, 300))
+        self.assertTrue(order.can_register_payment)
+        # Invoice posted: the advance is matched, still 300 to collect.
+        order.action_create_invoice()
+        invoice = order.invoice_id
+        if invoice.state == 'draft':
+            invoice.action_post()
+        order.invalidate_recordset()
+        self.assertEqual(order.finance_owed, invoice.amount_total)
+        self.assertEqual(order.amount_residual, invoice.amount_total - 200)
+        self.assertEqual(invoice.amount_residual, invoice.amount_total - 200)
+        # A payment registered on the invoice in accounting counts too.
+        self.env['account.payment.register'].with_context(
+            active_model='account.move', active_ids=invoice.ids).create({}).action_create_payments()
+        order.invalidate_recordset()
+        self.assertEqual(order.payment_status, 'paid')
+        self.assertFalse(order.can_register_payment)
+        # Partial credit note: part of the money is to pay back.
+        reversal = self.env['account.move.reversal'].with_context(
+            active_model='account.move', active_ids=invoice.ids).create({'reason': 'جزئي', 'journal_id': invoice.journal_id.id})
+        action = reversal.refund_moves()
+        refund = self.env['account.move'].browse(action.get('res_id'))
+        refund.invoice_line_ids[:1].quantity = 1
+        for line in refund.invoice_line_ids[1:]:
+            line.unlink()
+        refund.invoice_line_ids[:1].price_unit = 100
+        refund.action_post()
+        order.invalidate_recordset()
+        self.assertEqual(order.finance_state, 'refund')
+        self.assertEqual(order.payment_status, 'paid')
+        self.assertFalse(order.can_register_payment)
+        self.assertEqual(order.finance_to_refund, refund.amount_total)
+
+    def test_invoice_made_from_sale_order_is_reused(self):
+        self.set_invoice_mode('manual')
+        order = self.make_order()
+        order.action_confirm_arrival()
+        sale = order._wof_ensure_sale_order()
+        direct = sale._create_invoices()
+        order.action_create_invoice()
+        self.assertEqual(order.invoice_id, direct)
+        self.assertEqual(len(sale.invoice_ids), 1)

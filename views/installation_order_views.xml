@@ -435,14 +435,15 @@
                             string="تسليم السيارة وإغلاق الأمر" class="btn-primary"
                             invisible="state != 'ready'"
                             groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor"/>
-                    <field name="payment_status" invisible="1"/>
+                    <field name="can_register_payment" invisible="1"/>
+                    <field name="invoice_state" invisible="1"/>
                     <button name="action_register_payment" type="object"
                             string="تسجيل دفعة" icon="fa-money" class="btn-primary"
-                            invisible="state in ('draft', 'cancelled') or payment_status == 'paid'"
+                            invisible="state == 'draft' or not can_register_payment"
                             groups="account.group_account_invoice"/>
                     <button name="action_create_invoice" type="object"
                             string="إنشاء الفاتورة" icon="fa-file-text-o"
-                            invisible="invoice_id or state in ('draft', 'cancelled')"/>
+                            invisible="(invoice_id and invoice_state != 'cancel') or state in ('draft', 'cancelled')"/>
                     <button name="action_create_sale_order" type="object"
                             string="إنشاء أمر البيع" icon="fa-shopping-cart"
                             invisible="sale_order_id or state in ('draft', 'cancelled')"/>
@@ -473,7 +474,8 @@
                         </div>
                         <span class="wof_hero_tag"><field name="service_count" readonly="1"/> خدمة</span>
                         <field name="payment_status" widget="badge" readonly="1" class="wof_hero_paystate"
-                               decoration-success="payment_status == 'paid'" decoration-warning="payment_status != 'paid'"/>
+                               decoration-success="payment_status == 'paid'" decoration-warning="payment_status in ('not_paid', 'partial')"
+                               decoration-info="payment_status == 'refunded'"/>
                         <span class="wof_hero_space"/>
                         <div class="wof_hero_fig"><small>الخدمات</small><field name="amount_gross" widget="monetary" readonly="1"/></div>
                         <div class="wof_hero_fig is-discount"><small>الخصم</small><field name="amount_discount" widget="monetary" readonly="1"/></div>
@@ -768,14 +770,15 @@
                                     <field name="finance_state" widget="badge" readonly="1"
                                            decoration-success="finance_state == 'settled'"
                                            decoration-warning="finance_state == 'due'"
-                                           decoration-danger="finance_state == 'refund'"/>
+                                           decoration-danger="finance_state == 'refund'"
+                                           decoration-info="finance_state == 'returned'"/>
                                     <div class="wof_fin_actions">
                                         <button name="action_register_payment" type="object" string="تسجيل دفعة" icon="fa-plus"
                                                 class="btn btn-primary"
-                                                invisible="state == 'cancelled' or payment_status == 'paid'"/>
+                                                invisible="not can_register_payment"/>
                                         <button name="action_create_invoice" type="object" string="إنشاء الفاتورة" icon="fa-file-text-o"
                                                 class="btn btn-light"
-                                                invisible="invoice_id or state in ('draft', 'cancelled')"/>
+                                                invisible="(invoice_id and invoice_state != 'cancel') or state in ('draft', 'cancelled')"/>
                                         <button name="action_wof_credit_note" type="object" string="إشعار دائن (مرتجع)" icon="fa-undo"
                                                 class="btn btn-light"
                                                 invisible="finance_invoiced &lt;= finance_credited"/>
@@ -791,6 +794,11 @@
                                     <div class="wof_fin_kpi is-back"><small>المردود للعميل</small><field name="finance_refunded" widget="monetary" readonly="1"/></div>
                                     <div class="wof_fin_kpi is-due"><small>المتبقي للتحصيل</small><field name="finance_due" widget="monetary" readonly="1"/></div>
                                     <div class="wof_fin_kpi is-refund"><small>المتبقي للرد</small><field name="finance_to_refund" widget="monetary" readonly="1"/></div>
+                                </div>
+                                <div class="alert alert-info py-2 mb-2" role="status"
+                                     invisible="finance_state != 'returned' or state == 'cancelled'">
+                                    <i class="fa fa-check-circle me-1" title="مسوّى"/>
+                                    الأمر مرتجع ومسوّى ماليًا (إشعار دائن بكامل الفاتورة وتم رد المقبوض). أكمل مرتجع المخزون من الشحنة إن وُجد صرف، ثم «إلغاء الأمر (مرتجع)» لإغلاقه.
                                 </div>
                                 <div class="wof_fin_note text-muted small">
                                     قبل ترحيل الفاتورة يُحسب المستحق من إجمالي الأمر، فتظهر الدفعة المقدمة مقبوضةً لا مبلغًا للرد. المرتجع: إشعار دائن على الفاتورة، ثم رد المبلغ، ثم مرتجع المخزون من الشحنة إن وُجد صرف.
@@ -812,13 +820,14 @@
                                 <group class="wof_order_card wof_order_pay" string="الدفع على الأمر">
                                     <field name="payment_status" widget="badge" readonly="1"
                                            decoration-success="payment_status == 'paid'"
-                                           decoration-warning="payment_status == 'partial'"/>
+                                           decoration-warning="payment_status == 'partial'"
+                                           decoration-info="payment_status == 'refunded'"/>
                                     <field name="amount_paid" readonly="1"/>
                                     <field name="amount_residual" readonly="1"/>
                                     <div colspan="2" class="wof_order_pay_actions" invisible="finance_access">
                                         <button name="action_register_payment" type="object" string="تسجيل دفعة"
                                                 class="btn btn-primary"
-                                                invisible="state == 'cancelled' or payment_status == 'paid'"/>
+                                                invisible="not can_register_payment"/>
                                     </div>
                                 </group>
                                 <group class="wof_order_card" string="أمر البيع والمخزون">

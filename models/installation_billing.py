@@ -118,6 +118,7 @@ class WofInstallationOrderLineBilling(models.Model):
 class WofInstallationOrderBilling(models.Model):
     _inherit = 'wof.installation.order'
 
+    invoice_state = fields.Selection(related='invoice_id.state', string='حالة الفاتورة')
     picking_ids = fields.Many2many('stock.picking', compute='_compute_wof_pickings', string='الشحنات')
     picking_count = fields.Integer(compute='_compute_wof_pickings')
 
@@ -265,6 +266,16 @@ class WofInstallationOrderBilling(models.Model):
         if not self.line_ids:
             raise ValidationError(_('لا توجد خدمات للفوترة.'))
         sale = self._wof_ensure_sale_order()
+        # An invoice made directly from the sale order is the order's invoice.
+        existing = sale.invoice_ids.filtered(lambda move: move.move_type == 'out_invoice' and move.state != 'cancel')
+        if existing:
+            invoice = existing.sorted('id')[:1]
+            if not invoice.wof_order_id:
+                invoice.write({'wof_order_id': self.id})
+            self._transition_write({'invoice_id': invoice.id})
+            if invoice.state == 'posted':
+                self._wof_reconcile_payments(invoice)
+            return invoice
         invoice = sale._create_invoices()
         if not invoice:
             raise ValidationError(_('لا يوجد ما يُفوتر في أمر البيع %s.') % sale.name)
