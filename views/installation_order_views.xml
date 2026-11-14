@@ -62,110 +62,128 @@
         <field name="name">wof.installation.order.line.form</field>
         <field name="model">wof.installation.order.line</field>
         <field name="arch" type="xml">
-            <form string="خدمة أمر التركيب" create="0" delete="0">
+            <form string="خدمة أمر التركيب" create="0" delete="0" class="wof_line_form">
                 <header>
-                    <button name="action_refresh_price" type="object"
-                            string="إعادة احتساب السعر" class="btn-primary"
+                    <button name="action_refresh_price" type="object" icon="fa-refresh"
+                            string="إعادة احتساب السعر" class="btn-secondary"
                             invisible="order_state not in ('draft', 'scheduled')"/>
                 </header>
                 <sheet>
                     <field name="order_state" invisible="1"/>
                     <field name="available_car_part_ids" invisible="1"/>
                     <field name="available_grade_ids" invisible="1"/>
+                    <field name="available_technician_ids" invisible="1"/>
                     <field name="supports_color_grades" invisible="1"/>
                     <field name="discount_scope" invisible="1"/>
-                    <group>
-                        <group string="النشاط والخدمة والمكوّن">
-                            <field name="company_id" invisible="1"/>
-                            <field name="currency_id" invisible="1"/>
-                            <field name="order_id" readonly="1"/>
-                            <field name="service_type_id"
-                                   string="نشاط المركز"
-                                   readonly="order_state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
-                            <field name="film_category_id"
-                                   string="الخدمة / الفيلم"
-                                   readonly="order_state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
-                            <field name="car_part_id"
-                                   string="مكوّن الخدمة"
-                                   readonly="order_state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
-                            <field name="part_kind" invisible="1"/>
-                            <field name="service_area_template_id"
-                                   invisible="part_kind != 'service_area'"
-                                   readonly="order_state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
-                            <field name="template_part_names" invisible="part_kind != 'service_area'" readonly="1"/>
-                            <field name="film_category_line_id"
-                                   invisible="not supports_color_grades"
-                                   readonly="order_state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
-                            <field name="film_uses_inventory" invisible="1"/>
-                            <field name="film_product_required" invisible="1"/>
-                            <field name="film_product_id"
-                                   string="الصنف المخزني"
-                                   invisible="not film_uses_inventory"
-                                   required="film_uses_inventory and film_product_required"
-                                   readonly="order_state not in ('draft', 'scheduled')"
-                                   options="{'no_create': True}"/>
-                            <field name="film_product_qty"
-                                   invisible="not film_uses_inventory"
-                                   readonly="order_state not in ('draft', 'scheduled', 'intake', 'in_progress')"/>
-                        </group>
-                        <group string="السعر">
-                            <field name="quantity"
-                                   readonly="order_state not in ('draft', 'scheduled')"/>
-                            <field name="unit_price" readonly="1"/>
-                            <field name="price_source" widget="badge" readonly="1"/>
-                            <field name="price_source_note" readonly="1"/>
-                            <field name="tax_id" readonly="1"/>
-                            <field name="discount_type"
-                                   readonly="order_state not in ('draft', 'scheduled') or discount_scope == 'order'"/>
-                            <field name="discount_value"
-                                   readonly="order_state not in ('draft', 'scheduled') or discount_scope == 'order'"/>
-                            <field name="amount_total" readonly="1"/>
-                        </group>
-                    </group>
-                    <group string="تجاوز السعر — خيار متقدم"
-                           groups="yousentech_wo_v4.group_wo_price_override">
-                        <div class="alert alert-warning" role="status" colspan="2">
-                            يستخدم التجاوز عند وجود استثناء معتمد فقط، ويُسجل السبب والسعر والمستخدم في السجل الزمني والتدقيق.
+                    <field name="company_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="part_kind" invisible="1"/>
+                    <field name="film_uses_inventory" invisible="1"/>
+                    <field name="activity_type" invisible="1"/>
+
+                    <!-- What the service is, and what it costs -->
+                    <div class="wof_lf_head">
+                        <div class="wof_lf_title">
+                            <small>
+                                <field name="service_type_id" readonly="1" options="{'no_open': True}"/>
+                                · <field name="order_id" readonly="1" options="{'no_open': True}"/>
+                            </small>
+                            <h2>
+                                <field name="car_part_id" readonly="1" options="{'no_open': True}"/>
+                                <span class="wof_lf_sep">·</span>
+                                <field name="film_category_id" readonly="1" options="{'no_open': True}"/>
+                            </h2>
+                            <div class="wof_lf_chips">
+                                <span class="wof_lf_chip is-area" invisible="part_kind != 'service_area'">
+                                    منطقة خدمة · <field name="service_area_template_id" readonly="1" options="{'no_open': True}"/>
+                                </span>
+                                <span class="wof_lf_chip" invisible="part_kind == 'service_area'">جزء</span>
+                                <span class="wof_lf_chip" invisible="not film_category_line_id">
+                                    الدرجة <field name="film_category_line_id" readonly="1" options="{'no_open': True}"/>
+                                </span>
+                                <span class="wof_lf_chip is-stock" invisible="not film_uses_inventory or not film_product_id">
+                                    <field name="film_product_id" readonly="1" options="{'no_open': True}"/>
+                                </span>
+                            </div>
+                            <div class="wof_lf_parts" invisible="part_kind != 'service_area' or not template_part_names">
+                                <small>الأجزاء:</small> <field name="template_part_names" readonly="1"/>
+                            </div>
                         </div>
-                        <group>
-                            <field name="use_manual_price"
-                                   readonly="order_state not in ('draft', 'scheduled')"/>
-                            <field name="manual_unit_price"
-                                   invisible="not use_manual_price"
-                                   required="use_manual_price"
-                                   readonly="order_state not in ('draft', 'scheduled')"/>
-                            <field name="price_override_reason"
-                                   invisible="not use_manual_price"
-                                   required="use_manual_price"
-                                   readonly="order_state not in ('draft', 'scheduled')"/>
-                        </group>
-                        <group>
-                            <field name="max_discount_percent" readonly="1"/>
-                            <field name="configured_unit_price" readonly="1"/>
-                            <field name="configured_commission" readonly="1"/>
-                            <field name="commission_event" readonly="1"/>
-                            <field name="commission_state" widget="badge" readonly="1"
-                                   decoration-success="commission_state == 'approved'"/>
-                            <field name="commission_approved_at" readonly="1" invisible="not commission_approved_at"/>
-                        </group>
-                    </group>
-                    <group string="التنفيذ">
-                        <field name="available_technician_ids" invisible="1"/>
-                        <field name="technician_ids" widget="many2many_tags"
-                               readonly="order_state not in ('draft', 'scheduled', 'intake', 'in_progress')"
-                               options="{'no_create': True, 'no_open': True}"/>
-                        <field name="technician_names" string="سجل الفنيين" readonly="1"
-                               invisible="not technician_names"/>
-                        <field name="execution_progress" widget="progressbar"
-                               readonly="order_state != 'in_progress'"/>
-                        <field name="execution_notes"
-                               readonly="order_state != 'in_progress'"/>
-                    </group>
+                        <div class="wof_lf_figs">
+                            <div class="wof_lf_fig"><small>سعر الوحدة</small><field name="unit_price" readonly="1"/></div>
+                            <div class="wof_lf_fig"><small>الكمية</small><field name="quantity" readonly="order_state not in ('draft', 'scheduled')"/></div>
+                            <div class="wof_lf_fig is-disc"><small>الخصم</small><field name="discount_amount" readonly="1"/></div>
+                            <div class="wof_lf_fig"><small>الضريبة <field name="tax_id" readonly="1" class="wof_lf_tax" options="{'no_open': True}"/></small><field name="amount_tax" readonly="1"/></div>
+                            <div class="wof_lf_fig is-total"><small>الإجمالي</small><field name="amount_total" readonly="1"/></div>
+                        </div>
+                    </div>
+
+                    <div class="wof_lf_grid">
+                        <!-- Where the price comes from -->
+                        <section class="wof_lf_card">
+                            <h3><i class="fa fa-tag me-1" title="السعر"/> مصدر السعر</h3>
+                            <div class="wof_lf_source">
+                                <field name="price_source" widget="badge" readonly="1"/>
+                                <field name="price_source_note" readonly="1" class="wof_lf_note"/>
+                            </div>
+                            <div class="wof_lf_kv">
+                                <span>السعر المهيأ</span><field name="configured_unit_price" readonly="1"/>
+                                <span>حد الخصم المهيأ</span><span><field name="max_discount_percent" readonly="1" class="d-inline"/> ٪</span>
+                            </div>
+                            <p class="wof_lf_hint">الدرجة والصنف والفنيون والخصم تُعدَّل من كارد الخدمة في شاشة الأمر.</p>
+                        </section>
+
+                        <!-- Exceptional price: right holders only, every use logged -->
+                        <section class="wof_lf_card is-warn" groups="yousentech_wo_v4.group_wo_price_override">
+                            <h3><i class="fa fa-exclamation-triangle me-1" title="تجاوز"/> تجاوز السعر</h3>
+                            <p class="wof_lf_hint">لاستثناء معتمد فقط؛ يُسجَّل السعر والسبب والمستخدم في السجل الزمني.</p>
+                            <div class="wof_lf_toggle">
+                                <field name="use_manual_price" widget="boolean_toggle" readonly="order_state not in ('draft', 'scheduled')" nolabel="1"/>
+                                <span>استخدام سعر استثنائي</span>
+                            </div>
+                            <div class="wof_lf_kv" invisible="not use_manual_price">
+                                <span>السعر الاستثنائي</span>
+                                <field name="manual_unit_price" required="use_manual_price" readonly="order_state not in ('draft', 'scheduled')"/>
+                                <span>السبب</span>
+                                <field name="price_override_reason" required="use_manual_price" readonly="order_state not in ('draft', 'scheduled')"
+                                       placeholder="مثال: عرض معتمد من المدير"/>
+                            </div>
+                        </section>
+
+                        <!-- Commission -->
+                        <section class="wof_lf_card">
+                            <h3><i class="fa fa-percent me-1" title="العمولة"/> العمولة</h3>
+                            <div class="wof_lf_kv">
+                                <span>عمولة الفني المهيأة</span><field name="configured_commission" readonly="1"/>
+                                <span>تُستحق</span><field name="commission_event" readonly="1"/>
+                                <span>الحالة</span>
+                                <field name="commission_state" widget="badge" readonly="1"
+                                       decoration-success="commission_state == 'approved'"
+                                       decoration-warning="commission_state == 'pending'"/>
+                                <span invisible="not commission_approved_at">اعتُمدت في</span>
+                                <field name="commission_approved_at" readonly="1" invisible="not commission_approved_at"/>
+                            </div>
+                        </section>
+
+                        <!-- Execution -->
+                        <section class="wof_lf_card">
+                            <h3><i class="fa fa-wrench me-1" title="التنفيذ"/> التنفيذ</h3>
+                            <div class="wof_lf_kv">
+                                <span>الفنيون</span>
+                                <field name="technician_ids" widget="many2many_tags"
+                                       readonly="part_kind == 'service_area' or order_state not in ('draft', 'scheduled', 'intake', 'in_progress')"
+                                       options="{'no_create': True, 'no_open': True}"/>
+                                <span invisible="not technician_names">سجل الفنيين</span>
+                                <field name="technician_names" readonly="1" invisible="not technician_names"/>
+                                <span>التقدم</span>
+                                <field name="execution_progress" widget="progressbar"
+                                       readonly="part_kind == 'service_area' or order_state != 'in_progress'"/>
+                            </div>
+                            <field name="execution_notes" nolabel="1" class="wof_lf_notes"
+                                   placeholder="ملاحظات التنفيذ…" readonly="order_state != 'in_progress'"/>
+                        </section>
+                    </div>
+
                     <group string="مراجع التكامل" groups="base.group_no_one">
                         <field name="public_uuid" readonly="1"/>
                         <field name="operation_source" readonly="1"/>

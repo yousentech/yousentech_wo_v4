@@ -96,6 +96,7 @@ export class WofServiceRows extends Component {
         await this.action.doAction(
             {
                 type: "ir.actions.act_window",
+                name: _t("تفاصيل الخدمة"),
                 res_model: "wof.installation.order.line",
                 res_id: row.id,
                 views: [[false, "form"]],
