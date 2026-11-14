@@ -250,6 +250,11 @@ class WofCompanyProfile(models.Model):
         [('net', 'صافي: السعر بعد الخصم'), ('visible', 'خصم ظاهر في عمود الخصم')],
         string='ترحيل الخصم إلى الفاتورة', default='visible', required=True,
     )
+    sale_detail_mode = fields.Selection(
+        [('note', 'سطر ملاحظة تحت الخدمة'), ('description', 'داخل وصف سطر الخدمة')],
+        string='تفاصيل الخدمة في أمر البيع والفاتورة', default='note', required=True,
+        help='الفيلم والدرجة والأجزاء والخيارات الإضافية: سطر ملاحظة منفصل، أو تُكتب في وصف سطر الخدمة نفسه.',
+    )
     operation_allow_multiple_technicians = fields.Boolean(
         string='السماح بتعدد الفنيين', default=True,
     )
@@ -352,7 +357,7 @@ class WofCompanyProfile(models.Model):
             'operation_tax_enabled', 'operation_tax_id',
             'operation_price_input_mode', 'operation_pricing_policy',
             'operation_auto_invoice', 'operation_allow_multiple_technicians',
-            'operation_invoice_by_partner', 'invoice_discount_mode',
+            'operation_invoice_by_partner', 'invoice_discount_mode', 'sale_detail_mode',
             'operation_technician_required',
             'payment_policy', 'discount_scope', 'discount_enabled', 'discount_default_limit',
             'discount_allow_override_request', 'discount_reason_required_from', 'commission_event',

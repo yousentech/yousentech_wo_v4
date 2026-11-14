@@ -529,6 +529,13 @@ export class WofSetupFlow extends Component {
         ];
     }
 
+    get saleDetailOptions() {
+        return [
+            { key: "note", name: _t("سطر ملاحظة"), desc: _t("تحت كل خدمة سطر ملاحظة فيه الفيلم والدرجة والأجزاء والخيارات."), ex: _t("مثال: زجاج أمامي ثم سطر «CTX · 04»") },
+            { key: "description", name: _t("داخل وصف الخدمة"), desc: _t("تُكتب التفاصيل في وصف سطر الخدمة نفسه، بدون سطر إضافي."), ex: _t("مثال: «زجاج أمامي — CTX · 04»") },
+        ];
+    }
+
     get discountModeOptions() {
         return [
             { key: "visible", name: _t("خصم ظاهر"), desc: _t("السعر الأصلي في الفاتورة، والخصم في عمود الخصم."), ex: _t("مثال: 500 بخصم 10%") },

@@ -27,6 +27,7 @@ FLOW_SCALARS = {
     'stock_allow_shortage': 'bool',
     'vin_validation': 'bool',
     'invoice_discount_mode': ('net', 'visible'),
+    'sale_detail_mode': ('note', 'description'),
 }
 
 
@@ -117,6 +118,7 @@ class WofCompanyProfileSetupFlow(models.Model):
             'stock_allow_shortage': self.stock_allow_shortage,
             'vin_validation': self.vin_validation,
             'invoice_discount': self.invoice_discount_mode,
+            'sale_detail': self.sale_detail_mode,
             'has_pay_type': 'pay_type' in self.env['res.partner']._fields,
             'discount': {
                 'enabled': self.discount_enabled,

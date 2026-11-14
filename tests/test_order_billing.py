@@ -566,3 +566,19 @@ class TestOrderBilling(TransactionCase):
         self.assertEqual(result['tag'], 'display_notification')
         self.assertEqual(order.payment_status, 'paid')
         self.assertFalse(order.invoice_id)
+
+    def test_sale_details_in_note_or_description(self):
+        self.set_invoice_mode('manual')
+        option = self.root['wof.car.part.options'].create({'code': 'T-DESC', 'name': 'تغطية الحواف'})
+        self.part.write({'part_options_ids': [(6, 0, option.ids)]})
+        order = self.make_order()
+        order.line_ids.wof_line_update({'option_ids': option.ids})
+        commands = order._wof_sale_order_lines()
+        self.assertTrue(any(c[2].get('display_type') == 'line_note' and 'تغطية الحواف' in c[2]['name'] for c in commands))
+        self.profile.wof_flow_apply('set', {'sale_detail_mode': 'description'})
+        commands = order._wof_sale_order_lines()
+        self.assertFalse(any(c[2].get('display_type') == 'line_note' for c in commands))
+        service = [c[2] for c in commands if c[2].get('wof_order_line_id') and not c[2].get('wof_stock_only')][0]
+        self.assertIn(self.film.name, service['name'])
+        self.assertIn('تغطية الحواف', service['name'])
+        self.profile.wof_flow_apply('set', {'sale_detail_mode': 'note'})

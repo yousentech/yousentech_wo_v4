@@ -174,7 +174,12 @@ class WofInstallationOrderBilling(models.Model):
         parts = ''
         if line.part_line_ids:
             parts = _('الأجزاء: %s') % '، '.join(line.part_line_ids.part_id.mapped('name'))
-        return '\n'.join(part for part in (title, description, parts) if part)
+        options = _('الخيارات الإضافية: %s') % line.option_names if line.option_names else ''
+        return '\n'.join(part for part in (title, description, parts, options) if part)
+
+    def _wof_sale_detail_mode(self):
+        profile = self.env['wof.company.profile']._wof_get_profile()
+        return profile.sale_detail_mode if profile and profile.sale_detail_mode else 'note'
 
     def _wof_stock_line_values(self, product, qty, **link):
         values = {
@@ -192,13 +197,17 @@ class WofInstallationOrderBilling(models.Model):
     def _wof_sale_order_lines(self):
         self.ensure_one()
         mode = self._wof_discount_mode()
+        in_description = self._wof_sale_detail_mode() == 'description'
         commands = []
         for line in self.line_ids.sorted(lambda rec: (rec.sequence, rec.id)):
             if not line.service_product_id:
                 raise ValidationError(_('المكوّن «%s» ليس له صنف خدمي للفوترة.') % line.car_part_id.name)
-            commands.append((0, 0, self._wof_service_line_values(line, mode)))
+            values = self._wof_service_line_values(line, mode)
             note = self._wof_note_text(line)
-            if note:
+            if note and in_description:
+                values['name'] = '%s\n%s' % (values['name'], note)
+            commands.append((0, 0, values))
+            if note and not in_description:
                 commands.append((0, 0, {'display_type': 'line_note', 'name': note}))
             needs = {}
             for product, qty in line._wof_stock_needs():
