@@ -175,8 +175,7 @@ class WofInstallationOrderBilling(models.Model):
         parts = ''
         if line.part_line_ids:
             parts = _('الأجزاء: %s') % '، '.join(line.part_line_ids.part_id.mapped('name'))
-        options = _('الخيارات الإضافية: %s') % line.option_names if line.option_names else ''
-        return '\n'.join(part for part in (title, description, parts, options) if part)
+        return '\n'.join(part for part in (title, description, parts) if part)
 
     def _wof_sale_detail_mode(self):
         profile = self.env['wof.company.profile']._wof_get_profile()

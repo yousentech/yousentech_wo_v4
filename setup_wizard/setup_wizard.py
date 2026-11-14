@@ -253,7 +253,7 @@ class WofCompanyProfile(models.Model):
     sale_detail_mode = fields.Selection(
         [('note', 'سطر ملاحظة تحت الخدمة'), ('description', 'داخل وصف سطر الخدمة')],
         string='تفاصيل الخدمة في أمر البيع والفاتورة', default='note', required=True,
-        help='الفيلم والدرجة والأجزاء والخيارات الإضافية: سطر ملاحظة منفصل، أو تُكتب في وصف سطر الخدمة نفسه.',
+        help='الفيلم والدرجة والأجزاء: سطر ملاحظة منفصل، أو تُكتب في وصف سطر الخدمة نفسه.',
     )
     operation_allow_multiple_technicians = fields.Boolean(
         string='السماح بتعدد الفنيين', default=True,

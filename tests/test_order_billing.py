@@ -582,13 +582,16 @@ class TestOrderBilling(TransactionCase):
         order = self.make_order()
         order.line_ids.wof_line_update({'option_ids': option.ids})
         commands = order._wof_sale_order_lines()
-        self.assertTrue(any(c[2].get('display_type') == 'line_note' and 'تغطية الحواف' in c[2]['name'] for c in commands))
+        notes = [c[2]['name'] for c in commands if c[2].get('display_type') == 'line_note']
+        self.assertTrue(notes)
+        # Extra options are not written on the sale order / invoice.
+        self.assertFalse(any('تغطية الحواف' in note for note in notes))
         self.profile.wof_flow_apply('set', {'sale_detail_mode': 'description'})
         commands = order._wof_sale_order_lines()
         self.assertFalse(any(c[2].get('display_type') == 'line_note' for c in commands))
         service = [c[2] for c in commands if c[2].get('wof_order_line_id') and not c[2].get('wof_stock_only')][0]
         self.assertIn(self.film.name, service['name'])
-        self.assertIn('تغطية الحواف', service['name'])
+        self.assertNotIn('تغطية الحواف', service['name'])
         self.profile.wof_flow_apply('set', {'sale_detail_mode': 'note'})
 
 
