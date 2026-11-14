@@ -669,3 +669,16 @@ class TestOrderBilling(TransactionCase):
         action = wizard.action_confirm()
         self.assertTrue(order.invoice_id)
         self.assertEqual(action.get('res_id'), order.invoice_id.id)
+
+    def test_cash_customer_payments_linked_to_the_invoice(self):
+        if 'customer_cash_move_id' not in self.env['account.payment']._fields:
+            self.skipTest('yousentech_invoicing cash posting is not installed')
+        self.set_invoice_mode('after')
+        order = self.make_order()
+        order.partner_id.pay_type = 'cash'
+        order.action_confirm_arrival()
+        self.pay(order, 500)
+        invoice = order.invoice_id
+        self.assertTrue(invoice)
+        self.assertEqual(order.payment_ids.customer_cash_move_id, invoice)
+        self.assertEqual(invoice.pay_amount_total, 500)

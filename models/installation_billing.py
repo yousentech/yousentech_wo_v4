@@ -273,6 +273,7 @@ class WofInstallationOrderBilling(models.Model):
             if not invoice.wof_order_id:
                 invoice.write({'wof_order_id': self.id})
             self._transition_write({'invoice_id': invoice.id})
+            self._wof_link_cash_payments(invoice)
             if invoice.state == 'posted':
                 self._wof_reconcile_payments(invoice)
             return invoice
@@ -282,11 +283,37 @@ class WofInstallationOrderBilling(models.Model):
         invoice = invoice[:1]
         invoice.write({'wof_order_id': self.id})
         self._transition_write({'invoice_id': invoice.id})
+        self._wof_link_cash_payments(invoice)
         self._log_business_event('order.invoice_created', details={'invoice': invoice.name or invoice.id})
         group = self.env.ref(AUTO_POST_GROUP, raise_if_not_found=False)
         if group and self.env.user in group.users:
             invoice.action_post()
         return invoice
+
+    def _wof_link_cash_payments(self, invoice):
+        """Cash customers (yousentech_invoicing): the invoice may be posted only when
+        its payments cover it, and those payments are the ones whose
+        ``customer_cash_move_id`` is the invoice. Link the order's payments to it so
+        posting sees them and does not ask for the money again (same rule as
+        yousentech_car_maintain). Nothing to do when that module is not installed."""
+        self.ensure_one()
+        Payment = self.env['account.payment']
+        if 'customer_cash_move_id' not in Payment._fields or not invoice:
+            return
+        partner = self.partner_id.commercial_partner_id
+        if 'pay_type' in partner._fields and partner.pay_type and partner.pay_type != 'cash':
+            return
+        payments = self.payment_ids.filtered(
+            lambda pay: pay.state == 'posted' and pay.payment_type == 'inbound'
+            and pay.company_id == invoice.company_id)
+        for payment in payments:
+            linked = payment.customer_cash_move_id
+            if linked and linked != invoice and linked.state != 'cancel':
+                continue
+            if linked != invoice:
+                payment.write({'customer_cash_move_id': invoice.id})
+        if hasattr(invoice, '_get_sum_payment'):
+            invoice._get_sum_payment()
 
     def action_create_invoice(self):
         self.ensure_one()

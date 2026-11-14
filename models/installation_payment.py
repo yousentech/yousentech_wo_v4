@@ -244,6 +244,8 @@ class WofOrderPaymentWizard(models.TransientModel):
                 'payment': '، '.join(payment.mapped('name')),
             })
             return {'type': 'ir.actions.act_window_close'}
+        if order.invoice_id and order.invoice_id.state != 'cancel':
+            order._wof_link_cash_payments(order.invoice_id)
         if order.invoice_id and order.invoice_id.state == 'posted':
             order._wof_reconcile_payments(order.invoice_id)
         order._log_business_event('order.payment_registered', details={
