@@ -682,3 +682,16 @@ class TestOrderBilling(TransactionCase):
         self.assertTrue(invoice)
         self.assertEqual(order.payment_ids.customer_cash_move_id, invoice)
         self.assertEqual(invoice.pay_amount_total, 500)
+
+    def test_execution_table_saves_progress_after_intake(self):
+        order = self.make_order()
+        tech = self.root['hr.employee'].create({'name': 'فني التقدم', 'user_id': self.user.id})
+        line = order.line_ids
+        line.with_context(wof_skip_technician_check=True)._write_line_internal({'technician_ids': [(6, 0, tech.ids)]})
+        order._transition_write({'state': 'in_progress'})
+        # What the form sends from the execution table.
+        order.write({'line_ids': [(1, line.id, {'execution_progress': 60, 'execution_notes': 'نصف العمل'})]})
+        self.assertEqual(line.execution_progress, 60)
+        # Commercial changes stay locked.
+        with self.assertRaises(ValidationError):
+            order.write({'line_ids': [(1, line.id, {'quantity': 2})]})

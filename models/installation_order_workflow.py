@@ -120,6 +120,18 @@ class WofInstallationOrderWorkflow(models.Model):
             'delivery_notes',
             'completion_date',
         }
+        # Progress, technicians and notes edited from the execution table reach the
+        # order as line commands: they are execution data, not the commercial lines
+        # (each line still checks its own rules).
+        execution_line_keys = {'execution_progress', 'execution_notes', 'technician_ids'}
+        if 'line_ids' in vals and all(
+            isinstance(command, (list, tuple)) and (
+                command[0] == 4
+                or (command[0] == 1 and set(command[2] or {}) <= execution_line_keys)
+            )
+            for command in vals['line_ids'] or []
+        ):
+            commercial = commercial - {'line_ids'}
         for order in self:
             if commercial.intersection(vals):
                 order._ensure_role(
