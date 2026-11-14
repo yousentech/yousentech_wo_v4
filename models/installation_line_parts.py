@@ -181,14 +181,12 @@ class WofInstallationOrderLineParts(models.Model):
         order = self.order_id
         lead = self._wof_is_team_lead()
         templates = self.car_part_id.template_ids.filtered('active').sorted(lambda rec: (rec.sequence, rec.id))
-        products = self.part_line_ids.product_id | self.film_product_id | self.film_category_id.default_product_id \
-            | self.film_category_id.film_category_line_ids.product_id
         return {
             'line_id': self.id,
             'template_id': (self.service_area_template_id or self.car_part_id.default_template_id).id,
             'templates': [{'id': t.id, 'name': t.name, 'is_default': t.is_default} for t in templates],
             'grades': [{'id': g.id, 'name': g.display_name} for g in self.available_grade_ids],
-            'products': [{'id': p.id, 'name': p.display_name} for p in products.filtered('active')],
+            'products': self._wof_stock_choices(),
             'technicians': [{'id': e.id, 'name': e.name} for e in self.available_technician_ids],
             'uses_inventory': bool(self.film_uses_inventory),
             'can_setup': lead and order.state in SETUP_STATES,
@@ -202,6 +200,7 @@ class WofInstallationOrderLineParts(models.Model):
                 'id': p.id, 'name': p.part_id.name, 'grade_id': p.grade_id.id, 'product_id': p.product_id.id,
                 'product_qty': p.product_qty, 'technician_ids': p.technician_ids.ids,
                 'technician_names': p.technician_names or '', 'progress': p.progress,
+                'tint_warning': p.tint_warning or '',
             } for p in self.part_line_ids],
         }
 
@@ -210,12 +209,10 @@ class WofInstallationOrderLineParts(models.Model):
         self.ensure_one()
         order = self.order_id
         lead = self._wof_is_team_lead()
-        products = self.film_product_id | self.film_category_id.default_product_id \
-            | self.film_category_id.film_category_line_ids.product_id
         base = self.wof_area_load() if self.part_line_ids else {
             'line_id': self.id, 'templates': [], 'parts': [],
             'grades': [{'id': g.id, 'name': g.display_name} for g in self.available_grade_ids],
-            'products': [{'id': p.id, 'name': p.display_name} for p in products.filtered('active')],
+            'products': self._wof_stock_choices(),
             'technicians': [{'id': e.id, 'name': e.name} for e in self.available_technician_ids],
             'uses_inventory': bool(self.film_uses_inventory),
             'can_setup': lead and order.state in SETUP_STATES,
@@ -241,14 +238,33 @@ class WofInstallationOrderLineParts(models.Model):
                 'max_percent': self.max_discount_percent, 'amount': self.discount_amount,
             },
             'can_commercial': lead and order.state in ('draft', 'scheduled'),
+            'tint_warning': self.tint_warning if self.has_tint_warning else '',
+            'options': {
+                'available': [{'id': o.id, 'name': o.name} for o in self.available_option_ids.filtered('active')],
+                'selected': self.option_ids.ids,
+                'required': bool(self.options_required),
+                'can_edit': lead and order.state in ('draft', 'scheduled', 'intake'),
+            },
         })
         return base
+
+    def _wof_stock_choices(self):
+        """Stock products offered for this service: the film's default product, its
+        grades' products and the ones already chosen; when the film defines none,
+        the storable products of the company (so the list is never empty)."""
+        products = self.part_line_ids.product_id | self.film_product_id \
+            | self.film_category_id.default_product_id | self.film_category_id.film_category_line_ids.product_id
+        products = products.filtered('active')
+        if not (self.film_category_id.default_product_id | self.film_category_id.film_category_line_ids.product_id):
+            products |= self.env['product.product'].search(
+                [('type', '=', 'product'), ('company_id', 'in', [self.company_id.id, False])], limit=200, order='name')
+        return [{'id': p.id, 'name': p.display_name} for p in products]
 
     def wof_line_update(self, vals):
         """Change one service row from the order screen (normal write: every rule applies)."""
         self.ensure_one()
         allowed = {'film_category_line_id', 'film_product_id', 'film_product_qty', 'technician_ids',
-                   'discount_type', 'discount_value', 'execution_progress'}
+                   'discount_type', 'discount_value', 'execution_progress', 'option_ids'}
         vals = {key: value for key, value in (vals or {}).items() if key in allowed}
         if self.part_line_ids and {'technician_ids', 'execution_progress', 'film_product_id', 'film_product_qty'} & set(vals):
             raise ValidationError(_('فنيو منطقة الخدمة وتقدمها وأصنافها تُحدَّد لكل جزء.'))
@@ -258,6 +274,8 @@ class WofInstallationOrderLineParts(models.Model):
         if 'discount_value' in vals:
             # An emptied box means no discount.
             vals['discount_value'] = float(vals['discount_value'] or 0.0)
+        if 'option_ids' in vals:
+            vals['option_ids'] = [(6, 0, [int(i) for i in vals['option_ids'] or []])]
         if 'technician_ids' in vals:
             ids = [int(i) for i in vals['technician_ids'] or []]
             current = set(self.technician_ids.ids)

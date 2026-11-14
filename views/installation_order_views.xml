@@ -424,6 +424,8 @@
                             invisible="state != 'delivered'"
                             confirm="سيُلغى الأمر المُسلَّم بعد التأكد من الإشعار الدائن ورد المبالغ ومرتجع المخزون. متابعة؟"
                             groups="yousentech_wo_v4.group_wo_manager"/>
+                    <button name="action_print_order" type="object" string="طباعة أمر التركيب" icon="fa-print"
+                            class="btn-secondary"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,scheduled,intake,in_progress,quality,ready,delivered"/>
                 </header>
@@ -591,15 +593,17 @@
                         </section>
                         
                         <section class="wof_sec wof_sec_services">
-                            <div class="wof_order_step_head"><h2>الخدمات</h2><p>السعر يُطبَّق تلقائيًا حسب حجم السيارة. اضغط الخدمة لفتحها وتحديد الدرجة والصنف والفنيين والخصم، ثم أغلقها؛ منطقة الخدمة تُحدَّد لكل جزء.</p></div>
-                            <div class="wof_services_bar">
-                                <button name="action_open_add_services" type="object" string="إضافة خدمة" icon="fa-plus"
-                                        class="btn btn-primary wof_order_add"
-                                        invisible="state not in ('draft', 'scheduled')"/>
-                                <div class="wof_services_disc" invisible="discount_scope != 'order'">
-                                    <label for="order_discount_percent" string="خصم على كامل الأمر %"/>
-                                    <field name="order_discount_percent" nolabel="1"
-                                           readonly="state not in ('draft', 'scheduled')"/>
+                            <div class="wof_services_head">
+                                <div class="wof_order_step_head"><h2>الخدمات</h2><p>اضغط الخدمة لفتحها وتحديد الدرجة والصنف والفنيين والخيارات، ثم أغلقها.</p></div>
+                                <div class="wof_services_bar">
+                                    <div class="wof_services_disc" invisible="discount_scope != 'order'">
+                                        <label for="order_discount_percent" string="خصم على كامل الأمر %"/>
+                                        <field name="order_discount_percent" nolabel="1"
+                                               readonly="state not in ('draft', 'scheduled')"/>
+                                    </div>
+                                    <button name="action_open_add_services" type="object" string="إضافة خدمة" icon="fa-plus"
+                                            class="btn btn-primary wof_order_add"
+                                            invisible="state not in ('draft', 'scheduled')"/>
                                 </div>
                             </div>
                             <field name="line_ids" widget="wof_service_rows" nolabel="1"
@@ -622,6 +626,9 @@
                                     <field name="part_missing_product"/>
                                     <field name="part_grade_summary"/>
                                     <field name="technician_names"/>
+                                    <field name="tint_warning_count"/>
+                                    <field name="option_names"/>
+                                    <field name="options_missing"/>
                                     <field name="unit_price"/>
                                     <field name="discount_amount"/>
                                     <field name="execution_progress"/>

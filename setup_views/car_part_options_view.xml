@@ -40,14 +40,14 @@
     </record>
 
     <record id="action_car_part_option_wo_v4" model="ir.actions.act_window">
-        <field name="name">خيارات أجزاء السيارة</field>
+        <field name="name">الخيارات الإضافية</field>
         <field name="res_model">wof.car.part.options</field>
         <field name="view_mode">tree,form</field>
     </record>
 
     <menuitem id="menu_car_part_option_wo_v4"
-              name="خيارات الأجزاء"
-              parent="menu_wo_v4_configuration"
+              name="الخيارات الإضافية"
+              parent="menu_wo_v4_inputs"
               action="action_car_part_option_wo_v4"
               sequence="42"/>
 </odoo>

@@ -446,6 +446,7 @@ class WofFilmCategoryFlow(models.Model):
                 'warning_msg': part.warning_msg or '',
                 'default_grade_id': line.film_category_line_id.id or False,
                 'allowed_ids': line.allowed_grade_ids.filtered('active').ids,
+                'kid_rules': self._wof_kid_rules(part) if is_area and self.supports_color_grades else [],
                 'price_ok': readiness['lines'].get(line.id, {}).get('price', False),
                 'commission_ok': readiness['lines'].get(line.id, {}).get('commission', False),
             })
@@ -612,6 +613,26 @@ class WofFilmCategoryFlow(models.Model):
             obsolete.with_context(skip_default_sync=True).write({'active': False, 'is_default': False})
         part.service_area_part_ids = [(6, 0, default_parts.ids)]
 
+    def wof_part_option_create(self, name):
+        """Add an extra option from the component form; returns it for selection."""
+        self._wof_flow_can_read()
+        self._wof_matrix_check_access()
+        name = (name or '').strip()
+        if not name:
+            raise ValidationError(_('اكتب اسم الخيار.'))
+        Option = self.env['wof.car.part.options'].with_context(active_test=False)
+        option = Option.search([('name', '=ilike', name)], limit=1)
+        if not option:
+            base = 'OPT%s' % (Option.search_count([]) + 1)
+            code, n = base, 1
+            while Option.search_count([('code', '=', code)]):
+                n += 1
+                code = '%s_%s' % (base, n)
+            option = Option.create({'code': code, 'name': name})
+        elif not option.active:
+            option.active = True
+        return {'id': option.id, 'name': option.name}
+
     def wof_component_save(self, payload):
         """Create (and add to this film) or edit a component master."""
         self.ensure_one()
@@ -688,6 +709,7 @@ class WofFilmCategoryFlow(models.Model):
             'comp_move': self._wof_op_comp_move,
             'comp_reorder': self._wof_op_comp_reorder,
             'comp_tint': self._wof_op_comp_tint,
+            'kid_tint': self._wof_op_kid_tint,
             'policy': self._wof_op_policy,
             'stock_product': self._wof_op_stock_product,
             'activate': self._wof_op_activate,
@@ -846,14 +868,51 @@ class WofFilmCategoryFlow(models.Model):
             if by_id[line_id].sequence != position * 10:
                 by_id[line_id].sequence = position * 10
 
-    def _wof_op_comp_tint(self, payload):
-        line = self._wof_comp_line(payload)
+    def _wof_area_all_parts(self, area):
+        parts = area.template_ids.filtered('active').component_ids | area.service_area_part_ids
+        return parts.filtered(lambda part: part.part_type == 'car_part').sorted(lambda part: (part.name or '', part.id))
+
+    def _wof_kid_line(self, part):
+        lines = self.film_part_line_ids.filtered(lambda rec: rec.car_part_id == part)
+        return lines.filtered('part_selected')[:1] or lines[:1]
+
+    def _wof_kid_rules(self, area):
+        """Grade rule of each part of a service area in this film."""
+        rules = []
+        for part in self._wof_area_all_parts(area):
+            line = self._wof_kid_line(part)
+            rules.append({
+                'part_id': part.id, 'name': part.name, 'warning_msg': part.warning_msg or '',
+                'default_grade_id': line.film_category_line_id.id or False,
+                'allowed_ids': line.allowed_grade_ids.filtered('active').ids,
+            })
+        return rules
+
+    def _wof_op_kid_tint(self, payload):
+        """Grade rule of a part inside a service area. The rule is kept on the part's
+        line in this film; a part that is not a component of the film gets a hidden
+        line (not selected), so it is not offered as a service on its own."""
+        area_line = self._wof_comp_line(payload)
+        part = self._wof_area_all_parts(area_line.car_part_id).filtered(lambda rec: rec.id == payload.get('part_id'))
+        if not part:
+            raise ValidationError(_('الجزء ليس ضمن منطقة الخدمة.'))
+        line = self._wof_kid_line(part)
+        if not line:
+            line = self.env['wof.film.parts.lines'].create({
+                'header_id': self.id, 'car_part_id': part.id, 'part_selected': False, 'sequence': 999,
+            })
+        self._wof_op_comp_tint(dict(payload, line_id=line.id), line=line)
+
+    def _wof_op_comp_tint(self, payload, line=None):
+        line = line or self._wof_comp_line(payload)
         grades = self.film_category_line_ids.filtered('active')
         allowed = grades.filtered(lambda grade: grade.id in set(payload.get('allowed_ids') or []))
         default = grades.filtered(lambda grade: grade.id == payload.get('default_grade_id'))
         if allowed and default and default not in allowed:
             allowed |= default
         line.write({'film_category_line_id': default.id or False, 'allowed_grade_ids': [(6, 0, allowed.ids)]})
+        if 'warning_msg' in payload:
+            line.car_part_id.write({'warning_msg': (payload.get('warning_msg') or '').strip() or False})
 
     def _wof_op_policy(self, payload):
         key = payload.get('key')

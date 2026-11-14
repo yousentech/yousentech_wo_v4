@@ -44,6 +44,11 @@
                                 <t t-if="row.area">منطقة خدمة<t t-if="row.template"> · نموذج «<t t-esc="row.template"/>» (<t t-esc="row.partCount"/> أجزاء)</t></t>
                                 <t t-else="">جزء</t>
                             </small>
+                            <span t-if="row.warnings or row.optionsMissing or row.options" class="wof_srow_flags">
+                                <span t-if="row.warnings" class="wof_srow_flag is-danger"><i class="fa fa-exclamation-triangle" title="تحذير"/> درجة غير مسموحة<t t-if="row.warnings > 1"> (<t t-esc="row.warnings"/>)</t></span>
+                                <span t-if="row.optionsMissing" class="wof_srow_flag is-warn"><i class="fa fa-list-ul" title="خيارات"/> خيارات إجبارية ناقصة</span>
+                                <span t-elif="row.options" class="wof_srow_flag"><i class="fa fa-check" title="خيارات"/> <t t-esc="row.options"/></span>
+                            </span>
                         </div>
                         <div class="wof_srow_cell"><small>الدرجة</small><b t-esc="row.grade"/></div>
                         <div class="wof_srow_cell">
@@ -78,7 +83,7 @@
                             <div t-if="!data.area" class="wof_sedit">
                                 <label t-if="data.grades.length" class="wof_sedit_f">
                                     <small>الدرجة</small>
-                                    <select class="wof_sparts_sel" t-att-disabled="!data.can_commercial or state.busy" t-on-change="(ev) => this.onLineSelect(row.id, 'film_category_line_id', ev)">
+                                    <select t-attf-class="wof_sparts_sel {{ data.tint_warning ? 'is-danger' : '' }}" t-att-disabled="!data.can_commercial or state.busy" t-on-change="(ev) => this.onLineSelect(row.id, 'film_category_line_id', ev)">
                                         <option value="">—</option>
                                         <t t-foreach="data.grades" t-as="g" t-key="g.id"><option t-att-value="g.id" t-att-selected="g.id === data.grade_id" t-esc="g.name"/></t>
                                     </select>
@@ -109,6 +114,11 @@
                                     </span>
                                 </label>
                             </div>
+                            <div t-if="!data.area and data.tint_warning" class="wof_swarn" role="alert">
+                                <i class="fa fa-exclamation-triangle" title="تحذير"/>
+                                <span><b>تحذير درجة اللون:</b> <t t-esc="data.tint_warning"/></span>
+                                <small>يظهر في أمر التركيب المطبوع لتوقيع العميل.</small>
+                            </div>
 
                             <!-- Service area: template + parts table -->
                             <t t-if="data.area">
@@ -136,10 +146,13 @@
                                     </thead>
                                     <tbody>
                                         <t t-foreach="data.parts" t-as="part" t-key="part.id">
-                                            <tr>
-                                                <td class="is-name" t-esc="part.name"/>
+                                            <tr t-att-class="part.tint_warning ? 'is-danger' : ''">
+                                                <td class="is-name">
+                                                    <t t-esc="part.name"/>
+                                                    <small t-if="part.tint_warning" class="wof_spart_warn"><i class="fa fa-exclamation-triangle" title="تحذير"/> <t t-esc="part.tint_warning"/></small>
+                                                </td>
                                                 <td t-if="data.grades.length">
-                                                    <select class="wof_sparts_sel" t-att-disabled="!data.can_setup or state.busy" t-on-change="(ev) => this.onSelect(row.id, part, 'grade_id', ev)">
+                                                    <select t-attf-class="wof_sparts_sel {{ part.tint_warning ? 'is-danger' : '' }}" t-att-disabled="!data.can_setup or state.busy" t-on-change="(ev) => this.onSelect(row.id, part, 'grade_id', ev)">
                                                         <option value="">—</option>
                                                         <t t-foreach="data.grades" t-as="g" t-key="g.id"><option t-att-value="g.id" t-att-selected="g.id === part.grade_id" t-esc="g.name"/></t>
                                                     </select>
@@ -186,6 +199,22 @@
                                     </select>
                                 </div>
                             </t>
+
+                            <!-- Extra options of the component -->
+                            <div t-if="data.options.available.length" t-attf-class="wof_sopts {{ data.options.required and !data.options.selected.length ? 'is-missing' : '' }}">
+                                <small class="wof_sopts_label">الخيارات الإضافية<span t-if="data.options.required" class="wof_sopts_req">إجبارية</span></small>
+                                <div class="wof_sopts_list">
+                                    <t t-foreach="data.options.available" t-as="o" t-key="o.id">
+                                        <button type="button" t-att-aria-pressed="data.options.selected.includes(o.id) ? 'true' : 'false'"
+                                                t-attf-class="wof_sparts_opt {{ data.options.selected.includes(o.id) ? 'is-on' : '' }}"
+                                                t-att-disabled="!data.options.can_edit or state.busy"
+                                                t-on-click="() => this.toggleOption(row.id, o.id)">
+                                            <i t-if="data.options.selected.includes(o.id)" class="fa fa-check me-1" title="مختار"/><t t-esc="o.name"/>
+                                        </button>
+                                    </t>
+                                </div>
+                                <small t-if="data.options.required and !data.options.selected.length" class="wof_sopts_hint">اختر خيارًا واحدًا على الأقل قبل تأكيد الأمر.</small>
+                            </div>
 
                             <!-- Discount of the service (when discounts are per service) + advanced -->
                             <div class="wof_sfoot">

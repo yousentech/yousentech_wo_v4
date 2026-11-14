@@ -15,4 +15,5 @@ from . import installation_team
 from . import installation_technician
 from . import installation_vehicle
 from . import installation_line_parts
+from . import installation_line_options
 

@@ -51,6 +51,9 @@ export class WofServiceRows extends Component {
                 productQty: d.film_product_qty,
                 missing: d.part_missing_product || 0,
                 team: d.technician_names || "",
+                warnings: d.tint_warning_count || 0,
+                options: d.option_names || "",
+                optionsMissing: Boolean(d.options_missing),
                 price: d.unit_price,
                 discount: d.discount_amount,
                 progress: d.execution_progress || 0,
@@ -183,6 +186,16 @@ export class WofServiceRows extends Component {
 
     onLineSelect(lineId, key, ev) {
         return this.updateLine(lineId, { [key]: ev.target.value ? Number(ev.target.value) : false });
+    }
+
+    toggleOption(lineId, optionId) {
+        const data = this.state.areas[lineId];
+        if (!data || !data.options.can_edit) {
+            return;
+        }
+        const selected = data.options.selected;
+        const ids = selected.includes(optionId) ? selected.filter((x) => x !== optionId) : [...selected, optionId];
+        return this.updateLine(lineId, { option_ids: ids });
     }
 
     onLineQty(lineId, ev) {

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_report_installation_order" model="ir.actions.report">
+        <field name="name">أمر التركيب</field>
+        <field name="model">wof.installation.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">yousentech_wo_v4.report_installation_order</field>
+        <field name="report_file">yousentech_wo_v4.report_installation_order</field>
+        <field name="print_report_name">'أمر تركيب - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_wof_installation_order"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_installation_order_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or o.env.lang)"/>
+            <t t-set="warnings" t-value="o.wof_grade_warnings()"/>
+            <div class="page wof_print" dir="rtl" style="direction: rtl; text-align: right; font-size: 12px;">
+                <h3 style="margin: 0 0 4px;">أمر تركيب <span t-field="o.name"/></h3>
+                <p style="color: #64748B; margin: 0 0 12px;">
+                    التاريخ: <span t-field="o.appointment_at" t-options="{'widget': 'date'}"/>
+                    · الفرع: <span t-field="o.company_id"/>
+                    <t t-if="o.supervisor_id"> · المشرف: <span t-field="o.supervisor_id"/></t>
+                </p>
+
+                <table class="table table-sm table-borderless" style="margin-bottom: 12px; border: 1px solid #E2E8F0;">
+                    <tr>
+                        <td style="width: 50%;"><b>العميل:</b> <span t-field="o.partner_id"/><br/>
+                            <b>الجوال:</b> <span t-esc="o.partner_mobile or ''"/></td>
+                        <td><b>السيارة:</b> <span t-esc="o.vehicle_manufacturer_id.name or ''"/> <span t-esc="o.vehicle_model_id.name or ''"/> <span t-esc="o.vehicle_year_id.display_name or ''"/>
+                            <t t-if="o.vehicle_color_id"> · <span t-field="o.vehicle_color_id"/></t><br/>
+                            <b>اللوحة:</b> <span t-esc="o.vehicle_plate or '—'"/>
+                            <t t-if="o.vehicle_vin"> · <b>الهيكل:</b> <span t-esc="o.vehicle_vin"/></t>
+                            <t t-if="o.car_size_id"> · <b>الحجم:</b> <span t-field="o.car_size_id"/></t></td>
+                    </tr>
+                </table>
+
+                <table class="table table-sm" style="border: 1px solid #E2E8F0;">
+                    <thead style="background: #F1F5F9;">
+                        <tr>
+                            <th>الخدمة / المكوّن</th>
+                            <th>الفيلم</th>
+                            <th>درجة اللون</th>
+                            <th>الخيارات الإضافية</th>
+                            <th class="text-start">السعر</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="o.line_ids" t-as="line">
+                            <tr t-att-style="'background: #FEF2F2;' if line.has_tint_warning else ''">
+                                <td><b t-esc="line.car_part_id.name"/><br/><small style="color: #64748B;" t-esc="line.service_type_id.name"/></td>
+                                <td t-esc="line.film_category_id.name or ''"/>
+                                <td>
+                                    <t t-if="line.part_line_ids" t-esc="line.part_grade_summary or '—'"/>
+                                    <t t-else="" t-esc="line.film_category_line_id.display_name or '—'"/>
+                                    <span t-if="line.has_tint_warning" style="color: #B91C1C; font-weight: bold;"> ⚠</span>
+                                </td>
+                                <td t-esc="line.option_names or '—'"/>
+                                <td class="text-start"><span t-field="line.amount_total"/></td>
+                            </tr>
+                            <t t-foreach="line.part_line_ids" t-as="part">
+                                <tr t-att-style="'background: #FEF2F2;' if part.tint_warning else 'color: #475569;'">
+                                    <td style="padding-right: 24px;">— <span t-esc="part.part_id.name"/></td>
+                                    <td/>
+                                    <td><span t-esc="part.grade_id.display_name or '—'"/><span t-if="part.tint_warning" style="color: #B91C1C; font-weight: bold;"> ⚠</span></td>
+                                    <td/><td/>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+
+                <table class="table table-sm" style="width: 45%; margin-right: auto; margin-left: 0;">
+                    <tr><td>قبل الضريبة</td><td class="text-start"><span t-field="o.amount_untaxed"/></td></tr>
+                    <tr t-if="o.amount_discount"><td>الخصم</td><td class="text-start"><span t-field="o.amount_discount"/></td></tr>
+                    <tr><td>الضريبة</td><td class="text-start"><span t-field="o.amount_tax"/></td></tr>
+                    <tr style="font-weight: bold; border-top: 2px solid #0F172A;"><td>الإجمالي</td><td class="text-start"><span t-field="o.amount_total"/></td></tr>
+                </table>
+
+                <div t-if="warnings" style="margin-top: 14px; padding: 10px 14px; border: 2px solid #DC2626; border-radius: 8px; background: #FEF2F2; color: #991B1B; page-break-inside: avoid;">
+                    <h5 style="margin: 0 0 6px; color: #B91C1C;">⚠ تنبيهات درجة اللون</h5>
+                    <ul style="margin: 0 0 8px; padding-right: 18px;">
+                        <li t-foreach="warnings" t-as="w"><b t-esc="w[0]"/>: <span t-esc="w[1]"/></li>
+                    </ul>
+                    <p style="margin: 0;">أقرّ أنا العميل بأنني اطلعت على التنبيهات أعلاه، وأن اختيار هذه الدرجات تم بناءً على طلبي.</p>
+                </div>
+
+                <div t-if="o.customer_notes" style="margin-top: 12px;"><b>ملاحظات:</b> <span t-field="o.customer_notes"/></div>
+
+                <table style="width: 100%; margin-top: 36px; page-break-inside: avoid;">
+                    <tr>
+                        <td style="width: 50%; padding-left: 20px;">
+                            <b>توقيع العميل</b><br/><span t-field="o.partner_id"/>
+                            <div style="border-bottom: 1px solid #0F172A; height: 40px;"/>
+                        </td>
+                        <td style="padding-right: 20px;">
+                            <b>توقيع المركز</b><br/><span t-esc="o.supervisor_id.name or o.created_by_id.name or ''"/>
+                            <div style="border-bottom: 1px solid #0F172A; height: 40px;"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_installation_order">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="yousentech_wo_v4.report_installation_order_document"/>
+            </t>
+        </t>
+    </template>
+</odoo>

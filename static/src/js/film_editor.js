@@ -455,6 +455,26 @@ export class WofFilmEditor extends Component {
         this.state.form[field] = ev.target.value;
     }
 
+    async createOption() {
+        const name = (this.state.newOption || "").trim();
+        if (!name || !this.state.form) {
+            return;
+        }
+        try {
+            const option = await this.orm.call("wof.film.category", "wof_part_option_create", [[this.filmId], name]);
+            const f = this.state.form;
+            if (!f.choices.options.some((o) => o.id === option.id)) {
+                f.choices.options.push(option);
+            }
+            if (!f.option_ids.includes(option.id)) {
+                f.option_ids = [...f.option_ids, option.id];
+            }
+            this.state.newOption = "";
+        } catch (error) {
+            this.notification.add((error.data && error.data.message) || error.message || "تعذرت إضافة الخيار.", { type: "danger" });
+        }
+    }
+
     toggleFormOption(id) {
         const f = this.state.form;
         f.option_ids = f.option_ids.includes(id) ? f.option_ids.filter((x) => x !== id) : [...f.option_ids, id];
@@ -596,7 +616,17 @@ export class WofFilmEditor extends Component {
             this.state.tintEdit = null;
             return;
         }
+        if (c.type === "service_area") {
+            this.state.picker.open = false;
+            this.state.tintEdit = { line_id: c.line_id, part_id: false };
+            return;
+        }
         this.startTint(c);
+    }
+
+    startKidTint(c, kid) {
+        this.startTint({ ...kid, line_id: c.line_id });
+        this.state.tintEdit.part_id = kid.part_id;
     }
 
     isTplOpen(c, tp) {
@@ -674,7 +704,10 @@ export class WofFilmEditor extends Component {
         const all = this.state.data.grades.map((g) => g.id);
         // No restriction is stored as an empty list: show it as every grade selected.
         const allowed = c.allowed_ids.length ? c.allowed_ids.filter((id) => all.includes(id)) : all;
-        this.state.tintEdit = { line_id: c.line_id, default_grade_id: c.default_grade_id || false, allowed_ids: allowed };
+        this.state.tintEdit = {
+            line_id: c.line_id, default_grade_id: c.default_grade_id || false, allowed_ids: allowed,
+            warning_msg: c.warning_msg || "",
+        };
     }
 
     onDefaultGrade(ev) {
@@ -703,7 +736,7 @@ export class WofFilmEditor extends Component {
         const all = this.state.data.grades.map((g) => g.id);
         const restricted = all.some((id) => !edit.allowed_ids.includes(id));
         const payload = { ...edit, allowed_ids: restricted ? edit.allowed_ids : [] };
-        if (await this.apply("comp_tint", payload)) {
+        if (await this.apply(edit.part_id ? "kid_tint" : "comp_tint", payload)) {
             this.state.tintEdit = null;
         }
     }

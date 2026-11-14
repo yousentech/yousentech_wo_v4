@@ -98,3 +98,20 @@
 .wof_sparts_sel.is-tiny { min-width: 70px; }
 .wof_sadv { margin-inline-start: auto; border: 0; background: transparent; color: #0A5252; font-weight: 600; font-size: .82rem; cursor: pointer; }
 .wof_sadv:hover { text-decoration: underline; }
+
+/* grade warnings + extra options */
+.wof_srow_flags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.wof_srow_flag { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 99px; background: #F1F5F9; color: #475569; font-size: .74rem; font-weight: 700; }
+.wof_srow_flag.is-danger { background: #FEE2E2; color: #B91C1C; }
+.wof_srow_flag.is-warn { background: #FEF3C7; color: #B45309; }
+.wof_sparts_sel.is-danger { border-color: #F87171; background: #FEF2F2; color: #B91C1C; font-weight: 700; }
+.wof_swarn { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; padding: 9px 12px; border: 1px solid #FCA5A5; border-inline-start: 4px solid #DC2626; border-radius: 10px; background: #FEF2F2; color: #991B1B; }
+.wof_swarn small { color: #B91C1C; opacity: .8; }
+.wof_sparts_table tr.is-danger td { background: #FEF2F2; }
+.wof_spart_warn { display: block; margin-top: 2px; color: #B91C1C; font-weight: 700; font-size: .74rem; white-space: normal; }
+.wof_sopts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; padding: 10px 12px; border: 1px dashed #C9DDEA; border-radius: 12px; background: #F8FBFD; }
+.wof_sopts.is-missing { border-color: #F2C46B; background: #FFFBEB; }
+.wof_sopts_label { font-weight: 700; color: #334155; }
+.wof_sopts_req { margin-inline-start: 6px; padding: 0 7px; border-radius: 99px; background: #FEF3C7; color: #B45309; font-size: .72rem; }
+.wof_sopts_list { display: flex; flex-wrap: wrap; gap: 6px; }
+.wof_sopts_hint { flex-basis: 100%; color: #B45309; }

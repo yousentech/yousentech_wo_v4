@@ -364,3 +364,76 @@ class TestOrderBilling(TransactionCase):
         self.assertEqual(line.discount_value, 0)
         self.assertEqual(line.discount_amount, 0)
         self.assertTrue(data['discount']['shown'])
+
+    # ------------------------------------------- extra options + grade warnings
+    def test_required_options_block_confirmation(self):
+        option = self.root['wof.car.part.options'].create({'code': 'T-OPT', 'name': 'خيار اختبار'})
+        self.part.write({'part_options_ids': [(6, 0, option.ids)], 'part_options_required': True})
+        order = self.make_order()
+        line = order.line_ids
+        data = line.wof_line_load()
+        self.assertEqual([o['id'] for o in data['options']['available']], option.ids)
+        self.assertTrue(data['options']['required'])
+        self.assertTrue(line.options_missing)
+        with self.assertRaises(ValidationError):
+            order.action_confirm_arrival()
+        data = line.wof_line_update({'option_ids': option.ids})
+        self.assertEqual(data['options']['selected'], option.ids)
+        self.assertEqual(line.option_names, 'خيار اختبار')
+        order.action_confirm_arrival()
+        self.assertEqual(order.state, 'scheduled')
+
+    def test_option_created_from_component_form(self):
+        first = self.film.wof_part_option_create('خيار جديد من المحرر')
+        again = self.film.wof_part_option_create('خيار جديد من المحرر')
+        self.assertEqual(first['id'], again['id'])
+
+    def test_grade_warning_on_component_and_area_parts(self):
+        grades = self.film.film_category_line_ids.filtered('active')
+        if len(grades) < 2:
+            self.skipTest('film has fewer than two grades')
+        allowed, other = grades[0], grades[1]
+        line_rec = self.film.film_part_line_ids.filtered(lambda rec: rec.car_part_id == self.part)
+        self.film.wof_film_apply('comp_tint', {
+            'line_id': line_rec.id, 'default_grade_id': allowed.id, 'allowed_ids': allowed.ids,
+            'warning_msg': 'إخلاء مسؤولية المركز',
+        })
+        self.assertEqual(self.part.warning_msg, 'إخلاء مسؤولية المركز')
+        order = self.make_order()
+        line = order.line_ids
+        line.wof_line_update({'film_category_line_id': other.id})
+        self.assertTrue(line.has_tint_warning)
+        self.assertEqual(line.wof_line_load()['tint_warning'], 'إخلاء مسؤولية المركز')
+        # A part inside a service area gets its own rule in the film.
+        area_line = self.film.film_part_line_ids.filtered(lambda rec: rec.car_part_id == self.area)
+        kid = self.area_kids[0]
+        load = self.film.wof_film_load()
+        comp = [c for c in load['components'] if c['line_id'] == area_line.id][0]
+        self.assertIn(kid.id, [k['part_id'] for k in comp['kid_rules']])
+        self.film.wof_film_apply('kid_tint', {
+            'line_id': area_line.id, 'part_id': kid.id, 'default_grade_id': allowed.id,
+            'allowed_ids': allowed.ids, 'warning_msg': 'غير مصرح مروريًا',
+        })
+        hidden = self.film.film_part_line_ids.filtered(lambda rec: rec.car_part_id == kid)
+        self.assertFalse(hidden.part_selected)
+        order.wof_add_services([{'film_id': self.film.id, 'part_id': self.area.id}])
+        area = order.line_ids.filtered('part_line_ids')
+        part = area.part_line_ids.filtered(lambda rec: rec.part_id == kid)
+        area.wof_area_update(part.ids, {'grade_id': other.id})
+        self.assertEqual(part.tint_warning, 'غير مصرح مروريًا')
+        self.assertEqual(area.tint_warning_count, 1)
+        warnings = order.wof_grade_warnings()
+        self.assertEqual(len(warnings), 2)
+        html = self.root['ir.actions.report']._render_qweb_html(
+            'yousentech_wo_v4.report_installation_order', order.ids)[0].decode()
+        self.assertIn('غير مصرح مروريًا', html)
+        self.assertIn('توقيع العميل', html)
+
+    def test_stock_choices_fall_back_to_storable_products(self):
+        order = self.make_order()
+        line = order.line_ids
+        self.assertIn(self.roll.id, [p['id'] for p in line._wof_stock_choices()])
+        self.film.wof_film_apply('stock_product', {'product_id': False})
+        self.film.film_category_line_ids.write({'product_id': False})
+        choices = [p['id'] for p in line._wof_stock_choices()]
+        self.assertIn(self.roll.id, choices)

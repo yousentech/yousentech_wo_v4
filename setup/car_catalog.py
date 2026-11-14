@@ -21,6 +21,16 @@ CAR_COLORS = [
     ('YELLOW', 'أصفر', 'Yellow', '#F2C200'), ('PURPLE', 'بنفسجي', 'Purple', '#5E35B1'),
 ]
 
+PART_OPTIONS = [
+    # code, Arabic, English
+    ('REMOVE_OLD', 'إزالة الفيلم القديم', 'Remove old film'),
+    ('SURFACE_PREP', 'تنظيف وتجهيز السطح', 'Surface preparation'),
+    ('EDGE_WRAP', 'تغطية الحواف', 'Edge wrapping'),
+    ('BADGES', 'فك الشعارات وإعادة تركيبها', 'Remove and refit badges'),
+    ('POLISH', 'تلميع قبل التركيب', 'Polish before installation'),
+    ('EXT_WARRANTY', 'ضمان ممتد', 'Extended warranty'),
+]
+
 CAR_CATALOG = {
     # make code: (Arabic, English, [(model code, Arabic, English), ...])
     'TOYOTA': ('تويوتا', 'Toyota', [
@@ -166,6 +176,10 @@ class WofCarManufactoryCatalog(models.Model):
             if not self._wof_find(Color, code, [ar, en]):
                 self._wof_create_named(Color, {'code': code, 'name': en, 'color_hex': hex_value,
                                                'sequence': sequence * 10}, ar)
+        Option = self.env['wof.car.part.options']
+        for code, ar, en in PART_OPTIONS:
+            if not self._wof_find(Option, code, [ar, en]):
+                self._wof_create_named(Option, {'code': code, 'name': en}, ar)
         Make = self.with_context(active_test=False)
         Model = self.env['wof.car.type']
         for make_code, (make_ar, make_en, car_models) in CAR_CATALOG.items():

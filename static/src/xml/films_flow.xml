@@ -595,7 +595,13 @@
                                     <t t-foreach="f.choices.options" t-as="o" t-key="o.id">
                                         <button type="button" t-att-aria-pressed="f.option_ids.includes(o.id) ? 'true' : 'false'" t-att-class="'wof_fe_gchip' + (f.option_ids.includes(o.id) ? ' is-on' : '')" t-on-click="() => this.toggleFormOption(o.id)" t-esc="o.name"/>
                                     </t>
-                                    <span t-if="!f.choices.options.length" class="wof_sf_muted wof_sf_small">لا توجد خيارات معرّفة.</span>
+                                    <span t-if="!f.choices.options.length" class="wof_sf_muted wof_sf_small">لا توجد خيارات بعد؛ أضف أول خيار.</span>
+                                </div>
+                                <div class="wof_sf_inline">
+                                    <input class="wof_sf_input wof_fe_optnew" aria-label="خيار جديد" placeholder="خيار جديد، مثل: إزالة الفيلم القديم"
+                                           t-att-value="state.newOption or ''" t-on-input="(ev) => state.newOption = ev.target.value"
+                                           t-on-keydown="(ev) => ev.key === 'Enter' and this.createOption()"/>
+                                    <button type="button" class="btn btn-light" t-att-disabled="!(state.newOption or '').trim() or state.busy" t-on-click="createOption"><i class="fa fa-plus" aria-hidden="true"/> إضافة خيار</button>
                                 </div>
                             </div>
 
@@ -621,7 +627,7 @@
                                             <span class="wof_sf_muted wof_sf_small" t-esc="componentMeta(c)"/>
                                         </span>
                                         <button t-if="c.type === 'service_area'" type="button" class="btn btn-link wof_fe_expand" t-att-aria-expanded="state.expanded[c.line_id] ? 'true' : 'false'" t-on-click="() => this.toggleExpand(c)"><t t-esc="c.templates.length"/> نماذج <i t-att-class="'fa ' + (state.expanded[c.line_id] ? 'fa-chevron-up' : 'fa-chevron-down')" aria-hidden="true"/></button>
-                                        <button t-if="needsTint and c.type === 'car_part'" type="button" t-att-aria-label="'درجات اللون لـ ' + c.name" title="درجات اللون" t-att-aria-expanded="state.tintEdit and state.tintEdit.line_id === c.line_id ? 'true' : 'false'" t-att-class="'wof_sf_icon_btn' + (state.tintEdit and state.tintEdit.line_id === c.line_id ? ' is-active' : '')" t-on-click="() => this.toggleTint(c)"><i class="fa fa-tint" aria-hidden="true"/></button>
+                                        <button t-if="needsTint and (c.type === 'car_part' or (c.kid_rules or []).length)" type="button" t-att-aria-label="'درجات اللون لـ ' + c.name" title="درجات اللون" t-att-aria-expanded="state.tintEdit and state.tintEdit.line_id === c.line_id ? 'true' : 'false'" t-att-class="'wof_sf_icon_btn' + (state.tintEdit and state.tintEdit.line_id === c.line_id ? ' is-active' : '')" t-on-click="() => this.toggleTint(c)"><i class="fa fa-tint" aria-hidden="true"/></button>
                                         <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'تعديل ' + c.name" title="تعديل المكوّن" t-on-click="() => this.openForm(c.type, c)"><i class="fa fa-pencil" aria-hidden="true"/></button>
                                         <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'إزالة ' + c.name + ' من الفيلم'" title="إزالة من الفيلم" t-att-disabled="state.busy" t-on-click="() => this.apply('comp_remove', { line_id: c.line_id })"><i class="fa fa-trash-o" aria-hidden="true"/></button>
                                     </div>
@@ -643,7 +649,17 @@
                                             </li>
                                         </t>
                                     </ul>
-                                    <div t-if="state.tintEdit and state.tintEdit.line_id === c.line_id" class="wof_fe_tintedit">
+                                    <div t-if="state.tintEdit and state.tintEdit.line_id === c.line_id and c.type === 'service_area'" class="wof_fe_kids">
+                                        <span class="wof_sf_card_title">درجات اللون لأجزاء المنطقة <span class="wof_sf_hint">اختر الجزء لتحديد الدرجات المسموحة ورسالة التحذير.</span></span>
+                                        <div class="wof_sf_inline">
+                                            <t t-foreach="c.kid_rules" t-as="k" t-key="k.part_id">
+                                                <button type="button" t-att-class="'wof_fe_gchip' + (state.tintEdit.part_id === k.part_id ? ' is-on' : '')" t-on-click="() => this.startKidTint(c, k)">
+                                                    <t t-esc="k.name"/><t t-if="k.allowed_ids.length"> · <t t-esc="k.allowed_ids.length"/> مسموحة</t>
+                                                </button>
+                                            </t>
+                                        </div>
+                                    </div>
+                                    <div t-if="state.tintEdit and state.tintEdit.line_id === c.line_id and (c.type === 'car_part' or state.tintEdit.part_id)" class="wof_fe_tintedit">
                                         <label class="wof_sf_label is-narrow">الدرجة الافتراضية
                                             <select class="wof_sf_input" t-on-change="onDefaultGrade">
                                                 <option value="" t-att-selected="!state.tintEdit.default_grade_id">بدون</option>
@@ -656,6 +672,11 @@
                                                 <button type="button" t-att-aria-pressed="state.tintEdit.allowed_ids.includes(g.id) ? 'true' : 'false'" t-att-class="'wof_fe_gchip' + (state.tintEdit.allowed_ids.includes(g.id) ? ' is-on' : '')" t-on-click="() => this.toggleAllowed(g.id)" t-esc="g.name"/>
                                             </t></div>
                                         </div>
+                                        <label class="wof_sf_label">رسالة التحذير عند اختيار درجة غير مسموحة
+                                            <span class="wof_sf_hint">تظهر بالأحمر في أمر التركيب وتُطبع ليوقّع عليها العميل.</span>
+                                            <textarea class="wof_sf_input" rows="2" placeholder="مثال: إخلاء مسؤولية المركز، الدرجة المختارة غير مصرّح بها مروريًا."
+                                                      t-att-value="state.tintEdit.warning_msg" t-on-input="(ev) => state.tintEdit.warning_msg = ev.target.value"/>
+                                        </label>
                                         <div class="wof_sf_inline"><button type="button" class="btn btn-primary" t-att-disabled="state.busy" t-on-click="saveTint">حفظ</button><button type="button" class="btn btn-link" t-on-click="() => state.tintEdit = null">إلغاء</button></div>
                                     </div>
                                 </div>

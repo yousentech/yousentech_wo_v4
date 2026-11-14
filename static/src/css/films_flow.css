@@ -168,6 +168,7 @@
 .wof_fe_comp_row { display: flex; gap: 12px; align-items: center; }
 .wof_fe_kids { display: flex; gap: 6px; flex-wrap: wrap; padding-right: 58px; }
 .wof_fe_tintedit { margin-right: 96px; background: #F7F9F9; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.wof_fe_kids { margin-right: 96px; margin-bottom: 8px; padding: 12px 16px; border-radius: 12px; background: #EEF5F8; display: flex; flex-direction: column; gap: 10px; }
 .wof_fe_gchip { min-height: 38px; padding: 0 14px; border-radius: 99px; border: 1.5px solid #CBD5D6; background: #FFFFFF; color: var(--sf-ink-2); font-weight: 700; }
 .wof_fe_gchip.is-on { border-color: var(--sf-teal); background: var(--sf-teal-soft); color: var(--sf-teal); }
 .wof_sf_card.is-custom { border-color: var(--sf-amber-line); }
