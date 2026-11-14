@@ -449,14 +449,13 @@
                     <button name="action_create_sale_order" type="object"
                             string="إنشاء أمر البيع" icon="fa-shopping-cart"
                             invisible="sale_order_id or state in ('draft', 'cancelled')"/>
-                    <button name="action_cancel" type="object"
+                    <button name="action_open_cancel_wizard" type="object"
                             string="إلغاء الأمر" class="btn-secondary"
                             invisible="state in ('delivered', 'cancelled')"
                             groups="yousentech_wo_v4.group_wo_supervisor"/>
-                    <button name="action_cancel" type="object"
+                    <button name="action_open_cancel_wizard" type="object"
                             string="إلغاء الأمر (مرتجع)" class="btn-secondary"
                             invisible="state != 'delivered'"
-                            confirm="سيُلغى الأمر المُسلَّم بعد التأكد من الإشعار الدائن ورد المبالغ ومرتجع المخزون. متابعة؟"
                             groups="yousentech_wo_v4.group_wo_manager"/>
                     <button name="action_print_order" type="object" string="طباعة أمر التركيب" icon="fa-print"
                             class="btn-secondary"/>
@@ -990,7 +989,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="wof_order_cards is-two">
+                            <div class="wof_order_cards is-three">
                                 <group class="wof_order_card wof_order_pay" string="الدفع على الأمر">
                                     <field name="payment_status" widget="badge" readonly="1"
                                            decoration-success="payment_status == 'paid'"
@@ -1008,6 +1007,15 @@
                                     <field name="sale_order_id" readonly="1" string="أمر البيع"/>
                                     <field name="picking_count" readonly="1" string="الشحنات"/>
                                     <field name="invoice_id" readonly="1" string="الفاتورة"/>
+                                </group>
+                                <group class="wof_order_card wof_order_cancel" string="الإلغاء"
+                                       groups="yousentech_wo_v4.group_wo_supervisor">
+                                    <div colspan="2" class="text-muted small" invisible="state == 'cancelled'">
+                                        الأمر غير ملغي. للإلغاء استخدم زر «إلغاء الأمر» في الأعلى، وسيُطلب منك السبب.
+                                    </div>
+                                    <field name="cancellation_reason" readonly="1" invisible="state != 'cancelled'"/>
+                                    <field name="cancelled_at" readonly="1" invisible="state != 'cancelled'"/>
+                                    <field name="cancelled_by_id" readonly="1" invisible="state != 'cancelled'"/>
                                 </group>
                             </div>
                         </section>
@@ -1028,15 +1036,8 @@
                         </section>
 
                         <section class="wof_sec wof_sec_advanced">
-                            <div class="wof_order_step_head"><h2>خيارات متقدمة</h2><p>الإلغاء وبيانات التدقيق.</p></div>
+                            <div class="wof_order_step_head"><h2>خيارات متقدمة</h2><p>بيانات التكامل والتدقيق.</p></div>
                             <group>
-                                <group string="الإلغاء"
-                                       groups="yousentech_wo_v4.group_wo_supervisor">
-                                    <field name="cancellation_reason"
-                                           readonly="state == 'cancelled'"/>
-                                    <field name="cancelled_at" readonly="1"/>
-                                    <field name="cancelled_by_id" readonly="1"/>
-                                </group>
                                 <group string="التكامل والتدقيق">
                                     <field name="public_uuid" readonly="1"/>
                                     <field name="operation_source" readonly="1"/>
@@ -1077,6 +1078,32 @@
               action="action_wof_installation_order"
               groups="yousentech_wo_v4.group_wo_employee"
               sequence="1"/>
+
+    <record id="view_wof_order_cancel_wizard_form" model="ir.ui.view">
+        <field name="name">wof.order.cancel.wizard.form</field>
+        <field name="model">wof.order.cancel.wizard</field>
+        <field name="arch" type="xml">
+            <form string="إلغاء الأمر">
+                <field name="order_id" invisible="1"/>
+                <field name="order_state" invisible="1"/>
+                <div class="alert alert-warning" role="alert" invisible="order_state == 'delivered'">
+                    <i class="fa fa-exclamation-triangle me-1" title="تنبيه"/>
+                    سيُلغى أمر التركيب وأمر البيع المرتبط إن وُجد. لا يمكن التراجع عن الإلغاء.
+                </div>
+                <div class="alert alert-danger" role="alert" invisible="order_state != 'delivered'">
+                    <i class="fa fa-undo me-1" title="مرتجع"/>
+                    إلغاء أمر مُسلَّم (مرتجع): يشترط إشعارًا دائنًا بكامل الفاتورة، ورد المبالغ المقبوضة، ومرتجع المخزون من الشحنة.
+                </div>
+                <group>
+                    <field name="reason" placeholder="مثال: العميل ألغى الموعد، أو مرتجع لعيب في التركيب…" nolabel="0"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="تأكيد الإلغاء" class="btn-danger"/>
+                    <button special="cancel" string="رجوع" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 
     <record id="view_wof_quality_send_wizard_form" model="ir.ui.view">
         <field name="name">wof.quality.send.wizard.form</field>

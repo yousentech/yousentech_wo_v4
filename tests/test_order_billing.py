@@ -723,3 +723,12 @@ class TestOrderBilling(TransactionCase):
             order.extra_line_ids[:1].quantity = 3
         with self.assertRaises(ValidationError):
             Extra.create({'order_id': order.id, 'product_id': wash.id, 'quantity': 1, 'price_unit': 50})
+
+    def test_cancel_through_reason_dialog(self):
+        order = self.make_order()
+        action = order.action_open_cancel_wizard()
+        self.assertEqual(action['res_model'], 'wof.order.cancel.wizard')
+        wizard = self.env['wof.order.cancel.wizard'].with_context(action['context']).create({'reason': 'العميل ألغى الموعد'})
+        wizard.action_confirm()
+        self.assertEqual(order.state, 'cancelled')
+        self.assertEqual(order.cancellation_reason, 'العميل ألغى الموعد')

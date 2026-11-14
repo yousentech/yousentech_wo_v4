@@ -444,3 +444,6 @@
 @media (max-width: 1100px) {
     .o_form_view.wof_order_form .wof_ex_grid.is-even, .o_form_view.wof_order_form .wof_st_times.is-wide { grid-template-columns: 1fr; }
 }
+.o_form_view.wof_order_form .wof_order_cards.is-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+.o_form_view.wof_order_form .wof_order_cancel { border-inline-start: 4px solid #DC2626; }
+@media (max-width: 1100px) { .o_form_view.wof_order_form .wof_order_cards.is-three { grid-template-columns: 1fr; } }
