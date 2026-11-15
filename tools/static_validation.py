@@ -244,6 +244,9 @@ def parse_python(validation):
         "message_ids": {"type": "One2many", "keywords": {}},
         "message_follower_ids": {"type": "One2many", "keywords": {}},
     })
+    fields["mail.activity.mixin"].update({
+        "activity_ids": {"type": "One2many", "keywords": {}},
+    })
     # Merge fields/methods from local abstract and classical parents so view
     # checks understand mixins such as wof.api.mixin without requiring fields
     # to be redeclared on every business model.
