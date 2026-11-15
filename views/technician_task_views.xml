@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Card: one task of one technician on one car -->
+    <record id="view_wof_technician_task_kanban" model="ir.ui.view">
+        <field name="name">wof.technician.task.kanban</field>
+        <field name="model">wof.technician.task</field>
+        <field name="arch" type="xml">
+            <kanban class="wof_task_kanban" create="false" group_create="false" group_delete="false"
+                    group_edit="false" records_draggable="false" quick_create="false">
+                <field name="status"/>
+                <field name="done"/>
+                <field name="is_late"/>
+                <field name="is_mine"/>
+                <field name="order_state"/>
+                <field name="deadline"/>
+                <field name="done_at"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click wof_task_card is-#{record.status.raw_value} #{record.is_late.raw_value ? 'is-late' : ''}">
+                            <div class="wof_task_top">
+                                <span class="wof_task_plate" t-if="record.vehicle_plate.raw_value"><field name="vehicle_plate"/></span>
+                                <span class="wof_task_car">
+                                    <field name="vehicle_manufacturer_id"/> <field name="vehicle_model_id"/>
+                                    <span class="wof_task_color" t-if="record.vehicle_color_id.raw_value"> · <field name="vehicle_color_id"/></span>
+                                </span>
+                            </div>
+                            <div class="wof_task_service"><field name="service_label"/></div>
+                            <div class="wof_task_film">
+                                <field name="film_name"/><t t-if="record.grade_name.raw_value"> · درجة <field name="grade_name"/></t>
+                            </div>
+                            <div class="wof_task_who">
+                                <i class="fa fa-user-o" title="الفني"/> <field name="employee_name"/>
+                                <span class="wof_task_order"><field name="order_name"/></span>
+                            </div>
+                            <div class="wof_task_foot">
+                                <span t-attf-class="wof_task_badge is-#{record.status.raw_value}">
+                                    <t t-if="record.status.raw_value == 'done'"><i class="fa fa-check" title="مكتملة"/> مكتملة</t>
+                                    <t t-elif="record.status.raw_value == 'open'"><i class="fa fa-wrench" title="قيد العمل"/> قيد العمل</t>
+                                    <t t-else=""><i class="fa fa-clock-o" title="بانتظار"/> بانتظار بدء التنفيذ</t>
+                                </span>
+                                <span class="wof_task_late" t-if="record.is_late.raw_value"><i class="fa fa-exclamation-triangle" title="متأخرة"/> متأخرة</span>
+                                <span class="wof_task_when" t-if="record.status.raw_value == 'done' and record.done_at.raw_value"><field name="done_at" widget="date"/></span>
+                                <span class="wof_task_when" t-elif="record.deadline.raw_value">التسليم <field name="deadline" widget="date"/></span>
+                            </div>
+                            <div class="wof_task_actions">
+                                <button t-if="record.status.raw_value == 'open'" name="action_mark_done" type="object"
+                                        class="btn btn-primary wof_task_done_btn">
+                                    <i class="fa fa-check" title="تم"/> تم الإنجاز
+                                </button>
+                                <button t-if="record.status.raw_value == 'done' and record.order_state.raw_value == 'in_progress'"
+                                        name="action_mark_open" type="object" class="btn btn-light">
+                                    <i class="fa fa-undo" title="إعادة فتح"/> إعادة فتح
+                                </button>
+                                <button name="action_open_order" type="object" class="btn btn-link wof_task_open">
+                                    فتح الأمر <i class="fa fa-angle-left" title="فتح"/>
+                                </button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_wof_technician_task_tree" model="ir.ui.view">
+        <field name="name">wof.technician.task.tree</field>
+        <field name="model">wof.technician.task</field>
+        <field name="arch" type="xml">
+            <tree string="مهام الفنيين" create="false" delete="false" editable="bottom"
+                  decoration-success="done" decoration-danger="is_late" decoration-muted="status == 'waiting'">
+                <field name="is_late" column_invisible="True"/>
+                <field name="order_state" column_invisible="True"/>
+                <field name="order_name" readonly="1"/>
+                <field name="vehicle_plate" readonly="1"/>
+                <field name="service_label" readonly="1"/>
+                <field name="employee_name" readonly="1"/>
+                <field name="status" widget="badge" readonly="1"
+                       decoration-success="status == 'done'" decoration-warning="status == 'open'" decoration-muted="status == 'waiting'"/>
+                <field name="done" widget="boolean_toggle" readonly="order_state != 'in_progress'"/>
+                <field name="deadline" readonly="1" optional="show"/>
+                <field name="done_at" readonly="1" optional="show"/>
+                <field name="company_id" readonly="1" optional="hide" groups="base.group_multi_company"/>
+                <button name="action_open_order" type="object" string="فتح الأمر" icon="fa-external-link" class="btn-link"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_wof_technician_task_search" model="ir.ui.view">
+        <field name="name">wof.technician.task.search</field>
+        <field name="model">wof.technician.task</field>
+        <field name="arch" type="xml">
+            <search string="مهام الفنيين">
+                <field name="employee_name" string="الفني"/>
+                <field name="order_name" string="رقم الأمر"/>
+                <field name="vehicle_plate" string="اللوحة"/>
+                <filter name="not_done" string="غير مكتملة" domain="[('done', '=', False)]"/>
+                <filter name="open" string="قيد العمل" domain="[('status', '=', 'open')]"/>
+                <filter name="waiting" string="بانتظار التنفيذ" domain="[('status', '=', 'waiting')]"/>
+                <filter name="done" string="مكتملة" domain="[('done', '=', True)]"/>
+                <separator/>
+                <filter name="late" string="متأخرة" domain="[('done', '=', False), ('deadline', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="today" string="أوامر اليوم" domain="[('appointment_at', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="done_today" string="أُنجزت اليوم" domain="[('done_at', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="mine" string="مهامي" domain="[('employee_user_id', '=', uid)]"/>
+                <group expand="0" string="تجميع">
+                    <filter name="group_employee" string="الفني" context="{'group_by': 'employee_name'}"/>
+                    <filter name="group_status" string="الحالة" context="{'group_by': 'status'}"/>
+                    <filter name="group_order" string="أمر التركيب" context="{'group_by': 'order_id'}"/>
+                    <filter name="group_branch" string="الفرع" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- The technician's own tasks -->
+    <record id="action_wof_my_tasks" model="ir.actions.act_window">
+        <field name="name">مهامي</field>
+        <field name="res_model">wof.technician.task</field>
+        <field name="view_mode">kanban,tree</field>
+        <field name="domain">[('employee_user_id', '=', uid)]</field>
+        <field name="context">{'search_default_group_status': 1, 'search_default_not_done': 1}</field>
+        <field name="search_view_id" ref="view_wof_technician_task_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">لا توجد مهام مفتوحة لك الآن</p>
+            <p>تظهر هنا مهامك عندما يحددك الاستقبال أو المشرف فنيًا على خدمة أو جزء في أمر تركيب. اضغط «تم الإنجاز» عند الانتهاء من كل مهمة.</p>
+        </field>
+    </record>
+
+    <!-- Supervisor board: every technician's tasks -->
+    <record id="action_wof_technician_tasks" model="ir.actions.act_window">
+        <field name="name">مهام الفنيين</field>
+        <field name="res_model">wof.technician.task</field>
+        <field name="view_mode">kanban,tree</field>
+        <field name="context">{'search_default_group_employee': 1, 'search_default_not_done': 1}</field>
+        <field name="search_view_id" ref="view_wof_technician_task_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">لا توجد مهام مفتوحة</p>
+            <p>كل عمود فني ومهامه. استخدم «متأخرة» و«أوامر اليوم» لمعرفة من يحتاج مساعدة، وسجّل الإنجاز نيابةً عن أي فني عند الحاجة.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_wof_my_tasks" name="مهامي" parent="menu_wo_v4_operation"
+              action="action_wof_my_tasks" groups="yousentech_wo_v4.group_wo_technician" sequence="2"/>
+    <menuitem id="menu_wof_technician_tasks" name="مهام الفنيين" parent="menu_wo_v4_operation"
+              action="action_wof_technician_tasks" groups="yousentech_wo_v4.group_wo_supervisor" sequence="3"/>
+</odoo>

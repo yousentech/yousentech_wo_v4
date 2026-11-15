@@ -1,6 +1,6 @@
 {
     'name': 'Yousentech Car Care',
-    'version': '17.0.4.0.120',
+    'version': '17.0.4.0.121',
     'summary': 'Self-service setup and installation orders for car care centers',
     'description': 'Foundation, self-service setup and installation order workflow for car care operations.',
     'category': 'Services',
@@ -42,6 +42,7 @@
         'views/team_views.xml',
         'report/installation_order_report.xml',
         'views/res_users_views.xml',
+        'views/technician_task_views.xml',
         'setup_wizard/setup_center_menu.xml',
     ],
     'assets': {'web.assets_backend': [
@@ -77,6 +78,7 @@
         'yousentech_wo_v4/static/src/js/plate_field.js',
         'yousentech_wo_v4/static/src/xml/plate_field.xml',
         'yousentech_wo_v4/static/src/js/stage_nav.js',
+        'yousentech_wo_v4/static/src/css/technician_tasks.css',
         'yousentech_wo_v4/static/src/xml/stage_nav.xml',
     ]},
     'pre_init_hook': 'pre_init_hook',

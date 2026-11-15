@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Payments, sale order, delivery and invoice from an installation order."""
 
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
 
 
@@ -895,3 +895,49 @@ class TestOrderBilling(TransactionCase):
         self.assertEqual(order.line_ids.company_id, branch)
         if order.line_ids.tax_id:
             self.assertIn(order.line_ids.tax_id.company_id, branch | branch.parent_ids)
+
+    def test_my_tasks_and_supervisor_board(self):
+        Users = self.root['res.users']
+        base = [self.root.ref('base.group_user').id]
+        tech_a = Users.create({'name': 'فني أ مهام', 'login': 'tasks_tech_a', 'company_id': self.env.company.id,
+                               'company_ids': [(6, 0, self.env.company.ids)],
+                               'groups_id': [(6, 0, base + [self.root.ref('yousentech_wo_v4.group_wo_technician').id])]})
+        tech_b = Users.create({'name': 'فني ب مهام', 'login': 'tasks_tech_b', 'company_id': self.env.company.id,
+                               'company_ids': [(6, 0, self.env.company.ids)],
+                               'groups_id': [(6, 0, base + [self.root.ref('yousentech_wo_v4.group_wo_technician').id])]})
+        emp_a = self.root['hr.employee'].create({'name': 'فني أ مهام', 'user_id': tech_a.id})
+        emp_b = self.root['hr.employee'].create({'name': 'فني ب مهام', 'user_id': tech_b.id})
+        order = self.make_order()
+        order.line_ids.with_context(wof_skip_technician_check=True)._write_line_internal(
+            {'technician_ids': [(6, 0, (emp_a | emp_b).ids)]})
+        task_a = order.task_ids.filtered(lambda t: t.employee_id == emp_a)
+        self.assertEqual(task_a.status, 'waiting')
+        # Inside the order each technician sees his own task only.
+        # (each user reads in his own request; clear this transaction's cache to mimic it)
+        order.invalidate_recordset(['my_task_ids'])
+        self.assertEqual(order.with_user(tech_a).read(['my_task_ids'])[0]['my_task_ids'], task_a.ids)
+        # «مهامي»: own tasks; can't finish before execution, nor someone else's.
+        mine = self.env['wof.technician.task'].with_user(tech_a).search([('employee_user_id', '=', tech_a.id)])
+        self.assertEqual(mine, task_a.with_user(tech_a))
+        with self.assertRaises(ValidationError):
+            mine.action_mark_done()
+        order._transition_write({'state': 'in_progress'})
+        self.assertEqual(task_a.status, 'open')
+        task_b = (order.task_ids - task_a).with_user(tech_a)
+        with self.assertRaises(AccessError):
+            task_b.action_mark_done()
+        mine.action_mark_done()
+        self.assertEqual(task_a.status, 'done')
+        self.assertEqual(order.line_ids.execution_progress, 50)
+        self.assertEqual((order.task_done_count, order.task_count), (1, 2))
+        # The supervisor (tester is manager) finishes for anyone.
+        (order.task_ids - task_a).action_mark_done()
+        self.assertEqual(order.line_ids.execution_progress, 100)
+        mine.action_mark_open()
+        self.assertEqual(order.line_ids.execution_progress, 50)
+        # A user linked to the employee later gets the tasks.
+        tech_c = Users.create({'name': 'فني ج مهام', 'login': 'tasks_tech_c', 'company_id': self.env.company.id,
+                               'company_ids': [(6, 0, self.env.company.ids)],
+                               'groups_id': [(6, 0, base + [self.root.ref('yousentech_wo_v4.group_wo_technician').id])]})
+        emp_b.user_id = tech_c
+        self.assertEqual((order.task_ids - task_a).employee_user_id, tech_c)

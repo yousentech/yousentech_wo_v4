@@ -44,6 +44,7 @@ XML_MOJIBAKE_MARKERS = (
 VIEW_EXPRESSION_ATTRIBUTES = {
     "domain",
     "context",
+    "context_today",
     "invisible",
     "readonly",
     "required",
@@ -54,6 +55,7 @@ VIEW_SAFE_IDENTIFIERS = {
     "active_ids",
     "active_model",
     "context",
+    "context_today",
     "current_date",
     "dateutil",
     "datetime",

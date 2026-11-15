@@ -24,12 +24,73 @@ class WofTechnicianTask(models.Model):
     company_id = fields.Many2one(related='line_id.order_id.company_id', store=True, string='الفرع')
     order_state = fields.Selection(related='line_id.order_id.state', string='حالة الأمر')
     employee_id = fields.Many2one('hr.employee', string='الفني', required=True, ondelete='cascade', index=True)
-    employee_name = fields.Char(string='الفني', readonly=True)
-    employee_user_id = fields.Many2one('res.users', string='مستخدم الفني', readonly=True)
+    # Follow the employee card (a technician's user may be linked or changed later).
+    employee_name = fields.Char(related='employee_id.name', store=True, string='الفني')
+    employee_user_id = fields.Many2one(related='employee_id.user_id', store=True, string='مستخدم الفني', index=True)
     service_label = fields.Char(string='الخدمة / الجزء', compute='_compute_service_label')
     done = fields.Boolean(string='اكتمل', default=False)
     done_at = fields.Datetime(string='وقت الإكمال', readonly=True)
     done_by_id = fields.Many2one('res.users', string='سجّله', readonly=True)
+    status = fields.Selection([
+        ('waiting', 'بانتظار التنفيذ'), ('open', 'قيد العمل'), ('done', 'مكتملة'),
+    ], string='الحالة', compute='_compute_status', store=True, group_expand='_expand_status')
+    # Card details (read through the order the technician is assigned to).
+    order_name = fields.Char(related='line_id.order_id.name', string='رقم الأمر')
+    vehicle_plate = fields.Char(related='line_id.order_id.vehicle_plate', string='اللوحة')
+    vehicle_manufacturer_id = fields.Many2one(related='line_id.order_id.vehicle_manufacturer_id', string='الماركة')
+    vehicle_model_id = fields.Many2one(related='line_id.order_id.vehicle_model_id', string='الموديل')
+    vehicle_color_id = fields.Many2one(related='line_id.order_id.vehicle_color_id', string='اللون')
+    film_name = fields.Char(related='line_id.film_category_id.name', string='الفيلم')
+    grade_name = fields.Char(compute='_compute_grade_name', string='الدرجة')
+    appointment_at = fields.Date(related='line_id.order_id.appointment_at', store=True, string='تاريخ الأمر')
+    deadline = fields.Datetime(related='line_id.order_id.expected_delivery_at', store=True, string='موعد التسليم')
+    is_late = fields.Boolean(compute='_compute_is_late', string='متأخرة')
+    is_mine = fields.Boolean(compute='_compute_is_mine', string='مهمتي')
+
+    @api.model
+    def _expand_status(self, states, domain, order):
+        return [key for key, _label in self._fields['status'].selection]
+
+    @api.depends('done', 'line_id.order_id.state')
+    def _compute_status(self):
+        for task in self:
+            if task.done:
+                task.status = 'done'
+            elif task.line_id.order_id.state == 'in_progress':
+                task.status = 'open'
+            else:
+                task.status = 'waiting'
+
+    @api.depends('part_id.grade_id', 'line_id.film_category_line_id')
+    def _compute_grade_name(self):
+        for task in self:
+            grade = task.part_id.grade_id if task.part_id else task.line_id.film_category_line_id
+            task.grade_name = grade.display_name or ''
+
+    def _compute_is_late(self):
+        now = fields.Datetime.now()
+        for task in self:
+            task.is_late = bool(not task.done and task.deadline and task.deadline < now)
+
+    def _compute_is_mine(self):
+        for task in self:
+            task.is_mine = task.employee_user_id == self.env.user
+
+    # ------------------------------------------------------------ actions
+    def action_mark_done(self):
+        self.filtered(lambda task: not task.done).write({'done': True})
+        return True
+
+    def action_mark_open(self):
+        self.filtered('done').write({'done': False})
+        return True
+
+    def action_open_order(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window', 'res_model': 'wof.installation.order', 'view_mode': 'form',
+            'res_id': self.order_id.id, 'target': 'current',
+        }
 
     _sql_constraints = [
         ('task_unique', 'unique(line_id, part_id, employee_id)', 'للفني مهمة واحدة على كل خدمة أو جزء.'),
@@ -101,9 +162,8 @@ class WofOrderLineTasks(models.Model):
             current = Task.search([('line_id', '=', line.id)])
             have = {(task.part_id.id or False, task.employee_id.id): task for task in current}
             (current - Task.browse([task.id for key, task in have.items() if key in wanted])).unlink()
-            new = [{'line_id': line.id, 'part_id': part_id, 'employee_id': emp, 'employee_name': name,
-                    'employee_user_id': user_id} for (part_id, emp), (name, user_id) in wanted.items()
-                   if (part_id, emp) not in have]
+            new = [{'line_id': line.id, 'part_id': part_id, 'employee_id': emp}
+                   for (part_id, emp) in wanted if (part_id, emp) not in have]
             if new:
                 Task.create(new)
 
@@ -140,3 +200,14 @@ class WofOrderTasks(models.Model):
     _inherit = 'wof.installation.order'
 
     task_ids = fields.One2many('wof.technician.task', 'order_id', string='مهام الفنيين')
+    # The technician's own tasks (the technician view of the order shows these only).
+    my_task_ids = fields.One2many('wof.technician.task', 'order_id', string='مهامي',
+                                  domain=lambda self: [('employee_user_id', '=', self.env.uid)])
+    task_done_count = fields.Integer(compute='_compute_task_counts')
+    task_count = fields.Integer(compute='_compute_task_counts')
+
+    @api.depends('task_ids.done')
+    def _compute_task_counts(self):
+        for order in self:
+            order.task_count = len(order.task_ids)
+            order.task_done_count = len(order.task_ids.filtered('done'))

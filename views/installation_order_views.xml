@@ -794,9 +794,22 @@
                             <div class="wof_ex_card is-tasks">
                                 <div class="wof_ex_card_head">
                                     <h3><i class="fa fa-check-square-o" title="المهام"/> مهام الفنيين</h3>
-                                    <span class="wof_ex_hint">مهمة لكل فني على كل خدمة أو جزء. يسجّل الفني إكمال مهمته، وتُحسب نسبة الخدمة من المهام المكتملة.</span>
+                                    <span class="wof_ex_hint" invisible="wof_technician_view">مهمة لكل فني على كل خدمة أو جزء. يسجّل الفني إكمال مهمته، وتُحسب نسبة الخدمة من المهام المكتملة.</span>
+                                    <span class="wof_task_counter"><field name="task_done_count"/> / <field name="task_count"/> مكتملة</span>
                                 </div>
-                                <field name="task_ids" nolabel="1" readonly="state != 'in_progress'">
+                                <field name="wof_technician_view" invisible="1"/>
+                                <div class="wof_task_mates" invisible="not wof_technician_view or not technician_names">
+                                    <i class="fa fa-users" title="الفريق"/> فريق هذه السيارة: <field name="technician_names" readonly="1" class="d-inline"/>
+                                </div>
+                                <field name="my_task_ids" nolabel="1" readonly="state != 'in_progress'" invisible="not wof_technician_view">
+                                    <tree editable="bottom" create="false" delete="false" decoration-success="done">
+                                        <field name="service_label" readonly="1"/>
+                                        <field name="grade_name" readonly="1" optional="show"/>
+                                        <field name="done" widget="boolean_toggle"/>
+                                        <field name="done_at" readonly="1"/>
+                                    </tree>
+                                </field>
+                                <field name="task_ids" nolabel="1" readonly="state != 'in_progress'" invisible="wof_technician_view">
                                     <tree editable="bottom" create="false" delete="false" decoration-success="done" decoration-muted="not done">
                                         <field name="service_label" readonly="1"/>
                                         <field name="employee_name" readonly="1"/>
