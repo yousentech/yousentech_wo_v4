@@ -732,3 +732,31 @@ class TestOrderBilling(TransactionCase):
         wizard.action_confirm()
         self.assertEqual(order.state, 'cancelled')
         self.assertEqual(order.cancellation_reason, 'العميل ألغى الموعد')
+
+    # ------------------------------------------------ history and screen sections
+    def _notes(self, order):
+        order.invalidate_recordset(['message_ids'])
+        return ' | '.join(str(body) for body in order.message_ids.mapped('body'))
+
+    def test_history_records_service_changes(self):
+        order = self.make_order()
+        notes = self._notes(order)
+        self.assertIn('أُضيف خدمة', notes)
+        # What the system fills itself is not history.
+        self.assertNotIn('سعر الوحدة', notes)
+        line = order.line_ids
+        line.write({'film_product_qty': 7})
+        notes = self._notes(order)
+        self.assertIn('تعديل خدمة', notes)
+        self.assertIn('7', notes)
+        line.unlink()
+        self.assertIn('حُذف خدمة', self._notes(order))
+
+    def test_order_sections_follow_setup(self):
+        order = self.make_order()
+        self.assertEqual(order.wof_ui_sections, ',customer,services,billing,')
+        self.profile.wof_flow_apply('set', {'ui_extras': True, 'ui_intake': True})
+        order.invalidate_recordset(['wof_ui_sections'])
+        self.assertIn(',extras,', order.wof_ui_sections)
+        self.assertIn(',intake,', order.wof_ui_sections)
+        self.profile.wof_flow_apply('set', {'ui_extras': False, 'ui_intake': False})

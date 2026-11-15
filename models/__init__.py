@@ -21,4 +21,5 @@ from . import installation_stock_location
 from . import installation_quality_send
 from . import installation_extra
 from . import installation_cancel_wizard
+from . import installation_tracking
 

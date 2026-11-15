@@ -264,6 +264,34 @@
                                 <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.vin_validation"/><t t-set="label" t-value="'التحقق من رقم الهيكل'"/><t t-set="onClick" t-value="() => this.setScalar('vin_validation', !this.state.data.vin_validation)"/></t>
                             </div>
                         </section>
+                        <section class="wof_sf_card">
+                            <span class="wof_sf_card_title">أقسام شاشة أمر التركيب</span>
+                            <span class="wof_sf_muted">العميل والسيارة، والخدمات، والأمور المالية، وسجل التغييرات أسفل الأمر تظهر دائمًا. فعّل ما تحتاجه من الأقسام التالية؛ المراكز البسيطة تكتفي بالأساسية.</span>
+                                <div class="wof_sf_card_row">
+                                    <span class="wof_sf_row_text"><strong>الاستلام والفحص</strong><span class="wof_sf_muted">قراءة العداد وحالة السيارة وصور ما قبل التنفيذ.</span></span>
+                                    <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.ui_sections.ui_intake"/><t t-set="label" t-value="'الاستلام والفحص'"/><t t-set="onClick" t-value="() => this.setScalar('ui_intake', !this.state.data.ui_sections.ui_intake)"/></t>
+                                </div>
+                                <div class="wof_sf_card_row">
+                                    <span class="wof_sf_row_text"><strong>التنفيذ</strong><span class="wof_sf_muted">متابعة تقدم كل خدمة وفنييها وأصناف المخزون والمواد الإضافية.</span></span>
+                                    <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.ui_sections.ui_execution"/><t t-set="label" t-value="'التنفيذ'"/><t t-set="onClick" t-value="() => this.setScalar('ui_execution', !this.state.data.ui_sections.ui_execution)"/></t>
+                                </div>
+                                <div class="wof_sf_card_row">
+                                    <span class="wof_sf_row_text"><strong>الجودة والتسليم</strong><span class="wof_sf_muted">فحص المشرف وموافقة العميل وصور ما بعد التنفيذ.</span></span>
+                                    <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.ui_sections.ui_quality"/><t t-set="label" t-value="'الجودة والتسليم'"/><t t-set="onClick" t-value="() => this.setScalar('ui_quality', !this.state.data.ui_sections.ui_quality)"/></t>
+                                </div>
+                                <div class="wof_sf_card_row">
+                                    <span class="wof_sf_row_text"><strong>الصور والمرفقات</strong><span class="wof_sf_muted">كل صور الأمر في مكان واحد.</span></span>
+                                    <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.ui_sections.ui_attachments"/><t t-set="label" t-value="'الصور والمرفقات'"/><t t-set="onClick" t-value="() => this.setScalar('ui_attachments', !this.state.data.ui_sections.ui_attachments)"/></t>
+                                </div>
+                                <div class="wof_sf_card_row">
+                                    <span class="wof_sf_row_text"><strong>السجل الزمني</strong><span class="wof_sf_muted">أحداث الأمر المنظمة (يبقى سجل التغييرات أسفل الأمر دائمًا).</span></span>
+                                    <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.ui_sections.ui_timeline"/><t t-set="label" t-value="'السجل الزمني'"/><t t-set="onClick" t-value="() => this.setScalar('ui_timeline', !this.state.data.ui_sections.ui_timeline)"/></t>
+                                </div>
+                                <div class="wof_sf_card_row">
+                                    <span class="wof_sf_row_text"><strong>الملحقات والمبيعات الإضافية</strong><span class="wof_sf_muted">بيع أصناف أو خدمات مع الأمر بسعر بيع، في تبويب مستقل.</span></span>
+                                    <t t-call="yousentech_wo_v4.SetupFlow.Switch"><t t-set="on" t-value="d.ui_sections.ui_extras"/><t t-set="label" t-value="'الملحقات والمبيعات الإضافية'"/><t t-set="onClick" t-value="() => this.setScalar('ui_extras', !this.state.data.ui_sections.ui_extras)"/></t>
+                                </div>
+                        </section>
                     </t>
 
                     <!-- 4b. Tax and pricing -->

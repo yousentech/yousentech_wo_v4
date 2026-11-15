@@ -50,6 +50,7 @@ class WofInstallationOrderFields(models.Model):
     # mark the required ones; computed from the setup on every read.
     wof_hidden_fields = fields.Char(compute='_compute_wof_field_policy')
     wof_required_fields = fields.Char(compute='_compute_wof_field_policy')
+    wof_ui_sections = fields.Char(compute='_compute_wof_field_policy')
 
     @api.model
     def _wof_field_policy(self):
@@ -66,9 +67,14 @@ class WofInstallationOrderFields(models.Model):
         policy = self._wof_field_policy()
         hidden = ',' + ','.join(k for k, v in policy.items() if v == 'hid') + ','
         required = ',' + ','.join(k for k, v in policy.items() if v == 'req') + ','
+        profile = self.env['wof.company.profile']._wof_get_profile()
+        optional = ('intake', 'execution', 'quality', 'attachments', 'timeline', 'extras')
+        sections = ',' + ','.join(['customer', 'services', 'billing'] + [
+            key for key in optional if profile and profile['ui_%s' % key]]) + ','
         for order in self:
             order.wof_hidden_fields = hidden
             order.wof_required_fields = required
+            order.wof_ui_sections = sections
 
     def _wof_field_required(self, key):
         return self._wof_field_policy().get(key) == 'req'

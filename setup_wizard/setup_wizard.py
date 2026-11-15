@@ -282,6 +282,14 @@ class WofCompanyProfile(models.Model):
         default='plate_mobile', required=True,
     )
     use_inventory = fields.Boolean(string="صرف المواد من المخزون", default=True)
+    # Optional sections of the installation order screen (hidden by default:
+    # customer & car, services and finance are always shown).
+    ui_intake = fields.Boolean(string="قسم الاستلام والفحص", default=False)
+    ui_execution = fields.Boolean(string="قسم التنفيذ", default=False)
+    ui_quality = fields.Boolean(string="قسم الجودة والتسليم", default=False)
+    ui_attachments = fields.Boolean(string="قسم الصور والمرفقات", default=False)
+    ui_timeline = fields.Boolean(string="قسم السجل الزمني", default=False)
+    ui_extras = fields.Boolean(string="الملحقات والمبيعات الإضافية", default=False)
     vin_validation = fields.Boolean(
         string="التحقق من رقم الهيكل", default=True,
         help="رقم الهيكل (VIN) حسب المعيار الدولي ISO 3779: 17 خانة من الأحرف والأرقام بدون I وO وQ. "
@@ -361,7 +369,7 @@ class WofCompanyProfile(models.Model):
             'operation_technician_required',
             'payment_policy', 'discount_scope', 'discount_enabled', 'discount_default_limit',
             'discount_allow_override_request', 'discount_reason_required_from', 'commission_event',
-            'required_vehicle_data', 'use_inventory', 'use_appointments', 'stock_allow_shortage', 'vin_validation',
+            'required_vehicle_data', 'use_inventory', 'use_appointments', 'stock_allow_shortage', 'vin_validation', 'ui_intake', 'ui_execution', 'ui_quality', 'ui_attachments', 'ui_timeline', 'ui_extras',
             'advanced_pricing', 'advanced_commission',
         }
         if tracked.intersection(vals):
