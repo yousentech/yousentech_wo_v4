@@ -24,4 +24,5 @@ from . import installation_cancel_wizard
 from . import installation_tracking
 from . import installation_technician_task
 from . import installation_order_sections
+from . import installation_branch
 

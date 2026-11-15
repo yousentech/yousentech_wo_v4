@@ -848,3 +848,50 @@ class TestOrderBilling(TransactionCase):
         # Names on the service card are read without the employee records.
         data = line.wof_line_load()
         self.assertTrue(all(t['name'] for t in data['technicians']))
+
+    # ------------------------------------------------ branch consistency
+    def _other_branch(self):
+        branch = self.root['res.company'].create({'name': 'فرع الاتساق', 'currency_id': self.env.company.currency_id.id})
+        self.user.company_ids = [(4, branch.id)]
+        return branch
+
+    def test_foreign_tax_replaced_by_branch_twin(self):
+        order = self.make_order()
+        country = order.company_id.account_fiscal_country_id or self.root.ref('base.sa')
+        other = self.root['res.company'].create({'name': 'شركة ضريبة أخرى', 'country_id': country.id})
+        group = self.root['account.tax.group'].create({'name': 'ضريبة', 'company_id': other.id, 'country_id': country.id})
+        foreign = self.root['account.tax'].create({'name': 'VAT خارجي', 'amount': 15, 'type_tax_use': 'sale',
+                                                   'company_id': other.id, 'tax_group_id': group.id, 'country_id': country.id})
+        twin = self.root['account.tax'].create({'name': 'VAT الفرع', 'amount': 15, 'type_tax_use': 'sale',
+                                                'company_id': order.company_id.id, 'country_id': country.id})
+        line = order.line_ids
+        line._write_line_internal({'tax_id': foreign.id})
+        self.assertTrue(twin)
+        self.assertIn(line.tax_id.company_id, order.company_id | order.company_id.parent_ids)
+        self.assertEqual(line.tax_id.amount, 15)
+        odd = self.root['account.tax'].create({'name': 'نسبة غريبة', 'amount': 7.3, 'type_tax_use': 'sale',
+                                               'company_id': other.id, 'tax_group_id': group.id, 'country_id': country.id})
+        with self.assertRaises(ValidationError):
+            line._write_line_internal({'tax_id': odd.id})
+
+    def test_products_of_another_company_refused(self):
+        order = self.make_order()
+        other = self.root['res.company'].create({'name': 'شركة أصناف أخرى'})
+        foreign = self.root['product.product'].create({'name': 'صنف شركة أخرى', 'type': 'product', 'company_id': other.id})
+        with self.assertRaises(ValidationError):
+            self.env['wof.branch.helpers']._wof_check_product_branch(foreign, order.company_id, 'ملحق')
+        self.assertNotIn(foreign.id, [p['id'] for p in order.line_ids._wof_stock_choices()])
+
+    def test_branch_change_checks_technicians_and_reprices(self):
+        order = self.make_order()
+        tech = self.root['hr.employee'].create({'name': 'فني الفرع الأول', 'company_id': order.company_id.id})
+        self.root['wof.team.member'].create({'employee_id': tech.id, 'company_id': order.company_id.id})
+        order.line_ids.write({'technician_ids': [(6, 0, tech.ids)]})
+        branch = self._other_branch()
+        with self.assertRaises(ValidationError):
+            order.with_context(allowed_company_ids=[order.company_id.id, branch.id]).write({'company_id': branch.id})
+        order.line_ids.write({'technician_ids': [(5, 0, 0)]})
+        order.with_context(allowed_company_ids=[order.company_id.id, branch.id]).write({'company_id': branch.id})
+        self.assertEqual(order.line_ids.company_id, branch)
+        if order.line_ids.tax_id:
+            self.assertIn(order.line_ids.tax_id.company_id, branch | branch.parent_ids)

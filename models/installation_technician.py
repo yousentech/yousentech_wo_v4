@@ -250,11 +250,5 @@ class WofInstallationOrderTeam(models.Model):
         result = super().write(vals)
         if {'advisor_id', 'supervisor_id', 'salesperson_id'} & set(vals):
             self._wof_check_people(vals)
-        Employee = self.env['hr.employee']
-        for order in changing:
-            outside = order.line_ids.technician_ids.filtered(lambda emp: not Employee.search_count([
-                ('id', '=', emp.id), ('company_id', 'in', [order.company_id.id, False])]))
-            if outside:
-                raise ValidationError(_('فنيو الخدمات التالية من فرع آخر، أزلهم أولًا: %s.')
-                                      % '، '.join(outside.mapped('name')))
+        # Technicians, people, prices and taxes of the new branch: installation_branch.py.
         return result
