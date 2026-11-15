@@ -66,9 +66,9 @@ class WofInstallationExtraLine(models.Model):
                 line.available_qty = 0.0
                 line.is_short = False
                 continue
-            location = line.order_id._wof_stock_location()
-            line.available_qty = (product.with_context(location=location.id) if location else product).free_qty
-            line.is_short = line.quantity > line.available_qty
+            free = line.order_id._wof_free_qty(product)
+            line.available_qty = free or 0.0
+            line.is_short = free is not None and line.quantity > free
 
     @api.model
     def _wof_default_taxes(self, order, product):

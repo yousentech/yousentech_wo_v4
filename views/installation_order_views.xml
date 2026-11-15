@@ -421,9 +421,14 @@
                             string="بدء التنفيذ" class="btn-primary"
                             invisible="state != 'intake'"
                             groups="yousentech_wo_v4.group_wo_technician,yousentech_wo_v4.group_wo_supervisor"/>
+                    <field name="wof_quality_enabled" invisible="1"/>
                     <button name="action_submit_quality" type="object"
                             string="إرسال لفحص الجودة" class="btn-primary"
-                            invisible="state != 'in_progress'"
+                            invisible="state != 'in_progress' or not wof_quality_enabled"
+                            groups="yousentech_wo_v4.group_wo_technician,yousentech_wo_v4.group_wo_supervisor"/>
+                    <button name="action_submit_quality" type="object"
+                            string="إنهاء التنفيذ" class="btn-primary"
+                            invisible="state != 'in_progress' or wof_quality_enabled"
                             groups="yousentech_wo_v4.group_wo_technician,yousentech_wo_v4.group_wo_supervisor"/>
                     <button name="action_pass_quality" type="object"
                             string="اعتماد الجودة" class="btn-primary"
@@ -431,7 +436,7 @@
                             groups="yousentech_wo_v4.group_wo_supervisor"/>
                     <button name="action_return_to_execution" type="object"
                             string="إعادة للتنفيذ" class="btn-secondary"
-                            invisible="state != 'quality'"
+                            invisible="state != 'quality' or not wof_quality_enabled"
                             groups="yousentech_wo_v4.group_wo_supervisor"/>
                     <button name="action_deliver" type="object"
                             string="تسليم السيارة وإغلاق الأمر" class="btn-primary"
@@ -526,13 +531,13 @@
                     <nav class="wof_steps_nav" aria-label="أقسام أمر التركيب">
                         <field name="state" widget="wof_stage_nav" nolabel="1" class="d-none"/>
                         <div class="wof_steps_caption"><i class="fa fa-th-large me-1" title="الأقسام"/> أقسام أمر التركيب</div>
-                        <div class="wof_steps_opt is-customer"><input type="radio" name="wof_order_section" value="customer" aria-label="العميل والسيارة" checked="checked"/><span class="wof_steps_n"/><span class="wof_steps_label">العميل والسيارة</span><span class="wof_steps_now" invisible="not (state == 'draft')">الآن</span></div>
-                        <div class="wof_steps_opt is-services"><input type="radio" name="wof_order_section" value="services" aria-label="الخدمات"/><span class="wof_steps_n"/><span class="wof_steps_label">الخدمات</span></div>
+                        <div class="wof_steps_opt is-customer" invisible="',customer,' not in wof_ui_sections"><input type="radio" name="wof_order_section" value="customer" aria-label="العميل والسيارة" checked="checked"/><span class="wof_steps_n"/><span class="wof_steps_label">العميل والسيارة</span><span class="wof_steps_now" invisible="not (state == 'draft')">الآن</span></div>
+                        <div class="wof_steps_opt is-services" invisible="',services,' not in wof_ui_sections"><input type="radio" name="wof_order_section" value="services" aria-label="الخدمات"/><span class="wof_steps_n"/><span class="wof_steps_label">الخدمات</span></div>
                         <div class="wof_steps_opt is-extras" invisible="',extras,' not in wof_ui_sections"><input type="radio" name="wof_order_section" value="extras" aria-label="الملحقات"/><span class="wof_steps_n"/><span class="wof_steps_label">الملحقات</span></div>
                         <div class="wof_steps_opt is-intake" invisible="',intake,' not in wof_ui_sections"><input type="radio" name="wof_order_section" value="intake" aria-label="الاستلام والفحص"/><span class="wof_steps_n"/><span class="wof_steps_label">الاستلام والفحص</span><span class="wof_steps_now" invisible="not (state == 'scheduled')">الآن</span></div>
                         <div class="wof_steps_opt is-execution" invisible="',execution,' not in wof_ui_sections"><input type="radio" name="wof_order_section" value="execution" aria-label="التنفيذ"/><span class="wof_steps_n"/><span class="wof_steps_label">التنفيذ</span><span class="wof_steps_now" invisible="not (state in ('intake', 'in_progress'))">الآن</span></div>
                         <div class="wof_steps_opt is-quality_delivery" invisible="',quality,' not in wof_ui_sections"><input type="radio" name="wof_order_section" value="quality_delivery" aria-label="الجودة والتسليم"/><span class="wof_steps_n"/><span class="wof_steps_label">الجودة والتسليم</span><span class="wof_steps_now" invisible="not (state in ('quality', 'ready'))">الآن</span></div>
-                        <div class="wof_steps_opt is-billing"><input type="radio" name="wof_order_section" value="billing" aria-label="الأمور المالية"/><span class="wof_steps_n"/><span class="wof_steps_label">الأمور المالية</span></div>
+                        <div class="wof_steps_opt is-billing" invisible="',billing,' not in wof_ui_sections"><input type="radio" name="wof_order_section" value="billing" aria-label="الأمور المالية"/><span class="wof_steps_n"/><span class="wof_steps_label">الأمور المالية</span></div>
                         <div class="wof_steps_sep"/>
                         <div class="wof_steps_opt is-attachments is-extra" invisible="',attachments,' not in wof_ui_sections"><input type="radio" name="wof_order_section" value="attachments" aria-label="الصور والمرفقات"/><i class="fa fa-picture-o" title="الصور والمرفقات"/><span class="wof_steps_label">الصور والمرفقات</span></div>
                         <div class="wof_steps_opt is-timeline is-extra" invisible="',timeline,' not in wof_ui_sections"><input type="radio" name="wof_order_section" value="timeline" aria-label="السجل الزمني"/><i class="fa fa-history" title="السجل الزمني"/><span class="wof_steps_label">السجل الزمني</span></div>
@@ -540,7 +545,7 @@
                         <div class="wof_steps_opt is-all is-extra"><input type="radio" name="wof_order_section" value="all" aria-label="عرض الكل"/><i class="fa fa-th" title="عرض الكل"/><span class="wof_steps_label">عرض الكل</span></div>
                     </nav>
                     <div class="wof_steps_content">
-                        <section class="wof_sec wof_sec_customer">
+                        <section class="wof_sec wof_sec_customer" invisible="',customer,' not in wof_ui_sections">
                             <div class="wof_cust_hero">
                                 <div class="wof_cust_hero_item">
                                     <span class="wof_cust_hero_icon"><i class="fa fa-user" title="العميل"/></span>
@@ -647,7 +652,7 @@
                             </div>
                         </section>
                         
-                        <section class="wof_sec wof_sec_services">
+                        <section class="wof_sec wof_sec_services" invisible="',services,' not in wof_ui_sections">
                             <div class="wof_services_head">
                                 <div class="wof_order_step_head"><h2>الخدمات</h2><p>اضغط الخدمة لفتحها وتحديد الدرجة والصنف والفنيين والخيارات، ثم أغلقها.</p></div>
                                 <div class="wof_services_bar">
@@ -737,6 +742,29 @@
 
                         <section class="wof_sec wof_sec_execution" invisible="',execution,' not in wof_ui_sections">
                             <div class="wof_order_step_head"><h2>التنفيذ</h2><p>تابع تقدم كل خدمة وفنييها، وراجع أصناف المخزون، وسجّل أي مادة إضافية استُهلكت.</p></div>
+                            <div class="wof_cust_hero">
+                                <div class="wof_cust_hero_item">
+                                    <span class="wof_cust_hero_icon"><i class="fa fa-user" title="العميل"/></span>
+                                    <div><small>العميل</small><b><field name="partner_id" readonly="1" options="{'no_open': True}"/></b>
+                                        <span class="wof_cust_hero_sub"><field name="partner_mobile" readonly="1"/></span></div>
+                                </div>
+                                <div class="wof_cust_hero_item">
+                                    <span class="wof_cust_hero_icon is-car"><i class="fa fa-car" title="السيارة"/></span>
+                                    <div><small>السيارة</small>
+                                        <b><field name="vehicle_manufacturer_id" readonly="1" options="{'no_open': True}"/> <field name="vehicle_model_id" readonly="1" options="{'no_open': True}"/> <field name="vehicle_year_id" readonly="1" options="{'no_open': True}"/></b>
+                                        <span class="wof_cust_hero_sub"><field name="vehicle_color_id" readonly="1" options="{'no_open': True}"/></span></div>
+                                </div>
+                                <div class="wof_cust_hero_item">
+                                    <span class="wof_cust_hero_icon is-plate"><i class="fa fa-id-card-o" title="اللوحة"/></span>
+                                    <div><small>اللوحة والحجم</small><b><field name="vehicle_plate_country" invisible="1"/><field name="vehicle_plate" widget="wof_plate" readonly="1" options="{'country_field': 'vehicle_plate_country'}"/></b>
+                                        <span class="wof_cust_hero_sub"><field name="car_size_id" readonly="1" options="{'no_open': True}"/></span></div>
+                                </div>
+                                <div class="wof_cust_hero_item">
+                                    <span class="wof_cust_hero_icon is-time"><i class="fa fa-calendar" title="التاريخ"/></span>
+                                    <div><small>تاريخ الأمر</small><b><field name="appointment_at" readonly="1"/></b>
+                                        <span class="wof_cust_hero_sub"><field name="company_id" readonly="1" options="{'no_open': True}"/></span></div>
+                                </div>
+                            </div>
 
                             <div class="wof_ex_kpis">
                                 <div class="wof_ex_kpi is-progress">
@@ -939,7 +967,7 @@
                             </div>
                         </section>
 
-                        <section class="wof_sec wof_sec_billing">
+                        <section class="wof_sec wof_sec_billing" invisible="',billing,' not in wof_ui_sections">
                             <div class="wof_order_step_head"><h2>الأمور المالية</h2><p>متابعة الفواتير والإشعارات الدائنة والمقبوض والمردود، والمتبقي للتحصيل أو للرد.</p></div>
                             <field name="finance_access" invisible="1"/>
                             <div class="wof_fin" invisible="not finance_access">

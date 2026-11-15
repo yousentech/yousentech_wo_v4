@@ -2,7 +2,7 @@
 // Keeps the section menu of the installation order on the current stage:
 // when a button moves the order to another stage, the menu follows it.
 
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, useEffect, useRef } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
@@ -23,6 +23,7 @@ export class WofStageNav extends Component {
     setup() {
         this.root = useRef("root");
         let previous = null;
+        onMounted(() => this.ensureVisibleSection());
         useEffect(
             (state, id) => {
                 const key = `${id}:${state}`;
@@ -33,6 +34,17 @@ export class WofStageNav extends Component {
             },
             () => [this.props.record.data[this.props.name], this.props.record.resId]
         );
+    }
+
+    ensureVisibleSection() {
+        // The default section may be hidden (setup or technician view): open the first shown.
+        const form = this.root.el && this.root.el.closest(".o_form_view");
+        if (form && !form.querySelector('input[name="wof_order_section"]:checked')) {
+            const first = form.querySelector('.wof_steps_opt:not(.is-all) input[name="wof_order_section"]');
+            if (first) {
+                first.checked = true;
+            }
+        }
     }
 
     select(section) {

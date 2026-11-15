@@ -45,8 +45,11 @@ class WofInstallationMaterialLine(models.Model):
                 line.available_qty = 0.0
                 line.is_short = False
                 continue
-            location = line.order_id._wof_stock_location()
-            free = (product.with_context(location=location.id) if location else product).free_qty
+            free = line.order_id._wof_free_qty(product)
+            if free is None:
+                line.available_qty = 0.0
+                line.is_short = False
+                continue
             line.available_qty = free
             # Compare with everything the order takes of this product (services + materials).
             needed = sum(q for order_line in line.order_id.line_ids

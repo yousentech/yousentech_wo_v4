@@ -503,6 +503,8 @@ class TestOrderBilling(TransactionCase):
         self.assertIn('فني أ 15.00', line.commission_split)
 
     def test_quality_send_opens_completion_dialog(self):
+        self.profile.wof_flow_apply('set', {'ui_execution': True, 'ui_quality': True})
+        self.addCleanup(self.profile.wof_flow_apply, 'set', {'ui_execution': False, 'ui_quality': False})
         order = self.make_order()
         tech = self.root['hr.employee'].create({'name': 'فني الجودة', 'user_id': self.user.id})
         order.line_ids.with_context(wof_skip_technician_check=True)._write_line_internal(
@@ -777,3 +779,53 @@ class TestOrderBilling(TransactionCase):
         # Removing a technician removes his task.
         line.with_context(wof_skip_technician_check=True)._write_line_internal({'technician_ids': [(6, 0, techs[:1].ids)]})
         self.assertEqual(line.task_ids.employee_id, techs[0])
+
+
+    def test_hidden_sections_keep_stages_moving(self):
+        """Execution and quality screens hidden (the default): finishing the work
+        completes the services, approves quality, and delivery needs no approval toggle."""
+        order = self.make_order()
+        tech = self.root['hr.employee'].create({'name': 'فني بسيط', 'user_id': self.user.id})
+        order.line_ids.with_context(wof_skip_technician_check=True)._write_line_internal(
+            {'technician_ids': [(6, 0, tech.ids)]})
+        order._transition_write({'state': 'in_progress'})
+        self.assertFalse(order.wof_quality_enabled)
+        result = order.action_submit_quality()
+        self.assertTrue(result is True or not isinstance(result, dict) or result.get('res_model') != 'wof.quality.send.wizard')
+        self.assertEqual(order.line_ids.execution_progress, 100)
+        self.assertTrue(order.line_ids.task_ids.done)
+        self.assertEqual(order.state, 'ready')
+        self.assertTrue(order.quality_passed)
+        order.action_deliver()
+        self.assertEqual(order.state, 'delivered')
+        self.assertTrue(order.customer_approved)
+
+    def test_quality_screen_on_requires_its_checks(self):
+        self.profile.wof_flow_apply('set', {'ui_quality': True})
+        self.addCleanup(self.profile.wof_flow_apply, 'set', {'ui_quality': False})
+        order = self.make_order()
+        tech = self.root['hr.employee'].create({'name': 'فني', 'user_id': self.user.id})
+        order.line_ids.with_context(wof_skip_technician_check=True)._write_line_internal(
+            {'technician_ids': [(6, 0, tech.ids)]})
+        order._transition_write({'state': 'in_progress'})
+        order.action_submit_quality()
+        self.assertEqual(order.state, 'quality')
+        with self.assertRaises(ValidationError):
+            order.action_pass_quality()
+
+    def test_technician_sees_execution_only(self):
+        technician = self.root['res.users'].create({
+            'name': 'فني فقط', 'login': 'tech_only_sections', 'company_id': self.env.company.id,
+            'company_ids': [(6, 0, self.env.company.ids)],
+            'groups_id': [(6, 0, [self.root.ref('base.group_user').id,
+                                  self.root.ref('yousentech_wo_v4.group_wo_technician').id])]})
+        order = self.make_order()
+        self.assertEqual(order.with_user(technician).wof_ui_sections, ',execution,')
+        # Opening the order needs no stock rights (availability is simply not shown).
+        tech = self.root['hr.employee'].create({'name': 'فني فقط', 'user_id': technician.id})
+        order.line_ids.with_context(wof_skip_technician_check=True)._write_line_internal(
+            {'technician_ids': [(6, 0, tech.ids)]})
+        order.with_user(technician).read(['stock_summary_html', 'amount_total', 'task_ids'])
+        order.line_ids.with_user(technician).wof_line_load()
+        self.assertTrue(order.with_user(technician).wof_technician_view)
+        self.assertIn(',services,', order.wof_ui_sections)

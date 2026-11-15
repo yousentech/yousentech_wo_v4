@@ -116,7 +116,9 @@ class WofInstallationOrderLineStock(models.Model):
         if not order._wof_negative_blocked():
             return
         location = order._wof_stock_location()
-        available = product.with_context(location=location.id).free_qty if location else product.free_qty
+        available = order._wof_free_qty(product, location)
+        if available is None:
+            return
         if float_compare(self.film_product_qty or 0.0, available, precision_rounding=product.uom_id.rounding) > 0:
             return {'warning': {
                 'title': _('الكمية غير كافية'),

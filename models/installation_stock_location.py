@@ -73,16 +73,28 @@ class WofOrderStockLocation(models.Model):
             order.stock_location_id = location or ptype.default_location_src_id \
                 or (ptype.warehouse_id.lot_stock_id if ptype else False)
 
+    @api.model
+    def _wof_can_read_stock(self):
+        return all(self.env[model].check_access_rights('read', raise_exception=False)
+                   for model in ('stock.quant', 'stock.move'))
+
+    def _wof_free_qty(self, product, location=None):
+        """Free quantity of ``product`` where the order takes its stock, or None when
+        the user cannot read stock (technicians) or the product is not stocked."""
+        if not product or product.type != 'product' or not self._wof_can_read_stock():
+            return None
+        location = location if location is not None else (self._wof_stock_location() if self else False)
+        return (product.with_context(location=location.id) if location else product).free_qty
+
     def _wof_product_choices(self, products):
         """Products for a picker with what is free in the order's location."""
         self.ensure_one()
         location = self._wof_stock_location()
         result = []
         for product in products:
-            stocked = product.type == 'product'
-            free = (product.with_context(location=location.id) if location else product).free_qty if stocked else 0.0
-            result.append({'id': product.id, 'name': product.display_name, 'stocked': stocked,
-                           'available': round(free, 3), 'uom': product.uom_id.name or ''})
+            free = self._wof_free_qty(product, location)
+            result.append({'id': product.id, 'name': product.display_name, 'stocked': free is not None,
+                           'available': round(free or 0.0, 3), 'uom': product.uom_id.name or ''})
         return result
 
     def _wof_stock_location(self):
@@ -135,6 +147,8 @@ class WofOrderStockLocation(models.Model):
                 products |= product
         products |= self.material_line_ids.product_id
         lines = []
+        if not self._wof_can_read_stock():
+            return [_('• لا تملك صلاحية الاطلاع على المخزون لعرض التفاصيل.')]
         for product in products.filtered(lambda rec: rec.type == 'product'):
             in_wh = product.with_context(warehouse=warehouse.id) if warehouse else product
             in_loc = product.with_context(location=location.id) if location else product
@@ -217,9 +231,7 @@ class WofOrderStockSummary(models.Model):
                     items = [(line.car_part_id.name, line.film_product_id, line.film_product_qty)]
                 location = order._wof_stock_location()
                 for label, product, qty in items:
-                    free = None
-                    if product and product.type == 'product':
-                        free = (product.with_context(location=location.id) if location else product).free_qty
+                    free = order._wof_free_qty(product, location)
                     # Lines sharing a product draw on the same stock: compare the total.
                     short = free is not None and qty and totals.get(product, qty) > free
                     rows.append(Markup('<tr class="%s"><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>') % (
