@@ -572,7 +572,6 @@
                                     <field name="partner_category_ids" widget="many2many_tags"
                                            options="{'no_create': True, 'color_field': 'color'}" readonly="state not in ('draft', 'scheduled')"
                                            invisible="',customer_category,' in wof_hidden_fields" required="',customer_category,' in wof_required_fields"/>
-                                    <field name="car_size_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}"/>
                                     <field name="customer_notes" readonly="state not in ('draft', 'scheduled')"/>
                                 </group>
                                 <div class="wof_order_card wof_car_card">
@@ -599,6 +598,7 @@
                                                context="{'default_manufactory_id': vehicle_manufacturer_id}"
                                                groups="yousentech_wo_v4.group_wo_car_catalog"/>
                                         <field name="vehicle_year_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}" invisible="',manufacture_year,' in wof_hidden_fields" required="',manufacture_year,' in wof_required_fields"/>
+                                        <field name="car_size_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}"/>
                                     </group>
                                 </div>
                                 <group class="wof_order_card" string="الموعد وتفاصيل السيارة">
@@ -607,6 +607,15 @@
                                     <field name="vehicle_color_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True, 'no_open': True}" invisible="',color,' in wof_hidden_fields" required="',color,' in wof_required_fields"/>
                                     <field name="vehicle_vin" readonly="state not in ('draft', 'scheduled')" invisible="',vin,' in wof_hidden_fields" required="',vin,' in wof_required_fields"/>
                                     <field name="agency_id" readonly="state not in ('draft', 'scheduled')" options="{'no_create': True}" invisible="',agency,' in wof_hidden_fields" required="',agency,' in wof_required_fields"/>
+                                    <field name="odometer" string="قراءة العداد (كم)" readonly="state not in ('draft', 'scheduled')"
+                                           invisible="',odometer,' in wof_hidden_fields" required="',odometer,' in wof_required_fields and state == 'scheduled'"/>
+                                    <field name="sticker_removal" readonly="state not in ('draft', 'scheduled')"
+                                           invisible="',sticker_removal,' in wof_hidden_fields" required="',sticker_removal,' in wof_required_fields and state == 'scheduled'"/>
+                                    <field name="intake_condition" string="حالة السيارة" readonly="state not in ('draft', 'scheduled')"/>
+                                    <field name="intake_notes" string="وصف الضرر / المراجعة" readonly="state not in ('draft', 'scheduled')"
+                                           invisible="intake_condition not in ('existing_damage', 'needs_review')"
+                                           required="intake_condition in ('existing_damage', 'needs_review')"
+                                           placeholder="المكان والنوع، مثل: خدش في الباب الخلفي الأيمن"/>
                                 </group>
                                 <group class="wof_order_card" string="الفرع والفريق">
                                     <field name="company_id" string="الفرع" readonly="1" options="{'no_open': True}"
@@ -693,47 +702,20 @@
                                 <span class="wof_st_pill is-done" invisible="state in ('draft', 'scheduled', 'cancelled')">تم الاستلام</span>
                                 <span class="wof_st_pill is-later" invisible="state != 'draft'">بعد تأكيد الموعد / الوصول</span>
                                 <ol class="wof_st_steps">
-                                    <li><b>سجّل قراءة العداد</b> وحالة اللواصق إن طُلبت.</li>
-                                    <li><b>اختر حالة السيارة.</b> عند وجود ضرر سابق أو حاجة لمراجعة تصبح الملاحظة إلزامية.</li>
+                                    <li><b>سجّل قراءة العداد وحالة السيارة</b> في «العميل والسيارة» (عند وجود ضرر تصبح الملاحظة إلزامية).</li>
                                     <li><b>صوّر السيارة</b> من كل الجهات قبل البدء.</li>
                                     <li>اضغط <b>«إكمال الاستلام والفحص»</b> لتنتقل السيارة للتنفيذ.</li>
                                 </ol>
                             </div>
 
-                            <div class="wof_ex_grid is-even">
-                                <div class="wof_ex_card">
-                                    <div class="wof_ex_card_head"><h3><i class="fa fa-car" title="الحالة"/> حالة السيارة</h3></div>
-                                    <field name="intake_condition" widget="radio" nolabel="1" class="wof_st_radio"
-                                           readonly="state not in ('draft', 'scheduled')"/>
-                                    <div class="wof_st_alert" invisible="intake_condition not in ('existing_damage', 'needs_review')">
-                                        <i class="fa fa-exclamation-triangle" title="تنبيه"/> صف الضرر أو سبب المراجعة بدقة (المكان والنوع)، فهي إلزامية.
-                                    </div>
-                                    <label for="intake_notes" string="ملاحظات الاستلام" class="wof_st_label"/>
-                                    <field name="intake_notes" nolabel="1" class="wof_ex_notes"
-                                           placeholder="مثال: خدش في الباب الخلفي الأيمن، شرخ صغير في الزجاج الأمامي…"
-                                           readonly="state not in ('draft', 'scheduled')"/>
-                                </div>
-                                <div class="wof_ex_card">
-                                    <div class="wof_ex_card_head"><h3><i class="fa fa-tachometer" title="العداد"/> العداد واللواصق</h3></div>
-                                    <div class="wof_st_fields">
-                                        <div invisible="',odometer,' in wof_hidden_fields">
-                                            <label for="odometer" string="قراءة العداد (كم)" class="wof_st_label"/>
-                                            <field name="odometer" nolabel="1"
-                                                   readonly="state not in ('draft', 'scheduled')"
-                                                   required="',odometer,' in wof_required_fields and state == 'scheduled'"/>
-                                        </div>
-                                        <div invisible="',sticker_removal,' in wof_hidden_fields">
-                                            <label for="sticker_removal" string="إزالة اللواصق" class="wof_st_label"/>
-                                            <field name="sticker_removal" widget="radio" nolabel="1" class="wof_st_radio"
-                                                   readonly="state not in ('draft', 'scheduled')"
-                                                   required="',sticker_removal,' in wof_required_fields and state == 'scheduled'"/>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0" invisible="',odometer,' not in wof_hidden_fields or ',sticker_removal,' not in wof_hidden_fields">العداد واللواصق مخفية في «إعدادات الحقول» بالتهيئة.</p>
-                                    <div class="wof_st_times">
-                                        <div><small>تأكيد الوصول</small><field name="arrival_confirmed_at" readonly="1"/></div>
-                                        <div><small>إكمال الاستلام</small><field name="intake_completed_at" readonly="1"/></div>
-                                    </div>
+                            <div class="wof_ex_card">
+                                <div class="wof_ex_card_head"><h3><i class="fa fa-car" title="الحالة"/> بيانات الاستلام</h3>
+                                    <span class="wof_ex_hint">العداد وحالة السيارة تُسجَّل في «العميل والسيارة» ← كارد «الموعد وتفاصيل السيارة».</span></div>
+                                <div class="wof_st_times is-wide">
+                                    <div><small>قراءة العداد</small><field name="odometer" readonly="1"/></div>
+                                    <div><small>حالة السيارة</small><field name="intake_condition" readonly="1"/></div>
+                                    <div><small>تأكيد الوصول</small><field name="arrival_confirmed_at" readonly="1"/></div>
+                                    <div><small>إكمال الاستلام</small><field name="intake_completed_at" readonly="1"/></div>
                                 </div>
                             </div>
 
@@ -779,6 +761,23 @@
                                 <field name="line_ids" mode="tree,form" nolabel="1"
                                        readonly="state != 'in_progress'"
                                        context="{'tree_view_ref': 'yousentech_wo_v4.view_wof_installation_order_line_execution_tree'}"/>
+                            </div>
+
+                            <div class="wof_ex_card is-tasks">
+                                <div class="wof_ex_card_head">
+                                    <h3><i class="fa fa-check-square-o" title="المهام"/> مهام الفنيين</h3>
+                                    <span class="wof_ex_hint">مهمة لكل فني على كل خدمة أو جزء. يسجّل الفني إكمال مهمته، وتُحسب نسبة الخدمة من المهام المكتملة.</span>
+                                </div>
+                                <field name="task_ids" nolabel="1" readonly="state != 'in_progress'">
+                                    <tree editable="bottom" create="false" delete="false" decoration-success="done" decoration-muted="not done">
+                                        <field name="service_label" readonly="1"/>
+                                        <field name="employee_name" readonly="1"/>
+                                        <field name="done" widget="boolean_toggle"/>
+                                        <field name="done_at" readonly="1"/>
+                                        <field name="done_by_id" readonly="1" optional="hide" options="{'no_open': True}"/>
+                                    </tree>
+                                </field>
+                                <p class="text-muted small mb-0" invisible="task_ids">تظهر المهام بعد تحديد فنيي كل خدمة من كارد الخدمة.</p>
                             </div>
 
                             <div class="wof_ex_grid">

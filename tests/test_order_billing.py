@@ -760,3 +760,20 @@ class TestOrderBilling(TransactionCase):
         self.assertIn(',extras,', order.wof_ui_sections)
         self.assertIn(',intake,', order.wof_ui_sections)
         self.profile.wof_flow_apply('set', {'ui_extras': False, 'ui_intake': False})
+
+    def test_technician_tasks_drive_progress(self):
+        order = self.make_order()
+        line = order.line_ids
+        techs = self.root['hr.employee'].create([{'name': 'فني ١', 'user_id': self.user.id}, {'name': 'فني ٢'}])
+        line.with_context(wof_skip_technician_check=True)._write_line_internal({'technician_ids': [(6, 0, techs.ids)]})
+        self.assertEqual(len(line.task_ids), 2)
+        order._transition_write({'state': 'in_progress'})
+        first = line.task_ids.filtered(lambda task: task.employee_id == techs[0])
+        first.done = True
+        self.assertEqual(line.execution_progress, 50)
+        self.assertTrue(first.done_at)
+        (line.task_ids - first).done = True
+        self.assertEqual(line.execution_progress, 100)
+        # Removing a technician removes his task.
+        line.with_context(wof_skip_technician_check=True)._write_line_internal({'technician_ids': [(6, 0, techs[:1].ids)]})
+        self.assertEqual(line.task_ids.employee_id, techs[0])

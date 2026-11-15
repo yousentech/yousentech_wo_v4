@@ -34,6 +34,8 @@ class WofQualitySendWizard(models.TransientModel):
     def action_complete_and_send(self):
         self.ensure_one()
         order = self.order_id
+        order.task_ids.filtered(lambda task: not task.done).with_context(wof_task_internal=True).write({
+            'done': True, 'done_at': fields.Datetime.now(), 'done_by_id': self.env.user.id})
         for line in order.line_ids.filtered(lambda rec: rec.execution_progress != 100):
             if line.part_line_ids:
                 parts = line.part_line_ids.filtered(lambda part: part.progress != 100)

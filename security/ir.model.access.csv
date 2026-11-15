@@ -132,3 +132,4 @@ access_order_payment_wizard_line_employee,order.payment.wizard.line.employee,mod
 access_quality_send_wizard_employee,quality.send.wizard.employee,model_wof_quality_send_wizard,yousentech_wo_v4.group_wo_employee,1,1,1,1
 access_installation_extra_line_employee,installation.extra.line.employee,model_wof_installation_extra_line,yousentech_wo_v4.group_wo_employee,1,1,1,1
 access_order_cancel_wizard_supervisor,order.cancel.wizard.supervisor,model_wof_order_cancel_wizard,yousentech_wo_v4.group_wo_supervisor,1,1,1,1
+access_technician_task_employee,technician.task.employee,model_wof_technician_task,yousentech_wo_v4.group_wo_employee,1,1,1,1

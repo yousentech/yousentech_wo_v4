@@ -244,7 +244,7 @@ class WofInstallationOrder(models.Model):
             ('needs_review', 'تحتاج مراجعة إضافية'),
         ],
         string="حالة السيارة عند الاستلام",
-        copy=False,
+        copy=False, default='good',
     )
     intake_notes = fields.Text(string="ملاحظات فحص الاستلام", copy=False)
     customer_approved = fields.Boolean(
