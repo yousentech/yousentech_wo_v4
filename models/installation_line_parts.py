@@ -190,7 +190,7 @@ class WofInstallationOrderLineParts(models.Model):
             'templates': [{'id': t.id, 'name': t.name, 'is_default': t.is_default} for t in templates],
             'grades': [{'id': g.id, 'name': g.display_name} for g in self.available_grade_ids],
             'products': self._wof_stock_choices(),
-            'technicians': [{'id': e.id, 'name': e.name} for e in self.available_technician_ids],
+            'technicians': self._wof_technician_choices(),
             'uses_inventory': bool(self.film_uses_inventory),
             'can_setup': lead and order.state in SETUP_STATES,
             'can_template': lead and order.state in ('draft', 'scheduled'),
@@ -201,7 +201,7 @@ class WofInstallationOrderLineParts(models.Model):
             'my_employee_ids': self.env.user.employee_ids.ids,
             'parts': [{
                 'id': p.id, 'name': p.part_id.name, 'grade_id': p.grade_id.id, 'product_id': p.product_id.id,
-                'product_qty': p.product_qty, 'technician_ids': p.technician_ids.ids,
+                'product_qty': p.product_qty, 'technician_ids': self._wof_assigned_ids('part', p.id),
                 'technician_names': p.technician_names or '', 'progress': p.progress,
                 'tint_warning': p.tint_warning or '',
             } for p in self.part_line_ids],
@@ -216,7 +216,7 @@ class WofInstallationOrderLineParts(models.Model):
             'line_id': self.id, 'templates': [], 'parts': [],
             'grades': [{'id': g.id, 'name': g.display_name} for g in self.available_grade_ids],
             'products': self._wof_stock_choices(),
-            'technicians': [{'id': e.id, 'name': e.name} for e in self.available_technician_ids],
+            'technicians': self._wof_technician_choices(),
             'uses_inventory': bool(self.film_uses_inventory),
             'can_setup': lead and order.state in SETUP_STATES,
             'can_template': False,
@@ -231,7 +231,7 @@ class WofInstallationOrderLineParts(models.Model):
             'grade_id': self.film_category_line_id.id,
             'product_id': self.film_product_id.id,
             'product_qty': self.film_product_qty,
-            'technician_ids': self.technician_ids.ids,
+            'technician_ids': self._wof_assigned_ids('line', self.id),
             'technician_names': self.technician_names or '',
             'progress': self.execution_progress,
             'discount': {
@@ -242,6 +242,7 @@ class WofInstallationOrderLineParts(models.Model):
             },
             'can_commercial': lead and order.state in ('draft', 'scheduled'),
             'tint_warning': self.tint_warning if self.has_tint_warning else '',
+            'employee_names': self._wof_employee_name_map(),
             'stock_location': (order._wof_stock_location().complete_name or '') if self.film_uses_inventory else '',
             'options': {
                 'available': [{'id': o.id, 'name': o.name} for o in self.available_option_ids.filtered('active')],
@@ -251,6 +252,28 @@ class WofInstallationOrderLineParts(models.Model):
             },
         })
         return base
+
+    def _wof_technician_choices(self):
+        """Technicians to pick from, with names read without the employee record
+        (whose company may not be selected in the user's company switcher)."""
+        ids = self.available_technician_ids.ids
+        names = self._wof_employee_names(ids)
+        return [{'id': emp, 'name': names.get(emp, '')} for emp in ids]
+
+    def _wof_employee_name_map(self):
+        ids = set(self.available_technician_ids.ids) | set(self._wof_assigned_ids('line', self.id))
+        for part in self.part_line_ids:
+            ids |= set(self._wof_assigned_ids('part', part.id))
+        return {str(emp): name for emp, name in self._wof_employee_names(list(ids)).items()}
+
+    def _wof_assigned_ids(self, kind, record_id):
+        """Assigned technicians as stored (record rules may hide some employees)."""
+        table, column = ('wof_order_line_part_technician_rel', 'part_line_id') if kind == 'part' \
+            else ('wof_order_line_technician_rel', 'line_id')
+        self.env['wof.installation.order.line.part' if kind == 'part' else 'wof.installation.order.line'].flush_model(
+            ['technician_ids'])
+        self.env.cr.execute('SELECT employee_id FROM %s WHERE %s = %%s ORDER BY employee_id' % (table, column), (record_id,))
+        return [row[0] for row in self.env.cr.fetchall()]
 
     def _wof_stock_choices(self):
         """Stock products offered for this service: the film's stock products, its

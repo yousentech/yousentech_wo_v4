@@ -17,7 +17,19 @@ class WofTeamMember(models.Model):
     _order = 'company_id, name'
     _rec_name = 'name'
 
-    employee_id = fields.Many2one('hr.employee', string='الموظف', required=True, ondelete='cascade', index=True)
+    employee_id = fields.Many2one(
+        'hr.employee', string='الموظف', required=True, ondelete='cascade', index=True,
+        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+        help='موظف من شركة الفرع نفسه.')
+    employee_company_id = fields.Many2one(related='employee_id.company_id', store=True, readonly=True,
+                                          string='شركة الموظف')
+    company_mismatch = fields.Boolean(string='شركة مختلفة', compute='_compute_company_mismatch', store=True,
+                                      help='الموظف تابع لشركة غير الفرع: لا يظهر في أوامر هذا الفرع.')
+
+    @api.depends('employee_company_id', 'company_id')
+    def _compute_company_mismatch(self):
+        for member in self:
+            member.company_mismatch = bool(member.employee_company_id and member.employee_company_id != member.company_id)
     name = fields.Char(related='employee_id.name', store=True, readonly=True, string='الاسم')
     user_id = fields.Many2one(related='employee_id.user_id', store=True, readonly=True, string='المستخدم')
     job_title = fields.Char(related='employee_id.job_title', readonly=True, string='المسمى')
@@ -41,6 +53,20 @@ class WofTeamMember(models.Model):
             if not member.is_technician and not member.is_supervisor:
                 raise ValidationError(_('حدد دور «%s»: فني أو مشرف تشغيل.') % member.name)
 
+    @api.constrains('employee_id', 'company_id')
+    def _check_same_company(self):
+        """A branch works with its own employees: the employee's company is the branch."""
+        for member in self:
+            company = member.employee_id.company_id
+            if company and company != member.company_id:
+                raise ValidationError(_('الموظف «%s» تابع لشركة «%s»؛ أضفه لفريق فرعه نفسه، أو غيّر شركته في بطاقة الموظف.')
+                                      % (member.name, company.name))
+
+    @api.onchange('employee_id')
+    def _onchange_employee_company(self):
+        if self.employee_id.company_id:
+            self.company_id = self.employee_id.company_id
+
     @api.constrains('commission_ratio')
     def _check_ratio(self):
         for member in self:
@@ -53,4 +79,8 @@ class WofTeamMember(models.Model):
         if not company:
             return self.env['hr.employee']
         field = 'is_technician' if role == 'technician' else 'is_supervisor'
-        return self.search([('company_id', '=', company.id), (field, '=', True)]).employee_id
+        # Only employees of the branch's own company (or without company) work in its orders.
+        return self.search([
+            ('company_id', '=', company.id), (field, '=', True),
+            '|', ('employee_company_id', '=', False), ('employee_company_id', '=', company.id),
+        ]).employee_id

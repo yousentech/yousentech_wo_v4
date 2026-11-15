@@ -5,10 +5,12 @@
         <field name="name">wof.team.member.tree</field>
         <field name="model">wof.team.member</field>
         <field name="arch" type="xml">
-            <tree string="فريق التركيب" editable="bottom" decoration-muted="not active">
+            <tree string="فريق التركيب" editable="bottom" decoration-muted="not active" decoration-danger="company_mismatch">
+                <field name="company_mismatch" column_invisible="True"/>
                 <field name="employee_id" options="{'no_create': True}" widget="many2one_avatar_employee"/>
                 <field name="job_title" optional="show"/>
                 <field name="company_id" options="{'no_create': True}"/>
+                <field name="employee_company_id" optional="show"/>
                 <field name="is_technician" widget="boolean_toggle"/>
                 <field name="is_supervisor" widget="boolean_toggle"/>
                 <field name="commission_ratio" invisible="not is_technician"/>
@@ -27,6 +29,7 @@
                 <field name="company_id"/>
                 <filter name="technicians" string="الفنيون" domain="[('is_technician', '=', True)]"/>
                 <filter name="supervisors" string="مشرفو التشغيل" domain="[('is_supervisor', '=', True)]"/>
+                <filter name="mismatch" string="شركة الموظف غير الفرع" domain="[('company_mismatch', '=', True)]"/>
                 <separator/>
                 <filter name="archived" string="المؤرشفون" domain="[('active', '=', False)]"/>
                 <group expand="1" string="تجميع">
@@ -43,7 +46,7 @@
         <field name="context">{'search_default_group_branch': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">أضف أول عضو في فريق التركيب</p>
-            <p>اختر الموظف وفرعه، وحدد إن كان فنيًا أو مشرف تشغيل (أو الاثنين). الفني يظهر في خدمات أوامر فرعه، والمشرف في حقل مشرف التشغيل. عند نقل فني لفرع آخر عدّل فرعه هنا؛ أوامره السابقة تبقى كما هي.</p>
+            <p>اختر الموظف وفرعه، وحدد إن كان فنيًا أو مشرف تشغيل (أو الاثنين). الفني يظهر في خدمات أوامر فرعه، والمشرف في حقل مشرف التشغيل. عند نقل فني لفرع آخر عدّل فرعه هنا؛ أوامره السابقة تبقى كما هي. الموظف يجب أن يكون من شركة الفرع نفسه؛ الصفوف الحمراء مخالفة ولا تظهر في الأوامر.</p>
         </field>
     </record>
 

@@ -829,3 +829,22 @@ class TestOrderBilling(TransactionCase):
         order.line_ids.with_user(technician).wof_line_load()
         self.assertTrue(order.with_user(technician).wof_technician_view)
         self.assertIn(',services,', order.wof_ui_sections)
+
+    def test_technicians_belong_to_the_branch_company(self):
+        order = self.make_order()
+        other = self.root['res.company'].create({'name': 'فرع آخر للاختبار'})
+        foreign = self.root['hr.employee'].create({'name': 'فني فرع آخر', 'company_id': other.id})
+        Team = self.root['wof.team.member']
+        with self.assertRaises(ValidationError):
+            Team.create({'employee_id': foreign.id, 'company_id': order.company_id.id, 'is_technician': True})
+        # A member saved before the rule (cross-company) is not offered nor accepted.
+        member = Team.create({'employee_id': foreign.id, 'company_id': other.id, 'is_technician': True})
+        self.env.cr.execute('UPDATE wof_team_member SET company_id = %s WHERE id = %s', (order.company_id.id, member.id))
+        Team.invalidate_model()
+        line = order.line_ids
+        self.assertNotIn(foreign, line.available_technician_ids)
+        with self.assertRaises(ValidationError):
+            line.write({'technician_ids': [(4, foreign.id)]})
+        # Names on the service card are read without the employee records.
+        data = line.wof_line_load()
+        self.assertTrue(all(t['name'] for t in data['technicians']))

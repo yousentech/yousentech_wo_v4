@@ -309,7 +309,7 @@ export class WofServiceRows extends Component {
 
     techName(area, id) {
         const tech = area.technicians.find((t) => t.id === id);
-        return tech ? tech.name : "";
+        return tech ? tech.name : (area.employee_names || {})[id] || "";
     }
 }
 
