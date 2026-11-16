@@ -827,6 +827,18 @@ class TestOrderBilling(TransactionCase):
             {'technician_ids': [(6, 0, tech.ids)]})
         order.with_user(technician).read(['stock_summary_html', 'amount_total', 'task_ids'])
         order.line_ids.with_user(technician).wof_line_load()
+        # A technician finishes his own tasks only: ending the work, money and
+        # documents belong to reception / the supervisor.
+        order._transition_write({'state': 'in_progress'})
+        as_tech = order.with_user(technician)
+        for action in ('action_submit_quality', 'action_register_payment', 'action_create_invoice',
+                       'action_create_sale_order'):
+            with self.assertRaises(AccessError):
+                getattr(as_tech, action)()
+        self.assertEqual(order.state, 'in_progress')
+        as_tech.my_task_ids.action_mark_done()
+        self.assertEqual(order.line_ids.execution_progress, 100)
+        self.assertEqual(order.state, 'in_progress')
         self.assertTrue(order.with_user(technician).wof_technician_view)
         self.assertIn(',services,', order.wof_ui_sections)
 

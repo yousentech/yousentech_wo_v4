@@ -14,7 +14,8 @@ A technician (without reception / supervisor rights) sees the execution screen
 only, with the customer and car summary on top.
 """
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
+from odoo.exceptions import AccessError
 
 OPTIONAL_SECTIONS = ('intake', 'execution', 'quality', 'attachments', 'timeline', 'extras')
 
@@ -48,6 +49,22 @@ class WofOrderSections(models.Model):
         """Is the optional section ``key`` switched on in the setup (for everyone)?"""
         profile = self.env['wof.company.profile']._wof_get_profile()
         return bool(profile and profile['ui_%s' % key])
+
+    def _wof_refuse_technician(self, what):
+        if self._wof_technician_only():
+            raise AccessError(_('%s ليس من صلاحية الفني؛ يقوم به الاستقبال أو المشرف.') % what)
+
+    def action_register_payment(self):
+        self._wof_refuse_technician(_('تسجيل الدفعات'))
+        return super().action_register_payment()
+
+    def action_create_invoice(self):
+        self._wof_refuse_technician(_('إنشاء الفاتورة'))
+        return super().action_create_invoice()
+
+    def action_create_sale_order(self):
+        self._wof_refuse_technician(_('إنشاء أمر البيع'))
+        return super().action_create_sale_order()
 
     # ------------------------------------------------------------ stages
     def action_submit_quality(self):

@@ -425,11 +425,11 @@
                     <button name="action_submit_quality" type="object"
                             string="إرسال لفحص الجودة" class="btn-primary"
                             invisible="state != 'in_progress' or not wof_quality_enabled"
-                            groups="yousentech_wo_v4.group_wo_technician,yousentech_wo_v4.group_wo_supervisor"/>
+                            groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor"/>
                     <button name="action_submit_quality" type="object"
                             string="إنهاء التنفيذ" class="btn-primary"
                             invisible="state != 'in_progress' or wof_quality_enabled"
-                            groups="yousentech_wo_v4.group_wo_technician,yousentech_wo_v4.group_wo_supervisor"/>
+                            groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor"/>
                     <button name="action_pass_quality" type="object"
                             string="اعتماد الجودة" class="btn-primary"
                             invisible="state != 'quality'"
@@ -443,17 +443,18 @@
                             invisible="state != 'ready'"
                             groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor"/>
                     <field name="can_register_payment" invisible="1"/>
+                    <field name="wof_technician_view" invisible="1"/>
                     <field name="invoice_state" invisible="1"/>
                     <button name="action_register_payment" type="object"
                             string="تسجيل دفعة" icon="fa-money" class="btn-primary"
-                            invisible="state == 'draft' or not can_register_payment"
+                            invisible="state == 'draft' or not can_register_payment or wof_technician_view"
                             groups="account.group_account_invoice"/>
                     <button name="action_create_invoice" type="object"
                             string="إنشاء الفاتورة" icon="fa-file-text-o"
-                            invisible="(invoice_id and invoice_state != 'cancel') or state in ('draft', 'cancelled')"/>
+                            invisible="(invoice_id and invoice_state != 'cancel') or state in ('draft', 'cancelled') or wof_technician_view"/>
                     <button name="action_create_sale_order" type="object"
                             string="إنشاء أمر البيع" icon="fa-shopping-cart"
-                            invisible="sale_order_id or state in ('draft', 'cancelled')"/>
+                            invisible="sale_order_id or state in ('draft', 'cancelled') or wof_technician_view"/>
                     <button name="action_open_cancel_wizard" type="object"
                             string="إلغاء الأمر" class="btn-secondary"
                             invisible="state in ('delivered', 'cancelled')"
@@ -479,18 +480,18 @@
                             <h1><field name="name" readonly="1"/></h1>
                         </div>
                         <span class="wof_hero_tag"><field name="service_count" readonly="1"/> خدمة</span>
-                        <field name="payment_status" widget="badge" readonly="1" class="wof_hero_paystate"
+                        <field name="payment_status" widget="badge" readonly="1" class="wof_hero_paystate" invisible="wof_technician_view"
                                decoration-success="payment_status == 'paid'" decoration-warning="payment_status in ('not_paid', 'partial')"
                                decoration-info="payment_status == 'refunded'"/>
                         <span class="wof_hero_space"/>
-                        <div class="wof_hero_fig"><small>الخدمات</small><field name="amount_gross" widget="monetary" readonly="1"/></div>
-                        <div class="wof_hero_fig" invisible="not amount_extras or ',extras,' not in wof_ui_sections"><small>الملحقات</small><field name="amount_extras" widget="monetary" readonly="1"/></div>
-                        <div class="wof_hero_fig is-discount"><small>الخصم</small><field name="amount_discount" widget="monetary" readonly="1"/></div>
-                        <div class="wof_hero_fig"><small>الضريبة</small><field name="amount_tax" widget="monetary" readonly="1"/></div>
-                        <div class="wof_hero_fig is-total"><small>الإجمالي</small><field name="amount_total" widget="monetary" readonly="1"/></div>
-                        <div class="wof_hero_fig is-paid"><small>المدفوع</small><field name="amount_paid" widget="monetary" readonly="1"/></div>
-                        <div class="wof_hero_fig is-due" invisible="finance_to_refund"><small>المتبقي</small><field name="amount_residual" widget="monetary" readonly="1"/></div>
-                        <div class="wof_hero_fig is-refund" invisible="not finance_to_refund"><small>المتبقي للرد</small><field name="finance_to_refund" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig" invisible="wof_technician_view"><small>الخدمات</small><field name="amount_gross" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig" invisible="wof_technician_view or not amount_extras or ',extras,' not in wof_ui_sections"><small>الملحقات</small><field name="amount_extras" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-discount" invisible="wof_technician_view"><small>الخصم</small><field name="amount_discount" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig" invisible="wof_technician_view"><small>الضريبة</small><field name="amount_tax" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-total" invisible="wof_technician_view"><small>الإجمالي</small><field name="amount_total" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-paid" invisible="wof_technician_view"><small>المدفوع</small><field name="amount_paid" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-due" invisible="finance_to_refund or wof_technician_view"><small>المتبقي</small><field name="amount_residual" widget="monetary" readonly="1"/></div>
+                        <div class="wof_hero_fig is-refund" invisible="not finance_to_refund or wof_technician_view"><small>المتبقي للرد</small><field name="finance_to_refund" widget="monetary" readonly="1"/></div>
                     </div>
 
                     <div class="oe_button_box" name="button_box">
@@ -741,7 +742,8 @@
                         </section>
 
                         <section class="wof_sec wof_sec_execution" invisible="',execution,' not in wof_ui_sections">
-                            <div class="wof_order_step_head"><h2>التنفيذ</h2><p>تابع تقدم كل خدمة وفنييها، وراجع أصناف المخزون، وسجّل أي مادة إضافية استُهلكت.</p></div>
+                            <div class="wof_order_step_head" invisible="wof_technician_view"><h2>التنفيذ</h2><p>تابع تقدم كل خدمة وفنييها، وراجع أصناف المخزون، وسجّل أي مادة إضافية استُهلكت.</p></div>
+                            <div class="wof_order_step_head" invisible="not wof_technician_view"><h2>مهامي على هذه السيارة</h2><p>سجّل «اكتمل» لكل مهمة تنهيها. إنهاء التنفيذ للسيارة كاملة يقوم به المشرف.</p></div>
                             <div class="wof_cust_hero">
                                 <div class="wof_cust_hero_item">
                                     <span class="wof_cust_hero_icon"><i class="fa fa-user" title="العميل"/></span>
@@ -781,7 +783,7 @@
                                 </div>
                             </div>
 
-                            <div class="wof_ex_card">
+                            <div class="wof_ex_card" invisible="wof_technician_view">
                                 <div class="wof_ex_card_head">
                                     <h3><i class="fa fa-tasks" title="الخدمات"/> تقدم الخدمات</h3>
                                     <span class="wof_ex_hint">يُعدَّل أثناء «قيد التنفيذ»؛ تقدم منطقة الخدمة يُحسب من أجزائها في كارد الخدمة.</span>
@@ -822,7 +824,7 @@
                             </div>
 
                             <div class="wof_ex_grid">
-                                <div class="wof_ex_card" invisible="not wof_uses_stock">
+                                <div class="wof_ex_card" invisible="not wof_uses_stock or wof_technician_view">
                                     <div class="wof_ex_card_head">
                                         <h3><i class="fa fa-cubes" title="المخزون"/> أصناف المخزون من الخدمات</h3>
                                         <span class="wof_ex_tag">تلقائي</span>

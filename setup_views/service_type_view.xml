@@ -6,7 +6,8 @@
     <menuitem id="menu_wo_v4_operation" name="العمليات"
               parent="menu_wo_v4" sequence="1"/>
     <menuitem id="menu_wo_v4_inputs" name="المدخلات"
-              parent="menu_wo_v4" groups="yousentech_wo_v4.group_wo_employee"
+              parent="menu_wo_v4"
+              groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor,yousentech_wo_v4.group_wo_settings,yousentech_wo_v4.group_wo_car_catalog"
               sequence="2"/>
     <menuitem id="menu_wo_v4_products" name="المنتجات"
               parent="menu_wo_v4" groups="yousentech_wo_v4.group_wo_manager"

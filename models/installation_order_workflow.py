@@ -384,12 +384,13 @@ class WofInstallationOrderWorkflow(models.Model):
 
     def action_submit_quality(self):
         self.ensure_one()
+        # Ending the work of every technician is the supervisor's (or reception's)
+        # decision: a technician finishes his own tasks only.
         self._ensure_role(
-            'yousentech_wo_v4.group_wo_technician',
+            'yousentech_wo_v4.group_wo_user',
             'yousentech_wo_v4.group_wo_supervisor',
             'yousentech_wo_v4.group_wo_manager',
         )
-        self._ensure_assigned_technician_or_supervisor()
         need_technician = self._wof_field_required('technician')
         incomplete = self.line_ids.filtered(
             lambda line: (
