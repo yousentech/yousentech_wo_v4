@@ -149,23 +149,35 @@ class WofInstallationOrderTeam(models.Model):
 
     # ------------------------------------------------------------- salesman
     @api.model
-    def _wof_branch_salesmen(self, company):
-        """Salesmen of a branch: their current assignment, else their own company.
+    def _wof_branch_salesman_users(self, company):
+        """{salesman id: user id} of a branch: current assignment, else own company.
 
-        Read as superuser: the salesmen module hides the salesmen of the
-        companies not ticked in the company switcher, and a salesman assigned to
-        the branch may belong to another company.
+        Read by SQL: the salesmen module hides the salesmen of the companies not
+        ticked in the company switcher, and a salesman assigned to the branch
+        may belong to another company.
         """
-        Salesman = self.env['salesman'].sudo()
         if not company:
-            return self.env['salesman']
+            return {}
         # A branch also uses the salesmen of its parent company.
-        branch = self.env['res.company'].sudo().search([('id', 'parent_of', company.id)])
-        current = self.env['salesman.assignments'].sudo().search([('state', '=', 'current')])
-        assigned_here = current.filtered(lambda rec: rec.company_id in branch).salesman_id
-        assigned_elsewhere = current.filtered(lambda rec: rec.company_id not in branch).salesman_id
-        own = Salesman.search([('company_id', 'in', branch.ids)]) - assigned_elsewhere
-        return self.env['salesman'].browse((assigned_here | own).ids)
+        branch = [int(part) for part in (company.parent_path or '').split('/') if part] or company.ids
+        self.env['salesman'].flush_model()
+        self.env['salesman.assignments'].flush_model()
+        self.env.cr.execute("""
+            SELECT s.id, s.sale_user
+              FROM salesman s
+              LEFT JOIN salesman_assignments a ON a.salesman_id = s.id AND a.state = 'current'
+             GROUP BY s.id
+            HAVING COALESCE(bool_or(a.company_id = ANY(%(branch)s)), FALSE)
+                OR (COALESCE(s.company_id = ANY(%(branch)s), FALSE)
+                    AND NOT COALESCE(bool_or(a.id IS NOT NULL
+                                             AND (a.company_id IS NULL OR a.company_id <> ALL(%(branch)s))), FALSE))
+             ORDER BY s.id
+        """, {'branch': branch})
+        return dict(self.env.cr.fetchall())
+
+    @api.model
+    def _wof_branch_salesmen(self, company):
+        return self.env['salesman'].browse(list(self._wof_branch_salesman_users(company)))
 
     @api.depends('company_id')
     def _compute_salesman_candidates(self):
@@ -174,17 +186,25 @@ class WofInstallationOrderTeam(models.Model):
 
     @api.model
     def _wof_default_salesman(self):
-        user = self.env.user
-        salesmen = self._wof_branch_salesmen(self.env.company).sudo()
-        found = salesmen.filtered(lambda rec: rec.sale_user == user)[:1] \
-            or self.env['salesman'].sudo().search([
-                ('sale_user', '=', user.id), ('company_id', 'in', self.env.companies.ids)], limit=1)
-        return self.env['salesman'].browse(found.ids)
+        uid = self.env.user.id
+        for salesman_id, user_id in self._wof_branch_salesman_users(self.env.company).items():
+            if user_id == uid:
+                return self.env['salesman'].browse(salesman_id)
+        self.env.cr.execute(
+            "SELECT id FROM salesman WHERE sale_user = %s AND company_id = ANY(%s) ORDER BY id LIMIT 1",
+            (uid, self.env.companies.ids))
+        return self.env['salesman'].browse([row[0] for row in self.env.cr.fetchall()])
 
     def _wof_salesman_user(self):
         """User of the order salesman, whatever the company switcher shows."""
         self.ensure_one()
-        return self.salesperson_id.sudo().sale_user
+        Users = self.env['res.users']
+        if not self.salesperson_id:
+            return Users
+        self.env['salesman'].flush_model(['sale_user'])
+        self.env.cr.execute("SELECT sale_user FROM salesman WHERE id = %s", (self.salesperson_id.id,))
+        row = self.env.cr.fetchone()
+        return Users.browse(row[0]) if row and row[0] else Users
 
     @api.model
     def _wof_default_advisor(self):
