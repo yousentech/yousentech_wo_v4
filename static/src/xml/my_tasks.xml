@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="yousentech_wo_v4.MyTasks">
+        <div class="wof_mt" dir="rtl">
+            <header class="wof_mt_head">
+                <div class="wof_mt_hello">
+                    <h1>مهامي</h1>
+                    <p t-if="state.data">أهلًا <t t-esc="state.data.user"/> — اضغط المهمة عند الانتهاء منها.</p>
+                </div>
+                <button type="button" class="wof_mt_refresh" aria-label="تحديث" t-on-click="() => this.load()">
+                    <i class="fa fa-refresh" aria-hidden="true"/> تحديث
+                </button>
+            </header>
+
+            <nav class="wof_mt_tabs" role="tablist">
+                <t t-foreach="tabs" t-as="tab" t-key="tab.key">
+                    <button type="button" role="tab" t-att-aria-selected="state.tab === tab.key ? 'true' : 'false'"
+                            t-attf-class="wof_mt_tab is-{{ tab.key }} {{ state.tab === tab.key ? 'is-on' : '' }}"
+                            t-on-click="() => state.tab = tab.key">
+                        <i t-attf-class="fa {{ tab.icon }}" aria-hidden="true"/>
+                        <span t-esc="tab.label"/>
+                        <b t-esc="count(tab.key)"/>
+                    </button>
+                </t>
+            </nav>
+
+            <div t-if="!state.loading and !orders.length" class="wof_mt_empty">
+                <i class="fa fa-smile-o" aria-hidden="true"/>
+                <h2 t-if="state.tab === 'now'">لا توجد مهام قيد العمل الآن</h2>
+                <h2 t-elif="state.tab === 'next'">لا توجد سيارات قادمة مسندة لك</h2>
+                <h2 t-else="">لم تُنجز مهام اليوم بعد</h2>
+                <p>تظهر السيارة هنا عندما يحددك المشرف فنيًا على إحدى خدماتها.</p>
+            </div>
+
+            <main class="wof_mt_grid">
+                <t t-foreach="orders" t-as="order" t-key="order.id">
+                    <article t-attf-class="wof_mt_car {{ order.late ? 'is-late' : '' }} {{ order.done_count === order.total ? 'is-complete' : '' }}">
+                        <div class="wof_mt_car_head">
+                            <span class="wof_mt_plate" t-if="order.plate" t-esc="order.plate"/>
+                            <div class="wof_mt_car_name">
+                                <strong><t t-esc="order.car or 'سيارة'"/></strong>
+                                <small><t t-if="order.color" t-esc="order.color"/><t t-if="order.color and order.size"> · </t><t t-if="order.size" t-esc="order.size"/></small>
+                            </div>
+                            <span class="wof_mt_count"><b t-esc="order.done_count"/>/<t t-esc="order.total"/></span>
+                        </div>
+                        <div class="wof_mt_bar" role="progressbar" t-att-aria-valuenow="percent(order)" aria-valuemin="0" aria-valuemax="100">
+                            <i t-attf-style="width: {{ percent(order) }}%"/>
+                        </div>
+                        <div class="wof_mt_meta">
+                            <span class="wof_mt_order" t-esc="order.name"/>
+                            <span t-if="order.late" class="wof_mt_late"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> متأخرة</span>
+                            <span t-if="order.deadline" class="wof_mt_due">التسليم <t t-esc="when(order.deadline)"/></span>
+                        </div>
+                        <div t-if="!order.can_work and state.tab === 'next'" class="wof_mt_wait">
+                            <i class="fa fa-clock-o" aria-hidden="true"/> لم يبدأ التنفيذ بعد (<t t-esc="order.state_label"/>)
+                        </div>
+
+                        <ul class="wof_mt_tasks">
+                            <t t-foreach="order.tasks" t-as="task" t-key="task.id">
+                                <li>
+                                    <button type="button" t-att-aria-pressed="task.done ? 'true' : 'false'"
+                                            t-attf-class="wof_mt_task {{ task.done ? 'is-done' : '' }} {{ state.busy === task.id ? 'is-busy' : '' }}"
+                                            t-att-disabled="!order.can_work or (state.busy and state.busy !== task.id)"
+                                            t-on-click="() => this.toggle(order, task)">
+                                        <span class="wof_mt_check">
+                                            <i t-if="state.busy === task.id" class="fa fa-circle-o-notch fa-spin" aria-hidden="true"/>
+                                            <i t-elif="task.done" class="fa fa-check" aria-hidden="true"/>
+                                        </span>
+                                        <span class="wof_mt_task_text">
+                                            <strong t-esc="task.label"/>
+                                            <small>
+                                                <t t-if="task.area"><t t-esc="task.area"/> · </t><t t-esc="task.film"/><t t-if="task.grade"> · درجة <t t-esc="task.grade"/></t>
+                                            </small>
+                                        </span>
+                                        <span class="wof_mt_task_state">
+                                            <t t-if="task.done">تم <small t-if="task.done_at" t-esc="when(task.done_at)"/></t>
+                                            <t t-elif="order.can_work">اضغط عند الإنجاز</t>
+                                        </span>
+                                    </button>
+                                </li>
+                            </t>
+                        </ul>
+
+                        <div t-if="order.can_work and order.done_count === order.total" class="wof_mt_alldone">
+                            <i class="fa fa-check-circle" aria-hidden="true"/> أنهيت مهامك على هذه السيارة — بانتظار المشرف.
+                        </div>
+                        <div t-if="order.team" class="wof_mt_team"><i class="fa fa-users" aria-hidden="true"/> <t t-esc="order.team"/></div>
+                    </article>
+                </t>
+            </main>
+        </div>
+    </t>
+</templates>

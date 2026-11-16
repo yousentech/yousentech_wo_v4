@@ -50,6 +50,14 @@ class WofOrderSections(models.Model):
         profile = self.env['wof.company.profile']._wof_get_profile()
         return bool(profile and profile['ui_%s' % key])
 
+    @api.model
+    def open_main_menu(self):
+        # A technician's home is his touch screen of tasks.
+        if self._wof_technician_only():
+            self._ensure_setup_is_ready()
+            return self.env['ir.actions.actions']._for_xml_id('yousentech_wo_v4.action_wof_my_tasks_screen')
+        return super().open_main_menu()
+
     def _wof_refuse_technician(self, what):
         if self._wof_technician_only():
             raise AccessError(_('%s ليس من صلاحية الفني؛ يقوم به الاستقبال أو المشرف.') % what)

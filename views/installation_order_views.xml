@@ -1118,7 +1118,7 @@
               name="أوامر التركيب"
               parent="menu_wo_v4_operation"
               action="action_wof_installation_order"
-              groups="yousentech_wo_v4.group_wo_employee"
+              groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor,-yousentech_wo_v4.group_wo_employee"
               sequence="1"/>
 
     <record id="view_wof_order_cancel_wizard_form" model="ir.ui.view">

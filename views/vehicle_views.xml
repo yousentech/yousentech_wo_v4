@@ -114,7 +114,7 @@
               name="سيارات العملاء"
               parent="menu_wo_v4_inputs"
               action="action_wof_vehicles"
-              groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor"
+              groups="yousentech_wo_v4.group_wo_user,yousentech_wo_v4.group_wo_supervisor,-yousentech_wo_v4.group_wo_employee"
               sequence="1"/>
 
     <record id="view_wof_car_color_tree" model="ir.ui.view">

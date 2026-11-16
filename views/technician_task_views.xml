@@ -140,8 +140,14 @@
         </field>
     </record>
 
+    <!-- Touch screen: the technician's tasks grouped by car -->
+    <record id="action_wof_my_tasks_screen" model="ir.actions.client">
+        <field name="name">مهامي</field>
+        <field name="tag">wof_my_tasks</field>
+    </record>
+
     <menuitem id="menu_wof_my_tasks" name="مهامي" parent="menu_wo_v4_operation"
-              action="action_wof_my_tasks" groups="yousentech_wo_v4.group_wo_technician" sequence="2"/>
+              action="action_wof_my_tasks_screen" groups="yousentech_wo_v4.group_wo_technician" sequence="2"/>
     <menuitem id="menu_wof_technician_tasks" name="مهام الفنيين" parent="menu_wo_v4_operation"
               action="action_wof_technician_tasks" groups="yousentech_wo_v4.group_wo_supervisor" sequence="3"/>
 </odoo>

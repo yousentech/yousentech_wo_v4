@@ -478,7 +478,7 @@ def parse_xml(validation, paths, methods, fields):
                 raw = element.get(attribute)
                 if not raw:
                     continue
-                values = raw.split(",") if attribute == "groups" else [raw]
+                values = [v.strip().lstrip("-!") for v in raw.split(",")] if attribute == "groups" else [raw]
                 for value in values:
                     value = value.strip().lstrip("!")
                     if not value or value.startswith("("):
@@ -702,7 +702,7 @@ def check_xml_load_order(validation, paths):
                 for attribute in ("ref", "parent", "action", "groups"):
                     raw = node.get(attribute)
                     if raw:
-                        refs.extend(raw.split(",") if attribute == "groups" else [raw])
+                        refs.extend([v.strip().lstrip("-!") for v in raw.split(",")] if attribute == "groups" else [raw])
                 eval_source = node.get("eval")
                 if eval_source:
                     refs.extend(re.findall(r"ref\(['\"]([^'\"]+)['\"]\)", eval_source))

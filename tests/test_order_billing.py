@@ -941,6 +941,16 @@ class TestOrderBilling(TransactionCase):
         mine.action_mark_done()
         self.assertEqual(task_a.status, 'done')
         self.assertEqual(order.line_ids.execution_progress, 50)
+        # Touch screen data: the car in «أنجزتها» once his tasks are done; one tap reopens.
+        Screen = self.env['wof.technician.task'].with_user(tech_a)
+        data = Screen.wof_my_tasks_load()
+        self.assertEqual([o['id'] for o in data['groups']['done']], order.ids)
+        self.assertEqual(len(data['groups']['done'][0]['tasks']), 1)
+        data = task_a.with_user(tech_a).wof_my_task_set(False)
+        self.assertEqual([o['id'] for o in data['groups']['now']], order.ids)
+        self.assertEqual(data['groups']['now'][0]['done_count'], 0)
+        task_a.with_user(tech_a).wof_my_task_set(True)
+        self.assertEqual(self.env['wof.installation.order'].with_user(tech_a).open_main_menu()['tag'], 'wof_my_tasks')
         self.assertEqual((order.task_done_count, order.task_count), (1, 2))
         # The supervisor (tester is manager) finishes for anyone.
         (order.task_ids - task_a).action_mark_done()

@@ -211,3 +211,53 @@ class WofOrderTasks(models.Model):
         for order in self:
             order.task_count = len(order.task_ids)
             order.task_done_count = len(order.task_ids.filtered('done'))
+
+
+class WofMyTasksScreen(models.Model):
+    """Data of the technician's touch screen «مهامي»: his tasks grouped by car."""
+    _inherit = 'wof.technician.task'
+
+    @api.model
+    def wof_my_tasks_load(self):
+        user = self.env.user
+        today = fields.Datetime.to_string(fields.Datetime.now().replace(hour=0, minute=0, second=0, microsecond=0))
+        tasks = self.search([
+            ('employee_user_id', '=', user.id),
+            '|', ('order_id.state', 'in', ('draft', 'scheduled', 'intake', 'in_progress')),
+                 ('done_at', '>=', today),
+        ])
+        states = dict(self.env['wof.installation.order']._fields['state']._description_selection(self.env))
+        groups = {'now': [], 'next': [], 'done': []}
+        for order in tasks.order_id.sorted(lambda rec: (rec.expected_delivery_at or rec.create_date, rec.id)):
+            mine = tasks.filtered(lambda task: task.order_id == order)
+            if order.state == 'in_progress':
+                bucket = 'done' if all(mine.mapped('done')) else 'now'
+            elif order.state in ('draft', 'scheduled', 'intake'):
+                bucket = 'next'
+            else:
+                bucket = 'done'
+            car = ' '.join(filter(None, [order.vehicle_manufacturer_id.name, order.vehicle_model_id.name]))
+            groups[bucket].append({
+                'id': order.id, 'name': order.name, 'plate': order.vehicle_plate or '', 'car': car,
+                'color': order.vehicle_color_id.name or '', 'size': order.car_size_id.name or '',
+                'state': order.state, 'state_label': states.get(order.state, ''),
+                'team': order.technician_names or '',
+                'deadline': fields.Datetime.to_string(order.expected_delivery_at) if order.expected_delivery_at else False,
+                'late': bool(order.state == 'in_progress' and order.expected_delivery_at
+                             and order.expected_delivery_at < fields.Datetime.now() and not all(mine.mapped('done'))),
+                'can_work': order.state == 'in_progress',
+                'done_count': len(mine.filtered('done')), 'total': len(mine),
+                'tasks': [{
+                    'id': task.id, 'label': task.part_id.part_id.name or task.line_id.car_part_id.name or '',
+                    'area': task.line_id.car_part_id.name if task.part_id else '',
+                    'film': task.film_name or '', 'grade': task.grade_name or '', 'done': task.done,
+                    'done_at': fields.Datetime.to_string(task.done_at) if task.done_at else False,
+                } for task in mine.sorted(lambda task: (task.done, task.id))],
+            })
+        return {'user': user.name, 'groups': groups}
+
+    def wof_my_task_set(self, done):
+        """Mark one of the user's tasks done / not done from the touch screen."""
+        self.ensure_one()
+        self.write({'done': bool(done)})
+        return self.wof_my_tasks_load()
