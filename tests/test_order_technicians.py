@@ -181,6 +181,30 @@ class TestOrderTechnicians(TransactionCase):
         with self.assertRaises(ValidationError):
             order.salesperson_id = moved
 
+    def test_salesman_of_another_company(self):
+        """A salesman assigned to the branch but owned by a company the user
+        cannot see never blocks the order (the salesmen rule hides him)."""
+        Salesman = self.root['salesman']
+        hidden = Salesman.create({'name': 'مندوب شركة أخرى', 'sale_user': self.manager.id,
+                                  'company_id': self.company_b.id})
+        hidden_2 = Salesman.create({'name': 'مندوب مخفي ثانٍ', 'company_id': self.company_b.id})
+        for salesman in (hidden, hidden_2):
+            self.root['salesman.assignments'].create({'salesman_id': salesman.id, 'company_id': self.company_a.id})
+        self.env.invalidate_all()
+        with self.assertRaises(AccessError):
+            self.env['salesman'].browse(hidden.id).sale_user  # the rule of the salesmen module
+        self.env.invalidate_all()
+        order = self.make_order()
+        self.assertEqual(order.salesperson_id.id, hidden.id)
+        self.assertIn(hidden.id, order.salesman_candidate_ids.ids)
+        self.assertEqual(order._wof_salesman_user(), self.manager)
+        # Changing him is logged in the history without an access error.
+        self.manager.groups_id = [(4, self.root.ref('yousentech_invoicing_saleman.allow_modify_salesman').id)]
+        order.salesperson_id = hidden_2.id
+        self.env.flush_all()
+        self.env.cr.precommit.run()
+        self.assertEqual(order.salesperson_id.id, hidden_2.id)
+
     def test_supervisor_must_be_flagged(self):
         order = self.make_order()
         with self.assertRaises(ValidationError):

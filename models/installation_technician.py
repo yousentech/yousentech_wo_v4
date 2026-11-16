@@ -150,17 +150,22 @@ class WofInstallationOrderTeam(models.Model):
     # ------------------------------------------------------------- salesman
     @api.model
     def _wof_branch_salesmen(self, company):
-        """Salesmen of a branch: their current assignment, else their own company."""
-        Salesman = self.env['salesman']
+        """Salesmen of a branch: their current assignment, else their own company.
+
+        Read as superuser: the salesmen module hides the salesmen of the
+        companies not ticked in the company switcher, and a salesman assigned to
+        the branch may belong to another company.
+        """
+        Salesman = self.env['salesman'].sudo()
         if not company:
-            return Salesman
+            return self.env['salesman']
         # A branch also uses the salesmen of its parent company.
-        branch = self.env['res.company'].search([('id', 'parent_of', company.id)])
-        current = self.env['salesman.assignments'].search([('state', '=', 'current')])
+        branch = self.env['res.company'].sudo().search([('id', 'parent_of', company.id)])
+        current = self.env['salesman.assignments'].sudo().search([('state', '=', 'current')])
         assigned_here = current.filtered(lambda rec: rec.company_id in branch).salesman_id
         assigned_elsewhere = current.filtered(lambda rec: rec.company_id not in branch).salesman_id
         own = Salesman.search([('company_id', 'in', branch.ids)]) - assigned_elsewhere
-        return assigned_here | own
+        return self.env['salesman'].browse((assigned_here | own).ids)
 
     @api.depends('company_id')
     def _compute_salesman_candidates(self):
@@ -169,9 +174,17 @@ class WofInstallationOrderTeam(models.Model):
 
     @api.model
     def _wof_default_salesman(self):
-        salesmen = self._wof_branch_salesmen(self.env.company)
-        return salesmen.filtered(lambda rec: rec.sale_user == self.env.user)[:1] \
-            or self.env['salesman'].search([('sale_user', '=', self.env.user.id)], limit=1)
+        user = self.env.user
+        salesmen = self._wof_branch_salesmen(self.env.company).sudo()
+        found = salesmen.filtered(lambda rec: rec.sale_user == user)[:1] \
+            or self.env['salesman'].sudo().search([
+                ('sale_user', '=', user.id), ('company_id', 'in', self.env.companies.ids)], limit=1)
+        return self.env['salesman'].browse(found.ids)
+
+    def _wof_salesman_user(self):
+        """User of the order salesman, whatever the company switcher shows."""
+        self.ensure_one()
+        return self.salesperson_id.sudo().sale_user
 
     @api.model
     def _wof_default_advisor(self):

@@ -237,8 +237,9 @@ class WofInstallationOrderBilling(models.Model):
                 'wof_order_id': self.id,
                 'order_line': self._wof_sale_order_lines(),
             }
-            if self.salesperson_id.sale_user:
-                values['user_id'] = self.salesperson_id.sale_user.id
+            salesman_user = self._wof_salesman_user()
+            if salesman_user:
+                values['user_id'] = salesman_user.id
             sale = self.env['sale.order'].create(values)
             self._transition_write({'sale_order_id': sale.id})
             self._log_business_event('order.sale_order_created', details={'sale_order': sale.name})
