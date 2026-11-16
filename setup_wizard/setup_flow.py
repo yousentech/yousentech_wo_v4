@@ -34,6 +34,7 @@ FLOW_SCALARS = {
     'ui_extras': 'bool',
     'invoice_discount_mode': ('net', 'visible'),
     'sale_detail_mode': ('note', 'description'),
+    'delivery_unpaid_policy': ('block', 'warn', 'allow'),
 }
 
 
@@ -126,6 +127,7 @@ class WofCompanyProfileSetupFlow(models.Model):
             'ui_sections': {'ui_intake': self.ui_intake, 'ui_execution': self.ui_execution, 'ui_quality': self.ui_quality, 'ui_attachments': self.ui_attachments, 'ui_timeline': self.ui_timeline, 'ui_extras': self.ui_extras},
             'invoice_discount': self.invoice_discount_mode,
             'sale_detail': self.sale_detail_mode,
+            'delivery_unpaid': self.delivery_unpaid_policy,
             'has_pay_type': 'pay_type' in self.env['res.partner']._fields,
             'discount': {
                 'enabled': self.discount_enabled,

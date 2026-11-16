@@ -255,6 +255,11 @@ class WofCompanyProfile(models.Model):
         string='تفاصيل الخدمة في أمر البيع والفاتورة', default='note', required=True,
         help='الفيلم والدرجة والأجزاء: سطر ملاحظة منفصل، أو تُكتب في وصف سطر الخدمة نفسه.',
     )
+    delivery_unpaid_policy = fields.Selection(
+        [('block', 'يمنع التسليم حتى السداد'), ('warn', 'يحذّر ويطلب تأكيدًا'), ('allow', 'يسمح بالتسليم')],
+        string='تسليم سيارة عليها مبلغ متبقٍ', default='block', required=True,
+        help='عملاء الآجل مستثنون دائمًا: تُسلَّم سياراتهم والمبلغ على حسابهم.',
+    )
     operation_allow_multiple_technicians = fields.Boolean(
         string='السماح بتعدد الفنيين', default=True,
     )
@@ -365,7 +370,7 @@ class WofCompanyProfile(models.Model):
             'operation_tax_enabled', 'operation_tax_id',
             'operation_price_input_mode', 'operation_pricing_policy',
             'operation_auto_invoice', 'operation_allow_multiple_technicians',
-            'operation_invoice_by_partner', 'invoice_discount_mode', 'sale_detail_mode',
+            'operation_invoice_by_partner', 'invoice_discount_mode', 'sale_detail_mode', 'delivery_unpaid_policy',
             'operation_technician_required',
             'payment_policy', 'discount_scope', 'discount_enabled', 'discount_default_limit',
             'discount_allow_override_request', 'discount_reason_required_from', 'commission_event',

@@ -1147,6 +1147,35 @@
         </field>
     </record>
 
+    <record id="view_wof_order_deliver_wizard_form" model="ir.ui.view">
+        <field name="name">wof.order.deliver.wizard.form</field>
+        <field name="model">wof.order.deliver.wizard</field>
+        <field name="arch" type="xml">
+            <form string="تسليم سيارة عليها مبلغ متبقٍ">
+                <field name="order_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+                <div class="alert alert-warning" role="alert">
+                    <i class="fa fa-exclamation-triangle me-1" title="تنبيه"/>
+                    على هذا الأمر مبلغ لم يُسدَّد بعد. سجّل الدفعة الآن، أو أكّد التسليم ويبقى المبلغ على العميل.
+                </div>
+                <group>
+                    <group>
+                        <field name="amount_total"/>
+                        <field name="amount_paid"/>
+                    </group>
+                    <group>
+                        <field name="amount_residual" class="fw-bold text-danger fs-4"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_register_payment" type="object" string="تسجيل دفعة" icon="fa-money" class="btn-primary"/>
+                    <button name="action_confirm" type="object" string="تسليم مع بقاء المبلغ" class="btn-warning"/>
+                    <button special="cancel" string="رجوع" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <record id="view_wof_quality_send_wizard_form" model="ir.ui.view">
         <field name="name">wof.quality.send.wizard.form</field>
         <field name="model">wof.quality.send.wizard</field>

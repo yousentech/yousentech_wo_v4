@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Payments, sale order, delivery and invoice from an installation order."""
 
+from unittest.mock import patch
+
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
 
@@ -796,9 +798,52 @@ class TestOrderBilling(TransactionCase):
         self.assertTrue(order.line_ids.task_ids.done)
         self.assertEqual(order.state, 'ready')
         self.assertTrue(order.quality_passed)
+        self.pay(order, order.amount_residual)
         order.action_deliver()
         self.assertEqual(order.state, 'delivered')
         self.assertTrue(order.customer_approved)
+
+    def _ready_order(self):
+        order = self.make_order()
+        order._transition_write({'state': 'ready', 'quality_passed': True, 'customer_approved': True})
+        return order
+
+    def test_delivery_with_money_left(self):
+        """Setup choice: block (default), warn with a confirmation, or allow."""
+        Order = type(self.env['wof.installation.order'])
+        self.assertEqual(self.profile.delivery_unpaid_policy, 'block')
+        order = self._ready_order()
+        with self.assertRaises(ValidationError):
+            order.action_deliver()
+        self.assertEqual(order.state, 'ready')
+        self.pay(order, 200)  # partly paid is still owed
+        with self.assertRaises(ValidationError):
+            order.action_deliver()
+        self.pay(order, order.amount_residual)
+        order.action_deliver()
+        self.assertEqual(order.state, 'delivered')
+
+        # Credit customers are exempt.
+        credit = self._ready_order()
+        with patch.object(Order, '_wof_is_credit_customer', lambda self: True):
+            credit.action_deliver()
+        self.assertEqual(credit.state, 'delivered')
+
+        self.addCleanup(self.profile.wof_flow_apply, 'set', {'delivery_unpaid_policy': 'block'})
+        self.profile.wof_flow_apply('set', {'delivery_unpaid_policy': 'warn'})
+        warned = self._ready_order()
+        action = warned.action_deliver()
+        self.assertEqual(action['res_model'], 'wof.order.deliver.wizard')
+        self.assertEqual(warned.state, 'ready')
+        wizard = self.env['wof.order.deliver.wizard'].with_context(action['context']).create({})
+        self.assertEqual(wizard.amount_residual, warned.amount_residual)
+        wizard.action_confirm()
+        self.assertEqual(warned.state, 'delivered')
+
+        self.profile.wof_flow_apply('set', {'delivery_unpaid_policy': 'allow'})
+        free = self._ready_order()
+        free.action_deliver()
+        self.assertEqual(free.state, 'delivered')
 
     def test_quality_screen_on_requires_its_checks(self):
         self.profile.wof_flow_apply('set', {'ui_quality': True})

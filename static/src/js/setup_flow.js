@@ -536,6 +536,14 @@ export class WofSetupFlow extends Component {
         ];
     }
 
+    get deliveryUnpaidOptions() {
+        return [
+            { key: "block", name: _t("يمنع التسليم"), desc: _t("لا تُسلَّم السيارة حتى يُسدَّد المبلغ كاملًا."), ex: _t("الأنسب للبيع النقدي") },
+            { key: "warn", name: _t("يحذّر فقط"), desc: _t("تظهر نافذة بالمبلغ المتبقي، ويُسلَّم بعد تأكيد الموظف."), ex: _t("يُكتب التأكيد في سجل الأمر") },
+            { key: "allow", name: _t("يسمح"), desc: _t("تُسلَّم السيارة دون النظر إلى المبلغ المتبقي."), ex: _t("التحصيل يُتابَع لاحقًا") },
+        ];
+    }
+
     get discountModeOptions() {
         return [
             { key: "visible", name: _t("خصم ظاهر"), desc: _t("السعر الأصلي في الفاتورة، والخصم في عمود الخصم."), ex: _t("مثال: 500 بخصم 10%") },
