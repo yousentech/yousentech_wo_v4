@@ -790,7 +790,7 @@ class WofCompanyProfile(models.Model):
                 })
                 continue
             vals = {}
-            if line.name in legacy_names:
+            if line.name in legacy_names and not self._wof_lines_usage().get(('size', line.id), {}).get('used'):
                 vals['name'] = name
             if not line.sequence:
                 vals['sequence'] = sequence
@@ -888,24 +888,27 @@ class WofCompanyProfile(models.Model):
         self.ensure_one()
         method = self.tint_numbering_method or 'sequential'
         expected = TINT_SHADE_DEFAULTS[method]
-        existing = {line.value: line for line in self.tint_shade_line_ids}
+        # Matched by the stable code: the user may have renamed the visible value.
+        existing = {line.code: line for line in self.tint_shade_line_ids}
         if self.tint_shade_line_ids and any(
             line.numbering_method != method for line in self.tint_shade_line_ids
         ):
             self.tint_shade_line_ids.unlink()
             existing = {}
         for value, sequence in expected:
-            line = existing.get(value)
+            code = ('SEQ-' if method == 'sequential' else 'PCT-') + value
+            line = existing.get(code)
             vals = {
                 'profile_id': self.id,
                 'numbering_method': method,
                 'value': value,
-                'code': ('SEQ-' if method == 'sequential' else 'PCT-') + value,
+                'code': code,
                 'sequence': sequence,
                 'selected': True,
             }
             if line:
-                updates = {k: v for k, v in vals.items() if k != 'profile_id' and line[k] != v}
+                updates = {k: v for k, v in vals.items()
+                           if k not in ('profile_id', 'value', 'selected') and line[k] != v}
                 if updates:
                     line.with_context(wof_tint_setup_sync=True).write(updates)
             else:
@@ -937,7 +940,7 @@ class WofCompanyProfile(models.Model):
         Degree = self.env['wof.tint.degree'].with_context(active_test=False)
         if not self.has_tint_activity:
             Degree.search([
-                ('is_setup_default', '=', True),
+                ('is_setup_default', '=', True), ('active', '=', True),
             ]).write({'active': False})
             return
         selected = self.tint_shade_line_ids.filtered('selected')
@@ -945,7 +948,7 @@ class WofCompanyProfile(models.Model):
         managed = Degree.search([
             ('is_setup_default', '=', True),
         ])
-        managed.filtered(lambda degree: degree.code not in selected_codes).write({'active': False})
+        managed.filtered(lambda degree: degree.active and degree.code not in selected_codes).write({'active': False})
         for line in selected:
             # The technical code is the stable identity. The user may rename the
             # visible shade label without breaking films/components linked later.
@@ -965,7 +968,9 @@ class WofCompanyProfile(models.Model):
                 'active': True,
             }
             if degree:
-                degree.write(vals)
+                changed = {key: value for key, value in vals.items() if not degree._wof_same_value(degree, key, value)}
+                if changed:
+                    degree.write(changed)
             else:
                 Degree.create(vals)
 
@@ -1165,14 +1170,20 @@ class WofCompanyProfile(models.Model):
                 'active': bool(line.selected),
             }
             if activity:
-                activity.write(vals)
+                changed = {key: value for key, value in vals.items()
+                           if not activity._wof_same_value(activity, key, value)}
+                if changed:
+                    activity.write(changed)
             else:
                 # Reuse an existing same-name activity where safe, otherwise create our managed record.
                 same_name = Activity.search([
                     ('name', '=', line.name),
                 ], limit=1)
                 if same_name and same_name.code not in managed_codes:
-                    same_name.write({k: v for k, v in vals.items() if k != 'code'})
+                    changed = {k: v for k, v in vals.items()
+                               if k != 'code' and not same_name._wof_same_value(same_name, k, v)}
+                    if changed:
+                        same_name.write(changed)
                 else:
                     Activity.create(vals)
 
@@ -1186,7 +1197,12 @@ class WofCompanyProfile(models.Model):
                 'code': line.code, 'name': line.name,
                 'active': bool(line.selected),
             }
-            size.write(vals) if size else Size.create(vals)
+            if size:
+                changed = {key: value for key, value in vals.items() if not size._wof_same_value(size, key, value)}
+                if changed:
+                    size.write(changed)
+            else:
+                Size.create(vals)
 
         self._apply_tint_degrees()
         self._sync_operation_compatibility()

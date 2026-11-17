@@ -181,7 +181,4 @@
         </field>
     </record>
 
-    <menuitem id="menu_service_types_wo_v4" name="أنشطة المركز"
-              parent="menu_wo_v4_configuration"
-              action="action_service_types_wo_v4" sequence="10"/>
 </odoo>

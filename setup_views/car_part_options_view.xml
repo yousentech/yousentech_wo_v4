@@ -7,6 +7,7 @@
             <tree string="خيارات أجزاء السيارة" decoration-muted="not active">
                 <field name="code"/>
                 <field name="name"/>
+                <field name="wof_usage_text" string="الاستخدام" optional="show"/>
                 <field name="active" column_invisible="1"/>
             </tree>
         </field>
@@ -29,8 +30,13 @@
                                    options="{'terminology': 'archive'}"/>
                         </button>
                     </div>
+                    <field name="wof_in_use" invisible="1"/>
+                    <div class="alert alert-info" role="status" invisible="not wof_in_use">
+                        <i class="fa fa-lock me-1" title="مقفل"/> مستخدم: <field name="wof_usage_text" class="d-inline" readonly="1"/>.
+                        الكود مقفل، ولا يُحذف الخيار؛ أوقفه (أرشفة) إن لم تعد تستخدمه.
+                    </div>
                     <group>
-                        <field name="code" placeholder="FRONT-LEFT"/>
+                        <field name="code" placeholder="FRONT-LEFT" readonly="wof_in_use"/>
                         <field name="name" placeholder="أمامي يسار"/>
                         <field name="active" invisible="1"/>
                     </group>

@@ -5,6 +5,15 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
     </t>
 
+    <t t-name="yousentech_wo_v4.SetupFlow.Usage">
+        <span t-if="row.used" class="wof_sf_usage"><i class="fa fa-link" aria-hidden="true"/> مستخدم في <t t-esc="row.usage"/><t t-if="row.selected and row.off_block"> · <span class="wof_sf_usage_block">لا يمكن إيقافه الآن: <t t-esc="row.off_block"/></span></t></span>
+    </t>
+
+    <t t-name="yousentech_wo_v4.SetupFlow.EditBtn">
+        <span t-if="row.used" class="wof_sf_icon_btn is-locked" role="img" title="الاسم مقفل لأنه مستخدم. أضف بندًا جديدًا وأوقف هذا إن احتجت." aria-label="الاسم مقفل"><i class="fa fa-lock" aria-hidden="true"/></span>
+        <button t-else="" type="button" class="wof_sf_icon_btn" t-att-aria-label="'تعديل اسم ' + row.name" t-on-click="onClick"><i class="fa fa-pencil" aria-hidden="true"/></button>
+    </t>
+
     <t t-name="yousentech_wo_v4.SetupFlow.Switch">
         <button type="button" role="switch" t-att-aria-checked="on ? 'true' : 'false'" t-att-aria-label="label"
                 t-att-class="'wof_sf_switch' + (on ? ' is-on' : '')" t-att-disabled="state.busy" t-on-click="onClick">
@@ -112,10 +121,11 @@
                                                 <span t-elif="!a.is_default" class="wof_sf_chip is-gray">نشاط مخصص</span>
                                             </span>
                                             <span class="wof_sf_muted" t-esc="a.description"/>
+                                            <t t-call="yousentech_wo_v4.SetupFlow.Usage"><t t-set="row" t-value="a"/></t>
                                         </t>
                                     </div>
-                                    <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'تعديل اسم ' + a.name" t-on-click="() => this.startEdit('activity', a.id, a.name)"><i class="fa fa-pencil" aria-hidden="true"/></button>
-                                    <button type="button" role="switch" t-att-aria-checked="a.selected ? 'true' : 'false'" t-att-aria-label="a.name" t-att-class="'wof_sf_switch' + (a.selected ? ' is-on' : '')" t-att-disabled="state.busy" t-on-click="() => this.toggleActivity(a)"><span/></button>
+                                    <t t-call="yousentech_wo_v4.SetupFlow.EditBtn"><t t-set="row" t-value="a"/><t t-set="onClick" t-value="() => this.startEdit('activity', a.id, a.name)"/></t>
+                                    <button type="button" role="switch" t-att-aria-checked="a.selected ? 'true' : 'false'" t-att-aria-label="a.name" t-att-title="offTitle(a)" t-att-class="'wof_sf_switch' + (a.selected ? ' is-on' : '')" t-att-disabled="state.busy or offBlocked(a)" t-on-click="() => this.toggleActivity(a)"><span/></button>
                                 </div>
                             </t>
                             <t t-if="state.adding === 'activity'">
@@ -157,10 +167,11 @@
                                                 <span t-att-class="'wof_sf_name' + (s.selected ? '' : ' is-off')" t-esc="s.name"/>
                                                 <span class="wof_sf_chip is-lock" dir="ltr"><i class="fa fa-lock" aria-hidden="true"/> <t t-esc="s.code"/></span>
                                             </span>
+                                            <t t-call="yousentech_wo_v4.SetupFlow.Usage"><t t-set="row" t-value="s"/></t>
                                         </t>
                                     </div>
-                                    <button type="button" class="wof_sf_icon_btn" t-att-aria-label="'تعديل اسم ' + s.name" t-on-click="() => this.startEdit('size', s.id, s.name)"><i class="fa fa-pencil" aria-hidden="true"/></button>
-                                    <button type="button" role="switch" t-att-aria-checked="s.selected ? 'true' : 'false'" t-att-aria-label="s.name" t-att-class="'wof_sf_switch' + (s.selected ? ' is-on' : '')" t-att-disabled="state.busy" t-on-click="() => this.toggleSize(s)"><span/></button>
+                                    <t t-call="yousentech_wo_v4.SetupFlow.EditBtn"><t t-set="row" t-value="s"/><t t-set="onClick" t-value="() => this.startEdit('size', s.id, s.name)"/></t>
+                                    <button type="button" role="switch" t-att-aria-checked="s.selected ? 'true' : 'false'" t-att-aria-label="s.name" t-att-title="offTitle(s)" t-att-class="'wof_sf_switch' + (s.selected ? ' is-on' : '')" t-att-disabled="state.busy or offBlocked(s)" t-on-click="() => this.toggleSize(s)"><span/></button>
                                 </div>
                             </t>
                             <t t-if="state.adding === 'size'">
@@ -186,7 +197,7 @@
                                 <span class="is-first">المكوّن</span>
                                 <t t-foreach="activeSizes" t-as="s" t-key="s.id"><span t-esc="s.name"/></t>
                             </div>
-                            <span>الكود البنفسجي يُثبَّت بعد التفعيل، والاسم يمكن تغييره في أي وقت.</span>
+                            <span>الكود البنفسجي يُثبَّت بعد التفعيل. الاسم يُقفل بعد أول استخدام للحجم في فيلم أو أمر تركيب، فإن احتجت اسمًا آخر أضف حجمًا جديدًا وأوقف القديم.</span>
                         </aside>
                     </t>
 
@@ -194,12 +205,12 @@
                     <t t-if="current === 'tint'">
                         <header class="wof_sf_head is-split">
                             <div><h2>كيف ترقّم درجات اللون في محلك؟</h2><p>اختر الطريقة التي يعرفها عملاؤك وفنيوك.</p></div>
-                            <span class="wof_sf_chip is-lock"><i class="fa fa-lock" aria-hidden="true"/> <t t-if="d.tint.locked">مثبتة بعد التفعيل</t><t t-else="">تُثبَّت بعد التفعيل</t></span>
+                            <span class="wof_sf_chip is-lock"><i class="fa fa-lock" aria-hidden="true"/> <t t-if="d.tint.locked">مثبتة بعد التفعيل</t><t t-elif="d.tint.method_locked">مثبتة: الدرجات مستخدمة</t><t t-else="">تُثبَّت بعد التفعيل</t></span>
                         </header>
                         <div class="wof_sf_choices is-wide" role="radiogroup" aria-label="طريقة ترقيم درجات اللون">
                             <t t-foreach="tintMethods" t-as="m" t-key="m.key">
                                 <button type="button" role="radio" t-att-aria-checked="m.on ? 'true' : 'false'"
-                                        t-att-class="'wof_sf_choice' + (m.on ? ' is-on' : '')" t-att-disabled="state.busy or (d.tint.locked and !m.on)"
+                                        t-att-class="'wof_sf_choice' + (m.on ? ' is-on' : '')" t-att-disabled="state.busy or (d.tint.method_locked and !m.on)"
                                         t-on-click="() => this.setTintMethod(m.key)">
                                     <span class="wof_sf_choice_head"><strong t-esc="m.name"/><span class="wof_sf_tick"><t t-call="yousentech_wo_v4.SetupFlow.Check"/></span></span>
                                     <span class="wof_sf_swatches">
@@ -226,18 +237,20 @@
                                         </t>
                                         <t t-else="">
                                             <button type="button" class="wof_sf_shade_toggle" t-att-aria-pressed="sh.selected ? 'true' : 'false'" t-att-aria-label="'الدرجة ' + sh.value"
-                                                    t-att-disabled="state.busy" t-on-click="() => this.toggleShade(sh)">
+                                                    t-att-title="sh.used ? ('مستخدمة: ' + sh.usage + (offBlocked(sh) ? ' — ' + sh.off_block : '')) : ''"
+                                                    t-att-disabled="state.busy or offBlocked(sh)" t-on-click="() => this.toggleShade(sh)">
                                                 <span class="wof_sf_swatch is-small" t-att-style="shadeStyleAt(sh, sh_index)"/>
                                                 <b dir="ltr" t-esc="sh.value"/>
                                                 <span class="wof_sf_tick"><t t-call="yousentech_wo_v4.SetupFlow.Check"/></span>
                                             </button>
-                                            <button type="button" class="wof_sf_icon_btn is-small" t-att-aria-label="'تعديل اسم الدرجة ' + sh.value" t-on-click="() => this.startEdit('shade', sh.id, sh.value)"><i class="fa fa-pencil" aria-hidden="true"/></button>
+                                            <span t-if="sh.used" class="wof_sf_icon_btn is-small is-locked" role="img" t-att-title="'مستخدمة في ' + sh.usage + '. الاسم مقفل.'" aria-label="الاسم مقفل"><i class="fa fa-lock" aria-hidden="true"/></span>
+                                            <button t-else="" type="button" class="wof_sf_icon_btn is-small" t-att-aria-label="'تعديل اسم الدرجة ' + sh.value" t-on-click="() => this.startEdit('shade', sh.id, sh.value)"><i class="fa fa-pencil" aria-hidden="true"/></button>
                                         </t>
                                     </div>
                                 </t>
                             </div>
                         </div>
-                        <aside class="wof_sf_info"><i class="fa fa-info-circle" aria-hidden="true"/><div><strong>ماذا يعني اختيارك؟</strong><span>كل فيلم عزل يختار من هذه الدرجات فقط. الدرجة غير المفعّلة لا تظهر في أوامر التركيب، ويمكن تفعيلها لاحقًا.</span></div></aside>
+                        <aside class="wof_sf_info"><i class="fa fa-info-circle" aria-hidden="true"/><div><strong>ماذا يعني اختيارك؟</strong><span>كل فيلم عزل يختار من هذه الدرجات فقط. الدرجة غير المفعّلة لا تظهر في أوامر التركيب، ويمكن تفعيلها لاحقًا.</span><span>القفل <i class="fa fa-lock" aria-hidden="true"/> يعني أن الدرجة مستخدمة في فيلم أو أمر، فلا يتغير اسمها.</span></div></aside>
                     </t>
 
                     <!-- 4a. Order fields -->
@@ -297,6 +310,7 @@
                     <!-- 4b. Tax and pricing -->
                     <t t-if="current === 'tax'">
                         <header class="wof_sf_head"><h2>كيف تُحسب الضريبة والأسعار؟</h2><p>هذه القيم الافتراضية يرثها كل فيلم أو خدمة، ويمكن تخصيصها للفيلم لاحقًا.</p></header>
+                        <aside t-if="d.film_count" class="wof_sf_info"><i class="fa fa-info-circle" aria-hidden="true"/><div><strong>التغيير هنا للأفلام الجديدة فقط</strong><span>لديك <t t-esc="d.film_count"/> فيلم/خدمة يحتفظ كل منها بضريبته وأسعاره كما أدخلتها. لتغيير فيلم قائم افتح «الأفلام والخدمات» ثم سياسات الفيلم.</span></div></aside>
                         <section class="wof_sf_card">
                             <div class="wof_sf_card_row">
                                 <span class="wof_sf_row_text"><strong class="wof_sf_card_title">تطبيق الضريبة على المبيعات</strong><span class="wof_sf_muted">أوقفها إذا كانت منشأتك غير مسجلة في الضريبة.</span></span>

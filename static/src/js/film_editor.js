@@ -434,6 +434,8 @@ export class WofFilmEditor extends Component {
             stock_qty: part && part.stock_qty ? String(part.stock_qty) : "",
             size_qty: part ? Object.fromEntries(Object.entries(part.size_qty || {}).map(([k, v]) => [k, String(v)])) : {},
             other_films: part ? part.other_films : 0,
+            locked: part ? Boolean(part.locked) : false,
+            usage: part ? part.usage || "" : "",
             templates: templates.map((t) => ({ ...t, key: ++key, component_ids: [...t.component_ids] })),
             nextKey: key,
             tint: c ? { default_grade_id: c.default_grade_id || false, allowed_ids: c.allowed_ids.length ? [...c.allowed_ids] : grades } : { default_grade_id: false, allowed_ids: grades },

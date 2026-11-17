@@ -35,6 +35,10 @@ class WofOrderSections(models.Model):
             order.wof_quality_enabled = quality
             if technician_only:
                 order.wof_ui_sections = ',execution,'
+            elif ',extras,' not in order.wof_ui_sections and order.extra_line_ids:
+                # Accessories already on the order stay visible (they are billed)
+                # even after the section is switched off in the setup.
+                order.wof_ui_sections += 'extras,'
 
     @api.model
     def _wof_technician_only(self):

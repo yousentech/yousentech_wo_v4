@@ -348,17 +348,8 @@
         <field name="target">current</field>
     </record>
 
-    <!-- The guided page is the main entry; the classic list stays for bulk work. -->
+    <!-- The guided page is the only entry: prices and commissions open from each film. -->
     <menuitem id="menu_film_category_wo_v4" name="الأفلام والخدمات"
               parent="menu_wo_v4_configuration" action="action_wof_films_hub"
               sequence="20" groups="yousentech_wo_v4.group_wo_manager"/>
-    <menuitem id="menu_film_category_list_wo_v4" name="قائمة الأفلام (عرض جدولي)"
-              parent="menu_wo_v4_configuration" action="action_film_category_wo_v4"
-              sequence="21" groups="yousentech_wo_v4.group_wo_manager"/>
-    <menuitem id="menu_film_parts_price_lines" name="الأسعار المتقدمة"
-              parent="menu_wo_v4_configuration" action="action_film_parts_price_lines"
-              sequence="31" groups="yousentech_wo_v4.group_wo_manager"/>
-    <menuitem id="menu_film_parts_commission_lines" name="العمولات المتقدمة"
-              parent="menu_wo_v4_configuration" action="action_film_parts_commission_lines"
-              sequence="32" groups="yousentech_wo_v4.group_wo_manager"/>
 </odoo>

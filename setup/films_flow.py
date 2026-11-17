@@ -553,6 +553,8 @@ class WofFilmCategoryFlow(models.Model):
                     'component_ids': template.component_ids.ids,
                 } for template in part.template_ids.filtered('active').sorted(lambda rec: (rec.sequence, rec.id))],
                 'other_films': uses,
+                'locked': part.wof_locked,
+                'usage': part.wof_usage_text or '',
             } if part else False,
             'car_parts': [{'id': rec.id, 'name': rec.name, 'code': rec.code} for rec in car_parts if rec != part],
             'options': [{'id': rec.id, 'name': rec.name} for rec in options],

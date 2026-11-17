@@ -529,19 +529,21 @@
                                     <button type="button" role="radio" t-att-aria-checked="f.type === 'service_area' ? 'true' : 'false'" t-att-class="f.type === 'service_area' ? 'is-opt' : ''" t-on-click="() => this.setFormType('service_area')">منطقة خدمة</button>
                                 </span>
                             </div>
-                            <div t-if="f.id and f.other_films" class="wof_fe_warnbox"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> هذا المكوّن مستخدم في <t t-esc="f.other_films"/> أفلام أخرى، والتعديل يظهر فيها كلها.</div>
+                            <div t-if="f.id and f.locked" class="wof_fe_warnbox is-lock"><i class="fa fa-lock" aria-hidden="true"/> مستخدم في <t t-esc="f.usage"/>. الاسم والكود والصنف الخدمي مقفلة حتى لا تتغير الأوامر القديمة؛ إن احتجت تغييرها أضف مكوّنًا جديدًا.</div>
+                            <div t-elif="f.id and f.other_films" class="wof_fe_warnbox"><i class="fa fa-exclamation-triangle" aria-hidden="true"/> هذا المكوّن مستخدم في <t t-esc="f.other_films"/> أفلام أخرى، والتعديل يظهر فيها كلها.</div>
                             <div class="wof_fe_grid">
-                                <label class="wof_sf_label">الاسم<input class="wof_sf_input" t-att-value="f.name" t-on-input="(ev) => this.onForm('name', ev)"/></label>
-                                <label class="wof_sf_label">الكود<input class="wof_sf_input" dir="ltr" t-att-value="f.code" t-att-placeholder="f.type === 'service_area' ? 'AREA-0001' : 'PART-0001'" t-on-input="(ev) => this.onForm('code', ev)"/><span class="wof_sf_hint">يُولَّد تلقائيًا إذا تُرك فارغًا.</span></label>
+                                <label class="wof_sf_label">الاسم<input class="wof_sf_input" t-att-value="f.name" t-att-readonly="f.locked" t-on-input="(ev) => this.onForm('name', ev)"/></label>
+                                <label class="wof_sf_label">الكود<input class="wof_sf_input" dir="ltr" t-att-value="f.code" t-att-readonly="f.locked" t-att-placeholder="f.type === 'service_area' ? 'AREA-0001' : 'PART-0001'" t-on-input="(ev) => this.onForm('code', ev)"/><span t-if="!f.locked" class="wof_sf_hint">يُولَّد تلقائيًا إذا تُرك فارغًا.</span></label>
                                 <label class="wof_sf_label">ترتيب الأولوية<input class="wof_sf_input wof_fe_short" inputmode="numeric" t-att-value="f.priority" t-on-input="(ev) => this.onForm('priority', ev)"/><span class="wof_sf_hint">الأقل يظهر أولًا في أمر التركيب.</span></label>
                             </div>
 
                             <div class="wof_fe_subcard">
                                 <div class="wof_sf_card_row">
                                     <span class="wof_sf_row_text"><strong class="wof_sf_card_title">الصنف الخدمي</strong><span class="wof_sf_muted wof_sf_small">الصنف الذي يظهر في الفاتورة لهذا المكوّن.</span></span>
-                                    <label class="wof_fe_check"><input type="checkbox" t-att-checked="f.autoProduct" t-on-change="(ev) => state.form.autoProduct = ev.target.checked"/>إنشاء صنف تلقائيًا بنفس الاسم</label>
+                                    <label t-if="!f.locked" class="wof_fe_check"><input type="checkbox" t-att-checked="f.autoProduct" t-on-change="(ev) => state.form.autoProduct = ev.target.checked"/>إنشاء صنف تلقائيًا بنفس الاسم</label>
                                 </div>
-                                <div t-if="!f.autoProduct" class="wof_fe_product">
+                                <div t-if="f.locked" class="wof_fe_product"><span t-if="f.product" class="wof_fe_gchip is-on"><i class="fa fa-lock" aria-hidden="true"/> <t t-esc="f.product.name"/></span></div>
+                                <div t-elif="!f.autoProduct" class="wof_fe_product">
                                     <span t-if="f.product" class="wof_fe_gchip is-on"><t t-esc="f.product.name"/></span>
                                     <label class="wof_fh_search is-wide"><i class="fa fa-search" aria-hidden="true"/>
                                         <input class="wof_sf_input" placeholder="ابحث عن صنف خدمي موجود" aria-label="الصنف الخدمي" t-att-value="f.productQuery" t-on-input="searchProducts"/>

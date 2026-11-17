@@ -399,6 +399,18 @@ export class WofSetupFlow extends Component {
         return effects;
     }
 
+    // A used row that open orders or active films still need cannot be switched off.
+    offBlocked(row) {
+        return Boolean(row.selected && row.used && row.off_block);
+    }
+
+    offTitle(row) {
+        if (this.offBlocked(row)) {
+            return row.off_block;
+        }
+        return row.used ? _t("مستخدم في ") + row.usage : "";
+    }
+
     toggleSize(s) {
         return this.apply("size", { id: s.id, selected: !s.selected });
     }

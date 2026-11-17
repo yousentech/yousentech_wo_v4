@@ -54,6 +54,11 @@ class WofCompanyProfileSetupFlow(models.Model):
             'params': {'profile_id': self.id},
         }
 
+    def action_open_setup_center(self):
+        """The old setup-center form is retired: the menu opens the guided screen."""
+        self.ensure_one()
+        return self._wizard_action()
+
     def _wof_flow_prepare(self):
         self._ensure_default_activities()
         self._ensure_default_sizes()
