@@ -65,6 +65,8 @@ EVENT_LABELS = {
     'order.payment_refunded': 'رد مبلغ للعميل',
     'order.sale_order_created': 'إنشاء أمر البيع',
     'order.invoice_created': 'إنشاء الفاتورة',
+    'order.commission_recalculated': 'إعادة احتساب العمولة',
+    'order.commission_adjusted': 'تسوية عمولة فني',
 }
 
 ORDER_ATTACHMENT_MIMETYPES = {

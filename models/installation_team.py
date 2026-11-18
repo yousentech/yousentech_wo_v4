@@ -13,6 +13,7 @@ from odoo.exceptions import ValidationError
 
 class WofTeamMember(models.Model):
     _name = 'wof.team.member'
+    _inherit = ['mail.thread']
     _description = 'عضو فريق التركيب'
     _order = 'company_id, name'
     _rec_name = 'name'
@@ -34,14 +35,14 @@ class WofTeamMember(models.Model):
     user_id = fields.Many2one(related='employee_id.user_id', store=True, readonly=True, string='المستخدم')
     job_title = fields.Char(related='employee_id.job_title', readonly=True, string='المسمى')
     company_id = fields.Many2one(
-        'res.company', string='الفرع', required=True, index=True, default=lambda self: self.env.company,
+        'res.company', string='الفرع', required=True, index=True, default=lambda self: self.env.company, tracking=True,
         help='الفرع الذي يعمل فيه في أوامر التركيب.')
-    is_technician = fields.Boolean(string='فني', default=True)
-    is_supervisor = fields.Boolean(string='مشرف تشغيل')
+    is_technician = fields.Boolean(string='فني', default=True, tracking=True)
+    is_supervisor = fields.Boolean(string='مشرف تشغيل', tracking=True)
     commission_ratio = fields.Float(
-        string='نسبة عمولة الفني (%)', default=100.0,
+        string='نسبة عمولة الفني (%)', default=100.0, tracking=True,
         help='تُستخدم عند توزيع عمولة المكوّن حسب نسبة الفني، كنسبة ترجيح بين الفنيين المشاركين.')
-    active = fields.Boolean(default=True)
+    active = fields.Boolean(default=True, tracking=True)
 
     _sql_constraints = [
         ('employee_branch_unique', 'unique(employee_id, company_id)', 'الموظف مضاف مسبقًا لفريق هذا الفرع.'),

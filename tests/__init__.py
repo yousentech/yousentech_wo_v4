@@ -8,3 +8,4 @@ from . import test_stock_product
 from . import test_order_billing
 from . import test_order_technicians
 from . import test_setup_usage
+from . import test_commission_ledger

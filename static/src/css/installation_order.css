@@ -453,3 +453,11 @@
 .o_form_view.wof_order_form .wof_history_head { margin: 26px 0 6px; padding-top: 18px; border-top: 1px solid var(--wo-line); font-weight: 700; color: var(--wo-ink); font-size: 1.05rem; }
 .o_form_view.wof_order_form .wof_history_head .fa { color: var(--wo-teal); margin-inline-end: 6px; }
 .o_form_view.wof_order_form .o_form_sheet .o-mail-Form-chatter { padding: 0; }
+
+/* Technician commissions card (finance section) */
+.o_form_view.wof_order_form .wof_com_card { margin-top: 14px; }
+.o_form_view.wof_order_form .wof_com_head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.o_form_view.wof_order_form .wof_com_head h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.o_form_view.wof_order_form .wof_com_net { color: var(--wo-muted, #64748B); }
+.o_form_view.wof_order_form .wof_com_table th { font-weight: 600; color: var(--wo-muted, #64748B); background: transparent; }
+.o_form_view.wof_order_form .wof_com_actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }

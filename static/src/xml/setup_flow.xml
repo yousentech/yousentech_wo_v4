@@ -415,7 +415,17 @@
                         <section class="wof_sf_card">
                             <strong class="wof_sf_card_title">متى تُستحق عمولة الفني؟</strong>
                             <t t-call="yousentech_wo_v4.SetupFlow.Choice"><t t-set="options" t-value="eventOptions"/><t t-set="value" t-value="d.tech.event"/><t t-set="label" t-value="'استحقاق العمولة'"/><t t-set="pick" t-value="(key) => this.setScalar('commission_event', key)"/></t>
+                            <p class="wof_sf_muted mt-2 mb-0"><t t-if="d.tech.event === 'delivery'">عند الإنجاز: لا يأخذ العمولة إلا الفني الذي أنهى مهامه في الخدمة.</t><t t-else="">عند ترحيل الفاتورة: يأخذها كل فنيي الخدمة دون شرط إنجاز المهام.</t></p>
                         </section>
+                        <section class="wof_sf_card">
+                            <strong class="wof_sf_card_title">العمولة المحددة كنسبة: من أي سعر تُحسب؟</strong>
+                            <t t-call="yousentech_wo_v4.SetupFlow.Choice"><t t-set="options" t-value="percentBaseOptions"/><t t-set="value" t-value="d.tech.percent_base"/><t t-set="label" t-value="'أساس العمولة بالنسبة'"/><t t-set="pick" t-value="(key) => this.setScalar('commission_percent_base', key)"/></t>
+                        </section>
+                        <section class="wof_sf_card">
+                            <strong class="wof_sf_card_title">الخدمة المجانية أو المخصومة بالكامل</strong>
+                            <t t-call="yousentech_wo_v4.SetupFlow.Choice"><t t-set="options" t-value="freeServiceOptions"/><t t-set="value" t-value="d.tech.free_service"/><t t-set="label" t-value="'عمولة الخدمة المجانية'"/><t t-set="pick" t-value="(key) => this.setScalar('commission_free_service', key)"/></t>
+                        </section>
+                        <aside class="wof_sf_info"><i class="fa fa-info-circle" aria-hidden="true"/><div><strong>التغيير هنا للعمولات القادمة</strong><span>العمولة المعتمدة تتجمّد بإعداداتها وقت الاعتماد، والمرتجع يعكسها بالنسبة نفسها. لتطبيق الإعدادات الجديدة على أمر قائم استخدم «إعادة احتساب العمولة» فيه.</span></div></aside>
                     </t>
 
                     <!-- 5. Review -->

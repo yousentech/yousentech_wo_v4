@@ -26,3 +26,4 @@ from . import installation_technician_task
 from . import installation_order_sections
 from . import installation_branch
 from . import installation_delivery_policy
+from . import installation_commission

@@ -619,6 +619,20 @@ export class WofSetupFlow extends Component {
         ];
     }
 
+    get percentBaseOptions() {
+        return [
+            { key: "configured", name: _t("السعر المهيأ"), desc: _t("النسبة من سعر الخدمة في تهيئة الفيلم، مهما كان الخصم."), ex: _t("سعر 500 وعمولة 10% = 50") },
+            { key: "actual", name: _t("السعر الفعلي بعد الخصم"), desc: _t("النسبة من صافي سعر البيع، فيتأثر الفني بالخصم."), ex: _t("بيعت بـ 400 = عمولة 40") },
+        ];
+    }
+
+    get freeServiceOptions() {
+        return [
+            { key: "commission", name: _t("لها عمولة"), desc: _t("الفني اشتغل، فيأخذ عمولته حتى لو كانت الخدمة مجانية للعميل.") },
+            { key: "none", name: _t("بدون عمولة"), desc: _t("الخدمة التي صافي سعرها صفر لا تُحتسب لها عمولة.") },
+        ];
+    }
+
     // --------------------------------------------------------------- review
     get summary() {
         const d = this.state.data;

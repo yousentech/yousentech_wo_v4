@@ -64,17 +64,22 @@ class AccountMove(models.Model):
         posted = super()._post(soft=soft)
         for move in posted.filtered(lambda rec: rec.wof_order_id and rec.move_type == 'out_invoice'):
             move.wof_order_id._wof_reconcile_payments(move)
-            move.wof_order_id.line_ids._wof_set_commission('invoice', approved=True)
+            move.wof_order_id.line_ids.with_context(
+                wof_commission_source=_('ترحيل الفاتورة %s') % move.name)._wof_set_commission('invoice', approved=True)
         return posted
 
     def button_draft(self):
         result = super().button_draft()
-        self.filtered('wof_order_id').wof_order_id.line_ids._wof_set_commission('invoice', approved=False)
+        for move in self.filtered(lambda rec: rec.wof_order_id and rec.move_type == 'out_invoice'):
+            move.wof_order_id.line_ids.with_context(
+                wof_commission_source=_('الفاتورة %s أعيدت مسودة') % move.name)._wof_set_commission('invoice', approved=False)
         return result
 
     def button_cancel(self):
         result = super().button_cancel()
-        self.filtered('wof_order_id').wof_order_id.line_ids._wof_set_commission('invoice', approved=False)
+        for move in self.filtered(lambda rec: rec.wof_order_id and rec.move_type == 'out_invoice'):
+            move.wof_order_id.line_ids.with_context(
+                wof_commission_source=_('الفاتورة %s أُلغيت') % move.name)._wof_set_commission('invoice', approved=False)
         return result
 
 

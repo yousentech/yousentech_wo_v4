@@ -281,6 +281,14 @@ class WofCompanyProfile(models.Model):
         [('delivery', 'عند إنجاز أمر التركيب'), ('invoice', 'عند ترحيل الفاتورة')],
         default='delivery', required=True,
     )
+    commission_percent_base = fields.Selection(
+        [('configured', 'السعر المهيأ'), ('actual', 'السعر الفعلي بعد الخصم')],
+        string='أساس العمولة بالنسبة', default='configured', required=True,
+        help='للعمولات المحددة كنسبة من السعر في تهيئة الفيلم.')
+    commission_free_service = fields.Selection(
+        [('commission', 'لها عمولة'), ('none', 'بدون عمولة')],
+        string='عمولة الخدمة المجانية', default='commission', required=True,
+        help='الخدمة التي صافي سعرها صفر (مجانية أو مخصومة بالكامل).')
     required_vehicle_data = fields.Selection(
         [('plate_mobile', 'اللوحة وجوال العميل'),
          ('plate_vin_mobile', 'اللوحة والشاصي وجوال العميل')],
@@ -374,6 +382,7 @@ class WofCompanyProfile(models.Model):
             'operation_technician_required',
             'payment_policy', 'discount_scope', 'discount_enabled', 'discount_default_limit',
             'discount_allow_override_request', 'discount_reason_required_from', 'commission_event',
+            'commission_percent_base', 'commission_free_service',
             'required_vehicle_data', 'use_inventory', 'use_appointments', 'stock_allow_shortage', 'vin_validation', 'ui_intake', 'ui_execution', 'ui_quality', 'ui_attachments', 'ui_timeline', 'ui_extras',
             'advanced_pricing', 'advanced_commission',
         }

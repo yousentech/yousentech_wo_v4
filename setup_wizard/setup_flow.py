@@ -24,6 +24,8 @@ FLOW_SCALARS = {
     'discount_scope': ('order', 'service'),
     'operation_allow_multiple_technicians': 'bool',
     'commission_event': ('delivery', 'invoice'),
+    'commission_percent_base': ('configured', 'actual'),
+    'commission_free_service': ('commission', 'none'),
     'stock_allow_shortage': 'bool',
     'vin_validation': 'bool',
     'ui_intake': 'bool',
@@ -144,6 +146,8 @@ class WofCompanyProfileSetupFlow(models.Model):
             'tech': {
                 'multi': self.operation_allow_multiple_technicians,
                 'event': self.commission_event,
+                'percent_base': self.commission_percent_base,
+                'free_service': self.commission_free_service,
             },
             'issues': self._readiness_issues(),
         }

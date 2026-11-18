@@ -522,6 +522,12 @@
                                 invisible="not refund_count">
                             <field name="refund_count" widget="statinfo" string="المرتجعات"/>
                         </button>
+                        <button name="action_view_commissions" type="object"
+                                class="oe_stat_button" icon="fa-percent"
+                                invisible="not commission_count"
+                                groups="yousentech_wo_v4.group_wo_supervisor,yousentech_wo_v4.group_wo_manager">
+                            <field name="commission_count" widget="statinfo" string="العمولات"/>
+                        </button>
                     </div>
 
                     <field name="wof_hidden_fields" invisible="1"/>
@@ -1064,6 +1070,26 @@
                                     <field name="cancelled_at" readonly="1" invisible="state != 'cancelled'"/>
                                     <field name="cancelled_by_id" readonly="1" invisible="state != 'cancelled'"/>
                                 </group>
+                            </div>
+                            <div class="wof_order_card wof_com_card"
+                                 groups="yousentech_wo_v4.group_wo_supervisor,yousentech_wo_v4.group_wo_manager">
+                                <div class="wof_com_head">
+                                    <h3><i class="fa fa-percent me-1" title="العمولات"/> عمولات الفنيين</h3>
+                                    <span class="wof_com_net">الصافي: <field name="commission_net" readonly="1" class="d-inline fw-bold"/></span>
+                                </div>
+                                <field name="commission_summary_html" readonly="1" nolabel="1"/>
+                                <div class="wof_com_actions">
+                                    <button name="action_view_commissions" type="object" string="سجل العمولات"
+                                            icon="fa-list" class="btn btn-light" invisible="not commission_count"/>
+                                    <button name="action_open_commission_recalc" type="object" string="إعادة احتساب العمولة"
+                                            icon="fa-calculator" class="btn btn-light"
+                                            groups="yousentech_wo_v4.group_wo_manager"
+                                            invisible="state in ('draft', 'scheduled', 'cancelled')"/>
+                                    <button name="action_open_commission_adjust" type="object" string="تسوية عمولة"
+                                            icon="fa-balance-scale" class="btn btn-light"
+                                            groups="yousentech_wo_v4.group_wo_manager"
+                                            invisible="state in ('draft', 'scheduled')"/>
+                                </div>
                             </div>
                         </section>
                         <section class="wof_sec wof_sec_attachments" invisible="',attachments,' not in wof_ui_sections">

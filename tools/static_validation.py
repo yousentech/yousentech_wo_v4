@@ -1073,14 +1073,18 @@ def check_policy(validation):
         ):
             if ".sudo(" in line:
                 sudo_calls.append((path.relative_to(ROOT).as_posix(), lineno))
+    # Reviewed privileged accesses: the two append-only inserts (audit log,
+    # order events) and the commission ledger engine (entries are written by
+    # order events for users who may only read them, or not at all).
     allowed_sudo_files = {
         "models/api_foundation.py",
         "models/installation_order_workflow.py",
+        "models/installation_commission.py",
     }
     validation.require(
-        len(sudo_calls) == 2
+        len(sudo_calls) == 3
         and {path for path, _line in sudo_calls} == allowed_sudo_files,
-        "sudo use expanded beyond the two reviewed append-only inserts: "
+        "sudo use expanded beyond the reviewed privileged accesses: "
         + ", ".join(f"{path}:{line}" for path, line in sudo_calls),
     )
 

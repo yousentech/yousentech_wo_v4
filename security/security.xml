@@ -222,4 +222,9 @@
         <field name="groups" eval="[(4, ref('group_wo_user')), (4, ref('group_wo_supervisor'))]"/>
     </record>
 
+    <record id="rule_wof_technician_commission_company" model="ir.rule">
+        <field name="name">عمولات الفنيين: فروع المستخدم</field>
+        <field name="model_id" ref="model_wof_technician_commission"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
 </odoo>
