@@ -177,15 +177,30 @@ class TestCommissionLedger(TransactionCase):
         refund.button_draft()
         self.assertEqual(self.amounts(order), {'فني أحمد': 50.0, 'فني صالح': 50.0})
 
-    def test_full_credit_note_cancels_unpaid(self):
+    def test_full_credit_note_adds_negative_entries(self):
         order = self.make_order()
         self.deliver(order)
         refund = self.refund(self.invoice(order))
-        self.assertFalse(self.entries(order))
-        cancelled = self.entries(order, ('cancelled',))
-        self.assertEqual(cancelled.refund_move_id, refund)
+        reversals = self.entries(order).filtered(lambda entry: entry.entry_type == 'reversal')
+        self.assertEqual(sorted(reversals.mapped('amount')), [-50.0, -50.0])
+        self.assertEqual(reversals.refund_move_id, refund)
+        self.assertEqual(sum(self.entries(order).mapped('amount')), 0.0)
+        refund._wof_commission_apply_refund()  # applied once only
+        self.assertEqual(len(self.entries(order).filtered(lambda entry: entry.entry_type == 'reversal')), 2)
         refund.button_draft()
-        self.assertEqual(set(self.entries(order).mapped('state')), {'approved'})
+        self.assertEqual(self.amounts(order), {'فني أحمد': 50.0, 'فني صالح': 50.0})
+        refund.action_post()  # posting again reverses again
+        self.assertEqual(sum(self.entries(order).mapped('amount')), 0.0)
+
+    def test_credit_note_without_sale_link(self):
+        """A credit note whose lines lost the sale order link is matched by product."""
+        order = self.make_order()
+        self.deliver(order)
+        invoice = self.invoice(order)
+        refund = invoice._reverse_moves([{'ref': 'بدون ربط'}])
+        refund.invoice_line_ids.write({'sale_line_ids': [(5, 0, 0)]})
+        refund.action_post()
+        self.assertEqual(sum(self.entries(order).mapped('amount')), 0.0)
 
     def test_invoice_event_approves_without_task_check(self):
         self.root['wof.film.category'].browse(self.film.id).write({'commission_event': 'invoice'})

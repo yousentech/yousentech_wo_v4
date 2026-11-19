@@ -169,14 +169,9 @@ class WofOrderLineCommission(models.Model):
     def _wof_refunded_fraction(self):
         """Share of the service returned by posted credit notes (0..1)."""
         self.ensure_one()
-        sale_lines = self.env['sale.order.line'].search([('wof_order_line_id', '=', self.id)])
-        if not sale_lines:
-            return 0.0
-        refunds = self.env['account.move.line'].search([
-            ('sale_line_ids', 'in', sale_lines.ids), ('move_id.move_type', '=', 'out_refund'),
-            ('move_id.state', '=', 'posted'), ('display_type', '=', 'product'),
-        ])
-        qty = sum(refunds.mapped('quantity'))
+        qty = 0.0
+        for refund in self.order_id._wof_posted_refunds():
+            qty += refund._wof_refund_service_qty().get(self, 0.0)
         return min(1.0, qty / (self.quantity or 1.0))
 
     # ------------------------------------------------------------ ledger ops
@@ -275,11 +270,13 @@ class WofOrderLineCommission(models.Model):
             amount = min(currency.round(entry.amount * fraction), remaining)
             if float_compare(amount, 0.0, precision_rounding=currency.rounding) <= 0:
                 continue
-            if entry.state in ('pending', 'approved') and not returned \
+            if entry.state == 'pending' and not returned \
                     and float_compare(amount, entry.amount, precision_rounding=currency.rounding) >= 0:
+                # Not approved yet: nothing was due, the estimate is simply cancelled.
                 entry.write({'state': 'cancelled', 'state_before_cancel': entry.state,
                              'refund_move_id': move.id, 'source': _('مرتجع: %s') % move.name})
             else:
+                # Approved or paid: the original stays, a negative entry returns it.
                 entry._wof_reverse_amount(amount, _('مرتجع: %s') % move.name, move=move)
 
 
@@ -342,6 +339,17 @@ class WofOrderCommission(models.Model):
         return ('<table class="table table-sm wof_com_table mb-0"><thead><tr><th>الفني</th>'
                 '<th class="text-end">معلّقة</th><th class="text-end">معتمدة</th><th class="text-end">مدفوعة</th>'
                 '<th class="text-end">الصافي</th></tr></thead><tbody>%s</tbody></table>') % body
+
+    def _wof_posted_refunds(self):
+        """Posted credit notes of this order (linked directly, by the reversed invoice or the sale order)."""
+        self.ensure_one()
+        engine = self.env['wof.commission.engine']._wof_ledger().env
+        sale_lines = engine['sale.order.line'].search([('order_id.wof_order_id', '=', self.id)])
+        return engine['account.move'].search([
+            ('move_type', '=', 'out_refund'), ('state', '=', 'posted'), '|', '|',
+            ('wof_order_id', '=', self.id), ('reversed_entry_id.wof_order_id', '=', self.id),
+            ('invoice_line_ids.sale_line_ids', 'in', sale_lines.ids),
+        ])
 
     # ------------------------------------------------------------ events
     def action_submit_quality(self):
@@ -576,24 +584,67 @@ class WofCommissionAdjustWizard(models.TransientModel):
 class AccountMoveCommission(models.Model):
     _inherit = 'account.move'
 
-    def _wof_refund_fractions(self):
-        """{service line: returned share} of a credit note (by quantity)."""
+    def _wof_refund_order(self):
+        """Installation order of a credit note, whatever way it was made."""
         self.ensure_one()
         engine = self.env['wof.commission.engine']._wof_ledger().env
-        fractions = {}
-        for aml in engine['account.move.line'].browse(self.invoice_line_ids.ids):
-            if aml.display_type != 'product':
+        move = engine['account.move'].browse(self.id)
+        origin = move.reversed_entry_id
+        order = move.wof_order_id or origin.wof_order_id \
+            or move.invoice_line_ids.sale_line_ids.order_id.wof_order_id[:1] \
+            or origin.invoice_line_ids.sale_line_ids.order_id.wof_order_id[:1]
+        if not order and move.invoice_origin:
+            names = [name.strip() for name in move.invoice_origin.split(',')]
+            order = engine['sale.order'].search([('name', 'in', names)]).wof_order_id[:1] \
+                or engine['account.move'].search([('name', 'in', names)]).wof_order_id[:1]
+        return order
+
+    def _wof_refund_service_qty(self):
+        """{service line: returned quantity} of a credit note.
+
+        Lines are matched by their sale order line; when the credit note was
+        made without it, by the same product on the reversed invoice, then on
+        the services of the order.
+        """
+        self.ensure_one()
+        engine = self.env['wof.commission.engine']._wof_ledger().env
+        move = engine['account.move'].browse(self.id)
+        order = move._wof_refund_order()
+        origin_lines = move.reversed_entry_id.invoice_line_ids
+        result = {}
+        for aml in move.invoice_line_ids:
+            if aml.display_type != 'product' or not aml.quantity:
                 continue
-            service = aml.sale_line_ids.wof_order_line_id[:1]
+            sale_lines = aml.sale_line_ids or origin_lines.filtered(
+                lambda line: line.product_id == aml.product_id).sale_line_ids
+            service = sale_lines.wof_order_line_id[:1]
+            if not service and order:
+                service = order.line_ids.filtered(
+                    lambda line: line.service_product_id == aml.product_id and line.film_category_id)[:1]
             if service:
-                fractions[service] = fractions.get(service, 0.0) + aml.quantity / (service.quantity or 1.0)
-        return fractions
+                result[service] = result.get(service, 0.0) + aml.quantity
+        return result
+
+    def _wof_commission_apply_refund(self):
+        """Reverse the commissions returned by this posted credit note (once)."""
+        ledger = self.env['wof.commission.engine']._wof_ledger()
+        for move in self.filtered(lambda rec: rec.move_type == 'out_refund' and rec.state == 'posted'):
+            if ledger.search_count([('refund_move_id', '=', move.id), '|', ('state', 'in', LIVE_STATES),
+                                    ('state_before_cancel', '!=', False)]):
+                continue  # already applied
+            services = move._wof_refund_service_qty()
+            for service, qty in services.items():
+                service._wof_commission_reverse(min(1.0, qty / (service.quantity or 1.0)), move)
+            order = move._wof_refund_order()
+            if order and not services and ledger.search_count(
+                    [('order_id', '=', order.id), ('state', 'in', ('approved', 'paid'))]):
+                order.message_post(body=_(
+                    'لم يُطابَق المرتجع %s مع خدمات الأمر، فلم تُعكس العمولة تلقائيًا. '
+                    'راجعها بـ«إعادة احتساب العمولة» أو «تسوية عمولة».') % move.name)
 
     def _post(self, soft=True):
         posted = super()._post(soft=soft)
-        for move in posted.filtered(lambda rec: rec.move_type == 'out_refund'):
-            for service, fraction in move._wof_refund_fractions().items():
-                service._wof_commission_reverse(min(1.0, fraction), move)
+        self._wof_commission_apply_refund()
         return posted
 
     def _wof_commission_undo_refund(self):
