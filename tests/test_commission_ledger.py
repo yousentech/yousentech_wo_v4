@@ -290,7 +290,7 @@ class TestCommissionLedger(TransactionCase):
         self.assertFalse(self.entries(order))
 
     # ------------------------------------------------------- service areas
-    def make_area(self):
+    def make_area(self, rear_rule='equal'):
         Parts = self.root['wof.car.parts']
         kids = Parts
         for code, name in (('CA-FRONT', 'زجاج أمامي'), ('CA-REAR', 'زجاج خلفي')):
@@ -307,8 +307,9 @@ class TestCommissionLedger(TransactionCase):
             line['price'] = {'mode': 'uniform', 'general': {'amount': 500, 'readonly': False}, 'sizes': {}}
             if line.get('children'):
                 line['commission'].update({'source': 'from_parts', 'distribution': 'by_part'})
-                for child, value in zip(line['children'], (10, 20)):
-                    child['commission'].update({'type': 'fixed', 'policy': 'fixed', 'general': value})
+                for child, value, rule in zip(line['children'], (10, 20), ('equal', rear_rule)):
+                    child['commission'].update({'type': 'fixed', 'policy': 'fixed', 'general': value,
+                                                'distribution': rule})
             else:
                 line['commission'].update({'type': 'fixed', 'policy': 'fixed', 'general': 100, 'distribution': 'equal'})
         film.wof_matrix_save({'lines': snap['lines']})
@@ -380,4 +381,36 @@ class TestCommissionLedger(TransactionCase):
         self.assertEqual(Year.name_create('2031')[0], year_id)
         with self.assertRaises(ValidationError):
             Year.name_create('31')
+
+    def test_part_follows_its_own_distribution(self):
+        """Inside an area, each part splits its commission the way the part is set up."""
+        area, kids = self.make_area(rear_rule='by_technician_ratio')
+        partner = self.root['res.partner'].create({'name': 'عميل التوزيع', 'mobile': '0500000095'})
+        size = self.env['wof.car.size'].search([], limit=1)
+        order = self.env['wof.installation.order'].create({
+            'partner_id': partner.id, 'vehicle_plate': 'AREA 4', 'car_size_id': size.id, 'appointment_at': '2026-12-01'})
+        order.wof_add_services([{'film_id': self.film.id, 'part_id': area.id}])
+        line = order.line_ids
+        front = line.part_line_ids.filtered(lambda rec: rec.part_id == kids[0])
+        rear = line.part_line_ids - front
+        line.wof_area_update(front.ids, {'technician_ids': [self.techs[0].id]})
+        line.wof_area_update(rear.ids, {'technician_ids': self.techs.ids})
+        self.to_ready(order)
+        entries = self.entries(order)
+        rear_entries = entries.filtered(lambda entry: entry.car_part_id == kids[1])
+        # Rear 20 by weights 50 / 60: 9.09 and 10.91; front 10 to Ahmed alone.
+        self.assertEqual(sorted(rear_entries.mapped('amount')), [9.09, 10.91])
+        self.assertEqual(set(rear_entries.mapped('part_rule')), {'by_technician_ratio'})
+        self.assertEqual(rear_entries.filtered(lambda entry: entry.employee_id == self.techs[0]).weight_total, 110.0)
+        self.assertEqual(self.amounts(order), {'فني أحمد': 19.09, 'فني صالح': 10.91})
+        self.assertIn('وزنه 50 من 110', order.commission_summary_html)
+        # The area itself may still split everything equally between all its technicians.
+        snap = self.film.wof_matrix_load()
+        for item in snap['lines']:
+            if item.get('children'):
+                item['commission']['distribution'] = 'equal'
+        self.film.wof_matrix_save({'lines': snap['lines']})
+        rule, plan = line._wof_commission_plan()
+        self.assertEqual(rule, 'equal')
+        self.assertEqual(sorted(amount for amount, *_rest in plan.values()), [15.0, 15.0])
 

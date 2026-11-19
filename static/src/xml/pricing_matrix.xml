@@ -293,14 +293,17 @@
                                     </label>
                                 </section>
                             </t>
-                            <section t-if="!sel.child" class="wof_pm_sect">
+                            <section class="wof_pm_sect">
                                 <div class="wof_pm_sect_head">
-                                    <h3>التوزيع بين الفنيين</h3>
-                                    <p>كيف تُقسم العمولة إذا اشترك أكثر من فني</p>
+                                    <h3 t-if="sel.child">توزيع عمولة هذا الجزء</h3>
+                                    <h3 t-else="">التوزيع بين الفنيين</h3>
+                                    <p t-if="sel.child">يُستخدم داخل منطقة الخدمة إذا كان توزيعها «كل جزء حسب تهيئته»</p>
+                                    <p t-else="">كيف تُقسم العمولة إذا اشترك أكثر من فني</p>
                                 </div>
                                 <div class="wof_pm_seg is-full is-stack" role="radiogroup" aria-label="التوزيع بين الفنيين">
-                                    <button t-foreach="distributionOptions(sel.line)" t-as="opt" t-key="opt[0]" type="button" role="radio" t-att-aria-checked="comm.distribution === opt[0] ? 'true' : 'false'" t-attf-class="{{ comm.distribution === opt[0] ? 'is-on' : '' }}" t-on-click="() => this.setDistribution(comm, opt[0])" t-esc="opt[1]"/>
+                                    <button t-foreach="distributionOptions(sel.line, sel.child)" t-as="opt" t-key="opt[0]" type="button" role="radio" t-att-aria-checked="comm.distribution === opt[0] ? 'true' : 'false'" t-attf-class="{{ comm.distribution === opt[0] ? 'is-on' : '' }}" t-on-click="() => this.setDistribution(comm, opt[0])" t-esc="opt[1]"/>
                                 </div>
+                                <p class="wof_pm_note mt-2 mb-0"><i class="fa fa-lightbulb-o" aria-hidden="true"/> <t t-esc="distributionHint(sel.line, sel.child, comm.distribution)"/></p>
                             </section>
                         </t>
                     </div>

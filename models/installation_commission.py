@@ -57,6 +57,10 @@ class WofTechnicianCommission(models.Model):
     part_share = fields.Monetary(string='عمولة الجزء', readonly=True,
                                  help='نصيب هذا الجزء من عمولة الخدمة، قبل قسمته على فنييه.')
     part_technician_count = fields.Integer(string='عدد فنيي الجزء', readonly=True)
+    part_rule = fields.Selection([('equal', 'بالتساوي'), ('by_technician_ratio', 'حسب نسبة الفني')],
+                                 string='توزيع الجزء', readonly=True,
+                                 help='كيف قُسمت عمولة الجزء بين فنييه، حسب تهيئة الجزء في الفيلم.')
+    weight_total = fields.Float(string='مجموع الأوزان', readonly=True)
     vehicle_plate = fields.Char(related='order_id.vehicle_plate', store=True, string='اللوحة')
     entry_type = fields.Selection([
         ('normal', 'عمولة'), ('reversal', 'عكس'), ('adjustment', 'تسوية'),
@@ -164,7 +168,8 @@ class WofOrderLineCommission(models.Model):
         self.ensure_one()
         total = self._wof_commission_total() if total is None else total
         open_tasks = self._wof_open_tasks() if completed_only else set()
-        rule, shares, weights = self._wof_commission_shares(total, excluded=open_tasks)
+        meta = {}
+        rule, shares, weights = self._wof_commission_shares(total, excluded=open_tasks, meta=meta)
         currency = self.currency_id or self.order_id.company_id.currency_id
         rounded = {key: currency.round(amount) for key, amount in shares.items()}
 
@@ -182,12 +187,12 @@ class WofOrderLineCommission(models.Model):
             for keys in groups.values():
                 settle(keys, currency.round(sum(shares[key] for key in keys)))
         settle(list(rounded), currency.round(total))
-        return rule, {key: (amount, weights.get(key, 0.0)) for key, amount in rounded.items()}
+        return rule, {key: (amount, weights.get(key, 0.0), meta.get(key, {})) for key, amount in rounded.items()}
 
     def _wof_part_details(self, plan):
         """{part line id: (part share, technician count)} of a plan."""
         details = {}
-        for (part_id, _emp), (amount, _weight) in plan.items():
+        for (part_id, _emp), (amount, *_rest) in plan.items():
             share, count = details.get(part_id, (0.0, 0))
             details[part_id] = (share + amount, count + 1)
         return details
@@ -205,7 +210,7 @@ class WofOrderLineCommission(models.Model):
         ledger = self.env['wof.commission.engine']._wof_ledger()
         return ledger.search([('line_id', 'in', self.ids), ('entry_type', 'in', types), ('state', 'in', states)])
 
-    def _wof_entry_values(self, key, amount, weight, rule, total, state, source, details=None):
+    def _wof_entry_values(self, key, amount, weight, rule, total, state, source, details=None, info=None):
         self.ensure_one()
         part_line_id, employee_id = key
         part_line = self.env['wof.installation.order.line.part'].browse(part_line_id) if part_line_id else None
@@ -216,6 +221,7 @@ class WofOrderLineCommission(models.Model):
             'part_line_id': part_line_id or False,
             'car_part_id': part_line.part_id.id if part_line else self.car_part_id.id,
             'part_share': share if part_line else 0.0, 'part_technician_count': count if part_line else 0,
+            'part_rule': (info or {}).get('part_rule') or False, 'weight_total': (info or {}).get('weight_total') or 0.0,
             'distribution': rule, 'weight': weight, 'service_commission': total, 'amount': amount,
             'commission_event': self.commission_event or 'delivery', 'source': source,
         }
@@ -252,15 +258,15 @@ class WofOrderLineCommission(models.Model):
                 continue
             details = line._wof_part_details(plan)
             by_key = {self._wof_entry_key(entry): entry for entry in entries}
-            for key, (amount, weight) in plan.items():
+            for key, (amount, weight, info) in plan.items():
                 if float_is_zero(amount, precision_rounding=line.currency_id.rounding or 0.01):
                     continue
                 entry = by_key.pop(key, None)
                 values = line._wof_entry_values(key, amount, weight, rule, total, 'pending',
-                                                source or _('إرسال الأمر للجودة'), details)
+                                                source or _('إرسال الأمر للجودة'), details, info)
                 if entry:
                     tracked = ('distribution', 'weight', 'service_commission', 'amount', 'part_share',
-                               'part_technician_count', 'car_part_id')
+                               'part_technician_count', 'car_part_id', 'part_rule', 'weight_total')
                     changed = {name: values[name] for name in tracked
                                if (entry[name].id if name == 'car_part_id' else entry[name]) != values[name]}
                     if changed:
@@ -331,6 +337,7 @@ class WofTechnicianCommissionOps(models.Model):
             'employee_id': self.employee_id.id, 'entry_type': 'reversal', 'state': 'approved',
             'part_line_id': self.part_line_id.id, 'car_part_id': self.car_part_id.id,
             'part_share': self.part_share, 'part_technician_count': self.part_technician_count,
+            'part_rule': self.part_rule, 'weight_total': self.weight_total,
             'distribution': self.distribution, 'weight': self.weight,
             'service_commission': self.service_commission, 'amount': -amount,
             'commission_event': self.commission_event, 'reversed_entry_id': self.id,
@@ -382,10 +389,16 @@ class WofOrderCommission(models.Model):
                 source = entry.film_category_id.name or ''
                 if entry.part_line_id:
                     what = '%s ← %s' % (escape(entry.service_part_id.name or ''), escape(entry.car_part_id.name or ''))
-                    how = 'عمولة الجزء %.2f ÷ %s فني' % (entry.part_share, entry.part_technician_count or 1)
+                    if entry.part_rule == 'by_technician_ratio':
+                        how = 'عمولة الجزء %.2f حسب نسبة الفني (وزنه %g من %g)' % (
+                            entry.part_share, entry.weight, entry.weight_total)
+                    else:
+                        how = 'عمولة الجزء %.2f ÷ %s فني بالتساوي' % (entry.part_share, entry.part_technician_count or 1)
                 else:
                     what = escape(entry.car_part_id.name or entry.service_part_id.name or entry.source or '')
                     how = escape(dict(entry._fields['distribution'].selection).get(entry.distribution, '') or '')
+                    if entry.distribution == 'by_technician_ratio' and entry.weight_total:
+                        how += ' (وزنه %g من %g)' % (entry.weight, entry.weight_total)
                 if entry.entry_type != 'normal':
                     how = '%s: %s' % (types.get(entry.entry_type), escape(entry.source or ''))
                 body += ('<tr><td class="ps-4">%s<div class="text-muted small">%s</div></td><td class="small">%s</td>'
@@ -484,10 +497,10 @@ class WofOrderCommission(models.Model):
             keys = set(shares) | {self.env['wof.installation.order.line']._wof_entry_key(entry) for entry in live}
             for key in sorted(keys, key=lambda item: (item[0] or 0, item[1])):
                 mine = live.filtered(lambda entry: (entry.part_line_id.id or False, entry.employee_id.id) == key)
-                new_amount, weight = shares.get(key, (0.0, 0.0))
+                new_amount, weight, info = shares.get(key, (0.0, 0.0, {}))
                 plan.append({
                     'line': line, 'key': key, 'employee_id': key[1], 'old': sum(mine.mapped('amount')),
-                    'new': new_amount, 'weight': weight, 'rule': rule, 'total': total, 'per_unit': per_unit,
+                    'new': new_amount, 'weight': weight, 'info': info, 'rule': rule, 'total': total, 'per_unit': per_unit,
                     'details': details,
                     'paid': bool(mine.filtered(lambda entry: entry.state == 'paid')),
                     'state': 'approved' if accrued else 'pending',
@@ -536,7 +549,7 @@ class WofOrderCommission(models.Model):
                 new_entry = ledger.browse()
                 if not float_is_zero(row['new'], precision_rounding=currency.rounding):
                     values = line._wof_entry_values(key, row['new'], row['weight'], row['rule'], row['total'],
-                                                    row['state'], source, row['details'])
+                                                    row['state'], source, row['details'], row['info'])
                     values['reason'] = reason
                     if row['state'] == 'approved':
                         values.update(approved_at=now, approved_by_id=self.env.uid)

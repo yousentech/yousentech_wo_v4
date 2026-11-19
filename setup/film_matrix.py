@@ -273,10 +273,14 @@ class WofFilmMatrix(models.Model):
         source = data.get('source') if is_area else 'independent'
         value_type = data.get('type') if data.get('type') in ('fixed', 'percent') else 'fixed'
         policy = data.get('policy') if data.get('policy') in ('fixed', 'by_size') else 'fixed'
-        distribution = data.get('distribution') or 'equal'
-        if source == 'from_parts':
-            distribution = 'by_part'
-        elif distribution not in ('equal', 'by_technician_ratio'):
+        distribution = data.get('distribution') or ('by_part' if source == 'from_parts' else 'equal')
+        if is_area and source == 'from_parts' and part_line.service_commission_source != 'from_parts' \
+                and distribution == 'equal':
+            distribution = 'by_part'  # switching to «من الأجزاء»: each part keeps its own split by default
+        # «كل جزء حسب تهيئته» exists for service areas only; a part (also a basis
+        # part of an area) splits equally or by technician ratio.
+        allowed = ('equal', 'by_technician_ratio', 'by_part') if is_area else ('equal', 'by_technician_ratio')
+        if distribution not in allowed:
             distribution = 'equal'
         vals = {
             'commission_value_type': value_type,

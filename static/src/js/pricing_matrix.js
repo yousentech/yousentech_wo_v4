@@ -360,13 +360,12 @@ export class WofPricingMatrix extends Component {
                 return;
             }
             comm.source = "from_parts";
-            comm.distribution = "by_part";
+            if (comm.distribution === "equal") {
+                comm.distribution = "by_part";
+            }
         } else {
             if (!child && this.isArea(line)) {
                 comm.source = "independent";
-                if (comm.distribution === "by_part") {
-                    comm.distribution = "equal";
-                }
             }
             const prev = comm.policy === "by_size" ? "by_size" : "fixed";
             if (value === "by_size" && prev !== "by_size") {
@@ -411,7 +410,9 @@ export class WofPricingMatrix extends Component {
             return;
         }
         line.commission.source = source;
-        line.commission.distribution = source === "from_parts" ? "by_part" : line.commission.distribution === "by_part" ? "equal" : line.commission.distribution;
+        if (source === "from_parts" && line.commission.distribution === "equal") {
+            line.commission.distribution = "by_part";
+        }
         this.markDirty();
     }
 
@@ -466,12 +467,31 @@ export class WofPricingMatrix extends Component {
         return comm.general !== null && comm.general !== undefined;
     }
 
-    distributionOptions(line) {
+    distributionOptions(line, child) {
         const base = [
             ["equal", _t("بالتساوي")],
             ["by_technician_ratio", _t("حسب نسبة الفني")],
         ];
-        return this.fromParts(line) ? [...base, ["by_part", _t("حسب الجزء المنفذ")]] : base;
+        return this.isArea(line) && !child ? [...base, ["by_part", _t("كل جزء حسب تهيئته")]] : base;
+    }
+
+    distributionHint(line, child, value) {
+        if (child) {
+            return value === "by_technician_ratio"
+                ? _t("داخل المنطقة: عمولة هذا الجزء تُقسم على فنييه حسب أوزانهم في فريق العمل.")
+                : _t("داخل المنطقة: عمولة هذا الجزء تُقسم على فنييه بالتساوي.");
+        }
+        if (value === "by_part") {
+            return _t("كل جزء يأخذ عمولته، وتذهب لفنيي هذا الجزء فقط بطريقة توزيعه هو (بالتساوي أو حسب النسبة).");
+        }
+        if (value === "by_technician_ratio") {
+            return this.isArea(line)
+                ? _t("عمولة المنطقة كاملة على كل من شارك فيها، حسب أوزانهم في فريق العمل.")
+                : _t("حسب أوزان الفنيين في فريق العمل.");
+        }
+        return this.isArea(line)
+            ? _t("عمولة المنطقة كاملة بالتساوي على كل من شارك فيها، أيًّا كانت الأجزاء.")
+            : _t("بالتساوي بين فنيي الخدمة.");
     }
 
     // -------------------------------------------------------------- summary
