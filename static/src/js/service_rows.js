@@ -175,8 +175,14 @@ export class WofServiceRows extends Component {
             return;
         }
         const ids = area.parts.map((p) => p.id);
-        const vals = key === "technician_ids" ? { technician_ids: [Number(raw)] } : { [key]: Number(raw) };
+        // Technicians are added to every part (or removed from all when already
+        // on all of them); the others stay.
+        const vals = key === "technician_ids" ? { toggle_technician_id: Number(raw) } : { [key]: Number(raw) };
         return this.run(lineId, "wof_area_update", [ids, vals]);
+    }
+
+    onAllParts(data, techId) {
+        return Boolean(data.parts && data.parts.length && data.parts.every((p) => p.technician_ids.includes(techId)));
     }
 
     // ------------------------------------------------- single service row

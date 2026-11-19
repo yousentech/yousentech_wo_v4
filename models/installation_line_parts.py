@@ -12,7 +12,7 @@ from odoo import api, fields, models, _
 from odoo.exceptions import AccessError, ValidationError
 
 SETUP_STATES = ('draft', 'scheduled', 'intake', 'in_progress')
-PART_KEYS = {'grade_id', 'product_id', 'product_qty', 'technician_ids', 'progress'}
+PART_KEYS = {'grade_id', 'product_id', 'product_qty', 'technician_ids', 'progress', 'toggle_technician_id'}
 
 
 class WofInstallationOrderLinePart(models.Model):
@@ -149,10 +149,37 @@ class WofInstallationOrderLineParts(models.Model):
                 'technician_ids': [(6, 0, employee_ids)], 'execution_progress': progress,
             })
 
+    def _wof_physical_parts(self):
+        """Car parts this service actually covers (its parts for a service area)."""
+        self.ensure_one()
+        if self.part_kind == 'service_area':
+            return self.part_line_ids.part_id
+        return self.car_part_id
+
+    def _wof_check_part_overlap(self):
+        """The same car part cannot be served twice by one activity in an order
+        (alone and inside a service area, or in two areas)."""
+        for order in self.order_id:
+            seen = {}
+            for line in order.line_ids.filtered(lambda rec: rec.car_part_id and rec.service_type_id):
+                for part in line._wof_physical_parts():
+                    key = (line.service_type_id.id, part.id)
+                    other = seen.get(key)
+                    if other and other != line:
+                        inside = lambda rec: (_('ضمن «%s»') % rec.car_part_id.name) if rec.part_kind == 'service_area' \
+                            else _('كخدمة مستقلة')
+                        raise ValidationError(_(
+                            'الجزء «%(part)s» مضاف مسبقًا لنشاط «%(activity)s» %(first)s، فلا يُضاف مرة أخرى %(second)s.\n'
+                            'احذف أحدهما، أو أزل الجزء من أجزاء منطقة الخدمة.'
+                        ) % {'part': part.name, 'activity': line.service_type_id.name,
+                             'first': inside(other), 'second': inside(line)})
+                    seen[key] = line
+
     @api.model_create_multi
     def create(self, vals_list):
         lines = super().create(vals_list)
         lines.filtered(lambda rec: rec.part_kind == 'service_area')._wof_build_parts()
+        lines._wof_check_part_overlap()
         return lines
 
     def write(self, vals):
@@ -162,6 +189,8 @@ class WofInstallationOrderLineParts(models.Model):
         result = super().write(vals)
         if 'service_area_template_id' in vals or 'car_part_id' in vals:
             self._wof_build_parts()
+        if {'service_area_template_id', 'car_part_id', 'service_type_id'} & set(vals):
+            self._wof_check_part_overlap()
         return result
 
     # ------------------------------------------------------------ stock needs
@@ -342,6 +371,17 @@ class WofInstallationOrderLineParts(models.Model):
             grade = self.env['wof.film.category.lines'].browse(vals['grade_id'])
             if grade.product_id:
                 vals['product_id'] = grade.product_id.id
+        if 'toggle_technician_id' in vals:
+            # «كل الأجزاء»: adds the technician to every part; if he is already on
+            # all of them, removes him from all. Others on the parts stay.
+            tech = int(vals.pop('toggle_technician_id') or 0)
+            if tech:
+                on_all = all(tech in part.technician_ids.ids for part in parts)
+                for part in parts:
+                    if on_all:
+                        part.write({'technician_ids': [(3, tech)]})
+                    elif tech not in part.technician_ids.ids:
+                        part.write({'technician_ids': [(4, tech)]})
         if 'technician_ids' in vals:
             ids = [int(i) for i in vals['technician_ids'] or []]
             for part in parts:

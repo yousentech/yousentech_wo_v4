@@ -34,9 +34,9 @@
     </record>
 
     <record id="group_wo_car_catalog" model="res.groups">
-        <field name="name">إضافة ماركات وطرازات وألوان السيارات</field>
+        <field name="name">إضافة ماركات وطرازات وألوان وسنوات السيارات</field>
         <field name="category_id" ref="wo_category_priv"/>
-        <field name="comment">يسمح بإضافة ماركة أو طراز أو لون جديد من أمر التركيب وقوائم المدخلات.</field>
+        <field name="comment">يسمح بإضافة ماركة أو طراز أو لون أو سنة صنع جديدة من أمر التركيب وقوائم المدخلات.</field>
     </record>
 
     <record id="group_wo_technician" model="res.groups">

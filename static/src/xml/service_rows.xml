@@ -198,8 +198,8 @@
                                         <t t-foreach="data.products" t-as="p" t-key="p.id"><option t-att-value="p.id" t-esc="productLabel(p)"/></t>
                                     </select>
                                     <select class="wof_sparts_sel" t-att-disabled="state.busy" t-on-change="(ev) => this.applyAll(row.id, 'technician_ids', ev)">
-                                        <option value="">الفني</option>
-                                        <t t-foreach="data.technicians" t-as="t" t-key="t.id"><option t-att-value="t.id" t-esc="t.name"/></t>
+                                        <option value="">إضافة فني لكل الأجزاء</option>
+                                        <t t-foreach="data.technicians" t-as="t" t-key="t.id"><option t-att-value="t.id" t-esc="onAllParts(data, t.id) ? '✓ ' + t.name + ' — إزالة من كل الأجزاء' : t.name"/></t>
                                     </select>
                                 </div>
                             </t>

@@ -461,3 +461,4 @@
 .o_form_view.wof_order_form .wof_com_net { color: var(--wo-muted, #64748B); }
 .o_form_view.wof_order_form .wof_com_table th { font-weight: 600; color: var(--wo-muted, #64748B); background: transparent; }
 .o_form_view.wof_order_form .wof_com_actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.o_form_view.wof_order_form .wof_com_table tr.wof_com_emp td { background: var(--wo-soft, #F1F5F9); }

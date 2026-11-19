@@ -288,3 +288,96 @@ class TestCommissionLedger(TransactionCase):
         self.assertEqual(order.line_ids._wof_commission_total(), 0.0)
         self.to_ready(order)
         self.assertFalse(self.entries(order))
+
+    # ------------------------------------------------------- service areas
+    def make_area(self):
+        Parts = self.root['wof.car.parts']
+        kids = Parts
+        for code, name in (('CA-FRONT', 'زجاج أمامي'), ('CA-REAR', 'زجاج خلفي')):
+            kids |= Parts.create({'code': code, 'name': name, 'part_type': 'car_part',
+                                  'product_id': self.root['product.product'].create({'name': name, 'type': 'service'}).id})
+        area = Parts.create({'code': 'CA-AREA', 'name': 'منطقة كامل السيارة', 'part_type': 'service_area',
+                             'product_id': self.root['product.product'].create({'name': 'منطقة', 'type': 'service'}).id})
+        self.root['wof.service.area.template'].create({'name': 'كامل', 'service_area_id': area.id,
+                                                       'component_ids': [(6, 0, kids.ids)], 'is_default': True})
+        film = self.film
+        film.wof_film_apply('comp_add', {'part_id': area.id})
+        snap = film.wof_matrix_load()
+        for line in snap['lines']:
+            line['price'] = {'mode': 'uniform', 'general': {'amount': 500, 'readonly': False}, 'sizes': {}}
+            if line.get('children'):
+                line['commission'].update({'source': 'from_parts', 'distribution': 'by_part'})
+                for child, value in zip(line['children'], (10, 20)):
+                    child['commission'].update({'type': 'fixed', 'policy': 'fixed', 'general': value})
+            else:
+                line['commission'].update({'type': 'fixed', 'policy': 'fixed', 'general': 100, 'distribution': 'equal'})
+        film.wof_matrix_save({'lines': snap['lines']})
+        return area, kids
+
+    def test_by_part_uses_each_part_commission(self):
+        area, kids = self.make_area()
+        partner = self.root['res.partner'].create({'name': 'عميل المنطقة', 'mobile': '0500000098'})
+        size = self.env['wof.car.size'].search([], limit=1)
+        order = self.env['wof.installation.order'].create({
+            'partner_id': partner.id, 'vehicle_plate': 'AREA 1', 'car_size_id': size.id, 'appointment_at': '2026-12-01'})
+        order.wof_add_services([{'film_id': self.film.id, 'part_id': area.id}])
+        line = order.line_ids
+        self.assertEqual(line.configured_commission, 30.0)
+        front = line.part_line_ids.filtered(lambda rec: rec.part_id == kids[0])
+        rear = line.part_line_ids - front
+        third = self.root['hr.employee'].create({'name': 'فني ثالث', 'company_id': self.env.company.id})
+        self.root['wof.team.member'].create({'employee_id': third.id, 'company_id': self.env.company.id})
+        # Ahmed alone on the front (10); Ahmed, Saleh and the third on the rear (20).
+        line.wof_area_update(front.ids, {'technician_ids': [self.techs[0].id]})
+        line.wof_area_update(rear.ids, {'technician_ids': [self.techs[0].id, self.techs[1].id, third.id]})
+        self.to_ready(order)
+        entries = self.entries(order)
+        ahmed = entries.filtered(lambda entry: entry.employee_id == self.techs[0])
+        self.assertEqual(ahmed.filtered(lambda entry: entry.car_part_id == kids[0]).amount, 10.0)
+        self.assertIn(ahmed.filtered(lambda entry: entry.car_part_id == kids[1]).amount, (6.66, 6.67))
+        self.assertEqual(round(sum(entries.filtered(lambda entry: entry.car_part_id == kids[1]).mapped('amount')), 2), 20.0)
+        self.assertEqual(round(sum(entries.mapped('amount')), 2), 30.0)
+        rear_entry = entries.filtered(lambda entry: entry.car_part_id == kids[1])[:1]
+        self.assertEqual((rear_entry.part_share, rear_entry.part_technician_count), (20.0, 3))
+        self.assertIn('زجاج خلفي', order.commission_summary_html)
+
+    def test_area_bulk_technician_adds_and_removes(self):
+        area, _kids = self.make_area()
+        partner = self.root['res.partner'].create({'name': 'عميل المنطقة', 'mobile': '0500000097'})
+        size = self.env['wof.car.size'].search([], limit=1)
+        order = self.env['wof.installation.order'].create({
+            'partner_id': partner.id, 'vehicle_plate': 'AREA 2', 'car_size_id': size.id, 'appointment_at': '2026-12-01'})
+        order.wof_add_services([{'film_id': self.film.id, 'part_id': area.id}])
+        line = order.line_ids
+        parts = line.part_line_ids
+        line.wof_area_update(parts.ids, {'toggle_technician_id': self.techs[0].id})
+        line.wof_area_update(parts.ids, {'toggle_technician_id': self.techs[1].id})
+        for part in parts:
+            self.assertEqual(part.technician_ids, self.techs)  # added, not replaced
+        line.wof_area_update(parts.ids, {'toggle_technician_id': self.techs[0].id})
+        for part in parts:
+            self.assertEqual(part.technician_ids, self.techs[1])  # on all parts: removed from all
+
+    def test_part_inside_area_cannot_be_added_alone(self):
+        area, kids = self.make_area()
+        self.film.wof_film_apply('comp_add', {'part_id': kids[0].id})
+        snap = self.film.wof_matrix_load()
+        for line in snap['lines']:
+            line['price'] = {'mode': 'uniform', 'general': {'amount': 500, 'readonly': False}, 'sizes': {}}
+        self.film.wof_matrix_save({'lines': snap['lines']})
+        partner = self.root['res.partner'].create({'name': 'عميل التكرار', 'mobile': '0500000096'})
+        size = self.env['wof.car.size'].search([], limit=1)
+        order = self.env['wof.installation.order'].create({
+            'partner_id': partner.id, 'vehicle_plate': 'AREA 3', 'car_size_id': size.id, 'appointment_at': '2026-12-01'})
+        order.wof_add_services([{'film_id': self.film.id, 'part_id': area.id}])
+        with self.assertRaises(ValidationError):
+            order.wof_add_services([{'film_id': self.film.id, 'part_id': kids[0].id}])
+
+    def test_year_typed_on_the_order(self):
+        Year = self.env['wof.car.manufactory.year']
+        year_id, _name = Year.name_create(' 2031 ')
+        self.assertEqual(Year.browse(year_id).code, '2031')
+        self.assertEqual(Year.name_create('2031')[0], year_id)
+        with self.assertRaises(ValidationError):
+            Year.name_create('31')
+

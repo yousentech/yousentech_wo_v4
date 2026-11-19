@@ -2,8 +2,9 @@
 """How the technician commission of a service is split (shown in the details).
 
 The rule comes from the film component: equally, by each technician's ratio in
-the installation team, or by part (service areas: each part gets an equal share
-of the service commission, split equally between that part's technicians).
+the installation team, or by part (service areas: each part gets its share of
+the service commission in proportion to its own commission in the film, split
+equally between that part's technicians).
 """
 
 from odoo import api, fields, models
@@ -35,8 +36,21 @@ class WofOrderLineCommissionSplit(models.Model):
         self.env.cr.execute("SELECT id, name FROM hr_employee WHERE id IN %s", (tuple(ids),))
         return dict(self.env.cr.fetchall())
 
+    def _wof_part_weights(self, parts):
+        """{part line id: its own commission in the film for this car size}, or {} if unknown."""
+        self.ensure_one()
+        film = self.film_category_id
+        weights = {}
+        for part in parts:
+            child = film.film_part_line_ids.filtered(lambda line: line.car_part_id == part.part_id)[:1]
+            value = film._wof_child_value(child, self.car_size_id) if child else None
+            if value is None:
+                return {}
+            weights[part.id] = value
+        return weights if any(weights.values()) else {}
+
     def _wof_commission_shares(self, total=None, excluded=()):
-        """(rule, {employee_id: amount}, {employee_id: weight}) following the component's rule.
+        """(rule, {(part line id or False, employee id): amount}, {key: weight}).
 
         ``excluded``: {(part id or False, employee id)} of technicians who still
         have an open task (they do not share the commission when it requires
@@ -49,18 +63,26 @@ class WofOrderLineCommissionSplit(models.Model):
         shares, weights = {}, {}
         if self.part_line_ids and rule == 'by_part':
             self.env['wof.installation.order.line.part'].flush_model(['technician_ids'])
-            parts = []
+            working = {}
             for part in self.part_line_ids:
                 self.env.cr.execute(
                     "SELECT employee_id FROM wof_order_line_part_technician_rel WHERE part_line_id = %s ORDER BY employee_id",
                     (part.id,))
-                ids = [row[0] for row in self.env.cr.fetchall() if (part.id, row[0]) not in excluded]
+                ids = [row[0] for row in self.env.cr.fetchall() if (part.id, row[0]) not in excluded
+                       and (False, row[0]) not in excluded]
                 if ids:
-                    parts.append(ids)
-            for ids in parts:
-                per_part = total / len(parts)
+                    working[part] = ids
+            if not working:
+                return rule, shares, weights
+            # Each part weighs its own commission in the film (front 10, rear 20);
+            # equal parts when the film gives no per-part commission.
+            part_weights = self._wof_part_weights(list(working)) or {part.id: 1.0 for part in working}
+            total_weight = sum(part_weights[part.id] for part in working) or 1.0
+            for part, ids in working.items():
+                part_amount = total * part_weights[part.id] / total_weight
                 for emp in ids:
-                    shares[emp] = shares.get(emp, 0.0) + per_part / len(ids)
+                    shares[(part.id, emp)] = part_amount / len(ids)
+                    weights[(part.id, emp)] = part_weights[part.id]
             return rule, shares, weights
         self.flush_model(['technician_ids'])
         self.env.cr.execute(
@@ -70,17 +92,17 @@ class WofOrderLineCommissionSplit(models.Model):
             return rule, shares, weights
         if rule == 'by_part' and not self.part_line_ids:
             rule = 'equal'
-        weights = {emp: 1.0 for emp in ids}
+        emp_weights = {emp: 1.0 for emp in ids}
         if rule == 'by_technician_ratio':
             members = self.env['wof.team.member'].search([
                 ('employee_id', 'in', ids), ('company_id', '=', self.order_id.company_id.id)])
             ratio = {m.employee_id.id: m.commission_ratio for m in members}
             if any(ratio.get(emp) for emp in ids):
-                weights = {emp: ratio.get(emp, 0.0) for emp in ids}
-        total_weight = sum(weights.values()) or 1.0
-        shares = {emp: total * weight / total_weight for emp, weight in weights.items()}
-        if rule != 'by_technician_ratio':
-            weights = {}
+                emp_weights = {emp: ratio.get(emp, 0.0) for emp in ids}
+        total_weight = sum(emp_weights.values()) or 1.0
+        shares = {(False, emp): total * weight / total_weight for emp, weight in emp_weights.items()}
+        if rule == 'by_technician_ratio':
+            weights = {(False, emp): weight for emp, weight in emp_weights.items()}
         return rule, shares, weights
 
     @api.depends('configured_commission', 'technician_ids', 'part_line_ids.technician_ids',
@@ -101,7 +123,9 @@ class WofOrderLineCommissionSplit(models.Model):
                     shares[entry.employee_id.id] = shares.get(entry.employee_id.id, 0.0) + entry.amount
             else:
                 rule, plan = line._wof_commission_plan()
-                shares = {emp: amount for emp, (amount, _weight) in plan.items()}
+                shares = {}
+                for (_part, emp), (amount, _weight) in plan.items():
+                    shares[emp] = shares.get(emp, 0.0) + amount
             line.commission_distribution = rule if rule in dict(DISTRIBUTIONS) else False
             names = line._wof_employee_names(list(shares))
             symbol = line.currency_id.symbol or ''

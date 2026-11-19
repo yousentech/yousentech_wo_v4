@@ -15,7 +15,10 @@
                 <field name="order_id"/>
                 <field name="vehicle_plate" optional="show"/>
                 <field name="film_category_id" optional="show"/>
-                <field name="car_part_id" optional="hide"/>
+                <field name="service_part_id" optional="show"/>
+                <field name="car_part_id" optional="show"/>
+                <field name="part_share" optional="hide"/>
+                <field name="part_technician_count" optional="hide"/>
                 <field name="company_id" groups="base.group_multi_company" optional="show"/>
                 <field name="entry_type" widget="badge" decoration-warning="entry_type == 'reversal'" decoration-info="entry_type == 'adjustment'"/>
                 <field name="distribution" optional="hide"/>
@@ -58,11 +61,15 @@
                             <field name="order_id"/>
                             <field name="vehicle_plate"/>
                             <field name="film_category_id" invisible="not film_category_id"/>
+                            <field name="service_part_id" invisible="not service_part_id"/>
                             <field name="car_part_id" invisible="not car_part_id"/>
                         </group>
                         <group string="الحساب">
                             <field name="service_commission" invisible="entry_type == 'adjustment' and not line_id"/>
                             <field name="distribution"/>
+                            <field name="part_line_id" invisible="1"/>
+                            <field name="part_share" invisible="not part_line_id"/>
+                            <field name="part_technician_count" invisible="not part_line_id"/>
                             <field name="weight" invisible="distribution != 'by_technician_ratio'"/>
                             <field name="amount" class="fw-bold fs-5"/>
                             <field name="commission_event" invisible="not commission_event"/>
@@ -98,6 +105,7 @@
                 <field name="vehicle_plate"/>
                 <field name="name"/>
                 <field name="film_category_id"/>
+                <field name="car_part_id"/>
                 <filter name="live" string="السارية" domain="[('state', 'in', ('pending', 'approved', 'paid'))]"/>
                 <separator/>
                 <filter name="pending" string="معلّقة" domain="[('state', '=', 'pending')]"/>
@@ -116,6 +124,7 @@
                     <filter name="by_state" string="الحالة" context="{'group_by': 'state'}"/>
                     <filter name="by_type" string="النوع" context="{'group_by': 'entry_type'}"/>
                     <filter name="by_order" string="أمر التركيب" context="{'group_by': 'order_id'}"/>
+                    <filter name="by_part" string="الجزء المنفّذ" context="{'group_by': 'car_part_id'}"/>
                     <filter name="by_month" string="شهر الاعتماد" context="{'group_by': 'approved_at:month'}"/>
                 </group>
             </search>
