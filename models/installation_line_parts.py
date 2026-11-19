@@ -189,6 +189,15 @@ class WofInstallationOrderLineParts(models.Model):
         result = super().write(vals)
         if 'service_area_template_id' in vals or 'car_part_id' in vals:
             self._wof_build_parts()
+        if 'service_area_template_id' in vals and 'configured_commission' not in vals:
+            # Another template has other parts: «من الأجزاء» changes the commission.
+            for line in self.filtered(lambda rec: rec.part_kind == 'service_area' and rec.film_category_id
+                                      and rec.commission_state != 'approved'):
+                film, area_line, template = line._wof_area_setup()
+                if area_line and area_line.service_commission_source == 'from_parts':
+                    total = film._wof_area_total(area_line, template, line.car_size_id)
+                    if total is not None and total != line.configured_commission:
+                        line._write_line_internal({'configured_commission': total})
         if {'service_area_template_id', 'car_part_id', 'service_type_id'} & set(vals):
             self._wof_check_part_overlap()
         return result

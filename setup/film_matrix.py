@@ -11,8 +11,10 @@ The OWL client action ``wof_pricing_matrix`` reads one JSON snapshot with
   presentations of the per-size lines, exactly like the existing dialog.
 * commission lines: one general line when the component policy is ``fixed``;
   one line per size when ``by_size``.  A service area whose commission source
-  is ``from_parts`` gets derived lines (sum of its parts) and basis-only part
-  lines for the parts of its default template.
+  is ``from_parts`` gets derived lines (sum of the parts of its default
+  template); each part of each of its templates has its own setting in
+  ``wof.film.area.part.commission`` (see setup/area_part_commission.py),
+  independent from the part sold alone.
 """
 
 from odoo import _, api, fields, models
@@ -138,6 +140,56 @@ class WofFilmMatrix(models.Model):
             'distribution': part_line.technician_commission_distribution or 'equal',
         }
 
+    def _wof_area_templates_snapshot(self, area_line, sizes):
+        """Templates of an area, each with its parts' commission setting inside the area."""
+        result = []
+        for template in self._wof_area_templates(area_line.car_part_id):
+            parts = []
+            for part in template.component_ids:
+                config = self._wof_area_config(area_line, template, part)
+                standalone = self._wof_standalone_line(part)
+                method = config.method if config else ('part' if standalone else 'fixed')
+                if method == 'part' and not standalone:
+                    method = 'fixed'
+                general = config.value_ids.filtered(lambda rec: not rec.car_size_id)[:1] if config else None
+                by_size = {rec.car_size_id.id: rec.amount for rec in config.value_ids if rec.car_size_id} \
+                    if config else {}
+                standalone_desc = ''
+                if standalone:
+                    if standalone.commission_value_type == 'percent':
+                        standalone_desc = _('نسبة من سعر الجزء المستقل')
+                    else:
+                        standalone_desc = _('مبلغ الجزء المستقل')
+                rule = config.distribution if config else ('part' if standalone else 'equal')
+                if rule == 'part' and not standalone:
+                    rule = 'equal'
+                standalone_rule = (standalone.technician_commission_distribution
+                                   if standalone and standalone.technician_commission_distribution in
+                                   ('equal', 'by_technician_ratio') else 'equal')
+                parts.append({
+                    'part_id': part.id,
+                    'name': part.name,
+                    'code': part.code,
+                    'standalone': bool(standalone),
+                    'standalone_desc': standalone_desc,
+                    'standalone_rule': standalone_rule,
+                    'resolved': {
+                        str(size.id): self._wof_line_commission_amount(standalone, size) if standalone else None
+                        for size in sizes
+                    },
+                    'resolved_general': self._wof_line_commission_amount(standalone, False) if standalone else None,
+                    'commission': {
+                        'method': method,
+                        'general': general.amount if general else None,
+                        'sizes': {str(size.id): by_size.get(size.id) for size in sizes},
+                        'distribution': rule,
+                    },
+                })
+            result.append({
+                'id': template.id, 'name': template.name, 'is_default': template.is_default, 'parts': parts,
+            })
+        return result
+
     def wof_matrix_load(self):
         """Return the full matrix snapshot for the OWL client action."""
         self.ensure_one()
@@ -150,34 +202,20 @@ class WofFilmMatrix(models.Model):
         for part_line in self._wof_commercial_lines():
             part = part_line.car_part_id
             is_area = part.part_type == 'service_area'
-            children = []
+            templates = []
             template_name = ''
             if is_area:
                 template = part.default_template_id
                 template_name = template.name if template else ''
-                for child in self._wof_area_parts(part):
-                    child_line = all_lines.filtered(lambda line: line.car_part_id == child)[:1]
-                    children.append({
-                        'line_id': child_line.id if child_line else False,
-                        'part_id': child.id,
-                        'name': child.name,
-                        'commission': (
-                            self._wof_commission_snapshot(child_line, sizes) if child_line else {
-                                'source': 'independent', 'type': 'fixed',
-                                'policy': self.commission_calculation_policy or 'fixed',
-                                'general': None,
-                                'sizes': {str(size.id): None for size in sizes},
-                                'readonly': False, 'distribution': 'equal',
-                            }
-                        ),
-                    })
+                templates = self._wof_area_templates_snapshot(part_line, sizes)
             lines.append({
                 'id': part_line.id,
+                'part_id': part.id,
                 'name': part.name,
                 'code': part.code,
                 'type': part.part_type,
                 'template_name': template_name,
-                'children': children,
+                'templates': templates,
                 'price': self._wof_price_snapshot(part_line, sizes, policy),
                 'discount_policy': part_line.discount_policy,
                 'discount_limit': part_line.discount_limit,
@@ -311,60 +349,77 @@ class WofFilmMatrix(models.Model):
             raise ValidationError(_('نسبة العمولة يجب أن تكون بين 0 و100.'))
         self._wof_upsert(Commission, part_line, part_line.commission_line_ids, desired)
 
-    def _wof_child_value(self, child_line, size):
-        """Commission amount of a basis part for a size (mirrors the wizard)."""
-        lines = child_line.commission_line_ids
-        found = lines.filtered(lambda line: line.car_size_id == size)[:1] if size else lines.browse()
-        if not found:
-            found = lines.filtered(lambda line: not line.car_size_id)[:1]
-        if not found:
-            return None
-        value = found.commission or 0.0
-        if child_line.commission_value_type == 'percent':
-            prices = child_line.price_line_ids
-            price = prices.filtered(lambda line: line.car_size_id == size)[:1] if size else prices.browse()
-            if not price:
-                price = prices.filtered(lambda line: not line.car_size_id)[:1]
-            value = (price.part_price if price else 0.0) * value / 100.0
-        return value
-
     def _wof_sync_area_commission(self, area_line, sizes):
-        """Derive the area's commission lines from its default template parts."""
-        children = self._wof_area_parts(area_line.car_part_id)
-        child_lines = self.film_part_line_ids.filtered(lambda line: line.car_part_id in children)
-        if not children or len(child_lines) != len(children):
+        """Derive the area's commission lines from its default template parts (shown and
+        used as the reference; an order uses the template it chose)."""
+        template = area_line.car_part_id.default_template_id or self._wof_area_templates(area_line.car_part_id)[:1]
+        Commission = self.env['wof.film.parts.commission.lines']
+        if not template:
+            self._wof_upsert(Commission, area_line, area_line.commission_line_ids, {})
             return False
-        by_size = any(
-            (line.commission_calculation_policy or self.commission_calculation_policy) == 'by_size'
-            for line in child_lines
-        )
         desired = {}
-        targets = sizes if by_size else [False]
-        for size in targets:
-            total = 0.0
-            for child_line in child_lines:
-                value = self._wof_child_value(child_line, size or False)
-                if value is None:
-                    return False
-                total += value
-            desired[size.id if size else 0] = {'commission': total}
-        self._wof_upsert(
-            self.env['wof.film.parts.commission.lines'], area_line,
-            area_line.commission_line_ids, desired,
-        )
-        area_line.write({'commission_calculation_policy': 'by_size' if by_size else 'fixed'})
-        return True
+        for size in sizes:
+            total = self._wof_area_total(area_line, template, size)
+            if total is not None:
+                desired[size.id] = {'commission': total}
+        values = {vals['commission'] for vals in desired.values()}
+        if len(desired) == len(sizes) and len(values) == 1:
+            desired = {0: {'commission': values.pop()}}
+            policy = 'fixed'
+        else:
+            policy = 'by_size'
+        self._wof_upsert(Commission, area_line, area_line.commission_line_ids, desired)
+        area_line.write({'commission_calculation_policy': policy, 'commission_value_type': 'fixed'})
+        return bool(desired)
 
-    def _wof_basis_line(self, area_line, part):
-        line = self.film_part_line_ids.filtered(lambda rec: rec.car_part_id == part)[:1]
-        if line:
-            return line
-        return self.env['wof.film.parts.lines'].create({
-            'header_id': self.id,
-            'car_part_id': part.id,
-            'part_selected': False,
-            'sequence': area_line.sequence + 1,
-        })
+    def _wof_save_area_parts(self, area_line, templates, sizes):
+        """Store the parts' commission inside the area, per template."""
+        Config = self.env['wof.film.area.part.commission']
+        allowed = {template.id: template for template in self._wof_area_templates(area_line.car_part_id)}
+        for item in templates or []:
+            template = allowed.get(item.get('id'))
+            if not template:
+                raise ValidationError(_('النموذج لا يتبع منطقة الخدمة «%s».') % area_line.car_part_id.name)
+            for index, data in enumerate(item.get('parts') or [], start=1):
+                part = template.component_ids.filtered(lambda rec: rec.id == data.get('part_id'))
+                if not part:
+                    raise ValidationError(_('الجزء لا يتبع النموذج «%s».') % template.name)
+                comm = data.get('commission') or {}
+                standalone = self._wof_standalone_line(part)
+                method = comm.get('method') if comm.get('method') in ('part', 'fixed', 'by_size') else 'fixed'
+                if method == 'part' and not standalone:
+                    raise ValidationError(_(
+                        'الجزء «%s» لا يُباع مستقلًا في هذا الفيلم، فلا يمكن أن تكون عمولته «حسب تهيئة الجزء». '
+                        'أدخل عمولته داخل المنطقة.') % part.name)
+                rule = comm.get('distribution') if comm.get('distribution') in ('part', 'equal', 'by_technician_ratio') \
+                    else 'equal'
+                if rule == 'part' and not standalone:
+                    rule = 'equal'
+                config = self._wof_area_config(area_line, template, part) or Config.create({
+                    'area_line_id': area_line.id, 'template_id': template.id, 'part_id': part.id,
+                })
+                desired = {}
+                if method == 'by_size':
+                    cells = comm.get('sizes') or {}
+                    for size in sizes:
+                        amount = self._wof_num(cells.get(str(size.id)))
+                        if amount is not None:
+                            desired[size.id] = amount
+                elif method == 'fixed':
+                    amount = self._wof_num(comm.get('general'))
+                    if amount is not None:
+                        desired[0] = amount
+                config.write({'method': method, 'distribution': rule, 'sequence': index})
+                existing = {rec.car_size_id.id or 0: rec for rec in config.value_ids}
+                for key, rec in existing.items():
+                    if key not in desired:
+                        rec.unlink()
+                for key, amount in desired.items():
+                    if key in existing:
+                        if existing[key].amount != amount:
+                            existing[key].amount = amount
+                    else:
+                        config.value_ids.create({'config_id': config.id, 'car_size_id': key or False, 'amount': amount})
 
     def wof_matrix_save(self, payload):
         """Persist the matrix state. Returns a fresh snapshot."""
@@ -395,15 +450,12 @@ class WofFilmMatrix(models.Model):
             self._wof_save_price(part_line, price, sizes, policy, tax)
             commission = item.get('commission') or {}
             self._wof_save_commission(part_line, commission, sizes, is_area=is_area)
-            if is_area and commission.get('source') == 'from_parts':
-                allowed = self._wof_area_parts(part_line.car_part_id)
-                for child in item.get('children') or []:
-                    part = allowed.filtered(lambda rec: rec.id == child.get('part_id'))
-                    if not part:
-                        raise ValidationError(_('الجزء لا يتبع النموذج الافتراضي لمنطقة الخدمة.'))
-                    child_line = self._wof_basis_line(part_line, part)
-                    self._wof_save_commission(child_line, child.get('commission') or {}, sizes)
-                areas_from_parts |= part_line
+            if is_area:
+                # Parts' settings are kept for both sources: with «مستقلة» they
+                # weigh the parts' shares when the area splits by part.
+                self._wof_save_area_parts(part_line, item.get('templates'), sizes)
+                if commission.get('source') == 'from_parts':
+                    areas_from_parts |= part_line
         self.film_part_line_ids.invalidate_recordset()
         for area_line in areas_from_parts:
             self._wof_sync_area_commission(area_line, sizes)

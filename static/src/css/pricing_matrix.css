@@ -356,3 +356,12 @@
 .wof_pm_row.is-selected td.wof_pm_name { box-shadow: inset -4px 0 0 var(--pm-accent), -1px 0 0 var(--pm-line-2); }
 .wof_pm_row.is-selected .wof_pm_name_text strong { color: var(--pm-accent-dark); }
 .wof_pm_select { background-color: #FFFFFF; }
+
+/* Templates of a service area and their parts */
+.wof_pm .wof_pm_tpl td { background: #F8F7FF; cursor: pointer; }
+.wof_pm .wof_pm_tpl .wof_pm_name { gap: 8px; }
+.wof_pm .wof_pm_tpl_toggle { border: 0; background: transparent; color: #5B4BC4; width: 28px; height: 28px; border-radius: 8px; }
+.wof_pm .wof_pm_tpl_toggle:hover { background: #ECE9FF; }
+.wof_pm .wof_pm_child .wof_pm_name { padding-inline-start: 40px; }
+.wof_pm .wof_pm_linked { color: #5B4BC4; }
+.wof_pm .wof_pm_kinds b { font-weight: 600; opacity: .75; margin-inline-start: 4px; }

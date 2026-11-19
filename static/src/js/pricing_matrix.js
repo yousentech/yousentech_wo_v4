@@ -48,6 +48,8 @@ export class WofPricingMatrix extends Component {
             dirty: false,
             query: "",
             onlyMissing: false,
+            kind: "all",
+            open: {},
             side: "props",
         });
         this.fmt = fmt;
@@ -68,7 +70,7 @@ export class WofPricingMatrix extends Component {
     applyData(data) {
         for (const line of data.lines) {
             line.price.general = line.price.general || { amount: null, free: false, readonly: false };
-            line.children = line.children || [];
+            line.templates = line.templates || [];
         }
         this.state.data = data;
         this.state.loading = false;
@@ -102,32 +104,34 @@ export class WofPricingMatrix extends Component {
     }
 
     // ------------------------------------------------------------- selection
-    rowKey(line, child) {
-        return child ? `c:${line.id}:${child.part_id}` : `l:${line.id}`;
+    // A part inside an area is identified by the area, the template and the part.
+    rowKey(line, child, tpl) {
+        return child ? `c:${line.id}:${tpl.id}:${child.part_id}` : `l:${line.id}`;
     }
 
     findRow(key) {
         if (!this.data || !key) {
             return null;
         }
-        const [kind, lineId, partId] = key.split(":");
+        const [kind, lineId, tplId, partId] = key.split(":");
         const line = this.data.lines.find((rec) => String(rec.id) === lineId);
         if (!line) {
             return null;
         }
         if (kind === "c") {
-            const child = line.children.find((rec) => String(rec.part_id) === partId);
-            return child ? { line, child } : null;
+            const tpl = line.templates.find((rec) => String(rec.id) === tplId);
+            const child = tpl && tpl.parts.find((rec) => String(rec.part_id) === partId);
+            return child ? { line, child, tpl } : null;
         }
-        return { line, child: null };
+        return { line, child: null, tpl: null };
     }
 
     get selected() {
-        return this.findRow(this.state.sel) || (this.data && this.data.lines.length ? { line: this.data.lines[0], child: null } : null);
+        return this.findRow(this.state.sel) || (this.data && this.data.lines.length ? { line: this.data.lines[0], child: null, tpl: null } : null);
     }
 
-    isSelected(line, child = null) {
-        return this.state.sel === this.rowKey(line, child);
+    isSelected(line, child = null, tpl = null) {
+        return this.state.sel === this.rowKey(line, child, tpl);
     }
 
     setDim(dim) {
@@ -337,11 +341,13 @@ export class WofPricingMatrix extends Component {
     }
 
     commMethod(line, child = null) {
-        const comm = child ? child.commission : line.commission;
-        if (!child && this.fromParts(line)) {
+        if (child) {
+            return child.commission.method;
+        }
+        if (this.fromParts(line)) {
             return "parts";
         }
-        return comm.policy === "by_size" ? "by_size" : "fixed";
+        return line.commission.policy === "by_size" ? "by_size" : "fixed";
     }
 
     commMethodOptions(line, child = null) {
@@ -349,14 +355,38 @@ export class WofPricingMatrix extends Component {
             ["fixed", _t("عمولة موحدة")],
             ["by_size", _t("لكل حجم")],
         ];
-        return !child && this.isArea(line) ? [["parts", _t("من أجزاء النموذج")], ...base] : base;
+        if (child) {
+            return child.standalone ? [["part", _t("حسب تهيئة الجزء")], ...base] : base;
+        }
+        return this.isArea(line) ? [["parts", _t("من أجزاء النموذج")], ...base] : base;
     }
 
     onCommMethod(line, child, ev) {
         const value = ev.target.value;
-        const comm = child ? child.commission : line.commission;
+        if (child) {
+            const comm = child.commission;
+            const prev = comm.method;
+            if (value === prev) {
+                return;
+            }
+            // Leaving «حسب تهيئة الجزء» starts from the values the user was seeing.
+            const seen = this.sizes.map((size) => this.childValue(child, size.id));
+            if (value === "fixed") {
+                comm.general = prev === "by_size"
+                    ? seen.find((v) => v !== null && v !== undefined) ?? null
+                    : prev === "part" ? (seen.find((v) => v !== null && v !== undefined) ?? null) : comm.general;
+            } else if (value === "by_size") {
+                for (const [index, size] of this.sizes.entries()) {
+                    comm.sizes[String(size.id)] = prev === "fixed" ? comm.general ?? null : seen[index] ?? null;
+                }
+            }
+            comm.method = value;
+            this.markDirty();
+            return;
+        }
+        const comm = line.commission;
         if (value === "parts") {
-            if (!this.isArea(line) || child) {
+            if (!this.isArea(line)) {
                 return;
             }
             comm.source = "from_parts";
@@ -364,7 +394,7 @@ export class WofPricingMatrix extends Component {
                 comm.distribution = "by_part";
             }
         } else {
-            if (!child && this.isArea(line)) {
+            if (this.isArea(line)) {
                 comm.source = "independent";
             }
             const prev = comm.policy === "by_size" ? "by_size" : "fixed";
@@ -416,10 +446,67 @@ export class WofPricingMatrix extends Component {
         this.markDirty();
     }
 
+    // The part sold alone in this film (live: unsaved edits are taken into account).
+    standaloneLine(child) {
+        return this.data.lines.find((rec) => rec.part_id === child.part_id && !this.isArea(rec)) || null;
+    }
+
     childValue(child, sizeId) {
         const comm = child.commission;
-        const value = comm.policy === "by_size" ? comm.sizes[String(sizeId)] : comm.general;
+        if (comm.method === "part") {
+            const line = this.standaloneLine(child);
+            if (line) {
+                return this.commAt(line, sizeId);
+            }
+            const value = sizeId ? child.resolved[String(sizeId)] : child.resolved_general;
+            return value === undefined ? null : value;
+        }
+        const value = comm.method === "by_size" ? comm.sizes[String(sizeId)] : comm.general;
         return value === undefined ? null : value;
+    }
+
+    defaultTemplate(line) {
+        return line.templates.find((tpl) => tpl.is_default) || line.templates[0] || null;
+    }
+
+    templateTotal(tpl, sizeId) {
+        if (!tpl || !tpl.parts.length) {
+            return null;
+        }
+        let total = 0;
+        for (const child of tpl.parts) {
+            const value = this.childValue(child, sizeId);
+            if (value === null || value === undefined) {
+                return null;
+            }
+            total += value;
+        }
+        return total;
+    }
+
+    templateComplete(tpl) {
+        const targets = this.sizes.length ? this.sizes.map((size) => size.id) : [0];
+        return targets.every((sizeId) => this.templateTotal(tpl, sizeId) !== null);
+    }
+
+    childComplete(child) {
+        const targets = this.sizes.length ? this.sizes.map((size) => size.id) : [0];
+        return targets.every((sizeId) => this.childValue(child, sizeId) !== null);
+    }
+
+    // A row shows one merged value when it is the same for every size.
+    varies(valueAt) {
+        const values = this.sizes.map((size) => valueAt(size.id));
+        return new Set(values.map((v) => (v === null || v === undefined ? "∅" : String(v)))).size > 1;
+    }
+
+    isOpen(line, tpl) {
+        const key = `${line.id}:${tpl.id}`;
+        return key in this.state.open ? this.state.open[key] : Boolean(tpl.is_default);
+    }
+
+    toggleTemplate(line, tpl) {
+        this.state.open[`${line.id}:${tpl.id}`] = !this.isOpen(line, tpl);
     }
 
     commAt(line, sizeId, child = null) {
@@ -427,18 +514,7 @@ export class WofPricingMatrix extends Component {
             return this.childValue(child, sizeId);
         }
         if (this.fromParts(line)) {
-            if (!line.children.length) {
-                return null;
-            }
-            let total = 0;
-            for (const rec of line.children) {
-                const value = this.childValue(rec, sizeId);
-                if (value === null) {
-                    return null;
-                }
-                total += value;
-            }
-            return total;
+            return this.templateTotal(this.defaultTemplate(line), sizeId);
         }
         const comm = line.commission;
         const value = comm.policy === "by_size" ? comm.sizes[String(sizeId)] : comm.general;
@@ -453,12 +529,12 @@ export class WofPricingMatrix extends Component {
     }
 
     derivedBySize(line) {
-        return line.children.some((child) => child.commission.policy === "by_size");
+        return this.varies((sizeId) => this.commAt(line, sizeId));
     }
 
     commComplete(line) {
         if (this.fromParts(line)) {
-            return line.children.length > 0 && line.children.every((child) => this.sizes.every((size) => this.childValue(child, size.id) !== null));
+            return line.templates.length > 0 && line.templates.every((tpl) => this.templateComplete(tpl));
         }
         const comm = line.commission;
         if (comm.policy === "by_size") {
@@ -472,14 +548,24 @@ export class WofPricingMatrix extends Component {
             ["equal", _t("بالتساوي")],
             ["by_technician_ratio", _t("حسب نسبة الفني")],
         ];
-        return this.isArea(line) && !child ? [...base, ["by_part", _t("كل جزء حسب تهيئته")]] : base;
+        if (child) {
+            return child.standalone ? [["part", _t("حسب تهيئة الجزء")], ...base] : base;
+        }
+        return this.isArea(line) ? [...base, ["by_part", _t("كل جزء حسب تهيئته")]] : base;
     }
 
     distributionHint(line, child, value) {
         if (child) {
+            if (value === "part") {
+                const own = this.standaloneLine(child);
+                const rule = own ? own.commission.distribution : child.standalone_rule;
+                return rule === "by_technician_ratio"
+                    ? _t("مثل الجزء المستقل: حسب أوزان الفنيين في فريق العمل.")
+                    : _t("مثل الجزء المستقل: بالتساوي بين فنيي الجزء.");
+            }
             return value === "by_technician_ratio"
-                ? _t("داخل المنطقة: عمولة هذا الجزء تُقسم على فنييه حسب أوزانهم في فريق العمل.")
-                : _t("داخل المنطقة: عمولة هذا الجزء تُقسم على فنييه بالتساوي.");
+                ? _t("داخل المنطقة فقط: عمولة هذا الجزء تُقسم على فنييه حسب أوزانهم، ولا يتغير الجزء المستقل.")
+                : _t("داخل المنطقة فقط: عمولة هذا الجزء تُقسم على فنييه بالتساوي، ولا يتغير الجزء المستقل.");
         }
         if (value === "by_part") {
             return _t("كل جزء يأخذ عمولته، وتذهب لفنيي هذا الجزء فقط بطريقة توزيعه هو (بالتساوي أو حسب النسبة).");
@@ -500,6 +586,12 @@ export class WofPricingMatrix extends Component {
         const lines = this.data ? this.data.lines : [];
         const q = (this.state.query || "").trim().toLowerCase();
         return lines.filter((line) => {
+            if (this.state.kind === "part" && this.isArea(line)) {
+                return false;
+            }
+            if (this.state.kind === "area" && !this.isArea(line)) {
+                return false;
+            }
             if (q && !`${line.name} ${line.code || ""}`.toLowerCase().includes(q)) {
                 return false;
             }
@@ -515,8 +607,18 @@ export class WofPricingMatrix extends Component {
         return lines.filter((line) => (this.state.dim === "price" ? !this.priceComplete(line) : !this.commComplete(line))).length;
     }
 
-    select(line, child = null, side = null) {
-        this.state.sel = this.rowKey(line, child);
+    get kindCounts() {
+        const lines = this.data ? this.data.lines : [];
+        const areas = lines.filter((line) => this.isArea(line)).length;
+        return { all: lines.length, area: areas, part: lines.length - areas };
+    }
+
+    setKind(kind) {
+        this.state.kind = kind;
+    }
+
+    select(line, child = null, tpl = null, side = null) {
+        this.state.sel = this.rowKey(line, child, tpl);
         if (side) {
             this.state.side = side;
         }
@@ -576,7 +678,10 @@ export class WofPricingMatrix extends Component {
                 discount_policy: line.discount_policy,
                 discount_limit: line.discount_limit,
                 commission: line.commission,
-                children: line.children.map((child) => ({ part_id: child.part_id, commission: child.commission })),
+                templates: line.templates.map((tpl) => ({
+                    id: tpl.id,
+                    parts: tpl.parts.map((child) => ({ part_id: child.part_id, commission: child.commission })),
+                })),
             })),
         };
     }

@@ -56,6 +56,12 @@
                             </t>
                         </div>
                         <div class="wof_pm_hero_find">
+                            <t t-set="kc" t-value="kindCounts"/>
+                            <div t-if="kc.area and kc.part" class="wof_pm_hseg is-light wof_pm_kinds" role="radiogroup" aria-label="نوع المكوّن">
+                                <button type="button" role="radio" t-att-aria-checked="state.kind === 'all' ? 'true' : 'false'" t-attf-class="{{ state.kind === 'all' ? 'is-on' : '' }}" t-on-click="() => this.setKind('all')">الكل <b t-esc="kc.all"/></button>
+                                <button type="button" role="radio" t-att-aria-checked="state.kind === 'part' ? 'true' : 'false'" t-attf-class="{{ state.kind === 'part' ? 'is-on' : '' }}" t-on-click="() => this.setKind('part')">الأجزاء <b t-esc="kc.part"/></button>
+                                <button type="button" role="radio" t-att-aria-checked="state.kind === 'area' ? 'true' : 'false'" t-attf-class="{{ state.kind === 'area' ? 'is-on' : '' }}" t-on-click="() => this.setKind('area')">مناطق الخدمة <b t-esc="kc.area"/></button>
+                            </div>
                             <label class="wof_pm_hero_search"><i class="fa fa-search" aria-hidden="true"/>
                                 <input type="text" placeholder="ابحث عن مكوّن" aria-label="بحث عن مكوّن" t-att-value="state.query" t-on-input="(ev) => state.query = ev.target.value"/>
                             </label>
@@ -127,7 +133,7 @@
                                                 <span t-attf-class="wof_pm_tag {{ isArea(line) ? 'is-area' : 'is-part' }}"><t t-if="isArea(line)">منطقة خدمة</t><t t-else="">جزء سيارة</t></span>
                                                 <span class="wof_pm_name_text">
                                                     <strong t-esc="line.name"/>
-                                                    <small t-if="fromParts(line)">مجموع أجزاء <t t-esc="line.template_name or 'النموذج الافتراضي'"/></small>
+                                                    <small t-if="fromParts(line)">مجموع أجزاء النموذج<t t-if="line.templates.length &gt; 1">: كل نموذج بمجموعه</t></small>
                                                     <small t-elif="line.commission.type === 'percent'">نسبة من السعر</small>
                                                     <small t-else="">مبلغ ثابت</small>
                                                 </span>
@@ -141,11 +147,11 @@
                                             <t t-if="cm === 'parts'">
                                                 <t t-if="derivedBySize(line)"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell wof_pm_derived">
                                                     <strong t-esc="fmt(commAt(line, size.id))"/>
-                                                    <small class="wof_pm_hint">مجموع الأجزاء</small>
+                                                    <small class="wof_pm_hint">النموذج الافتراضي</small>
                                                 </td></t>
                                                 <t t-else=""><td t-att-colspan="sizes.length" class="wof_pm_cell wof_pm_merged wof_pm_derived">
                                                     <strong t-esc="fmt(commAt(line, sizes.length ? sizes[0].id : 0))"/>
-                                                    <small class="wof_pm_hint"><t t-esc="currency"/> · مجموع الأجزاء لكل الأحجام</small>
+                                                    <small class="wof_pm_hint"><t t-esc="currency"/> · النموذج الافتراضي، لكل الأحجام</small>
                                                 </td></t>
                                             </t>
                                             <t t-elif="cm === 'by_size'"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell">
@@ -166,28 +172,70 @@
                                             </td>
                                         </tr>
                                         <t t-if="fromParts(line)">
-                                            <tr t-foreach="line.children" t-as="child" t-key="child.part_id" t-attf-class="wof_pm_row wof_pm_child {{ isSelected(line, child) ? 'is-selected' : '' }}" t-on-click="() => this.select(line, child)">
-                                                <td class="wof_pm_name">
-                                                    <span class="wof_pm_tag is-basis">أساس</span>
-                                                    <span class="wof_pm_name_text"><strong t-esc="child.name"/><small>لا يُسعَّر للعميل</small></span>
-                                                </td>
-                                                <td>
-                                                    <select class="form-select wof_pm_select" t-att-aria-label="'طريقة عمولة ' + child.name" t-on-change="(ev) => this.onCommMethod(line, child, ev)">
-                                                        <option t-foreach="commMethodOptions(line, child)" t-as="opt" t-key="opt[0]" t-att-value="opt[0]" t-att-selected="opt[0] === commMethod(line, child)" t-esc="opt[1]"/>
-                                                    </select>
-                                                </td>
-                                                <t t-if="child.commission.policy === 'by_size'"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell">
-                                                    <t t-set="kv" t-value="child.commission.sizes[size.id]"/>
-                                                    <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ kv === null or kv === undefined ? 'is-missing' : '' }}" t-att-value="kv === null or kv === undefined ? '' : kv" t-att-aria-label="'عمولة ' + child.name + ' ' + size.name" t-on-change="(ev) => this.onCommCell(child.commission, size, ev)"/>
-                                                </td></t>
-                                                <t t-else=""><td t-att-colspan="sizes.length" class="wof_pm_cell wof_pm_merged">
-                                                    <span class="wof_pm_merged_inner">
-                                                        <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ child.commission.general === null or child.commission.general === undefined ? 'is-missing' : '' }}" t-att-value="child.commission.general === null or child.commission.general === undefined ? '' : child.commission.general" t-att-aria-label="'عمولة ' + child.name" t-on-change="(ev) => this.onCommGeneral(child.commission, ev)"/>
-                                                        <small class="wof_pm_hint"><t t-esc="currency"/> · لكل الأحجام</small>
-                                                    </span>
-                                                </td></t>
-                                                <td class="wof_pm_state"/>
-                                            </tr>
+                                            <t t-foreach="line.templates" t-as="tpl" t-key="tpl.id">
+                                                <t t-set="tplOpen" t-value="isOpen(line, tpl)"/>
+                                                <tr class="wof_pm_row wof_pm_tpl" t-on-click="() => this.toggleTemplate(line, tpl)">
+                                                    <td class="wof_pm_name">
+                                                        <button type="button" class="wof_pm_tpl_toggle" t-att-aria-expanded="tplOpen ? 'true' : 'false'" t-att-aria-label="(tplOpen ? 'إخفاء أجزاء ' : 'إظهار أجزاء ') + tpl.name">
+                                                            <i t-attf-class="fa {{ tplOpen ? 'fa-chevron-down' : 'fa-chevron-left' }}" aria-hidden="true"/>
+                                                        </button>
+                                                        <span class="wof_pm_name_text"><strong>نموذج «<t t-esc="tpl.name"/>»</strong><small><t t-esc="tpl.parts.length"/> أجزاء<t t-if="tpl.is_default"> · الافتراضي</t></small></span>
+                                                    </td>
+                                                    <td/>
+                                                    <t t-if="varies((sid) => templateTotal(tpl, sid))"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell wof_pm_derived">
+                                                        <strong t-esc="fmt(templateTotal(tpl, size.id))"/>
+                                                        <small class="wof_pm_hint">مجموع النموذج</small>
+                                                    </td></t>
+                                                    <t t-else=""><td t-att-colspan="sizes.length" class="wof_pm_cell wof_pm_merged wof_pm_derived">
+                                                        <strong t-esc="fmt(templateTotal(tpl, sizes.length ? sizes[0].id : 0))"/>
+                                                        <small class="wof_pm_hint"><t t-esc="currency"/> · مجموع النموذج لكل الأحجام</small>
+                                                    </td></t>
+                                                    <td class="wof_pm_state">
+                                                        <span t-if="templateComplete(tpl)" class="wof_pm_pill is-area">محسوبة</span>
+                                                        <span t-else="" class="wof_pm_pill is-soft">ناقصة</span>
+                                                    </td>
+                                                </tr>
+                                                <t t-if="tplOpen">
+                                                    <tr t-foreach="tpl.parts" t-as="child" t-key="child.part_id" t-attf-class="wof_pm_row wof_pm_child {{ isSelected(line, child, tpl) ? 'is-selected' : '' }}" t-on-click="() => this.select(line, child, tpl)">
+                                                        <t t-set="km" t-value="child.commission.method"/>
+                                                        <td class="wof_pm_name">
+                                                            <span class="wof_pm_tag is-basis">جزء</span>
+                                                            <span class="wof_pm_name_text"><strong t-esc="child.name"/>
+                                                                <small t-if="km === 'part'" class="wof_pm_linked"><i class="fa fa-link" aria-hidden="true"/> مرتبط بالجزء المستقل</small>
+                                                                <small t-else="">خاص بهذه المنطقة</small>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-select wof_pm_select" t-att-aria-label="'طريقة عمولة ' + child.name" t-on-change="(ev) => this.onCommMethod(line, child, ev)">
+                                                                <option t-foreach="commMethodOptions(line, child)" t-as="opt" t-key="opt[0]" t-att-value="opt[0]" t-att-selected="opt[0] === km" t-esc="opt[1]"/>
+                                                            </select>
+                                                        </td>
+                                                        <t t-if="km === 'part'">
+                                                            <t t-if="varies((sid) => childValue(child, sid))"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell wof_pm_derived">
+                                                                <strong t-esc="fmt(childValue(child, size.id))"/>
+                                                                <small class="wof_pm_hint">من الجزء المستقل</small>
+                                                            </td></t>
+                                                            <t t-else=""><td t-att-colspan="sizes.length" class="wof_pm_cell wof_pm_merged wof_pm_derived">
+                                                                <strong t-esc="fmt(childValue(child, sizes.length ? sizes[0].id : 0))"/>
+                                                                <small class="wof_pm_hint"><t t-esc="currency"/> · من الجزء المستقل، لكل الأحجام</small>
+                                                            </td></t>
+                                                        </t>
+                                                        <t t-elif="km === 'by_size'"><td t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_cell">
+                                                            <t t-set="kv" t-value="child.commission.sizes[size.id]"/>
+                                                            <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ kv === null or kv === undefined ? 'is-missing' : '' }}" t-att-value="kv === null or kv === undefined ? '' : kv" t-att-aria-label="'عمولة ' + child.name + ' ' + size.name" t-on-change="(ev) => this.onCommCell(child.commission, size, ev)"/>
+                                                        </td></t>
+                                                        <t t-else=""><td t-att-colspan="sizes.length" class="wof_pm_cell wof_pm_merged">
+                                                            <span class="wof_pm_merged_inner">
+                                                                <input type="text" inputmode="decimal" t-attf-class="wof_pm_input {{ child.commission.general === null or child.commission.general === undefined ? 'is-missing' : '' }}" t-att-value="child.commission.general === null or child.commission.general === undefined ? '' : child.commission.general" t-att-aria-label="'عمولة ' + child.name" t-on-change="(ev) => this.onCommGeneral(child.commission, ev)"/>
+                                                                <small class="wof_pm_hint"><t t-esc="currency"/> · لكل الأحجام</small>
+                                                            </span>
+                                                        </td></t>
+                                                        <td class="wof_pm_state">
+                                                            <span t-if="!childComplete(child)" class="wof_pm_pill is-soft">ناقصة</span>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </t>
                                         </t>
                                     </t>
                                 </t>
@@ -212,7 +260,7 @@
                                 <t t-if="state.dim === 'price'">خصائص السعر</t><t t-else="">خصائص العمولة</t>
                             </span>
                             <h2 t-esc="sel.child ? sel.child.name : sel.line.name"/>
-                            <span t-if="sel.child" class="wof_pm_tag is-basis">أساس عمولة</span>
+                            <span t-if="sel.child" class="wof_pm_tag is-basis">جزء في «<t t-esc="sel.line.name"/>» · نموذج «<t t-esc="sel.tpl.name"/>»</span>
                             <span t-elif="isArea(sel.line)" class="wof_pm_tag is-area">منطقة خدمة</span>
                             <span t-else="" class="wof_pm_tag is-part">جزء سيارة</span>
                         </div>
@@ -271,33 +319,48 @@
                         <!-- commission properties -->
                         <t t-else="">
                             <t t-set="comm" t-value="sel.child ? sel.child.commission : sel.line.commission"/>
-                            <p t-if="sel.child" class="wof_pm_note"><i class="fa fa-info-circle" aria-hidden="true"/> جزء أساس: لا يُسعَّر للعميل، وتُجمع عمولته في عمولة «<t t-esc="sel.line.name"/>».</p>
-                            <section t-if="!sel.child and isArea(sel.line)" class="wof_pm_sect">
-                                <div class="wof_pm_sect_head"><h3>مصدر عمولة المنطقة</h3></div>
-                                <div class="wof_pm_seg is-full" role="radiogroup" aria-label="مصدر عمولة المنطقة">
-                                    <button type="button" role="radio" t-att-aria-checked="!fromParts(sel.line) ? 'true' : 'false'" t-attf-class="{{ !fromParts(sel.line) ? 'is-on' : '' }}" t-on-click="() => this.setSource(sel.line, 'independent')">مستقلة</button>
-                                    <button type="button" role="radio" t-att-aria-checked="fromParts(sel.line) ? 'true' : 'false'" t-attf-class="{{ fromParts(sel.line) ? 'is-on' : '' }}" t-on-click="() => this.setSource(sel.line, 'from_parts')">من الأجزاء</button>
-                                </div>
-                                <p class="wof_pm_sect_foot" t-if="fromParts(sel.line)">مجموع عمولات أجزاء النموذج الافتراضي. إذا كان أي جزء «لكل حجم» تصبح عمولة المنطقة لكل حجم تلقائيًا.</p>
-                            </section>
-                            <t t-if="sel.child or !fromParts(sel.line)">
+                            <t t-if="sel.child">
                                 <section class="wof_pm_sect">
-                                    <div class="wof_pm_sect_head"><h3>نوع العمولة</h3></div>
-                                    <div class="wof_pm_seg is-full" role="radiogroup" aria-label="نوع العمولة">
-                                        <button type="button" role="radio" t-att-aria-checked="comm.type !== 'percent' ? 'true' : 'false'" t-attf-class="{{ comm.type !== 'percent' ? 'is-on' : '' }}" t-on-click="() => this.setCommType(comm, 'fixed')">مبلغ ثابت</button>
-                                        <button type="button" role="radio" t-att-aria-checked="comm.type === 'percent' ? 'true' : 'false'" t-attf-class="{{ comm.type === 'percent' ? 'is-on' : '' }}" t-on-click="() => this.setCommType(comm, 'percent')">نسبة من السعر</button>
+                                    <div class="wof_pm_sect_head"><h3>عمولة الجزء داخل المنطقة</h3></div>
+                                    <p t-if="comm.method === 'part'" class="wof_pm_note"><i class="fa fa-link" aria-hidden="true"/> حسب تهيئة الجزء: نفس عمولة «<t t-esc="sel.child.name"/>» المستقل<t t-if="sel.child.standalone_desc"> (<t t-esc="sel.child.standalone_desc"/>)</t>. تعديل الجزء المستقل ينعكس هنا تلقائيًا.</p>
+                                    <p t-else="" class="wof_pm_note"><i class="fa fa-pencil" aria-hidden="true"/> قيمة خاصة بهذه المنطقة في هذا النموذج، ولا علاقة لها بالجزء المستقل<t t-if="!sel.child.standalone"> (هذا الجزء لا يُباع مستقلًا في هذا الفيلم)</t>.</p>
+                                    <div class="wof_pm_sizerows">
+                                        <div t-foreach="sizes" t-as="size" t-key="size.id" class="wof_pm_sizerow">
+                                            <span class="wof_pm_sizerow_name" t-esc="size.name"/>
+                                            <strong><t t-esc="fmt(childValue(sel.child, size.id))"/> <t t-esc="currency"/></strong>
+                                        </div>
                                     </div>
-                                    <label t-if="!sel.child" t-attf-class="wof_pm_toggle {{ comm.readonly ? 'is-on' : '' }}">
-                                        <input type="checkbox" class="form-check-input" t-att-checked="comm.readonly" t-on-change="() => this.toggleCommReadonly(comm)"/>
-                                        <span><strong>عمولة ثابتة</strong><small>للقراءة فقط، ولا يُسمح بتجاوزها</small></span>
-                                    </label>
                                 </section>
+                            </t>
+                            <t t-else="">
+                                <section t-if="isArea(sel.line)" class="wof_pm_sect">
+                                    <div class="wof_pm_sect_head"><h3>مصدر عمولة المنطقة</h3></div>
+                                    <div class="wof_pm_seg is-full" role="radiogroup" aria-label="مصدر عمولة المنطقة">
+                                        <button type="button" role="radio" t-att-aria-checked="!fromParts(sel.line) ? 'true' : 'false'" t-attf-class="{{ !fromParts(sel.line) ? 'is-on' : '' }}" t-on-click="() => this.setSource(sel.line, 'independent')">مستقلة</button>
+                                        <button type="button" role="radio" t-att-aria-checked="fromParts(sel.line) ? 'true' : 'false'" t-attf-class="{{ fromParts(sel.line) ? 'is-on' : '' }}" t-on-click="() => this.setSource(sel.line, 'from_parts')">من الأجزاء</button>
+                                    </div>
+                                    <p class="wof_pm_sect_foot" t-if="fromParts(sel.line)">لكل نموذج مجموع أجزائه، وأمر التركيب يأخذ مجموع النموذج الذي اختاره. عمولة كل جزء داخل المنطقة «حسب تهيئة الجزء» أو قيمة خاصة بالمنطقة.</p>
+                                    <p class="wof_pm_sect_foot" t-else="">عمولة واحدة للمنطقة مهما كان النموذج.</p>
+                                </section>
+                                <t t-if="!fromParts(sel.line)">
+                                    <section class="wof_pm_sect">
+                                        <div class="wof_pm_sect_head"><h3>نوع العمولة</h3></div>
+                                        <div class="wof_pm_seg is-full" role="radiogroup" aria-label="نوع العمولة">
+                                            <button type="button" role="radio" t-att-aria-checked="comm.type !== 'percent' ? 'true' : 'false'" t-attf-class="{{ comm.type !== 'percent' ? 'is-on' : '' }}" t-on-click="() => this.setCommType(comm, 'fixed')">مبلغ ثابت</button>
+                                            <button type="button" role="radio" t-att-aria-checked="comm.type === 'percent' ? 'true' : 'false'" t-attf-class="{{ comm.type === 'percent' ? 'is-on' : '' }}" t-on-click="() => this.setCommType(comm, 'percent')">نسبة من السعر</button>
+                                        </div>
+                                        <label t-attf-class="wof_pm_toggle {{ comm.readonly ? 'is-on' : '' }}">
+                                            <input type="checkbox" class="form-check-input" t-att-checked="comm.readonly" t-on-change="() => this.toggleCommReadonly(comm)"/>
+                                            <span><strong>عمولة ثابتة</strong><small>للقراءة فقط، ولا يُسمح بتجاوزها</small></span>
+                                        </label>
+                                    </section>
+                                </t>
                             </t>
                             <section class="wof_pm_sect">
                                 <div class="wof_pm_sect_head">
                                     <h3 t-if="sel.child">توزيع عمولة هذا الجزء</h3>
                                     <h3 t-else="">التوزيع بين الفنيين</h3>
-                                    <p t-if="sel.child">يُستخدم داخل منطقة الخدمة إذا كان توزيعها «كل جزء حسب تهيئته»</p>
+                                    <p t-if="sel.child">يُستخدم إذا كان توزيع المنطقة «كل جزء حسب تهيئته»</p>
                                     <p t-else="">كيف تُقسم العمولة إذا اشترك أكثر من فني</p>
                                 </div>
                                 <div class="wof_pm_seg is-full is-stack" role="radiogroup" aria-label="التوزيع بين الفنيين">

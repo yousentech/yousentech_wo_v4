@@ -37,25 +37,38 @@ class WofOrderLineCommissionSplit(models.Model):
         self.env.cr.execute("SELECT id, name FROM hr_employee WHERE id IN %s", (tuple(ids),))
         return dict(self.env.cr.fetchall())
 
-    def _wof_part_weights(self, parts):
-        """{part line id: its own commission in the film for this car size}, or {} if unknown."""
+    def _wof_area_setup(self):
+        """(film, area line, template) of a service-area service, read with the engine rights
+        (the parts' settings are commission data the counter staff may not read)."""
         self.ensure_one()
-        film = self.film_category_id
+        engine = self.env['wof.commission.engine']._wof_ledger().env
+        film = engine['wof.film.category'].browse(self.film_category_id.id)
+        area_line = film.film_part_line_ids.filtered(
+            lambda line: line.car_part_id == self.car_part_id and line.part_selected)[:1]
+        template = self.service_area_template_id or self.car_part_id.default_template_id
+        return film, area_line, engine['wof.service.area.template'].browse(template.id)
+
+    def _wof_part_weights(self, parts):
+        """{part line id: the part's commission inside the area for this car size}, or {} if unknown."""
+        self.ensure_one()
+        film, area_line, template = self._wof_area_setup()
+        if not area_line:
+            return {}
         weights = {}
         for part in parts:
-            child = film.film_part_line_ids.filtered(lambda line: line.car_part_id == part.part_id)[:1]
-            value = film._wof_child_value(child, self.car_size_id) if child else None
+            value = film._wof_area_part_value(area_line, template, part.part_id, self.car_size_id)
             if value is None:
                 return {}
             weights[part.id] = value
         return weights if any(weights.values()) else {}
 
     def _wof_part_rule(self, part):
-        """How a part of a service area splits its commission: its own setup in the film."""
+        """How a part of a service area splits its commission: its setting inside the area."""
         self.ensure_one()
-        child = self.film_category_id.film_part_line_ids.filtered(lambda line: line.car_part_id == part.part_id)[:1]
-        rule = child.technician_commission_distribution if child else 'equal'
-        return rule if rule in ('equal', 'by_technician_ratio') else 'equal'
+        film, area_line, template = self._wof_area_setup()
+        if not area_line:
+            return 'equal'
+        return film._wof_area_part_rule(area_line, template, part.part_id)
 
     def _wof_ratio_weights(self, ids):
         """{employee id: weight} from the branch team (equal when nobody has one)."""

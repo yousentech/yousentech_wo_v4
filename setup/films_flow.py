@@ -103,7 +103,8 @@ class WofFilmCategoryFlow(models.Model):
             price_ok = self._wof_line_complete(line.price_line_ids, price_policy, sizes, prices=True)
             comm_lines = line.commission_line_ids
             if line.part_type == 'service_area' and line.service_commission_source == 'from_parts':
-                comm_ok = bool(comm_lines)
+                # Every part of every template of the area must have a commission.
+                comm_ok = self._wof_area_complete(line, sizes)
             else:
                 comm_policy = line.commission_calculation_policy or self.commission_calculation_policy or 'fixed'
                 comm_ok = self._wof_line_complete(comm_lines, comm_policy, sizes)
@@ -293,6 +294,7 @@ class WofFilmCategoryFlow(models.Model):
             Line = self.env['wof.film.parts.lines']
             Price = self.env['wof.film.parts.price.lines']
             Commission = self.env['wof.film.parts.commission.lines']
+            line_map = {}
             for line in source.film_part_line_ids.sorted(lambda rec: (rec.sequence, rec.id)):
                 line_vals = {
                     'header_id': film.id, 'car_part_id': line.car_part_id.id,
@@ -312,6 +314,7 @@ class WofFilmCategoryFlow(models.Model):
                         'allowed_grade_ids': [(6, 0, allowed)],
                     })
                 new_line = Line.create(line_vals)
+                line_map[line.id] = new_line
                 if options.get('prices'):
                     for price in line.price_line_ids:
                         Price.create({
@@ -326,6 +329,15 @@ class WofFilmCategoryFlow(models.Model):
                             'part_line_id': new_line.id, 'car_size_id': commission.car_size_id.id or False,
                             'commission': commission.commission,
                         })
+            if options.get('commissions'):
+                configs = self.env['wof.film.area.part.commission'].search([('header_id', '=', source.id)])
+                for config in configs:
+                    target = line_map.get(config.area_line_id.id)
+                    if not target:
+                        continue
+                    config.copy({'area_line_id': target.id, 'value_ids': [(0, 0, {
+                        'car_size_id': value.car_size_id.id or False, 'amount': value.amount,
+                    }) for value in config.value_ids]})
         return film.id
 
     # ----------------------------------------------------------------- editor

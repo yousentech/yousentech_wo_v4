@@ -305,11 +305,10 @@ class TestCommissionLedger(TransactionCase):
         snap = film.wof_matrix_load()
         for line in snap['lines']:
             line['price'] = {'mode': 'uniform', 'general': {'amount': 500, 'readonly': False}, 'sizes': {}}
-            if line.get('children'):
+            if line.get('templates'):
                 line['commission'].update({'source': 'from_parts', 'distribution': 'by_part'})
-                for child, value, rule in zip(line['children'], (10, 20), ('equal', rear_rule)):
-                    child['commission'].update({'type': 'fixed', 'policy': 'fixed', 'general': value,
-                                                'distribution': rule})
+                for child, value, rule in zip(line['templates'][0]['parts'], (10, 20), ('equal', rear_rule)):
+                    child['commission'].update({'method': 'fixed', 'general': value, 'distribution': rule})
             else:
                 line['commission'].update({'type': 'fixed', 'policy': 'fixed', 'general': 100, 'distribution': 'equal'})
         film.wof_matrix_save({'lines': snap['lines']})
@@ -407,7 +406,7 @@ class TestCommissionLedger(TransactionCase):
         # The area itself may still split everything equally between all its technicians.
         snap = self.film.wof_matrix_load()
         for item in snap['lines']:
-            if item.get('children'):
+            if item.get('templates'):
                 item['commission']['distribution'] = 'equal'
         self.film.wof_matrix_save({'lines': snap['lines']})
         rule, plan = line._wof_commission_plan()

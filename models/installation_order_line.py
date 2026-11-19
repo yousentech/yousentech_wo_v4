@@ -673,6 +673,13 @@ class WofInstallationOrderLine(models.Model):
         commercial price shown to the user.
         """
         self.ensure_one()
+        if self.part_kind == 'service_area' and self.film_category_id:
+            film, area_line, template = self._wof_area_setup()
+            if area_line and area_line.service_commission_source == 'from_parts':
+                # «من الأجزاء»: the parts of the template this order uses.
+                total = film._wof_area_total(area_line, template, self.car_size_id)
+                if total is not None:
+                    return total
         if not commission:
             return 0.0
         value = commission.commission or 0.0

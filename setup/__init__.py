@@ -7,6 +7,7 @@ from . import part_stock_qty
 from . import service_area_template
 from . import film_category
 from . import film_matrix
+from . import area_part_commission
 from . import films_flow
 from . import component_tint_policy
 from . import car_types
